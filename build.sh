@@ -108,6 +108,7 @@ server {
         listen [::]:80 default_server;
 
         root /var/www/html;
+
         index index.php;
 
         server_name _;
@@ -138,11 +139,11 @@ cd BlockCrawler && mv * .. && cd .. && rm -R BlockCrawler
 #
 #
 # The configuration of the block explorer with the local credentials to access the local 
-# RPC server.
+# RPC server. Notice those special variables are escaped in sed. sed is a very sensitive artist.
 
 sed -i -e 's/'"127.0.0.1"'/'"$IPADDR"'/g' /var/www/html/bc_daemon.php
 sed -i -e 's/'"8332"'/'"9332"'/g' /var/www/html/bc_daemon.php
-sed -i -e 's/'"username"'/'"$SSUSER"'/g' /var/www/html/bc_daemon.php
+sed -i -e 's/'"username"'/'"$HOSTNAME"'/g' /var/www/html/bc_daemon.php
 sed -i -e 's/'"password"'/'"$SSPASSWORD"'/g' /var/www/html/bc_daemon.php
 
 #
@@ -431,7 +432,7 @@ fi
 
 if [ \$IsMiner = true ]; then
 	if ! pgrep -x "cpulimit" > /dev/null; then
-		cpulimit -e minerd -l 75 -b
+		cpulimit -e minerd -l 65 -b
 	fi
 fi
 
