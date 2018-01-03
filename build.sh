@@ -432,7 +432,7 @@ fi
 
 if [ \$IsMiner = true ]; then
 	if ! pgrep -x "cpulimit" > /dev/null; then
-		cpulimit -e minerd -l 65 -b
+		cpulimit -e minerd -l 60 -b
 	fi
 fi
 
