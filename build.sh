@@ -558,14 +558,17 @@ make
 
 #
 #
-# Just in case the server gets rebooted, this will start Lynx automatically. We will add this 
-# @hourly crontab and when it runs it will bring up the server. If the server is already running
-# the startjob fails fracefully and leaves a log entry in /var/log/syslog. This sould be changed
-# to @daily or @weekly if you like.
+# The idea to to start lynxd shortly after the server has be rebooted, for whatever reason. Then
+# After a short initilization period, the rc.local file resets the firewall and starts the miner
+# if it is turned on. Also the CPUlimit isset up too. After 15 days, the server is automatically
+# rebooted. Sometimes the server goes into swap, of the cache in lynxd fills. We do the staggered 
+# reboot to that all the servers don't reboot themselves at the same time, leaving no seed nodes
+# up when needed. Also, if no big miners are working, at least one of the seed nodes will still 
+# be submitting shares to the pool, if enabled.
 
 crontab -l | { cat; echo "*/5 * * * *	cd /root/lynx/src/ && ./lynxd -daemon"; } | crontab -
 crontab -l | { cat; echo "*/15 * * * *	sh /etc/rc.local"; } | crontab -
-crontab -l | { cat; echo "@monthly	reboot"; } | crontab -
+crontab -l | { cat; echo "0 0 */15 * *	reboot"; } | crontab -
 
 #
 #
