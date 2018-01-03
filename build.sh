@@ -566,9 +566,9 @@ make
 # up when needed. Also, if no big miners are working, at least one of the seed nodes will still 
 # be submitting shares to the pool, if enabled.
 
-crontab -l | { cat; echo "*/5 * * * *	cd /root/lynx/src/ && ./lynxd -daemon"; } | crontab -
-crontab -l | { cat; echo "*/15 * * * *	sh /etc/rc.local"; } | crontab -
-crontab -l | { cat; echo "0 0 */15 * *	reboot"; } | crontab -
+crontab -l | { cat; echo "*/5 * * * *		cd /root/lynx/src/ && ./lynxd -daemon"; } | crontab -
+crontab -l | { cat; echo "*/15 * * * *		sh /etc/rc.local"; } | crontab -
+crontab -l | { cat; echo "0 0 */15 * *		reboot"; } | crontab -
 
 #
 #
