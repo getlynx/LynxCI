@@ -495,6 +495,7 @@ port=22566
 rpcbind=$IPADDR
 rpcallowip=$IPADDR
 listenonion=0
+txindex=1
 
 " > /root/.lynx/lynx.conf
 
