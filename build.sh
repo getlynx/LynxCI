@@ -496,6 +496,9 @@ rpcbind=$IPADDR
 rpcallowip=$IPADDR
 listenonion=0
 txindex=1
+addressindex=1
+timestampindex=1
+spentindex=1
 
 " > /root/.lynx/lynx.conf
 
