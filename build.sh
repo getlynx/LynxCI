@@ -75,6 +75,26 @@ apt-get install software-properties-common -y
 
 #
 #
+# We are going to use MongoDB for the data store for the Block Explorer later. Let's get the package
+# and install.
+
+apt-key adv --keyserver hkp://keyserver.ubuntu.com:80 --recv EA312927
+echo "deb http://repo.mongodb.org/apt/ubuntu trusty/mongodb-org/3.2 multiverse" | tee /etc/apt/sources.list.d/mongodb-org-3.2.list
+apt-get update
+apt-get install -y mongodb-org
+
+#
+#
+# Let's start the MongoDB service and create the database we will use for the Block Explorer later.
+
+service mongod start
+mongo
+use explorerdb
+db.createUser( { user: "$HOSTNAME", pwd: "$SSPASSWORD", roles: [ "readWrite" ] } )
+exit
+
+#
+#
 # We will install htop for easier viewing of system processes. This is more for debug purposes.
 # The use of fail2ban is important if the SSH port (22) is going to be used. We will be 
 # updating the default SSH jail later in this script with a longer ban time if an attacker
