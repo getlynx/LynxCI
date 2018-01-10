@@ -1,5 +1,45 @@
 #!/bin/bash
 
+# - To learn about the cryptocurrency Lynx, visit https://getlynx.io
+# - This script will create a full Lynx node with visual RPC viewer (Block Crawler) AND act as a 
+# 	lightweight micro-miner.
+# - This build now includes a light weight block crawler. In your browser, just visit the IP 
+#	address or FQDN value you entered when done (be sure to set up your 
+#	DNS properly). ie. http://seed11.getlynx.io
+# - If SSH (port 22) is disabled. You must use Lish or KVM to login. 
+# - Pool mining is enabled with this script, by default. 'cpuminer' is used and self 
+#	tuned. ~5 khash/s on a Linode 2048 is normal. Random pool selection will occur from 
+#	2 multipool.us pools, for redundancy when one is down for service.
+# - Per Linode Support restrictions, this build averages 65% cpu usage, so mining is slowed.
+# - Remote RPC mining functions are restricted, but can be adjusted in /etc/rc.local.
+# - Be patient, it will take about 15 hours for this script to complete. 
+# - The wallet is configured to be disabled, so no funds are stored on this node.
+# - Root login is denied. Your user account has sudo. 
+
+# Submit ideas to make this script better @ https://github.com/doh9Xiet7weesh9va9th/LynxNodeBuilder
+
+# When this script is complete, you will have a fully functioning Lynx node that will confirm
+# transactions on the Lynx network. The script processes include directly downloading the bulk of 
+# the blockchain, unpacking it and forcing the node to reconfirm the chain faster. This script will 
+# run for about 15 hours before it completes. I will reboot and . start lynxd on it's own. The
+# server can be rebooted anytime after the first 15 hours and the Lynx daemon will restart
+# automatically. If mining functions are part of this script, they will automatically start after
+# a reboot too.
+
+# *** If you are running a Linode with a version of this script that is not current, then shut it
+# down and rebuild based on this script. The old Stackscript is out of date and probably not
+# working with the new code updates.
+
+# Management advice: Deploy this script once and never log into the server. Your work is done. If
+# you are worried about security, new updates and new versions, just 'REBUILD' a new (2048) Linode
+# and select this script again. It will always build an up-to-date Lynx node. Only the latest
+# version of this Stackscript exists. Upgrades to the scripts happen all the time. Try to be sure
+# you are running the latest version.
+
+# THIS SCRIPT WILL RESTRICT YOUR ABILITY TO LOG IN AS ROOT. You MUST use the user account you 
+# entered when deploying the script. The newly created user will have `sudo`. The ssh is monitored
+# by fail2ban with it's default settings and the root user is disabled from SSH login.
+
 #
 #
 # These are used by the Linode Stackscript implementation. If you want to run this script on your 
@@ -57,41 +97,6 @@ adduser $SSUSER sudo
 # that chatter later and ban those bothersome probe ip addresses.
 
 sed -i 's/PermitRootLogin yes/PermitRootLogin no/' /etc/ssh/sshd_config
-
-#
-#
-# Update the OS and force prompts. This batch of code pushes past the grub updater 
-# prompt and other prompts for system updates.
-
-apt-get -o Acquire::ForceIPv4=true update -y
-sudo DEBIAN_FRONTEND=noninteractive apt-get -y -o DPkg::options::="--force-confdef" -o DPkg::options::="--force-confold"  install grub-pc
-apt-get -o Acquire::ForceIPv4=true upgrade -y
-
-#
-#
-# Prep the OS with some packages we will need later.
-
-apt-get install software-properties-common -y
-
-#
-#
-# We are going to use MongoDB for the data store for the Block Explorer later. Let's get the package
-# and install.
-
-apt-key adv --keyserver hkp://keyserver.ubuntu.com:80 --recv EA312927
-echo "deb http://repo.mongodb.org/apt/ubuntu trusty/mongodb-org/3.2 multiverse" | tee /etc/apt/sources.list.d/mongodb-org-3.2.list
-apt-get update
-apt-get install -y mongodb-org
-
-#
-#
-# Let's start the MongoDB service and create the database we will use for the Block Explorer later.
-
-service mongod start
-mongo
-use explorerdb
-db.createUser( { user: "$HOSTNAME", pwd: "$SSPASSWORD", roles: [ "readWrite" ] } )
-exit
 
 #
 #
@@ -185,7 +190,7 @@ add-apt-repository -y ppa:bitcoin/bitcoin
 # prompt and other prompts for system updates.
 
 apt-get -o Acquire::ForceIPv4=true update -y
-sudo DEBIAN_FRONTEND=noninteractive apt-get -y -o DPkg::options::="--force-confdef" -o DPkg::options::="--force-confold"  install grub-pc
+DEBIAN_FRONTEND=noninteractive apt-get -y -o DPkg::options::="--force-confdef" -o DPkg::options::="--force-confold"  install grub-pc
 apt-get -o Acquire::ForceIPv4=true upgrade -y
 
 #
@@ -206,7 +211,7 @@ git clone https://github.com/doh9Xiet7weesh9va9th/lynx.git /root/lynx/
 # Go to that dir and then specify the branch we are interested in. We need to make sure we place
 # the code in the right dir and checkout the right branch (lynx) - at the time of this writing.
 
-cd /root/lynx && git checkout remotes/origin/lynx -b lynx
+cd /root/lynx
 
 #
 #
@@ -302,6 +307,7 @@ echo "
 
 IsSSH=$ISSSH
 IsMiner=$ISMINER
+
 
 #
 #
@@ -515,10 +521,6 @@ port=22566
 rpcbind=$IPADDR
 rpcallowip=$IPADDR
 listenonion=0
-txindex=1
-addressindex=1
-timestampindex=1
-spentindex=1
 
 " > /root/.lynx/lynx.conf
 
