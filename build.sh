@@ -225,7 +225,7 @@ mkdir -p /root/.lynx && cd /root/.lynx
 # Pull down and unpack the blockchain history so we don't have to wait so long and burden the
 # network. This file contains all blockchain transactions from 2013 to the end of 2017.
 
-#wget http://cdn.getlynx.io/bootstrap.tar.gz
+wget http://cdn.getlynx.io/bootstrap.tar.gz
 
 #
 #
@@ -234,7 +234,7 @@ mkdir -p /root/.lynx && cd /root/.lynx
 # file is gone after a few reboots, it is okay. Clean up scripts later will purge the
 # original tarball.
 
-#tar -xvf bootstrap.tar.gz bootstrap.dat
+tar -xvf bootstrap.tar.gz bootstrap.dat
 
 #
 #
@@ -543,43 +543,6 @@ iptables -A INPUT -j DROP
 # was documented earlier in this file. THe number 86400 is the number of seconds in a 24 hour term.
 
 sed -i '$ a bantime = 86400' /etc/fail2ban/jail.d/defaults-debian.conf
-
-
-
-# Add the jail and enable it in
-#
-#[lynxd]
-#enabled = true
-#bantime = 86400
-#
-
-/etc/fail2ban/jail.d/defaults-debian.conf
-
-
-root@seed12:/etc/fail2ban/filter.d# cp sshd-ddos.conf lynxd.conf
-
-
-
-[sshd]
-
-port    = ssh
-logpath = %(sshd_log)s
-
-
-[lynxd]
-
-port    = 22566
-logpath = /root/.lynx/debug.log
-findtime = 180
-maxretry = 3
-
-
-
-
-
-
-
-
 
 #
 #
