@@ -546,6 +546,7 @@ sed -i '$ a bantime = 86400' /etc/fail2ban/jail.d/defaults-debian.conf
 
 
 
+# Begin work for fauil2ban edits
 # Add the jail and enable it in
 #
 #[lynxd]
