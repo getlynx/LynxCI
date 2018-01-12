@@ -540,47 +540,64 @@ iptables -A INPUT -j DROP
 #
 # The default ban time for abusers on port 22 (SSH) is 10 minutes. Lets make this a full 24 hours
 # that we will ban the IP address of the attacker. This is the tuning of the fail2ban jail that
-# was documented earlier in this file. THe number 86400 is the number of seconds in a 24 hour term.
-
-sed -i '$ a bantime = 86400' /etc/fail2ban/jail.d/defaults-debian.conf
-
-
-
-# Begin work for fauil2ban edits
-# Add the jail and enable it in
-#
-#[lynxd]
-#enabled = true
-#bantime = 86400
+# was documented earlier in this file. The number 86400 is the number of seconds in a 24 hour term.
+# Set the bantime for lynxd on port 22566 banned regex matches to 24 hours as well. 
 #
 
-/etc/fail2ban/jail.d/defaults-debian.conf
-
-
-root@seed12:/etc/fail2ban/filter.d# cp sshd-ddos.conf lynxd.conf
-
-
-
+echo "
 [sshd]
+enabled = true
+bantime = 86400
 
-port    = ssh
-logpath = %(sshd_log)s
+[lynxd]
+enabled = true
+bantime = 86400
+" > /etc/fail2ban/jail.d/defaults-debian.conf
 
+#
+#
+# Configure the fail2ban jail for lynxd and set the frequency to 20 min and 3 polls 
+#
+
+echo "
 
 [lynxd]
 
 port    = 22566
 logpath = /root/.lynx/debug.log
-findtime = 180
+findtime = 1200
 maxretry = 3
+" >> /etc/fail2ban/jail.conf
 
+#
+#
+# Define the regex pattern for lynxd failed connections
+#
 
+echo" 
+#
+# Fail2Ban lynxd regex filter for at attempted exploit or inappropriate connection
+#
+# The regex matches banned and dropped connections  
+# Processes the following logfile /root/.lynx/debug.log
+# 
 
+[INCLUDES]
 
+# Read common prefixes. If any customizations available -- read them from
+# common.local
+before = common.conf
 
+[Definition]
 
+#_daemon = lynxd
 
+failregex = ^.* connection from <HOST>.*dropped \(banned\)$
 
+ignoreregex = 
+
+# Author: The Lynx Team
+" > /etc/fail2ban/filter.d/lynxd.conf
 
 #
 #
