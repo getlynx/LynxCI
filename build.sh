@@ -77,6 +77,15 @@ echo $IPADDR $FQDN $HOSTNAME >> /etc/hosts
 
 #
 #
+# Update the OS and force prompts, again. This batch of code pushes past the grub updater 
+# prompt and other prompts for system updates.
+
+apt-get -o Acquire::ForceIPv4=true update -y
+DEBIAN_FRONTEND=noninteractive apt-get -y -o DPkg::options::="--force-confdef" -o DPkg::options::="--force-confold"  install grub-pc
+apt-get -o Acquire::ForceIPv4=true upgrade -y
+
+#
+#
 # Add a user. We will be isntalling the Lynx node code under root as well as the miner if you
 # chose to run it, but you must log into the server with the user account you created. This is
 # an additional security feature of the server. Lets not make any classic mistakes.
