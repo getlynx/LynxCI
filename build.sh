@@ -1,23 +1,33 @@
-#!/bin/bash -x
+#!/bin/bash
 
-# - To learn about the cryptocurrency Lynx, visit https://getlynx.io
-# - This script will create a full Lynx node with visual RPC viewer (Block Crawler) AND act as a 
-# 	lightweight micro-miner.
-# - This build now includes a light weight block crawler. In your browser, just visit the IP 
-#	address or FQDN value you entered when done (be sure to set up your 
-#	DNS properly). ie. http://seed11.getlynx.io
-# - If SSH (port 22) is disabled. You must use Lish or KVM to login. 
-# - Pool mining is enabled with this script, by default. 'cpuminer' is used and self 
-#	tuned. ~5 khash/s on a Linode 2048 is normal. Random pool selection will occur from 
-#	2 multipool.us pools, for redundancy when one is down for service.
-# - Per Linode Support restrictions, this build averages 65% cpu usage, so mining is slowed.
+# To learn about the cryptocurrency Lynx, visit https://getlynx.io
+#
+# This script will create a full Lynx node with the following characteristics:
+#	- Wallet is disabled
+#	- RPC connections restricted to the local IP address only
+#	- This build now includes a light weight block crawler. In your browser, just visit the IP 
+#	  address or FQDN value you entered when done (be sure to set up your DNS properly). 
+#     ie. http://seed11.getlynx.io
+#	- a lightweight micro-miner will run and submit hashes to a randomly selected pool
+# 
+# If you opted during setup for a more secure device by disabling SSH access, you must use a local
+# keyboard, video and mouse (KVM).
+#
+# Pool mining is enabled with this script, by default. 'cpuminer' is used and self tuned. 
+# Less then ~5 khash/s on a Linode 2048 is normal. Random pool selection will occur from a built-in
+# list in the /etc/rc.local file. This is done for redundancy. Feel free to customize the list
+# in the rc.local file.
+#
+# This build averages 65% cpu usage for mining so the device is not pushed to hard. This is done 
+# by useing 'cpulimit'.
+
 # - Remote RPC mining functions are restricted, but can be adjusted in /etc/rc.local.
 # - Be patient, it will take about 15 hours for this script to complete. 
 # - The wallet is configured to be disabled, so no funds are stored on this node.
 # - Root login is denied. Your user account has sudo. 
-
-# Submit ideas to make this script better @ https://github.com/doh9Xiet7weesh9va9th/LynxNodeBuilder
-
+#
+# Submit ideas to make this script better at https://github.com/doh9Xiet7weesh9va9th/LynxNodeBuilder
+#
 # When this script is complete, you will have a fully functioning Lynx node that will confirm
 # transactions on the Lynx network. The script processes include directly downloading the bulk of 
 # the blockchain, unpacking it and forcing the node to reconfirm the chain faster. This script will 
@@ -549,9 +559,84 @@ iptables -A INPUT -j DROP
 #
 # The default ban time for abusers on port 22 (SSH) is 10 minutes. Lets make this a full 24 hours
 # that we will ban the IP address of the attacker. This is the tuning of the fail2ban jail that
-# was documented earlier in this file. THe number 86400 is the number of seconds in a 24 hour term.
+# was documented earlier in this file. The number 86400 is the number of seconds in a 24 hour term.
+# Set the bantime for lynxd on port 22566 banned regex matches to 24 hours as well. 
 
-sed -i '$ a bantime = 86400' /etc/fail2ban/jail.d/defaults-debian.conf
+echo "
+
+[sshd]
+enabled = true
+bantime = 86400
+
+
+[lynxd]
+enabled = true
+bantime = 86400
+
+" > /etc/fail2ban/jail.d/defaults-debian.conf
+
+#
+#
+# Configure the fail2ban jail for lynxd and set the frequency to 20 min and 3 polls 
+
+echo "
+
+#
+# SSH servers
+#
+
+[sshd]
+port    = ssh
+logpath = %(sshd_log)s
+
+#
+# lynxd
+#
+
+[lynxd]
+port		= 22566
+logpath		= /root/.lynx/debug.log
+findtime 	= 1200
+maxretry 	= 3
+
+" > /etc/fail2ban/jail.local
+
+#
+#
+# Define the regex pattern for lynxd failed connections
+
+echo " 
+
+#
+# Fail2Ban lynxd regex filter for at attempted exploit or inappropriate connection
+#
+# The regex matches banned and dropped connections  
+# Processes the following logfile /root/.lynx/debug.log
+# 
+
+[INCLUDES]
+
+# Read common prefixes. If any customizations available -- read them from
+# common.local
+before = common.conf
+
+[Definition]
+
+#_daemon = lynxd
+
+failregex = ^.* connection from <HOST>.*dropped \(banned\)$
+
+ignoreregex = 
+
+# Author: The Lynx Code Development Team
+
+" > /etc/fail2ban/filter.d/lynxd.conf
+
+#
+#
+# With the extra jails added for monitoring lynxd, we need to touch the debug.log file for fail2ban to start without error.
+
+touch /root/.lynx/debug.log
 
 #
 #
@@ -559,7 +644,7 @@ sed -i '$ a bantime = 86400' /etc/fail2ban/jail.d/defaults-debian.conf
 # is locked out for 24 hours. We don't reallY want to lock them out for good. Also if SSH (22) is
 # not made public in the iptables rules, this package is not needed. It consumes so little cpu
 # time that I decide to leave it along. Fail2ban will always start itself so no need to add it to 
-# rc.local or a crontab.
+# rc.local or a crontab. 
 
 service fail2ban start
 
