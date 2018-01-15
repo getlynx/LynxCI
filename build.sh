@@ -6,7 +6,7 @@
 #	- Wallet is disabled
 #	- RPC connections restricted to the local IP address only
 #	- This build now includes a light weight block crawler. In your browser, just visit the IP 
-#	  address or FQDN value you entered when done (be sure to set up your DNS properly). 
+#	  address or fqdn value you entered when done (be sure to set up your DNS properly). 
 #     ie. http://seed11.getlynx.io
 #	- a lightweight micro-miner will run and submit hashes to a randomly selected pool
 # 
@@ -24,51 +24,84 @@
 # - Remote RPC mining functions are restricted, but can be adjusted in /etc/rc.local.
 # - Be patient, it will take about 15 hours for this script to complete. 
 # - The wallet is configured to be disabled, so no funds are stored on this node.
-# - Root login is denied. Your user account has sudo. 
-#
-# Submit ideas to make this script better at https://github.com/doh9Xiet7weesh9va9th/LynxNodeBuilder
+# - Root login is denied. The user account configured below has sudo. 
 #
 # When this script is complete, you will have a fully functioning Lynx node that will confirm
 # transactions on the Lynx network. The script processes include directly downloading the bulk of 
 # the blockchain, unpacking it and forcing the node to reconfirm the chain faster. This script will 
-# run for about 15 hours before it completes. I will reboot and . start lynxd on it's own. The
-# server can be rebooted anytime after the first 15 hours and the Lynx daemon will restart
-# automatically. If mining functions are part of this script, they will automatically start after
-# a reboot too.
-
-# *** If you are running a Linode with a version of this script that is not current, then shut it
-# down and rebuild based on this script. The old Stackscript is out of date and probably not
-# working with the new code updates.
-
+# build itself over the span of 15 hours before it completes. I will reboot and start lynxd on 
+# it's own. The server can be rebooted anytime after the first 15 hours and the Lynx daemon will 
+# restart automatically. If mining functions are part of this script, they will automatically start
+# after a reboot too. Run '$crontab -l' for the start schedule. Feel free to customize.
+#
+# Submit ideas to make this script better at https://github.com/doh9Xiet7weesh9va9th/LynxNodeBuilder
+#
 # Management advice: Deploy this script once and never log into the server. Your work is done. If
-# you are worried about security, new updates and new versions, just 'REBUILD' a new (2048) Linode
-# and select this script again. It will always build an up-to-date Lynx node. Only the latest
-# version of this Stackscript exists. Upgrades to the scripts happen all the time. Try to be sure
-# you are running the latest version.
-
-# THIS SCRIPT WILL RESTRICT YOUR ABILITY TO LOG IN AS ROOT. You MUST use the user account you 
-# entered when deploying the script. The newly created user will have `sudo`. The ssh is monitored
-# by fail2ban with it's default settings and the root user is disabled from SSH login.
+# you are worried about security, new updates and new versions, just build another server with the 
+# latest version of thhis script. This script can run on a device with only 1GB of RAM (like a 
+# Raspberry Pi 3). It will always build an up-to-date Lynx node. Look for upgrade notices on the 
+# twitter feed (https://twitter.com/getlynxio) for notices to rebuild your server to the latest 
+# stable version.
 
 #
 #
-# These are used by the Linode Stackscript implementation. If you want to run this script on your 
-# Raspberry pi or an another VPS vendor, just replace the following 5 lines with named variables
-# and values for the script.
-
-#<UDF name="hostname" label="The name for this node?" default="seed002" example="seed002" />
-#<UDF name="fqdn" label="The new Linode's Fully Qualified Domain Name" default="seed002.getlynx.io" example="seed002.getlynx.io" />
-#<UDF name="ssuser" Label="User account for Lynx." example="username" />
-#<UDF name="sspassword" Label="Password for Lynx account." example="Passw0rd" />
-#<UDF name="isssh" Label="Allow SSH access?" oneOf="true,false" default="false" example="Unless you intend to mess with it, disable access." />
-#<UDF name="isminer" Label="Enable the miner?" oneOf="true,false" default="true" example="Supports the network with spare idle CPU." />
+# Here we will set some default states for this device. If you want to customize of override, here
+# is the place to do it!
 
 #
 #
-# This sets the variable $IPADDR to the IP address the new Linode receives. We use this later
+# The name for this node? A randomly set name.
+hhostname="lynx$(shuf -i 100000000-199999999 -n 1)"
+
+#
+#
+# The new Linode's Fully Qualified Domain Name.
+
+fqdn="$hhostname.getlynx.io"
+
+#
+#
+# THIS SCRIPT WILL RESTRICT YOUR ABILITY TO LOG IN AS ROOT. You must log in with the default account 
+# created. The default username is 'lynx'. The default password is 'lynx'. This user will have 
+# 'sudo'. Thw oot user is disabled from SSH login. Login account to gain access to this server. You 
+# must have a keyboard, video and mouse. If you opt to turn on SSH below (isssh), then you can log 
+# in via SSH. This default is the most secure.
+
+ssuser="lynx"
+
+#
+#
+# For the most secure device, it is best to change this default password with the command <passwd>
+
+# after you log in. 
+sspassword="lynx"
+
+#
+#
+# The lynxd RPC remote access credentials. The see them after the server is 
+# built, run "$sudo nano /root/.lynx/lynx.conf"
+
+rrpcuser="$(shuf -i 200000000-299999999 -n 1)"
+rrpcpassword="$(shuf -i 300000000-399999999 -n 1)"
+
+#
+#
+# Allow SSH access? Unless you intend to mess with it, disable access.
+
+isssh="false"
+
+#
+#
+# Enable the miner? Supports the network with spare idle CPU.
+
+isminer="true"
+
+#
+#
+# This sets the variable $ipaddr to the IP address the new Linode receives. We use this later
 # in the script when setting up the hosts file
 
-IPADDR=$(/sbin/ifconfig eth0 | awk '/inet / { print $2 }' | sed 's/addr://')
+ipaddr=$(/sbin/ifconfig eth0 | awk '/inet / { print $2 }' | sed 's/addr://')
 
 #
 #
@@ -76,14 +109,14 @@ IPADDR=$(/sbin/ifconfig eth0 | awk '/inet / { print $2 }' | sed 's/addr://')
 # this working for reverse dns and to make the terminal prompt tell us what machine we on. If
 # you run this script 50 times like we do. it can get kind of confusing.
 
-echo $HOSTNAME > /etc/hostname && hostname -F /etc/hostname
+echo $hhostname > /etc/hostname && hostname -F /etc/hostname
 
 #
 #
-# This section sets the Fully Qualified Domain Name (FQDN) in the hosts file. To finish this,
+# This section sets the Fully Qualified Domain Name (fqdn) in the hosts file. To finish this,
 # you should set up your DNS and reverse DNS too.
 
-echo $IPADDR $FQDN $HOSTNAME >> /etc/hosts
+echo $ipaddr $fqdn $hhostname >> /etc/hosts
 
 #
 #
@@ -100,14 +133,14 @@ apt-get -o Acquire::ForceIPv4=true upgrade -y
 # chose to run it, but you must log into the server with the user account you created. This is
 # an additional security feature of the server. Lets not make any classic mistakes.
 
-adduser $SSUSER --disabled-password --gecos "" && \
-echo "$SSUSER:$SSPASSWORD" | chpasswd
+adduser $ssuser --disabled-password --gecos "" && \
+echo "$ssuser:$sspassword" | chpasswd
 
 #
 #
 # Give the new user sudo.
 
-adduser $SSUSER sudo
+adduser $ssuser sudo
 
 #
 #
@@ -185,10 +218,10 @@ cd BlockCrawler && mv * .. && cd .. && rm -R BlockCrawler
 # The configuration of the block explorer with the local credentials to access the local 
 # RPC server. Notice those special variables are escaped in sed. sed is a very sensitive artist.
 
-sed -i -e 's/'"127.0.0.1"'/'"$IPADDR"'/g' /var/www/html/bc_daemon.php
+sed -i -e 's/'"127.0.0.1"'/'"$ipaddr"'/g' /var/www/html/bc_daemon.php
 sed -i -e 's/'"8332"'/'"9332"'/g' /var/www/html/bc_daemon.php
-sed -i -e 's/'"username"'/'"$HOSTNAME"'/g' /var/www/html/bc_daemon.php
-sed -i -e 's/'"password"'/'"$SSPASSWORD"'/g' /var/www/html/bc_daemon.php
+sed -i -e 's/'"username"'/'"$rrpcuser"'/g' /var/www/html/bc_daemon.php
+sed -i -e 's/'"password"'/'"$rrpcpassword"'/g' /var/www/html/bc_daemon.php
 
 #
 #
@@ -324,8 +357,8 @@ echo "
 # will reset like a reboot. I prefer a reboot as a it shuts down orphaned processes that might 
 # still be running.
 
-IsSSH=$ISSSH
-IsMiner=$ISMINER
+IsSSH=$isssh
+IsMiner=$isminer
 
 
 #
@@ -431,7 +464,7 @@ if [ \$IsMiner = true ]; then
 			# rarely ever score you a block. The reward for the work is so low, it's no worth wasting
 			# the CPU on it. Might as well toss it towards a mining pool.
 
-			# cd /root/ && ./minerd -o $IPADDR:9332 -u $HOSTNAME -p $SSPASSWORD --coinbase-addr=KShRcznENXJt61PWAEFYPQRBDSPdWmckmg -R 15 -B -S
+			# cd /root/ && ./minerd -o $ipaddr:9332 -u $rrpcuser -p $rrpcpassword --coinbase-addr=KShRcznENXJt61PWAEFYPQRBDSPdWmckmg -R 15 -B -S
 
 			#
 			#
@@ -533,12 +566,12 @@ echo "
 
 listen=1
 daemon=1
-rpcuser=$HOSTNAME
-rpcpassword=$SSPASSWORD
+rpcuser=$rrpcuser
+rpcpassword=$rrpcpassword
 rpcport=9332
 port=22566
-rpcbind=$IPADDR
-rpcallowip=$IPADDR
+rpcbind=$ipaddr
+rpcallowip=$ipaddr
 listenonion=0
 
 " > /root/.lynx/lynx.conf
@@ -628,7 +661,7 @@ failregex = ^.* connection from <HOST>.*dropped \(banned\)$
 
 ignoreregex = 
 
-# Author: The Lynx Code Development Team
+# Author: The Lynx Core Development Team
 
 " > /etc/fail2ban/filter.d/lynxd.conf
 
