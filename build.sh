@@ -424,6 +424,14 @@ if ! pgrep -x "lynxd" > /dev/null; then
 	rm -Rf /root/.lynx/bootstrap.dat.old
 	rm -Rf /root/pooler-cpuminer-2.5.0-linux-x86_64.tar.gz
 	rm -Rf /etc/update-motd.d/10-help-text
+	rm -Rf /root/StackScript
+
+	#
+	#
+	# The debug file for lynxd can get rather large over time. This will shorten it to a
+	# reasonable length after a reboot.
+
+	truncate -s 10 /root/.lynx/debug.log
 
 	#
 	#
