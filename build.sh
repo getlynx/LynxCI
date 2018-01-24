@@ -120,6 +120,12 @@ echo $ipaddr $fqdn $hhostname >> /etc/hosts
 
 #
 #
+# Austin supplied this cool art. Let's display this on the motd.
+
+cat ./logo.txt >> /etc/motd
+
+#
+#
 # Update the OS and force prompts, again. This batch of code pushes past the grub updater 
 # prompt and other prompts for system updates.
 
@@ -202,7 +208,6 @@ server {
 }
 
 " > /etc/nginx/sites-available/default
-
 
 #
 #
@@ -359,7 +364,6 @@ echo "
 
 IsSSH=$isssh
 IsMiner=$isminer
-
 
 #
 #
