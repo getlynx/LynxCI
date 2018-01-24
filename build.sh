@@ -9,6 +9,7 @@
 #	  address or fqdn value you entered when done (be sure to set up your DNS properly). 
 #     ie. http://seed11.getlynx.io
 #	- a lightweight micro-miner will run and submit hashes to a randomly selected pool
+#	- This script is specifically designed for Ubuntu 16.04 LTS
 # 
 # If you opted during setup for a more secure device by disabling SSH access, you must use a local
 # keyboard, video and mouse (KVM).
