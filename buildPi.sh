@@ -7,19 +7,19 @@
 # that are distributed are created from the result of this build. For the most secure and up-to-date
 # build, use this script. For a quick build that syncs quickly and starts mining quickly, use the 
 # ISO. Not a bad idea to get the latest ISO for your Pi every 90 days, so you have the latest 
-# updatesa and bug patches.
+# updates and bug patches.
 #
-# You must start by flashing a 8GB or larger micro SD card with the latest version of Raspian Lite.
-# You can acquire it here: https://www.raspberrypi.org/downloads/raspbian/ Then on your local 
-# workstation...
+# To create your own SD card with this build script, start by flashing a 8GB or larger micro SD
+# card with the latest version of Raspian Lite. You can acquire it here: 
+# https://www.raspberrypi.org/downloads/raspbian/ Then on your local workstation...
 #
 # $ sudo diskutil list
 # $ sudo diskutil unmount /dev/diskN
 # $ sudo dd bs=1m if=~/Desktop/path-to-raspbian-stretch-lite.img of=/dev/diskN
 #
-# Once the SD card is working and your Pi is turned on, gain access to the root account. Then 
-# execute the following command as root. This script must be run as root, not at the Pi user. It
-# will fail if you run it as the Pi user.
+# Once the SD card is working and your Pi is turned on, gain access to the root account with your
+# KVM. Then execute the following command as root. This script must be run as root, not at the Pi
+# user. It will fail if you run it as the Pi user.
 #
 # $ touch /boot/ssh
 # $ apt-get update -y
@@ -28,7 +28,7 @@
 #
 # The above script will pull the lastest version of this script, execute it, and then delete it. 
 # Once complete, you will have a functioning Lynx node with micro-miner running on your Raspberry
-# Pi 3. Please allow 15 hour for this script to run. Interrupting the power supply during the first 
+# Pi 3. Please allow 15 hours for this script to run. Interrupting the power supply during the first 
 # 15 hours might require you to start over.
 
 #
@@ -180,6 +180,7 @@ systemctl restart nginx && systemctl enable nginx && systemctl restart php7.0-fp
 # Let's install more packages we will later need.
 
 apt-get install htop git-core build-essential autoconf libtool libssl-dev libboost-all-dev libminiupnpc-dev libevent-dev libncurses5-dev pkg-config -y
+apt-get install automake pkg-config libcurl4-openssl-dev libjansson-dev libgmp-dev make g++ -y
 
 #
 #
@@ -211,25 +212,20 @@ mkdir -p /root/.lynx && cd /root/.lynx
 #
 # Pull down a version of the cpuminer code to the home dir. We do cleanup in the rc.local file
 # later. We will use this if we turned on mining functions. It's okay to install this if mining
-# won't be done locally. It consume little space on the drive.
-#
-# https://sourceforge.net/projects/cpuminer/files/pooler-cpuminer-2.5.0-linux-x86_64.tar.gz
+# won't be done locally. It consume little space on the drive. 
+# https://github.com/tpruvot/cpuminer-multi
 
-cd && wget http://cdn.getlynx.io/pooler-cpuminer-2.5.0-linux-x86_64.tar.gz
-
-#
-#
-# For the sake of being thorough, here is the 32 bit version for Linux.
-# https://sourceforge.net/projects/cpuminer/files/pooler-cpuminer-2.5.0-linux-x86.tar.gz
-
-# cd && wget pooler-cpuminer-2.5.0-linux-x86.tar.gz
+cd && git https://github.com/tpruvot/cpuminer-multi.git /root/
 
 #
 #
-# Unpack it in the root home dir. This will leave the file 'minerd' in the root home dir. If we
-# opted to do mining in this build, we will start it, otherwise it will just sit.
+# Jump to the working directory to start our Lynx compile for this machine.
 
-tar -xvf pooler-cpuminer-2.5.0-linux-x86_64.tar.gz
+cd /root/
+
+
+./autogen.sh
+./configure --disable-assembly CFLAGS="-Ofast -march=native" --with-crypto --with-curl
 
 #
 #
