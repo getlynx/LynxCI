@@ -16,7 +16,7 @@ $ sh /tmp/LynxNodeBuilder/build.sh
 ```
 
 
-## For Raspberry Pi 3
+## For [Raspian Stretch Lite](https://www.raspberrypi.org/downloads/raspbian/) on a Raspberry Pi 3
 
 For Pi, you must open up access with your keyboard, video and mouse (KVM) for access to the device via SSH terminal;
 
