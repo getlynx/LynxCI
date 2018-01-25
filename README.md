@@ -29,7 +29,17 @@ After you have created your micro SD card from the Raspian ISO, the very first s
 $ sudo touch /boot/ssh
 ```
 
-Reboot your Pi before the next step. Now you will be able to connect to your Pi over your local network. Figure out it's IP and SSH into it.
+Reboot your Pi before the next step. Now you will be able to connect to your Pi over your local network. Figure out it's IP and SSH into it. The default username is 'pi' and default password is 'raspberry'. Change the default password for the user 'pi' with;
+
+```
+$ passwd
+```
+
+Next, set the root password you would like to use;
+
+```
+$ sudo passwd
+```
 
 The following commands must be done as the root user;
 
@@ -42,6 +52,21 @@ $ git clone https://github.com/doh9Xiet7weesh9va9th/LynxNodeBuilder.git /tmp/Lyn
 ```
 $ sh /tmp/LynxNodeBuilder/buildPi.sh
 ```
+
+The Pi will reboot on it's own and begin syncing it's blockchain with the Lynx network. You don't really need to do anything else. If you are interested in changing the default deposit account for the micro-miner, review the code in /etc/r.local. You can customize it as you like. Currently, the default deposit account will go to the Lynx Core Team. If you would like to 'see' it running, you can log in as root and enter this command.
+
+```
+$ tail -F ~/.lynx/debug.log
+```
+
+also, the miner logs to syslog;
+
+```
+$ tail -F /var/log/syslog
+```
+
+Once you know the IP address of your Pi, you can enter it in your web browser and directly visit it with your favorite browser. Bookmark it and have fun. It will take about 15 hours to sync, so be patient. You are now an active member of the Lynx community. Congratulations!
+
 ## What is Lynx?
 
 Lynx is a secure cryptocurrency with fast transaction speeds and low-transaction fees. It’s also eco-friendly & easy-to-use. In 2017, our team upgraded and rebranded an existing coin (MEOW) as Lynx. How? We successfully forked Litecoin and ported the Kittehcoin blockchain history to it. This gives Lynx all the benefits of Litecoin with the full transaction history of Kittehcoin. These upgrades fixed the flaws in the original coin and revived its community of users. It’s cryptocurrency from the past; redesigned for the future.
