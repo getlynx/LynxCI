@@ -213,15 +213,16 @@ mkdir -p /root/.lynx && cd /root/.lynx
 # won't be done locally. It consume little space on the drive. 
 # https://github.com/tpruvot/cpuminer-multi
 
-git clone https://github.com/tpruvot/cpuminer-multi.git /root/
+git clone https://github.com/tpruvot/cpuminer-multi.git /root/cpuminer
 
 #
 #
 # Jump to the working directory to start our Lynx compile for this machine.
 
-cd /root/lynx
+cd /root/cpuminer
 ./autogen.sh
 ./configure --disable-assembly CFLAGS="-Ofast -march=native" --with-crypto --with-curl
+make
 
 #
 #
@@ -368,7 +369,7 @@ fi
 
 if [ \$IsMiner = true ]; then
 	if pgrep -x "lynxd" > /dev/null; then
-		if ! pgrep -x "minerd" > /dev/null; then
+		if ! pgrep -x "cpuminer-multi" > /dev/null; then
 
 			#
 			#
@@ -376,7 +377,7 @@ if [ \$IsMiner = true ]; then
 			# rarely ever score you a block. The reward for the work is so low, it's no worth wasting
 			# the CPU on it. Might as well toss it towards a mining pool.
 
-			# cd /root/ && ./minerd -o $ipaddr:9332 -u $rrpcuser -p $rrpcpassword --coinbase-addr=KShRcznENXJt61PWAEFYPQRBDSPdWmckmg -R 15 -B -S
+			# cd /root/cpuminer-multi && ./cpuminer-multi -o $ipaddr:9332 -u $rrpcuser -p $rrpcpassword --coinbase-addr=KShRcznENXJt61PWAEFYPQRBDSPdWmckmg -R 15 -B -S
 
 			#
 			#
@@ -393,7 +394,7 @@ if [ \$IsMiner = true ]; then
 				# mining work, create an account at https://www.multipool.us and update the worker name.
 				# Otherwise leave this setting, and donate any rewards to the Lynx Development Team.
 
-				cd /root/ && ./minerd -o stratum+tcp://eu.multipool.us:3348 -u benjamin.seednode -p x -R 15 -B -S
+				cd /root/cpuminer-multi && ./cpuminer-multi -o stratum+tcp://eu.multipool.us:3348 -u benjamin.seednode -p x -R 15 -B -S
 
 			else
 
@@ -403,7 +404,7 @@ if [ \$IsMiner = true ]; then
 				# mining work, create an account at https://www.multipool.us and update the worker name.
 				# Otherwise leave this setting, and donate any rewards to the Lynx Development Team.
 
-				cd /root/ && ./minerd -o stratum+tcp://us.multipool.us:3348 -u benjamin.seednode -p x -R 15 -B -S
+				cd /root/cpuminer-multi && ./cpuminer-multi -o stratum+tcp://us.multipool.us:3348 -u benjamin.seednode -p x -R 15 -B -S
 
 			fi
 		fi
