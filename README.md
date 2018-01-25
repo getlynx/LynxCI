@@ -6,10 +6,16 @@ For Raspberry Pi 3, use buildPi.sh
 
 For Pi, you must open up access with your keyboard, video and mouse (KVM) for access to the device via SSH terminal;
 
-$ sudo touch /boot/ssh
+```
+sudo touch /boot/ssh
+```
 
-Then via remote connection;
+Reboot your Pi before the next step.
 
-$ apt-get update -y && apt-get install git -y
+Then via remote connection, as root user;
 
-$ cd /tmp/ && git clone https://github.com/doh9Xiet7weesh9va9th/LynxNodeBuilder.git && sh /tmp/LynxNodeBuilder/buildPi.sh
+```
+apt-get update -y && apt-get install git -y
+git clone https://github.com/doh9Xiet7weesh9va9th/LynxNodeBuilder.git /tmp/LynxNodeBuilder
+sh /tmp/LynxNodeBuilder/buildPi.sh
+```
