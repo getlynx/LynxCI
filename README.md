@@ -42,7 +42,7 @@ $ git clone https://github.com/doh9Xiet7weesh9va9th/LynxNodeBuilder.git /tmp/Lyn
 ```
 $ sh /tmp/LynxNodeBuilder/buildPi.sh
 ```
-## Wht is Lynx?
+## What is Lynx?
 
 Lynx is a secure cryptocurrency with fast transaction speeds and low-transaction fees. It’s also eco-friendly & easy-to-use. In 2017, our team upgraded and rebranded an existing coin (MEOW) as Lynx. How? We successfully forked Litecoin and ported the Kittehcoin blockchain history to it. This gives Lynx all the benefits of Litecoin with the full transaction history of Kittehcoin. These upgrades fixed the flaws in the original coin and revived its community of users. It’s cryptocurrency from the past; redesigned for the future.
 
