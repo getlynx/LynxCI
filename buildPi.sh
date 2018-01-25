@@ -154,8 +154,7 @@ server {
 # Pull down the latest BlockCrawler code and place it in the needed directory. Then move it 
 # properly and do some cleanup.
 
-mkdir /var/www/ && mkdir /var/www/html/
-git clone https://github.com/CallMeJake/BlockCrawler.git /var/www/html/
+mkdir -p /var/www/ && git clone https://github.com/CallMeJake/BlockCrawler.git /var/www/html
 
 #
 #
