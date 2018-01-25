@@ -121,7 +121,7 @@ echo $ipaddr $fqdn $hhostname >> /etc/hosts
 
 #
 #
-# Austin supplied this cool art. Let's display this on the motd.
+# auscoine supplied this cool art. Let's display this on the motd.
 
 cat /tmp/LynxNodeBuilder/logo.txt >> /etc/update-motd.d/10-lynx-logo
 
@@ -193,7 +193,7 @@ server {
 
         root /var/www/html;
 
-        index index.php;
+        index block_crawler.php;
 
         server_name _;
 
@@ -215,7 +215,8 @@ server {
 # Pull down the latest BlockCrawler code and place it in the needed directory. Then move it 
 # properly and do some cleanup.
 
-git clone https://github.com/CallMeJake/BlockCrawler.git /var/www/html/
+rm -Rf /var/www/html
+git clone https://github.com/CallMeJake/BlockCrawler.git /var/www/html
 
 #
 #
