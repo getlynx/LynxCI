@@ -220,9 +220,7 @@ git clone https://github.com/tpruvot/cpuminer-multi.git /root/
 #
 # Jump to the working directory to start our Lynx compile for this machine.
 
-cd /root/
-
-
+cd /root/lynx
 ./autogen.sh
 ./configure --disable-assembly CFLAGS="-Ofast -march=native" --with-crypto --with-curl
 
