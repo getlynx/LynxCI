@@ -1,8 +1,7 @@
 # LynxNodeBuilder
-Create a Lynxd node that serves as a seed node, a miner and a block crawler.
+Creates a Lynxd node that confirms and relays network transactions, runs an eco-friendly micro-miner and also creates a local Block Crawler website with network news and information.
 
-[Lynx FAQ](https://getlynx.io/faq/)
-[Lynx News](https://getlynx.io/news/)
+[Lynx FAQ](https://getlynx.io/faq/) | [Lynx News](https://getlynx.io/news/)
 
 ## For Ubuntu 16.04 LTS
 
@@ -39,7 +38,9 @@ $ git clone https://github.com/doh9Xiet7weesh9va9th/LynxNodeBuilder.git /tmp/Lyn
 ```
 $ sh /tmp/LynxNodeBuilder/buildPi.sh
 ```
+## Wht is Lynx?
 
+Lynx is a secure cryptocurrency with fast transaction speeds and low-transaction fees. It’s also eco-friendly & easy-to-use. In 2017, our team upgraded and rebranded an existing coin (MEOW) as Lynx. How? We successfully forked Litecoin and ported the Kittehcoin blockchain history to it. This gives Lynx all the benefits of Litecoin with the full transaction history of Kittehcoin. These upgrades fixed the flaws in the original coin and revived its community of users. It’s cryptocurrency from the past; redesigned for the future.
 
 ## How is Lynx an "eco-friendly cryptocurrency"?
 
