@@ -23,8 +23,8 @@
 #
 # $ touch /boot/ssh
 # $ apt-get update -y
-# $ apt-get install curl -y
-# $ curl 'https://raw.githubusercontent.com/doh9Xiet7weesh9va9th/LynxNodeBuilder/master/buildPi.sh' > /tmp/buildPi.sh && bash /tmp/buildPi.sh && rm /tmp/buildPi.sh
+# $ git clone https://github.com/doh9Xiet7weesh9va9th/LynxNodeBuilder.git > /tmp/ && sh /tmp/buildPi.sh
+
 #
 # The above script will pull the lastest version of this script, execute it, and then delete it. 
 # Once complete, you will have a functioning Lynx node with micro-miner running on your Raspberry
@@ -116,7 +116,7 @@ apt-get install cpulimit -y
 #
 # Here we install needed packages for the included lightweight local block explorer.
 
-apt-get install nginx php7.0-fpm php-curl -y
+apt-get install fail2ban nginx php7.0-fpm php-curl -y
 
 #
 #
@@ -213,7 +213,7 @@ mkdir -p /root/.lynx && cd /root/.lynx
 # won't be done locally. It consume little space on the drive. 
 # https://github.com/tpruvot/cpuminer-multi
 
-cd && git clone https://github.com/tpruvot/cpuminer-multi.git /root/
+git clone https://github.com/tpruvot/cpuminer-multi.git /root/
 
 #
 #
