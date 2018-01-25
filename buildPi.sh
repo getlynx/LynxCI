@@ -370,7 +370,7 @@ fi
 
 if [ \$IsMiner = true ]; then
 	if pgrep -x "lynxd" > /dev/null; then
-		if ! pgrep -x "cpuminer-multi" > /dev/null; then
+		if ! pgrep -x "cpuminer" > /dev/null; then
 
 			#
 			#
@@ -378,7 +378,7 @@ if [ \$IsMiner = true ]; then
 			# rarely ever score you a block. The reward for the work is so low, it's no worth wasting
 			# the CPU on it. Might as well toss it towards a mining pool.
 
-			# cd /root/cpuminer-multi && ./cpuminer-multi -o $ipaddr:9332 -u $rrpcuser -p $rrpcpassword --coinbase-addr=KShRcznENXJt61PWAEFYPQRBDSPdWmckmg -R 15 -B -S
+			# cd /root/cpuminer && ./cpuminer -o $ipaddr:9332 -u $rrpcuser -p $rrpcpassword --coinbase-addr=KShRcznENXJt61PWAEFYPQRBDSPdWmckmg -R 15 -B -S
 
 			#
 			#
@@ -395,7 +395,7 @@ if [ \$IsMiner = true ]; then
 				# mining work, create an account at https://www.multipool.us and update the worker name.
 				# Otherwise leave this setting, and donate any rewards to the Lynx Development Team.
 
-				cd /root/cpuminer-multi && ./cpuminer-multi -o stratum+tcp://eu.multipool.us:3348 -u benjamin.seednode -p x -R 15 -B -S
+				cd /root/cpuminer && ./cpuminer -o stratum+tcp://eu.multipool.us:3348 -u benjamin.seednode -p x -R 15 -B -S
 
 			else
 
@@ -405,7 +405,7 @@ if [ \$IsMiner = true ]; then
 				# mining work, create an account at https://www.multipool.us and update the worker name.
 				# Otherwise leave this setting, and donate any rewards to the Lynx Development Team.
 
-				cd /root/cpuminer-multi && ./cpuminer-multi -o stratum+tcp://us.multipool.us:3348 -u benjamin.seednode -p x -R 15 -B -S
+				cd /root/cpuminer && ./cpuminer -o stratum+tcp://us.multipool.us:3348 -u benjamin.seednode -p x -R 15 -B -S
 
 			fi
 		fi
@@ -424,7 +424,7 @@ fi
 
 if [ \$IsMiner = true ]; then
 	if ! pgrep -x "cpulimit" > /dev/null; then
-		cpulimit -e minerd -l 60 -b
+		cpulimit -e cpuminer -l 60 -b
 	fi
 fi
 
