@@ -53,7 +53,7 @@ $ git clone https://github.com/doh9Xiet7weesh9va9th/LynxNodeBuilder.git /tmp/Lyn
 $ sh /tmp/LynxNodeBuilder/buildPi.sh
 ```
 
-The Pi will reboot on it's own and begin syncing it's blockchain with the Lynx network. You don't really need to do anything else. If you are interested in changing the default deposit account for the micro-miner, review the code in /etc/r.local. You can customize it as you like. Currently, the default deposit account will go to the Lynx Core Team. If you would like to 'see' it running, you can log in as root and enter this command.
+The Pi will reboot on it's own and begin syncing it's blockchain with the Lynx network. You don't really need to do anything else. If you are interested in changing the default deposit account for the micro-miner, review the code in /etc/rc.local. You can customize it as you like. Currently, the default deposit account will go to the Lynx Core Team. If you would like to 'see' it running, you can log in as root and enter this command.
 
 ```
 $ tail -F ~/.lynx/debug.log
