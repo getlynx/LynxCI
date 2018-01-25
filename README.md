@@ -10,5 +10,6 @@ $ sudo touch /boot/ssh
 
 Then via remote connection;
 
-$ apt-get update -y
-$ git clone https://github.com/doh9Xiet7weesh9va9th/LynxNodeBuilder.git > /tmp/ && sh /tmp/buildPi.sh
+$ apt-get update -y && apt-get install git -y
+
+$ cd /tmp/ && git clone https://github.com/doh9Xiet7weesh9va9th/LynxNodeBuilder.git && sh /tmp/LynxNodeBuilder/buildPi.sh
