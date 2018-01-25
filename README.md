@@ -8,7 +8,7 @@ Create a Lynxd node that serves as a seed node, a miner and a block crawler.
 For Pi, you must open up access with your keyboard, video and mouse (KVM) for access to the device via SSH terminal;
 
 ```
-sudo touch /boot/ssh
+$ sudo touch /boot/ssh
 ```
 
 Reboot your Pi before the next step.
@@ -16,11 +16,11 @@ Reboot your Pi before the next step.
 Then via remote connection, as root user;
 
 ```
-apt-get update -y && apt-get install git -y
+$ apt-get update -y && apt-get install git -y
 ```
 ```
-git clone https://github.com/doh9Xiet7weesh9va9th/LynxNodeBuilder.git /tmp/LynxNodeBuilder
+$ git clone https://github.com/doh9Xiet7weesh9va9th/LynxNodeBuilder.git /tmp/LynxNodeBuilder
 ```
 ```
-sh /tmp/LynxNodeBuilder/buildPi.sh
+$ sh /tmp/LynxNodeBuilder/buildPi.sh
 ```
