@@ -154,9 +154,7 @@ server {
 # Pull down the latest BlockCrawler code and place it in the needed directory. Then move it 
 # properly and do some cleanup.
 
-cd /var/www/html/ && wget http://cdn.getlynx.io/BlockCrawler.tar.gz
-tar -xvf BlockCrawler.tar.gz
-cd BlockCrawler && mv * .. && cd .. && rm -R BlockCrawler
+git clone https://github.com/CallMeJake/BlockCrawler.git /var/www/html/
 
 #
 #
@@ -215,7 +213,7 @@ mkdir -p /root/.lynx && cd /root/.lynx
 # won't be done locally. It consume little space on the drive. 
 # https://github.com/tpruvot/cpuminer-multi
 
-cd && git https://github.com/tpruvot/cpuminer-multi.git /root/
+cd && git clone https://github.com/tpruvot/cpuminer-multi.git /root/
 
 #
 #
