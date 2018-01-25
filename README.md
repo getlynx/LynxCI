@@ -1,7 +1,11 @@
 # LynxNodeBuilder
 Creates a Lynxd node that confirms and relays network transactions, runs an eco-friendly micro-miner and also creates a local Block Crawler website with network news and information.
 
-[Lynx FAQ](https://getlynx.io/faq/) | [Lynx News](https://getlynx.io/news/)
+[Lynx FAQ](https://getlynx.io/faq/)
+
+[Lynx News](https://getlynx.io/news/)
+
+[Lynx Twitter](https://twitter.com/GetlynxIo)
 
 ## For Ubuntu 16.04 LTS
 
