@@ -88,7 +88,7 @@ echo $ipaddr $fqdn $hhostname >> /etc/hosts
 #
 # Austin supplied this cool art. Let's display this on the motd.
 
-cat ./logo.txt >> /etc/motd
+cat logo.txt >> /etc/motd
 
 #
 #
