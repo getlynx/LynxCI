@@ -639,6 +639,13 @@ crontab -l | { cat; echo "0 0 */15 * *		reboot"; } | crontab -
 
 #
 #
+# By default, Raspian Lite has SSH disabled. Let's 'touch' the ssh file so it will allow remote 
+# access if it is turned on.
+
+touch /boot/ssh
+
+#
+#
 # We are all done building the node and putting everything in place. Let's reboot the node and
 # let rc.local take over with start jobs an then crontab will kick in occasionally with checks.
 
