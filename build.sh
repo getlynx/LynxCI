@@ -43,7 +43,34 @@
 # twitter feed (https://twitter.com/getlynxio) for notices to rebuild your server to the latest 
 # stable version.
 
-set_system_defaults {
+detect_os () {
+
+is_debian=Y
+
+}
+
+compile_query () {
+#
+# This function queries the user for input and timeouts at Xs defaulting to N
+#
+
+query="Do you want to pull the latest lynx code and compile? (y/n):"
+
+read -t 3 -p "$query " ans
+
+if [[ -z "$ans" ]]; then
+ compilelynx=N
+ #echo "$compilelynx"
+elif [[ "$ans" == "n" ]]; then
+ compilelynx=N
+ #echo "$compilelynx"
+else
+ compilelynx=Y 
+ #echo "$compilelynx"
+fi
+} # End of compile_query
+
+set_system_defaults () {
 #
 # Set up all the LynxOS default system settings function 
 #
@@ -122,6 +149,7 @@ echo $hhostname > /etc/hostname && hostname -F /etc/hostname
 
 echo $ipaddr $fqdn $hhostname >> /etc/hosts
 
+if [[ "$is_debian" == "Y" ]]; then
 #
 #
 # Update the OS and force prompts, again. This batch of code pushes past the grub updater 
@@ -130,6 +158,8 @@ echo $ipaddr $fqdn $hhostname >> /etc/hosts
 apt-get -o Acquire::ForceIPv4=true update -y
 DEBIAN_FRONTEND=noninteractive apt-get -y -o DPkg::options::="--force-confdef" -o DPkg::options::="--force-confold"  install grub-pc
 apt-get -o Acquire::ForceIPv4=true upgrade -y
+
+fi
 
 #
 #
@@ -170,9 +200,9 @@ apt-get install htop fail2ban -y
 
 apt-get install cpulimit -y
 
-} # End set_system_defaults function`
+} # End set_system_defaults function
 
-install_blockexplorer {
+install_blockexplorer () {
 #
 # Install Block Explorer function
 #
@@ -257,7 +287,7 @@ apt-get -o Acquire::ForceIPv4=true upgrade -y
 
 } # End install_blockexplorer function
 
-install_lynx {
+install_lynx () {
 #
 # Install lynx and dependency pkgs function
 #
@@ -312,7 +342,7 @@ chown -R root:root /root/.lynx/*
 
 } # End install_lynx function
 
-install_cpuminer {
+install_cpuminer () {
 #
 # Install cpuminer function
 #
@@ -349,7 +379,7 @@ chown -R root:root /root/lynx && chown -R root:root /root/.lynx
 
 } # End install_cpuminer function
 
-set_rc.local {
+set_rc.local () {
 #
 # Initialize rc.local function
 #
@@ -588,7 +618,7 @@ chmod 755 /etc/rc.local
 
 } # End set_rc.local function
 
-config_lynx {
+config_lynx () {
 #
 # Configure lynx function 
 #
@@ -612,7 +642,7 @@ listenonion=0
 
 } # End config_lynx function
 
-secure_iptables {
+secure_iptables () {
 #
 # Secure iptables function
 #
@@ -630,7 +660,7 @@ iptables -A INPUT -j DROP
 
 } # End secure_iptables function
 
-config_fail2ban {
+config_fail2ban () {
 #
 # Configure fail2ban defaults function
 #
@@ -729,7 +759,18 @@ service fail2ban start
 
 } # End config_fail2ban function
 
-compile_lynx {
+install_lynx_pkg () {
+#
+# Install the lynx debian pre-compiled debian pkg function
+#
+echo "Installing lynx pkg.."
+sleep 5
+
+echo "dpkg -i /path/to/lynxd-beta.deb" 
+
+}
+
+compile_lynx () {
 #
 # Compile lynx function
 #
@@ -763,7 +804,7 @@ make
 
 } # End compile_lynx function
  
-set_crontab {
+set_crontab () {
 #
 #
 # The idea to to start lynxd shortly after the server has be rebooted, for whatever reason. Then
@@ -784,6 +825,8 @@ crontab -l | { cat; echo "0 0 */15 * *		reboot"; } | crontab -
 # BEGIN MAIN EXECUTION
 #
 
+detect_os
+compile_query
 set_system_defaults
 install_lynx
 install_blockexplorer
@@ -792,8 +835,13 @@ set_rc.local
 config_lynx
 secure_iptables
 config_fail2ban
-compile_lynx
 set_crontab
+
+if [ "$compilelynx" = "Y" ];then
+   compile_lynx
+else
+   install_lynx_pkg
+fi
 
 #
 #
