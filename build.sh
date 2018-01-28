@@ -43,7 +43,11 @@
 # twitter feed (https://twitter.com/getlynxio) for notices to rebuild your server to the latest 
 # stable version.
 
+set_system_defaults {
 #
+# Set up all the LynxOS default system settings function 
+#
+
 #
 # Here we will set some default states for this device. If you want to customize of override, here
 # is the place to do it!
@@ -166,7 +170,13 @@ apt-get install htop fail2ban -y
 
 apt-get install cpulimit -y
 
+} # End set_system_defaults function`
+
+install_blockexplorer {
 #
+# Install Block Explorer function
+#
+
 #
 # Here we install needed packages for the included lightweight local block explorer.
 
@@ -245,7 +255,13 @@ apt-get -o Acquire::ForceIPv4=true update -y
 DEBIAN_FRONTEND=noninteractive apt-get -y -o DPkg::options::="--force-confdef" -o DPkg::options::="--force-confold"  install grub-pc
 apt-get -o Acquire::ForceIPv4=true upgrade -y
 
+} # End install_blockexplorer function
+
+install_lynx {
 #
+# Install lynx and dependency pkgs function
+#
+
 #
 # Let's install more packages we will need.
 
@@ -294,7 +310,13 @@ tar -xvf bootstrap.tar.gz bootstrap.dat
 
 chown -R root:root /root/.lynx/*
 
+} # End install_lynx function
+
+install_cpuminer {
 #
+# Install cpuminer function
+#
+
 #
 # Pull down a version of the cpuminer code to the home dir. We do cleanup in the rc.local file
 # later. We will use this if we turned on mining functions. It's okay to install this if mining
@@ -325,7 +347,13 @@ tar -xvf pooler-cpuminer-2.5.0-linux-x86_64.tar.gz
 
 chown -R root:root /root/lynx && chown -R root:root /root/.lynx
 
+} # End install_cpuminer function
+
+set_rc.local {
 #
+# Initialize rc.local function
+#
+ 
 #
 # Delete the rc.local file so we can recreate it with our firewall rules and follow-up scripts.
 
@@ -558,7 +586,13 @@ sed '1d' /etc/rc.local > tmpfile; mv tmpfile /etc/rc.local
 
 chmod 755 /etc/rc.local
 
+} # End set_rc.local function
+
+config_lynx {
 #
+# Configure lynx function 
+#
+
 #
 # Let's set up the /root/.lynx/lynx.conf file for the Lynx node code.
 
@@ -576,7 +610,13 @@ listenonion=0
 
 " > /root/.lynx/lynx.conf
 
+} # End config_lynx function
+
+secure_iptables {
 #
+# Secure iptables function
+#
+
 #
 # Let's tighten up the firewall to SSH only while we are going through this initial build time. We
 # notices lots of port probes so let's reduce risk by only exposing port 22. Remember we already 
@@ -588,7 +628,13 @@ iptables -I INPUT 2 -m conntrack --ctstate ESTABLISHED,RELATED -j ACCEPT
 iptables -A INPUT -p tcp --dport 22 -j ACCEPT
 iptables -A INPUT -j DROP
 
+} # End secure_iptables function
+
+config_fail2ban {
 #
+# Configure fail2ban defaults function
+#
+
 #
 # The default ban time for abusers on port 22 (SSH) is 10 minutes. Lets make this a full 24 hours
 # that we will ban the IP address of the attacker. This is the tuning of the fail2ban jail that
@@ -681,7 +727,13 @@ touch /root/.lynx/debug.log
 
 service fail2ban start
 
+} # End config_fail2ban function
+
+compile_lynx {
 #
+# Compile lynx function
+#
+ 
 #
 # Jump to the working directory to start our Lynx compile for this machine.
 
@@ -709,6 +761,9 @@ cd /root/lynx/
 
 make
 
+} # End compile_lynx function
+ 
+set_crontab {
 #
 #
 # The idea to to start lynxd shortly after the server has be rebooted, for whatever reason. Then
@@ -722,6 +777,23 @@ make
 crontab -l | { cat; echo "*/5 * * * *		cd /root/lynx/src/ && ./lynxd -daemon"; } | crontab -
 crontab -l | { cat; echo "*/15 * * * *		sh /etc/rc.local"; } | crontab -
 crontab -l | { cat; echo "0 0 */15 * *		reboot"; } | crontab -
+
+} # End set_crontab function
+
+#
+# BEGIN MAIN EXECUTION
+#
+
+set_system_defaults
+install_lynx
+install_blockexplorer
+install_cpuminer
+set_rc.local
+config_lynx
+secure_iptables
+config_fail2ban
+compile_lynx
+set_crontab
 
 #
 #
