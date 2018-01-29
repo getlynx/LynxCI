@@ -44,6 +44,11 @@
 # stable version.
 
 detect_os () {
+#
+# Detect whether a system is raspian, debian or ubuntu function
+#
+
+#OS=`cat /etc/os-release | egrep '^ID=' | cut -d= -f2`
 
 is_debian=Y
 
@@ -54,19 +59,20 @@ compile_query () {
 # This function queries the user for input and timeouts at Xs defaulting to N
 #
 
+#
+# Set the query timeout value (in seconds)
+#
+time_out=30
 query="Do you want to pull the latest lynx code and compile? (y/n):"
 
-read -t 3 -p "$query " ans
+read -t $time_out -p "$query " ans
 
 if [[ -z "$ans" ]]; then
  compilelynx=N
- #echo "$compilelynx"
 elif [[ "$ans" == "n" ]]; then
  compilelynx=N
- #echo "$compilelynx"
 else
  compilelynx=Y 
- #echo "$compilelynx"
 fi
 } # End of compile_query
 
