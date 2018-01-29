@@ -156,7 +156,17 @@ esac
 
 } # End of compile_query
 
-set_system_defaults () {
+
+
+
+set_network () {
+
+	ipaddr=$(/sbin/ifconfig eth0 | awk '/inet / { print $2 }' | sed 's/addr://')
+	print_info "The IP address of this machine is $ipaddr."
+
+	echo $hhostname > /etc/hostname && hostname -F /etc/hostname
+
+	echo $ipaddr $fqdn $hhostname >> /etc/hosts
 
 	hhostname="lynx$(shuf -i 100000000-199999999 -n 1)"
 	print_info "Setting the local host name to '$hhostname.'"
@@ -164,22 +174,33 @@ set_system_defaults () {
 	fqdn="$hhostname.getlynx.io"
 	print_info "Setting the local fully qualified domain name to '$fqdn.'"
 
-#
-#
-# THIS SCRIPT WILL RESTRICT YOUR ABILITY TO LOG IN AS ROOT. You must log in with the default account 
-# created. The default username is 'lynx'. The default password is 'lynx'. This user will have 
-# 'sudo'. The root user is disabled from SSH login. Login account to gain access to this server. You 
-# must have a keyboard, video and mouse. If you opt to turn on SSH below (isssh), then you can log 
-# in via SSH. This default is the most secure.
+}
 
-ssuser="lynx"
+set_accounts () {
 
-#
-#
-# For the most secure device, it is best to change this default password with the command <passwd>
+	sed -i 's/PermitRootLogin yes/PermitRootLogin no/' /etc/ssh/sshd_config
+	print_info "Direct login via the root account has been disabled. You must log in as a user."
 
-# after you log in. 
-sspassword="lynx"
+	ssuser="lynx"
+	print_warning "The user account '$ssuser' was created."
+
+	sspassword="lynx"
+	print_warning "The default password is '$sspassword'. Be sure to change this after this build is complete."
+
+	adduser $ssuser --disabled-password --gecos "" && \
+	echo "$ssuser:$sspassword" | chpasswd
+
+	adduser $ssuser sudo
+	print_info "The new user '$ssuser', has sudo access."
+
+}
+
+
+
+
+
+set_system_defaults () {
+
 
 #
 #
@@ -210,27 +231,7 @@ else
 fi
    
 
-#
-#
-# This sets the variable $ipaddr to the IP address the new Linode receives. We use this later
-# in the script when setting up the hosts file
 
-ipaddr=$(/sbin/ifconfig eth0 | awk '/inet / { print $2 }' | sed 's/addr://')
-
-#
-#
-# This section sets the hostname. Basic stuff. Just automating it to save time later. We want
-# this working for reverse dns and to make the terminal prompt tell us what machine we on. If
-# you run this script 50 times like we do. it can get kind of confusing.
-
-echo $hhostname > /etc/hostname && hostname -F /etc/hostname
-
-#
-#
-# This section sets the Fully Qualified Domain Name (fqdn) in the hosts file. To finish this,
-# you should set up your DNS and reverse DNS too.
-
-echo $ipaddr $fqdn $hhostname >> /etc/hosts
 
 if [[ "$is_debian" == "Y" ]]; then
 #
@@ -244,28 +245,6 @@ apt-get -o Acquire::ForceIPv4=true upgrade -y
 
 fi
 
-#
-#
-# Add a user. We will be isntalling the Lynx node code under root as well as the miner if you
-# chose to run it, but you must log into the server with the user account you created. This is
-# an additional security feature of the server. Lets not make any classic mistakes.
-
-adduser $ssuser --disabled-password --gecos "" && \
-echo "$ssuser:$sspassword" | chpasswd
-
-#
-#
-# Give the new user sudo.
-
-adduser $ssuser sudo
-
-#
-#
-# Disable login from root. The owner of this device can no longer log in directly to root. This
-# also staves off a lof of probes that troll port 22. No need for it. Fail2ban will pick up on
-# that chatter later and ban those bothersome probe ip addresses.
-
-sed -i 's/PermitRootLogin yes/PermitRootLogin no/' /etc/ssh/sshd_config
 
 #
 #
@@ -915,6 +894,8 @@ if [ "$OS" != "ubuntu" ]; then
   compile_query
 fi
 
+set_network
+set_accounts
 set_system_defaults
 install_lynx
 install_blockexplorer
