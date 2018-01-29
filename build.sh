@@ -43,6 +43,32 @@
 # twitter feed (https://twitter.com/getlynxio) for notices to rebuild your server to the latest 
 # stable version.
 
+BLUE='\033[94m'
+GREEN='\033[32;1m'
+YELLOW='\033[33;1m'
+RED='\033[91;1m'
+RESET='\033[0m'
+
+print_info() {
+    printf "$BLUE$1$RESET\n"
+    sleep 1
+}
+
+print_success() {
+    printf "$GREEN$1$RESET\n"
+    sleep 1
+}
+
+print_warning() {
+    printf "$YELLOW$1$RESET\n"
+    sleep 1
+}
+
+print_error() {
+    printf "$RED$1$RESET\n"
+    sleep 1
+}
+
 detect_os () {
 #
 # Detect whether a system is raspbian, debian or ubuntu function
@@ -131,24 +157,12 @@ esac
 } # End of compile_query
 
 set_system_defaults () {
-#
-# Set up all the LynxOS default system settings function 
-#
 
-#
-# Here we will set some default states for this device. If you want to customize of override, here
-# is the place to do it!
+	hhostname="lynx$(shuf -i 100000000-199999999 -n 1)"
+	print_info "Setting the local host name to '$hhostname.'"
 
-#
-#
-# The name for this node? A randomly set name.
-hhostname="lynx$(shuf -i 100000000-199999999 -n 1)"
-
-#
-#
-# The new Linode's Fully Qualified Domain Name.
-
-fqdn="$hhostname.getlynx.io"
+	fqdn="$hhostname.getlynx.io"
+	print_info "Setting the local fully qualified domain name to '$fqdn.'"
 
 #
 #
@@ -272,9 +286,6 @@ apt-get install cpulimit -y
 } # End set_system_defaults function
 
 install_blockexplorer () {
-#
-# Install Block Explorer function
-#
 
 #
 # Here we install needed packages for the included lightweight local block explorer.
