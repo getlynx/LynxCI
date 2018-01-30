@@ -49,24 +49,32 @@ YELLOW='\033[33;1m'
 RED='\033[91;1m'
 RESET='\033[0m'
 
-print_info() {
+print_info () {
+
     printf "$BLUE$1$RESET\n"
     sleep 1
+
 }
 
-print_success() {
+print_success () {
+
     printf "$GREEN$1$RESET\n"
     sleep 1
+
 }
 
-print_warning() {
+print_warning () {
+
     printf "$YELLOW$1$RESET\n"
     sleep 1
+
 }
 
-print_error() {
+print_error () {
+
     printf "$RED$1$RESET\n"
     sleep 1
+
 }
 
 detect_os () {
@@ -74,126 +82,210 @@ detect_os () {
 # Detect whether a system is raspbian, debian or ubuntu function
 #
 
-OS=`cat /etc/os-release | egrep '^ID=' | cut -d= -f2`
+#OS=`cat /etc/os-release | egrep '^ID=' | cut -d= -f2`
 
-case "$OS" in
-         ubuntu) is_debian=Y ;;
-         debian) is_debian=Y ;;
-         raspbian) is_debian=Y ;;
-         *) is_debian=N ;;
-esac
+#case "$OS" in
+#         ubuntu) is_debian=Y ;;
+#         debian) is_debian=Y ;;
+#         raspbian) is_debian=Y ;;
+#         *) is_debian=N ;;
+#esac
 
 #
 # Since Ubuntu 16.04 has an old 4.3.x version of bash the read command's -t in 
 # the compile_query function will fail. Here we set the is_debian flag for it.
 # 
-if [ "$OS" = "ubuntu" ]; then
-    is_debian=Y
-fi
+#if [ "$OS" = "ubuntu" ]; then
+#    is_debian=Y
+#fi
 
-} # End detect_os function
+	OS=`cat /etc/os-release | egrep '^ID=' | cut -d= -f2`
+	print_success "The local OS is a flavor of '$OS'."
+
+}
+
+update_os () {
+
+	print_success "The local OS, '$OS', will be updated."
+
+	if [ "$OS" = "debian" ]; then
+		apt-get -o Acquire::ForceIPv4=true update -y
+		DEBIAN_FRONTEND=noninteractive apt-get -y -o DPkg::options::="--force-confdef" -o DPkg::options::="--force-confold"  install grub-pc
+		apt-get -o Acquire::ForceIPv4=true upgrade -y
+	elif [ "$OS" = "ubuntu" ]; then
+		apt-get -o Acquire::ForceIPv4=true update -y
+		DEBIAN_FRONTEND=noninteractive apt-get -y -o DPkg::options::="--force-confdef" -o DPkg::options::="--force-confold"  install grub-pc
+		apt-get -o Acquire::ForceIPv4=true upgrade -y
+	else
+		# 'raspbian' would evaluate here.
+		apt-get update -y
+		apt-get upgrade -y
+	fi
+
+}
 
 compile_query () {
-#
-# This function queries the user for input and timeouts at Xs defaulting to N
-#
 
-#
-# Set the query timeout value (in seconds)
-#
-time_out=5
-query1="Do you want to pull the latest lynx code and compile? (y/n):"
-query2="Do you want ssh access enabled or not? (y/n):" 
-query3="Do you want the latest bootstrap or rather let it build itself? (y/n):" 
-query3="Do you want the miners to run? (y/n):"
+	if [ "$OS" != "ubuntu" ]; then
 
-#
-# Get all the user inputs
-#
-read -t $time_out -p "$query1 " ans1
-read -t $time_out -p "$query2 " ans2
-read -t $time_out -p "$query3 " ans3
-read -t $time_out -p "$query4 " ans4
+		#
+		# Set the query timeout value (in seconds)
+		#
+		time_out=5
+		query1="Do you want to pull the latest lynx code and compile? (y/n):"
+		query2="Do you want ssh access enabled or not? (y/n):" 
+		query3="Do you want the latest bootstrap or rather let it build itself? (y/n):" 
+		query3="Do you want the miners to run? (y/n):"
 
-#
-# Set the compile lynx flag 
-#
-if [[ -z "$ans1" ]]; then
-   compile_lynx=N
-elif [[ "$ans1" == "n" ]]; then
-   compile_lynx=N
-else
-   compile_lynx=Y 
-fi
+		#
+		# Get all the user inputs
+		#
+		read -t $time_out -p "$query1 " ans1
+		read -t $time_out -p "$query2 " ans2
+		read -t $time_out -p "$query3 " ans3
+		read -t $time_out -p "$query4 " ans4
 
-#
-# Set the ssh enabled flag
-#
-case "$ans2" in
-         y) enable_ssh=Y ;;
-         n) enable_ssh=N ;;
-         *) enable_ssh=N ;;
-esac
+		#
+		# Set the compile lynx flag 
+		#
+		if [[ -z "$ans1" ]]; then
+		   compile_lynx=N
+		elif [[ "$ans1" == "n" ]]; then
+		   compile_lynx=N
+		else
+		   compile_lynx=Y 
+		fi
 
-#
-# Set the latest bootstrap flag
-#
-case "$ans3" in
-         y) latest_bs=Y ;;
-         n) latest_bs=N ;;
-         *) latest_bs=Y ;;
-esac
-     
-#
-# Set the mining enabled flag
-#
-case "$ans3" in
-         y) enable_mining=Y ;;
-         n) enable_mining=N ;;
-         *) enable_mining=Y ;;
-esac
+		#
+		# Set the ssh enabled flag
+		#
+		case "$ans2" in
+		         y) enable_ssh=Y ;;
+		         n) enable_ssh=N ;;
+		         *) enable_ssh=N ;;
+		esac
 
+		#
+		# Set the latest bootstrap flag
+		#
+		case "$ans3" in
+		         y) latest_bs=Y ;;
+		         n) latest_bs=N ;;
+		         *) latest_bs=Y ;;
+		esac
+		     
+		#
+		# Set the mining enabled flag
+		#
+		case "$ans3" in
+		         y) enable_mining=Y ;;
+		         n) enable_mining=N ;;
+		         *) enable_mining=Y ;;
+		esac
+
+	else
+
+		# Becuase 'ubuntu' doesn't play well with our query, we go with the defaults.
+		compile_lynx=Y 
+		enable_ssh=N
+		latest_bs=Y
+		enable_mining=Y
+
+	fi
 
 } # End of compile_query
 
-
-
-
 set_network () {
 
-	ipaddr=$(/sbin/ifconfig eth0 | awk '/inet / { print $2 }' | sed 's/addr://')
-	print_info "The IP address of this machine is $ipaddr."
+	ipaddr=$(ip route get 1 | awk '{print $NF;exit}')
+	print_success "The IP address of this machine is $ipaddr."
 
 	echo $hhostname > /etc/hostname && hostname -F /etc/hostname
 
 	echo $ipaddr $fqdn $hhostname >> /etc/hosts
 
 	hhostname="lynx$(shuf -i 100000000-199999999 -n 1)"
-	print_info "Setting the local host name to '$hhostname.'"
+	print_success "Setting the local host name to '$hhostname.'"
 
 	fqdn="$hhostname.getlynx.io"
-	print_info "Setting the local fully qualified domain name to '$fqdn.'"
+	print_success "Setting the local fully qualified domain name to '$fqdn.'"
 
 }
 
 set_accounts () {
 
 	sed -i 's/PermitRootLogin yes/PermitRootLogin no/' /etc/ssh/sshd_config
-	print_info "Direct login via the root account has been disabled. You must log in as a user."
+	print_success "Direct login via the root account has been disabled. You must log in as a user."
 
 	ssuser="lynx"
 	print_warning "The user account '$ssuser' was created."
 
 	sspassword="lynx"
-	print_warning "The default password is '$sspassword'. Be sure to change this after this build is complete."
+	print_warning "The default password is '$sspassword'. Be sure to change after this build is complete."
 
 	adduser $ssuser --disabled-password --gecos "" && \
 	echo "$ssuser:$sspassword" | chpasswd
 
 	adduser $ssuser sudo
-	print_info "The new user '$ssuser', has sudo access."
+	print_success "The new user '$ssuser', has sudo access."
 
 }
+
+install_blockcrawler () {
+
+	apt-get install nginx php7.0-fpm php-curl -y
+	print_success "Installing Nginx..."
+
+	mv /etc/nginx/sites-available/default /etc/nginx/sites-available/default.backup
+
+	echo "
+	server {
+        listen 80 default_server;
+        listen [::]:80 default_server;
+        root /var/www/html;
+        index index.php;
+        server_name _;
+        location / {
+			try_files \$uri \$uri/ =404;
+        }
+
+        location ~ \.php$ {
+			include snippets/fastcgi-php.conf;
+			fastcgi_pass unix:/run/php/php7.0-fpm.sock;
+        }
+
+	}
+	" > /etc/nginx/sites-available/default
+	print_success "Nginx is configured."
+
+	# Created with "tar --exclude=.git* --exclude=.DS* -cvzf BlockCrawler.tar.gz BlockCrawler"
+	cd /var/www/html/ && wget http://cdn.getlynx.io/BlockCrawler.tar.gz
+	tar -xvf BlockCrawler.tar.gz
+	cd BlockCrawler && mv * .. && cd .. && rm -R BlockCrawler
+
+	sed -i -e 's/'"127.0.0.1"'/'"$ipaddr"'/g' /var/www/html/bc_daemon.php
+	sed -i -e 's/'"8332"'/'"9332"'/g' /var/www/html/bc_daemon.php
+	sed -i -e 's/'"username"'/'"$rrpcuser"'/g' /var/www/html/bc_daemon.php
+	sed -i -e 's/'"password"'/'"$rrpcpassword"'/g' /var/www/html/bc_daemon.php
+	print_success "Block Crawler code is secured for this Lynxd node."
+
+	systemctl restart nginx && systemctl enable nginx && systemctl restart php7.0-fpm
+	print_success "Nginx is set to auto start on boot."
+
+	iptables -I INPUT 3 -p tcp --dport 80 -j ACCEPT
+	print_success "The Block Crawler can be browsed at http://$ipaddr/"
+
+}
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -202,19 +294,13 @@ set_accounts () {
 set_system_defaults () {
 
 
-#
-#
-# The lynxd RPC remote access credentials. The see them after the server is 
-# built, run "$sudo nano /root/.lynx/lynx.conf"
 
-rrpcuser="$(shuf -i 200000000-299999999 -n 1)"
-rrpcpassword="$(shuf -i 300000000-399999999 -n 1)"
 
 #
 #
 # Allow SSH access? Unless you intend to mess with it, disable access.
 
-if [[ "$enable_ssh" = "Y" ]]; then
+if [[ "$enable_ssh" == "Y" ]]; then
    isssh="true"
 else
    isssh="false"
@@ -224,26 +310,13 @@ fi
 #
 # Enable the miner? Supports the network with spare idle CPU.
 
-if [[ "$enable_mining" = "Y" ]]; then
+if [[ "$enable_mining" == "Y" ]]; then
    isminer="true"
 else
    isminer="false"
 fi
    
 
-
-
-if [[ "$is_debian" == "Y" ]]; then
-#
-#
-# Update the OS and force prompts, again. This batch of code pushes past the grub updater 
-# prompt and other prompts for system updates.
-
-apt-get -o Acquire::ForceIPv4=true update -y
-DEBIAN_FRONTEND=noninteractive apt-get -y -o DPkg::options::="--force-confdef" -o DPkg::options::="--force-confold"  install grub-pc
-apt-get -o Acquire::ForceIPv4=true upgrade -y
-
-fi
 
 
 #
@@ -264,145 +337,56 @@ apt-get install cpulimit -y
 
 } # End set_system_defaults function
 
-install_blockexplorer () {
-
-#
-# Here we install needed packages for the included lightweight local block explorer.
-
-apt-get install nginx php7.0-fpm php-curl -y
-
-#
-#
-# We need to modify the defaul Nginx build to accept the use of PHP-FPM. Let's backup the old
-# and create a new default config for this site.
-
-mv /etc/nginx/sites-available/default /etc/nginx/sites-available/default.backup
-echo "
-
-server {
-        listen 80 default_server;
-        listen [::]:80 default_server;
-
-        root /var/www/html;
-
-        index index.php;
-
-        server_name _;
-
-        location / {
-                try_files \$uri \$uri/ =404;
-        }
-
-        location ~ \.php$ {
-                include snippets/fastcgi-php.conf;
-                fastcgi_pass unix:/run/php/php7.0-fpm.sock;
-        }
-
-}
-
-" > /etc/nginx/sites-available/default
 
 
-#
-#
-# Pull down the latest BlockCrawler code and place it in the needed directory. Then move it 
-# properly and do some cleanup.
 
-cd /var/www/html/ && wget http://cdn.getlynx.io/BlockCrawler.tar.gz
-tar -xvf BlockCrawler.tar.gz
-cd BlockCrawler && mv * .. && cd .. && rm -R BlockCrawler
 
-#
-#
-# The configuration of the block explorer with the local credentials to access the local 
-# RPC server. Notice those special variables are escaped in sed. sed is a very sensitive artist.
 
-sed -i -e 's/'"127.0.0.1"'/'"$ipaddr"'/g' /var/www/html/bc_daemon.php
-sed -i -e 's/'"8332"'/'"9332"'/g' /var/www/html/bc_daemon.php
-sed -i -e 's/'"username"'/'"$rrpcuser"'/g' /var/www/html/bc_daemon.php
-sed -i -e 's/'"password"'/'"$rrpcpassword"'/g' /var/www/html/bc_daemon.php
 
-#
-#
-# Now that the set up is complete, let's start the Nginx and FPM services and set them to
-# start on reboot.
-
-systemctl restart nginx && systemctl enable nginx && systemctl restart php7.0-fpm
-
-#
-#
-# Prep the OS with some bitcoin library dependencies
-
-add-apt-repository -y ppa:bitcoin/bitcoin
-
-#
-#
-# Update the OS and force prompts, again. This batch of code pushes past the grub updater 
-# prompt and other prompts for system updates.
-
-apt-get -o Acquire::ForceIPv4=true update -y
-DEBIAN_FRONTEND=noninteractive apt-get -y -o DPkg::options::="--force-confdef" -o DPkg::options::="--force-confold"  install grub-pc
-apt-get -o Acquire::ForceIPv4=true upgrade -y
-
-} # End install_blockexplorer function
 
 install_lynx () {
-#
-# Install lynx and dependency pkgs function
-#
 
-#
-# Let's install more packages we will need.
+	apt-get install git-core build-essential autoconf libtool libssl-dev libboost-all-dev libminiupnpc-dev libevent-dev libncurses5-dev pkg-config -y
 
-apt-get install git-core build-essential autoconf libtool libssl-dev libboost-all-dev libminiupnpc-dev libevent-dev libncurses5-dev pkg-config -y
+	rrpcuser="$(shuf -i 200000000-299999999 -n 1)"
+	print_warning "The lynxd RPC user account is '$rrpcuser'."
+	rrpcpassword="$(shuf -i 300000000-399999999 -n 1)"
+	print_warning "The lynxd RPC user account is '$rrpcpassword'."
 
-#
-#
-# Let's pull down the latest Lynx repo from Github. This will always get the letest build so
-# updates via git aren't really needed. To update to the latest version, just build a new server.
+	print_success "Pulling the latest source of Lynx from Github."
+	git clone https://github.com/doh9Xiet7weesh9va9th/lynx.git /root/lynx/
 
-git clone https://github.com/doh9Xiet7weesh9va9th/lynx.git /root/lynx/
+	mkdir -p /root/.lynx && cd /root/.lynx
+	print_success "Created the '.lynx' directory."
 
-#
-#
-# Go to that dir and then specify the branch we are interested in. We need to make sure we place
-# the code in the right dir and checkout the right branch (lynx) - at the time of this writing.
+	if [[ "$latest_bs" == "Y" ]]; then
+		wget http://cdn.getlynx.io/bootstrap.tar.gz
+		tar -xvf bootstrap.tar.gz bootstrap.dat
+		print_success "The bootstrap.dat file was downloaded and will be used after reboot."
+	else
+		print_error "The bootstrap.dat file was not downloaded."
+	fi
 
-cd /root/lynx
+	echo "
+	listen=1
+	daemon=1
+	rpcuser=$rrpcuser
+	rpcpassword=$rrpcpassword
+	rpcport=9332
+	port=22566
+	rpcbind=$ipaddr
+	rpcallowip=$ipaddr
+	listenonion=0
+	" > /root/.lynx/lynx.conf
+	print_success "Default '/root/.lynx/lynx.conf' file was created."
 
-#
-#
-# Create the config dir for the user to store files in after the node starts. Then jump to it
-# for the next step. It's important we be in the .lynx dir for the next step.
+	chown -R root:root /root/.lynx/*
 
-mkdir -p /root/.lynx && cd /root/.lynx
+} 
 
-#
-#
-# Pull down and unpack the blockchain history so we don't have to wait so long and burden the
-# network. This file contains all blockchain transactions from 2013 to the end of 2017.
 
-if [[ "$latest_bs" = "Y" ]]; then
-   
-wget http://cdn.getlynx.io/bootstrap.tar.gz
 
-#
-#
-# Remember, we need to place the boostrap inside of the .lynx directory. This file is
-# automatically deleted after Lynx imports it and rebuilds it's chainstate. If you notice this
-# file is gone after a few reboots, it is okay. Clean up scripts later will purge the
-# original tarball.
 
-tar -xvf bootstrap.tar.gz bootstrap.dat
-fi
-
-#
-#
-# Make sure the bootstrap has correct ownership.
-
-chown -R root:root /root/.lynx/*
-
-} # End install_lynx function
 
 install_cpuminer () {
 #
@@ -680,29 +664,6 @@ chmod 755 /etc/rc.local
 
 } # End set_rclocal function
 
-config_lynx () {
-#
-# Configure lynx function 
-#
-
-#
-# Let's set up the /root/.lynx/lynx.conf file for the Lynx node code.
-
-echo "
-
-listen=1
-daemon=1
-rpcuser=$rrpcuser
-rpcpassword=$rrpcpassword
-rpcport=9332
-port=22566
-rpcbind=$ipaddr
-rpcallowip=$ipaddr
-listenonion=0
-
-" > /root/.lynx/lynx.conf
-
-} # End config_lynx function
 
 secure_iptables () {
 #
@@ -889,23 +850,19 @@ crontab -l | { cat; echo "0 0 */15 * *		reboot"; } | crontab -
 #
 
 detect_os
-
-if [ "$OS" != "ubuntu" ]; then
-  compile_query
-fi
-
+update_os
+compile_query
 set_network
 set_accounts
 set_system_defaults
 install_lynx
-install_blockexplorer
+install_blockcrawler
 
 if [ "$enable_mining" = "Y" ]; then
    install_cpuminer
 fi
 
 set_rclocal
-config_lynx
 secure_iptables
 config_fail2ban
 set_crontab
