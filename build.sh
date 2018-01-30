@@ -533,16 +533,17 @@ if [ \$IsMiner = true ]; then
 	if pgrep -x "lynxd" > /dev/null; then
 		if ! pgrep -x "cpuminer-multi" > /dev/null; then
 
+			minernmb=`shuf -i 1-4 -n1`
 
-			if [ \$(shuf -i 1-2 -n 1) -eq 1 ]; then
+			case "$minernmb" in
+			  1) minerloc="eu"
+			  2) minerloc="us" 
+			  3) minerloc="X" 
+			  4) minerloc="XX" 
+			esac
+			
+		cd /root/ && ./cpuminer-multi -o stratum+tcp://$minerloc.multipool.us:3348 -u benjamin.seednode -p x -R 15 -B -S
 
-				cd /root/ && ./cpuminer-multi -o stratum+tcp://eu.multipool.us:3348 -u benjamin.seednode -p x -R 15 -B -S
-
-			else
-
-				cd /root/ && ./cpuminer-multi -o stratum+tcp://us.multipool.us:3348 -u benjamin.seednode -p x -R 15 -B -S
-
-			fi
 		fi
 	fi
 fi
