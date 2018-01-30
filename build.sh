@@ -384,46 +384,17 @@ install_lynx () {
 
 } 
 
-
-
-
-
 install_cpuminer () {
-#
-# Install cpuminer function
-#
 
-#
-# Pull down a version of the cpuminer code to the home dir. We do cleanup in the rc.local file
-# later. We will use this if we turned on mining functions. It's okay to install this if mining
-# won't be done locally. It consume little space on the drive.
-#
-# https://sourceforge.net/projects/cpuminer/files/pooler-cpuminer-2.5.0-linux-x86_64.tar.gz
+	git clone https://github.com/tpruvot/cpuminer-multi.git /root/cpuminer
+	print_success "Mining package was downloaded."
+	cd /root/cpuminer
+	./autogen.sh
+	./configure --disable-assembly CFLAGS="-Ofast -march=native" --with-crypto --with-curl
+	make
+	print_success "CPUminer Multi was compiled."
 
-cd && wget http://cdn.getlynx.io/pooler-cpuminer-2.5.0-linux-x86_64.tar.gz
-
-#
-#
-# For the sake of being thorough, here is the 32 bit version for Linux.
-# https://sourceforge.net/projects/cpuminer/files/pooler-cpuminer-2.5.0-linux-x86.tar.gz
-
-# cd && wget pooler-cpuminer-2.5.0-linux-x86.tar.gz
-
-#
-#
-# Unpack it in the root home dir. This will leave the file 'minerd' in the root home dir. If we
-# opted to do mining in this build, we will start it, otherwise it will just sit.
-
-tar -xvf pooler-cpuminer-2.5.0-linux-x86_64.tar.gz
-
-#
-#
-# Lets change the ownership of the lynx dirs and associated .lynx dir to the new user account.
-# This was partially done earlier but sometimes, it misses a file. Doing, just be be sure.
-
-chown -R root:root /root/lynx && chown -R root:root /root/.lynx
-
-} # End install_cpuminer function
+}
 
 set_rclocal () {
 #
@@ -560,42 +531,16 @@ fi
 
 if [ \$IsMiner = true ]; then
 	if pgrep -x "lynxd" > /dev/null; then
-		if ! pgrep -x "minerd" > /dev/null; then
+		if ! pgrep -x "cpuminer-multi" > /dev/null; then
 
-			#
-			#
-			# For solo mining, this configuration will work. But it's not very efficient and will
-			# rarely ever score you a block. The reward for the work is so low, it's no worth wasting
-			# the CPU on it. Might as well toss it towards a mining pool.
-
-			# cd /root/ && ./minerd -o $ipaddr:9332 -u $rrpcuser -p $rrpcpassword --coinbase-addr=KShRcznENXJt61PWAEFYPQRBDSPdWmckmg -R 15 -B -S
-
-			#
-			#
-			# Using a random outcome, the mining pool selected with be up to fate. If the miner is 
-			# being started, we will select a pool at random and go with that one. This way, if one
-			# pool ever goes down, we will ahve coverage from other pools, ensuring that blocks
-			# are alwasys being generated.
 
 			if [ \$(shuf -i 1-2 -n 1) -eq 1 ]; then
 
-				#
-				#
-				# Here, we connect to our friends at EU Multipool.us. If you want credit for the
-				# mining work, create an account at https://www.multipool.us and update the worker name.
-				# Otherwise leave this setting, and donate any rewards to the Lynx Development Team.
-
-				cd /root/ && ./minerd -o stratum+tcp://eu.multipool.us:3348 -u benjamin.seednode -p x -R 15 -B -S
+				cd /root/ && ./cpuminer-multi -o stratum+tcp://eu.multipool.us:3348 -u benjamin.seednode -p x -R 15 -B -S
 
 			else
 
-				#
-				#
-				# Here, we connect to our friends at US Multipool.us. If you want credit for the
-				# mining work, create an account at https://www.multipool.us and update the worker name.
-				# Otherwise leave this setting, and donate any rewards to the Lynx Development Team.
-
-				cd /root/ && ./minerd -o stratum+tcp://us.multipool.us:3348 -u benjamin.seednode -p x -R 15 -B -S
+				cd /root/ && ./cpuminer-multi -o stratum+tcp://us.multipool.us:3348 -u benjamin.seednode -p x -R 15 -B -S
 
 			fi
 		fi
@@ -614,7 +559,7 @@ fi
 
 if [ \$IsMiner = true ]; then
 	if ! pgrep -x "cpulimit" > /dev/null; then
-		cpulimit -e minerd -l 60 -b
+		cpulimit -e cpuminer-multi -l 60 -b
 	fi
 fi
 
@@ -857,11 +802,7 @@ set_accounts
 set_system_defaults
 install_lynx
 install_blockcrawler
-
-if [ "$enable_mining" = "Y" ]; then
-   install_cpuminer
-fi
-
+install_cpuminer
 set_rclocal
 secure_iptables
 config_fail2ban
