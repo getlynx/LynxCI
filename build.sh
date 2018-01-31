@@ -131,11 +131,11 @@ compile_query () {
 		#
 		# Set the query timeout value (in seconds)
 		#
-		time_out=5
-		query1="Do you want to pull the latest lynx code and compile? (y/n):"
-		query2="Do you want ssh access enabled or not? (y/n):" 
-		query3="Do you want the latest bootstrap or rather let it build itself? (y/n):" 
-		query3="Do you want the miners to run? (y/n):"
+		time_out=30
+		query1="Install the latest stable Lynx release? (faster build time) (Y/n):"
+		query2="Do you want ssh access enabled (more secure)? (y/N):" 
+		query3="Do you want to sync with the bootstrap file (less network intensive)? (Y/n):" 
+		query4="Do you want the miners to run (supports the Lynx network)? (Y/n):"
 
 		#
 		# Get all the user inputs
@@ -149,11 +149,11 @@ compile_query () {
 		# Set the compile lynx flag 
 		#
 		if [[ -z "$ans1" ]]; then
-		   compile_lynx=N
+			compile_lynx=N
 		elif [[ "$ans1" == "n" ]]; then
-		   compile_lynx=N
+			compile_lynx=Y
 		else
-		   compile_lynx=Y 
+			compile_lynx=N
 		fi
 
 		#
@@ -173,11 +173,11 @@ compile_query () {
 		         n) latest_bs=N ;;
 		         *) latest_bs=Y ;;
 		esac
-		     
+
 		#
 		# Set the mining enabled flag
 		#
-		case "$ans3" in
+		case "$ans4" in
 		         y) enable_mining=Y ;;
 		         n) enable_mining=N ;;
 		         *) enable_mining=Y ;;
@@ -193,22 +193,20 @@ compile_query () {
 
 	fi
 
-} # End of compile_query
+}
 
 set_network () {
 
 	ipaddr=$(ip route get 1 | awk '{print $NF;exit}')
-	print_success "The IP address of this machine is $ipaddr."
-
-	echo $hhostname > /etc/hostname && hostname -F /etc/hostname
-
-	echo $ipaddr $fqdn $hhostname >> /etc/hosts
-
 	hhostname="lynx$(shuf -i 100000000-199999999 -n 1)"
-	print_success "Setting the local host name to '$hhostname.'"
-
 	fqdn="$hhostname.getlynx.io"
 	print_success "Setting the local fully qualified domain name to '$fqdn.'"
+
+	echo $hhostname > /etc/hostname && hostname -F /etc/hostname
+	print_success "Setting the local host name to '$hhostname.'"
+
+	echo $ipaddr $fqdn $hhostname >> /etc/hosts
+	print_success "The IP address of this machine is $ipaddr."
 
 }
 
@@ -277,72 +275,15 @@ install_blockcrawler () {
 
 }
 
+install_extras () {
 
+	apt-get install cpulimit htop curl fail2ban -y
+	print_success "The package 'curl' was installed as a dependency of the 'cpuminer-multi' package."
+	print_success "The package 'cpulimit' was installed to throttle the 'cpuminer-multi' package."
 
-
-
-
-
-
-
-
-
-
-
-
-
-set_system_defaults () {
-
-
-
-
-#
-#
-# Allow SSH access? Unless you intend to mess with it, disable access.
-
-if [[ "$enable_ssh" == "Y" ]]; then
-   isssh="true"
-else
-   isssh="false"
-fi
-
-#
-#
-# Enable the miner? Supports the network with spare idle CPU.
-
-if [[ "$enable_mining" == "Y" ]]; then
-   isminer="true"
-else
-   isminer="false"
-fi
-   
-
-
-
-#
-#
-# We will install htop for easier viewing of system processes. This is more for debug purposes.
-# The use of fail2ban is important if the SSH port (22) is going to be used. We will be 
-# updating the default SSH jail later in this script with a longer ban time if an attacker
-# pushes enough buttons.
-
-apt-get install htop fail2ban -y
-
-#
-#
-# This package cpulimit (http://cpulimit.sourceforge.net) is used if the miner package is 
-# installed. We install this package regardless of whether we will use it or not later.
-
-apt-get install cpulimit -y
-
-} # End set_system_defaults function
-
-
-
-
-
-
-
+	apt-get install automake autoconf pkg-config libcurl4-openssl-dev libjansson-dev libssl-dev libgmp-dev make g++ -y
+	print_success "Extra optional packages for CPUminer were installed."
+} 
 
 install_lynx () {
 
@@ -353,8 +294,23 @@ install_lynx () {
 	rrpcpassword="$(shuf -i 300000000-399999999 -n 1)"
 	print_warning "The lynxd RPC user account is '$rrpcpassword'."
 
-	print_success "Pulling the latest source of Lynx from Github."
-	git clone https://github.com/doh9Xiet7weesh9va9th/lynx.git /root/lynx/
+	if [ "$compile_lynx" = "Y" ]; then
+
+		print_success "Pulling the latest source of Lynx from Github."
+		git clone https://github.com/doh9Xiet7weesh9va9th/lynx.git /root/lynx/
+		cd /root/lynx/ && ./autogen.sh
+		./configure --disable-wallet
+		print_success "The latest state of Lynx is being compiled now."
+		make
+
+	else
+
+		print_success "The latest stable release of Lynx is being installed now."
+
+		wget http://cdn.getlynx.io/lynxd-beta.deb
+		dpkg -i lynxd-beta.deb 
+
+	fi
 
 	mkdir -p /root/.lynx && cd /root/.lynx
 	print_success "Created the '.lynx' directory."
@@ -432,8 +388,8 @@ echo "
 # will reset like a reboot. I prefer a reboot as a it shuts down orphaned processes that might 
 # still be running.
 
-IsSSH=$isssh
-IsMiner=$isminer
+IsSSH=$enable_ssh
+IsMiner=$enable_mining
 
 
 #
@@ -497,7 +453,6 @@ if ! pgrep -x "lynxd" > /dev/null; then
 
 	rm -Rf /root/.lynx/bootstrap.tar.gz
 	rm -Rf /root/.lynx/bootstrap.dat.old
-	rm -Rf /root/pooler-cpuminer-2.5.0-linux-x86_64.tar.gz
 	rm -Rf /etc/update-motd.d/10-help-text
 
 	#
@@ -531,18 +486,18 @@ fi
 
 if [ \$IsMiner = true ]; then
 	if pgrep -x "lynxd" > /dev/null; then
-		if ! pgrep -x "cpuminer-multi" > /dev/null; then
+		if ! pgrep -x "cpuminer" > /dev/null; then
 
-			minernmb=`shuf -i 1-4 -n1`
+			minernmb="\$(shuf -i 1-2 -n1)"
 
-			case "$minernmb" in
-			  1) minerloc="eu"
-			  2) minerloc="us" 
-			  3) minerloc="X" 
-			  4) minerloc="XX" 
+			case "\$minernmb" in
+				1) pool=" stratum+tcp://eu.multipool.us:3348 -u benjamin.seednode -p x -R 15 -B -S" ;;
+				2) pool=" stratum+tcp://us.multipool.us:3348 -u benjamin.seednode -p x -R 15 -B -S" ;;
+				3) pool=" X" ;;
+				4) pool=" XX" ;;
 			esac
-			
-		cd /root/ && ./cpuminer-multi -o stratum+tcp://$minerloc.multipool.us:3348 -u benjamin.seednode -p x -R 15 -B -S
+
+			cd /root/ && ./cpuminer -o$pool
 
 		fi
 	fi
@@ -560,7 +515,7 @@ fi
 
 if [ \$IsMiner = true ]; then
 	if ! pgrep -x "cpulimit" > /dev/null; then
-		cpulimit -e cpuminer-multi -l 60 -b
+		cpulimit -e cpuminer -l 60 -b
 	fi
 fi
 
@@ -612,195 +567,161 @@ chmod 755 /etc/rc.local
 
 
 secure_iptables () {
-#
-# Secure iptables function
-#
 
-#
-# Let's tighten up the firewall to SSH only while we are going through this initial build time. We
-# notices lots of port probes so let's reduce risk by only exposing port 22. Remember we already 
-# locked out root from login and fail2ban is gonna start shortly to ban bad guys on 22.
-
-iptables -F
-iptables -I INPUT 1 -i lo -j ACCEPT
-iptables -I INPUT 2 -m conntrack --ctstate ESTABLISHED,RELATED -j ACCEPT
-iptables -A INPUT -p tcp --dport 22 -j ACCEPT
-iptables -A INPUT -j DROP
-
-} # End secure_iptables function
-
-config_fail2ban () {
-#
-# Configure fail2ban defaults function
-#
-
-#
-# The default ban time for abusers on port 22 (SSH) is 10 minutes. Lets make this a full 24 hours
-# that we will ban the IP address of the attacker. This is the tuning of the fail2ban jail that
-# was documented earlier in this file. The number 86400 is the number of seconds in a 24 hour term.
-# Set the bantime for lynxd on port 22566 banned regex matches to 24 hours as well. 
-
-echo "
-
-[sshd]
-enabled = true
-bantime = 86400
-
-
-[lynxd]
-enabled = true
-bantime = 86400
-
-" > /etc/fail2ban/jail.d/defaults-debian.conf
-
-#
-#
-# Configure the fail2ban jail for lynxd and set the frequency to 20 min and 3 polls 
-
-echo "
-
-#
-# SSH servers
-#
-
-[sshd]
-port    = ssh
-logpath = %(sshd_log)s
-
-#
-# lynxd
-#
-
-[lynxd]
-port		= 22566
-logpath		= /root/.lynx/debug.log
-findtime 	= 1200
-maxretry 	= 3
-
-" > /etc/fail2ban/jail.local
-
-#
-#
-# Define the regex pattern for lynxd failed connections
-
-echo " 
-
-#
-# Fail2Ban lynxd regex filter for at attempted exploit or inappropriate connection
-#
-# The regex matches banned and dropped connections  
-# Processes the following logfile /root/.lynx/debug.log
-# 
-
-[INCLUDES]
-
-# Read common prefixes. If any customizations available -- read them from
-# common.local
-before = common.conf
-
-[Definition]
-
-#_daemon = lynxd
-
-failregex = ^.* connection from <HOST>.*dropped \(banned\)$
-
-ignoreregex = 
-
-# Author: The Lynx Core Development Team
-
-" > /etc/fail2ban/filter.d/lynxd.conf
-
-#
-#
-# With the extra jails added for monitoring lynxd, we need to touch the debug.log file for fail2ban to start without error.
-
-touch /root/.lynx/debug.log
-
-#
-#
-# Let's use fail2ban to prune the probe attempts on port 22. If the jail catches someone, the IP
-# is locked out for 24 hours. We don't reallY want to lock them out for good. Also if SSH (22) is
-# not made public in the iptables rules, this package is not needed. It consumes so little cpu
-# time that I decide to leave it along. Fail2ban will always start itself so no need to add it to 
-# rc.local or a crontab. 
-
-service fail2ban start
-
-} # End config_fail2ban function
-
-install_lynx_pkg () {
-#
-# Install the lynx debian pre-compiled debian pkg function
-#
-echo "Installing lynx pkg.."
-sleep 5
-
-wget http://cdn.getlynx.io/lynxd-beta.deb
-dpkg -i lynxd-beta.deb 
+	iptables -F
+	iptables -I INPUT 1 -i lo -j ACCEPT
+	iptables -I INPUT 2 -m conntrack --ctstate ESTABLISHED,RELATED -j ACCEPT
+	iptables -A INPUT -p tcp --dport 22 -j ACCEPT
+	iptables -A INPUT -j DROP
 
 }
 
-compile_lynx () {
-#
-# Compile lynx function
-#
- 
-#
-# Jump to the working directory to start our Lynx compile for this machine.
+config_fail2ban () {
+	#
+	# Configure fail2ban defaults function
+	#
 
-cd /root/lynx/
+	#
+	# The default ban time for abusers on port 22 (SSH) is 10 minutes. Lets make this a full 24 hours
+	# that we will ban the IP address of the attacker. This is the tuning of the fail2ban jail that
+	# was documented earlier in this file. The number 86400 is the number of seconds in a 24 hour term.
+	# Set the bantime for lynxd on port 22566 banned regex matches to 24 hours as well. 
 
-#
-#
-# A little prep.
+	echo "
 
-./autogen.sh
+	[sshd]
+	enabled = true
+	bantime = 86400
 
-#
-#
-# A little more prep. Notice we are configuring the make to build without the wallet functions 
-# enabled. This Lynx node won't have an active wallet, but if you wanted it to, you could remove
-# that flag and have fun with wallet functions.
 
-./configure CXXFLAGS="--param ggc-min-expand=1 --param ggc-min-heapsize=32768" --enable-cxx --disable-wallet
+	[lynxd]
+	enabled = true
+	bantime = 86400
 
-#
-#
-# Finally, lets start the compile. It take about 45 minutes to complete on a single CPU 1024
-# Linode. Probably a bit faster on a Rasperry Pi 3. If you add the 'j' flag and specify the number
-# of processors you have, you can shorten this time significantly.
+	" > /etc/fail2ban/jail.d/defaults-debian.conf
 
-make
+	#
+	#
+	# Configure the fail2ban jail for lynxd and set the frequency to 20 min and 3 polls 
 
-} # End compile_lynx function
+	echo "
+
+	#
+	# SSH
+	#
+
+	[sshd]
+	port		= ssh
+	logpath 	= %(sshd_log)s
+
+	#
+	# LYNX
+	#
+
+	[lynxd]
+	port		= 22566
+	logpath		= /root/.lynx/debug.log
+	findtime 	= 1200
+	maxretry 	= 3
+
+	" > /etc/fail2ban/jail.local
+
+	#
+	#
+	# Define the regex pattern for lynxd failed connections
+
+	echo " 
+
+	#
+	# Fail2Ban lynxd regex filter for at attempted exploit or inappropriate connection
+	#
+	# The regex matches banned and dropped connections  
+	# Processes the following logfile /root/.lynx/debug.log
+	# 
+
+	[INCLUDES]
+
+	# Read common prefixes. If any customizations available -- read them from
+	# common.local
+	before = common.conf
+
+	[Definition]
+
+	#_daemon = lynxd
+
+	failregex = ^.* connection from <HOST>.*dropped \(banned\)$
+
+	ignoreregex = 
+
+	# Author: The Lynx Core Development Team
+
+	" > /etc/fail2ban/filter.d/lynxd.conf
+
+	#
+	#
+	# With the extra jails added for monitoring lynxd, we need to touch the debug.log file for fail2ban to start without error.
+
+	touch /root/.lynx/debug.log
+
+	#
+	#
+	# Let's use fail2ban to prune the probe attempts on port 22. If the jail catches someone, the IP
+	# is locked out for 24 hours. We don't reallY want to lock them out for good. Also if SSH (22) is
+	# not made public in the iptables rules, this package is not needed. It consumes so little cpu
+	# time that I decide to leave it along. Fail2ban will always start itself so no need to add it to 
+	# rc.local or a crontab. 
+
+	service fail2ban start
+
+}
  
 set_crontab () {
-#
-#
-# The idea to to start lynxd shortly after the server has be rebooted, for whatever reason. Then
-# After a short initilization period, the rc.local file resets the firewall and starts the miner
-# if it is turned on. Also the CPUlimit isset up too. After 15 days, the server is automatically
-# rebooted. Sometimes the server goes into swap, of the cache in lynxd fills. We do the staggered 
-# reboot to that all the servers don't reboot themselves at the same time, leaving no seed nodes
-# up when needed. Also, if no big miners are working, at least one of the seed nodes will still 
-# be submitting shares to the pool, if enabled.
 
-crontab -l | { cat; echo "*/5 * * * *		cd /root/lynx/src/ && ./lynxd -daemon"; } | crontab -
-crontab -l | { cat; echo "*/15 * * * *		sh /etc/rc.local"; } | crontab -
-crontab -l | { cat; echo "0 0 */15 * *		reboot"; } | crontab -
+	crontab -l | { cat; echo "*/5 * * * *		cd /root/lynx/src/ && ./lynxd -daemon"; } | crontab -
+	print_success "A crontab for '/root/lynx/src/lynxd' has been set up. It will start automatically every 5 minutes."
 
-} # End set_crontab function
+	crontab -l | { cat; echo "*/15 * * * *		sh /etc/rc.local"; } | crontab -
+	print_success "A crontab for the '/etc/rc.local' has been set up. It will execute every 15 minutes."
 
-#
-# BEGIN MAIN EXECUTION FUNCTION CALLS
-#
+	crontab -l | { cat; echo "0 0 */15 * *		reboot"; } | crontab -
+	print_success "A crontab for the server has been set up. It will reboot automatically every 15 days."
+
+}
+
+restart () {
+
+	print_success "This Lynx node is built. A reboot and autostart will occur 10 seconds."
+	print_success "Please change the default password for the '$ssuser' user after reboot!"
+	sleep 1
+	print_success "Please change the default password for the '$ssuser' user after reboot!"
+	sleep 1
+	print_success "Please change the default password for the '$ssuser' user after reboot!"
+	sleep 1
+	print_success "Please change the default password for the '$ssuser' user after reboot!"
+	sleep 1
+	print_success "Please change the default password for the '$ssuser' user after reboot!"
+	sleep 1
+	print_success "Please change the default password for the '$ssuser' user after reboot!"
+	sleep 1
+	print_success "Please change the default password for the '$ssuser' user after reboot!"
+	sleep 1
+	print_success "Please change the default password for the '$ssuser' user after reboot!"
+	sleep 1
+	print_success "Please change the default password for the '$ssuser' user after reboot!"
+	sleep 1
+	print_success "Please change the default password for the '$ssuser' user after reboot!"
+	sleep 1
+
+	reboot
+
+}
 
 detect_os
 update_os
 compile_query
 set_network
 set_accounts
-set_system_defaults
+install_extras
 install_lynx
 install_blockcrawler
 install_cpuminer
@@ -808,19 +729,4 @@ set_rclocal
 secure_iptables
 config_fail2ban
 set_crontab
-
-if [ "$compile_lynx" = "Y" ];then
-   compile_lynx
-else
-   install_lynx_pkg
-fi
-
-#
-#
-# We are all done building the node and putting everything in place. Let's reboot the node and
-# let rc.local take over with start jobs an then crontab will kick in occasionally with checks.
-
-reboot
-
-#
-#
+restart
