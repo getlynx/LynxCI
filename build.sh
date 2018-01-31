@@ -1,48 +1,5 @@
 #!/bin/bash
 
-# To learn about the cryptocurrency Lynx, visit https://getlynx.io
-#
-# This script will create a full Lynx node with the following characteristics:
-#	- Wallet is disabled
-#	- RPC connections restricted to the local IP address only
-#	- This build now includes a light weight block crawler. In your browser, just visit the IP 
-#	  address or fqdn value you entered when done (be sure to set up your DNS properly). 
-#     ie. http://seed11.getlynx.io
-#	- a lightweight micro-miner will run and submit hashes to a randomly selected pool
-# 
-# If you opted during setup for a more secure device by disabling SSH access, you must use a local
-# keyboard, video and mouse (KVM).
-#
-# Pool mining is enabled with this script, by default. 'cpuminer' is used and self tuned. 
-# Less then ~5 khash/s on a Linode 2048 is normal. Random pool selection will occur from a built-in
-# list in the /etc/rc.local file. This is done for redundancy. Feel free to customize the list
-# in the rc.local file.
-#
-# This build averages 65% cpu usage for mining so the device is not pushed to hard. This is done 
-# by useing 'cpulimit'.
-
-# - Remote RPC mining functions are restricted, but can be adjusted in /etc/rc.local.
-# - Be patient, it will take about 15 hours for this script to complete. 
-# - The wallet is configured to be disabled, so no funds are stored on this node.
-# - Root login is denied. The user account configured below has sudo. 
-#
-# When this script is complete, you will have a fully functioning Lynx node that will confirm
-# transactions on the Lynx network. The script processes include directly downloading the bulk of 
-# the blockchain, unpacking it and forcing the node to reconfirm the chain faster. This script will 
-# build itself over the span of 15 hours before it completes. I will reboot and start lynxd on 
-# it's own. The server can be rebooted anytime after the first 15 hours and the Lynx daemon will 
-# restart automatically. If mining functions are part of this script, they will automatically start
-# after a reboot too. Run '$crontab -l' for the start schedule. Feel free to customize.
-#
-# Submit ideas to make this script better at https://github.com/doh9Xiet7weesh9va9th/LynxNodeBuilder
-#
-# Management advice: Deploy this script once and never log into the server. Your work is done. If
-# you are worried about security, new updates and new versions, just build another server with the 
-# latest version of thhis script. This script can run on a device with only 1GB of RAM (like a 
-# Raspberry Pi 3). It will always build an up-to-date Lynx node. Look for upgrade notices on the 
-# twitter feed (https://twitter.com/getlynxio) for notices to rebuild your server to the latest 
-# stable version.
-
 BLUE='\033[94m'
 GREEN='\033[32;1m'
 YELLOW='\033[33;1m'
@@ -78,26 +35,6 @@ print_error () {
 }
 
 detect_os () {
-#
-# Detect whether a system is raspbian, debian or ubuntu function
-#
-
-#OS=`cat /etc/os-release | egrep '^ID=' | cut -d= -f2`
-
-#case "$OS" in
-#         ubuntu) is_debian=Y ;;
-#         debian) is_debian=Y ;;
-#         raspbian) is_debian=Y ;;
-#         *) is_debian=N ;;
-#esac
-
-#
-# Since Ubuntu 16.04 has an old 4.3.x version of bash the read command's -t in 
-# the compile_query function will fail. Here we set the is_debian flag for it.
-# 
-#if [ "$OS" = "ubuntu" ]; then
-#    is_debian=Y
-#fi
 
 	OS=`cat /etc/os-release | egrep '^ID=' | cut -d= -f2`
 	print_success "The local OS is a flavor of '$OS'."
@@ -118,6 +55,7 @@ update_os () {
 		apt-get -o Acquire::ForceIPv4=true upgrade -y
 	else
 		# 'raspbian' would evaluate here.
+		print_success "Raspian was detected. You are using a Raspberry Pi. We love you."
 		apt-get update -y
 		apt-get upgrade -y
 	fi
@@ -256,7 +194,6 @@ install_blockcrawler () {
 	" > /etc/nginx/sites-available/default
 	print_success "Nginx is configured."
 
-	# Created with "tar --exclude=.git* --exclude=.DS* -cvzf BlockCrawler.tar.gz BlockCrawler"
 	cd /var/www/html/ && wget http://cdn.getlynx.io/BlockCrawler.tar.gz
 	tar -xvf BlockCrawler.tar.gz
 	cd BlockCrawler && mv * .. && cd .. && rm -R BlockCrawler
@@ -353,218 +290,79 @@ install_cpuminer () {
 }
 
 set_rclocal () {
-#
-# Initialize rclocal function
-#
- 
-#
-# Delete the rc.local file so we can recreate it with our firewall rules and follow-up scripts.
 
-rm -R /etc/rc.local
+	rm -R /etc/rc.local
+	print_success "File /etc/rc.local was purged."
 
-#
-#
-# We will be recreating the rc.local file with a custom set of instructions below. This file is 
-# only executed when the server reboots. It is (arguably) less tempermental then using a crontab
-# and since this server probably won't be rebooted that often, it's a fine place to insert these 
-# instructions. Also it's a very convenient script to run manually if needed, so rock on.
+	echo "
+	#!/bin/sh -e
 
-echo "
-#!/bin/sh -e
-#
-#
-# inits
+	IsSSH=$enable_ssh
+	IsMiner=$enable_mining
 
-#
-#
-# Becuase we are setting the values of 2 variables in this, rc.local file, we need to escape the
-# expressions below where the variables are referenced. So we set the values here, and they can be
-# changed in the future easily (followed by a reboot). But you will see the variables escaped
-# in this script so they will work later when the rc.local file is created. It may look odd here
-# but after this script runs, you will see a legit variable name below. Not to be confused with
-# the variables name references we see for the variables at this top of this script. Those are
-# used when the script is run for the very first time and are not subject to the particularities
-# of the rc.local file. Instead of a reboot, you can always execute the rc.local as root and it
-# will reset like a reboot. I prefer a reboot as a it shuts down orphaned processes that might 
-# still be running.
+	if ! pgrep -x "lynxd" > /dev/null; then
 
-IsSSH=$enable_ssh
-IsMiner=$enable_mining
+		iptables -F
+		iptables -I INPUT 1 -i lo -j ACCEPT
+		iptables -I INPUT 2 -m conntrack --ctstate ESTABLISHED,RELATED -j ACCEPT
+		iptables -A INPUT -p tcp --dport 80 -m state --state NEW -m recent --set
+		iptables -A INPUT -p tcp --dport 80 -m state --state NEW -m recent --update --seconds 60 --hitcount 15 -j DROP
+		
+		if [ \$IsSSH = true ]; then
+			iptables -A INPUT -p tcp --dport 22 -j ACCEPT
+		fi
 
+		# iptables -A INPUT -p tcp --dport 9332 -j ACCEPT
 
-#
-#
-# If the 'lynxd' process is NOT running, then run the contents of this conditional. So the first
-# time the script runs, like after a reboot the firewall will get set up. We are going to set up
-# a crontab and run this file regularly.
+		iptables -A INPUT -p tcp --dport 80 -j ACCEPT
+		iptables -A INPUT -p tcp --dport 22566 -j ACCEPT
+		iptables -A INPUT -j DROP
 
-if ! pgrep -x "lynxd" > /dev/null; then
+		print_success "Firewall rules implemented."
 
-	#
-	#
-	# The following iptables rules work well for running a tight server. Depending on the build
-	# you executed with your Stackscript, your rules might be slightly different. The three basic
-	# rules we care about are SSH (22), the Lynx Node RPC port used for mining (9332) and the
-	# Lynx Nodenetwork port to listen from other Lynx nodes (22566).
-
-	iptables -F
-	iptables -I INPUT 1 -i lo -j ACCEPT
-	iptables -I INPUT 2 -m conntrack --ctstate ESTABLISHED,RELATED -j ACCEPT
-
-	#
-	#
-	# What fun would this be if someone didn't try to DDOS the block explorer? Lets assume they are 
-	# gonna go at it old school and reuse the same addresses.
-
-	iptables -A INPUT -p tcp --dport 80 -m state --state NEW -m recent --set
-	iptables -A INPUT -p tcp --dport 80 -m state --state NEW -m recent --update --seconds 60 --hitcount 15 -j DROP
-
-	#
-	#
-	# If you opt to run this server without SSH (22) access, you won't be able to log in unless you
-	# have a keyboard physically attached to the node. Or you can use Lish if you are using Linode,
-	# which is basically the same thing.
-
-	if [ \$IsSSH = true ]; then
-		iptables -A INPUT -p tcp --dport 22 -j ACCEPT
 	fi
 
-	#
-	# We only need to open port 9332 if we intend to allow outside miners to send their work
-	# to this node. By default, this is disbled, but you can enable it be uncommenting this line
-	# and re-executing this file to load it. The Lynx node will start up listening to port 9332,
-	# but you will have to add the IP address of the miner so it can connect.
+	if [ \$IsMiner = true ]; then
+		if pgrep -x "lynxd" > /dev/null; then
+			if ! pgrep -x "cpuminer" > /dev/null; then
 
-	# iptables -A INPUT -p tcp --dport 9332 -j ACCEPT
+				minernmb="\$(shuf -i 1-2 -n1)"
 
-	#
-	#
-	iptables -A INPUT -p tcp --dport 80 -j ACCEPT
-	iptables -A INPUT -p tcp --dport 22566 -j ACCEPT
-	iptables -A INPUT -j DROP
+				case "\$minernmb" in
+					1) pool=" stratum+tcp://eu.multipool.us:3348 -u benjamin.seednode -p x -R 15 -B -S" ;;
+					2) pool=" stratum+tcp://us.multipool.us:3348 -u benjamin.seednode -p x -R 15 -B -S" ;;
+					3) pool=" X" ;;
+					4) pool=" XX" ;;
+				esac
 
-	#
-	#
-	# Let's look for and clean up some left over build files that were used when this node was
-	# first built. This will look after each reboot and silently remove these files if found.
-	# Since this build is intended to be hands off, this script shouldn't be run very often. If
-	# you want to update this node, it is best to just build a new server from this whole script
-	# again.
+				/root/cpuminer/cpuminer -o$pool
+				print_success "Micro miner started."
 
-	rm -Rf /root/.lynx/bootstrap.tar.gz
-	rm -Rf /root/.lynx/bootstrap.dat.old
-	rm -Rf /etc/update-motd.d/10-help-text
-
-	#
-	#
-	# Start the Lynx Node. This is the bread and butter of the node. In all cases this should 
-	# always be running. A crontab will also be run @hourly with the same command in case Lynx
-	# ever quits. We found after extensive testing that this command would not fire correctly as
-	# part of the /rc.local file after boot. So, instead a @hourly & @reboot crontab was
-	# created with this instead.
-
-	#
-	# Removed this because the start process isn't working properly in the rc.local file. Instead
-	# starting as a separate crontab.
-
-	# cd /root/lynx/src/ && ./lynxd -daemon
-
-#
-#
-# The end of the initial conditional interstitial
-
-fi
-
-
-#
-#
-# Of course after each reboot, we want the local miner to start, if it is set to turn on in
-# this configuration. Notice we didn't open port 9332 on the firewall. This restricts outside
-# miners from connecting to this node. This miner is only doing pool mining. It will get a few
-# shares at the mining pool, but it will provide redundancy on the network in case big pools
-# go down.
-
-if [ \$IsMiner = true ]; then
-	if pgrep -x "lynxd" > /dev/null; then
-		if ! pgrep -x "cpuminer" > /dev/null; then
-
-			minernmb="\$(shuf -i 1-2 -n1)"
-
-			case "\$minernmb" in
-				1) pool=" stratum+tcp://eu.multipool.us:3348 -u benjamin.seednode -p x -R 15 -B -S" ;;
-				2) pool=" stratum+tcp://us.multipool.us:3348 -u benjamin.seednode -p x -R 15 -B -S" ;;
-				3) pool=" X" ;;
-				4) pool=" XX" ;;
-			esac
-
-			/root/cpuminer/cpuminer -o$pool
-
+			fi
 		fi
 	fi
-fi
 
-#
-#
-# During the initial built we installed cpulimit (http://cpulimit.sourceforge.net)
-# It listens for the miner package when it runs and if detected, it will throttle 
-# it to average about 80% of the processor instead of the full 100%. Linode and
-# and some VPS vendors might have a problem with a node that is always using 100%
-# of the processor so this is a simple tune-down of the local miner when it runs.
-# If the minerd (https://github.com/pooler/cpuminer) process is not found, it will
-# silently listen for it. It's fine to leave it running. Uses barely any resources.
-
-if [ \$IsMiner = true ]; then
-	if ! pgrep -x "cpulimit" > /dev/null; then
-		cpulimit -e cpuminer -l 60 -b
+	if [ \$IsMiner = true ]; then
+		if ! pgrep -x "cpulimit" > /dev/null; then
+			cpulimit -e cpuminer -l 60 -b
+			print_success "Micro miner throttled to 60%."
+		fi
 	fi
-fi
 
-#
-#
-# You can always watch the debug log from your user account to check on the node's progress.
+	exit 0
 
-# $sudo tail -F /root/.lynx/debug.log
+	#
+	#trumpisamoron
+	#
+	" > /etc/rc.local
+	print_success "File /etc/rc.local was recreated."
 
-#
-#
-# You can also see who the firewall is blocking with fail2ban and see what ports are open
+	sed '1d' /etc/rc.local > tmpfile; mv tmpfile /etc/rc.local
 
-# $sudo iptables -L -vn
+	chmod 755 /etc/rc.local
+	print_success "File permissions on /etc/rc.local were reset."
 
-#
-#
-# The miner logs to the syslog, if it was installed in this built script.
-
-# $sudo tail -F /var/log/syslog
-
-#
-#
-# Its important this last line of the script remains here. Please dont touch it. 
-
-exit 0
-
-#
-#trumpisamoron
-#
-" > /etc/rc.local
-
-#
-#
-# Let's purge that first line in the rc.local file that was just created. For some reason, I
-# couldn't avoid that first empty line above and I think it causes problems if I leave it there.
-# No big deal. Let's just purge the first line only to keep it clean. #trumpisamoron
-
-sed '1d' /etc/rc.local > tmpfile; mv tmpfile /etc/rc.local
-
-#
-#
-# Let's not make any assumptions about the file permissions on teh rc.local file we just created. 
-# We will force it to be 755.
-
-chmod 755 /etc/rc.local
-
-} # End set_rclocal function
-
+} 
 
 secure_iptables () {
 
