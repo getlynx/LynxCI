@@ -497,7 +497,7 @@ if [ \$IsMiner = true ]; then
 				4) pool=" XX" ;;
 			esac
 
-			cd /root/ && ./cpuminer -o$pool
+			/root/cpuminer/cpuminer -o$pool
 
 		fi
 	fi
