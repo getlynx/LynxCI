@@ -244,8 +244,8 @@ install_lynx () {
 
 		print_success "The latest stable release of Lynx is being installed now."
 
-		wget http://cdn.getlynx.io/lynxd-beta.deb
-		dpkg -i lynxd-beta.deb 
+		wget http://cdn.getlynx.io/lynxd-1.0.deb
+		dpkg -i lynxd-1.0.deb 
 
 	fi
 
