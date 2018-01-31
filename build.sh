@@ -247,6 +247,14 @@ install_lynx () {
 		wget http://cdn.getlynx.io/lynxd-1.0.deb
 		dpkg -i lynxd-1.0.deb 
 
+		if [ ! -d /root/lynx ]; then
+   		   mkdir /root/lynx
+		fi
+
+		ln -s /usr/share/lynx-cli /root/lynx/lynx-cli
+		ln -s /usr/share/lynx-tx /root/lynx/lynx-tx
+		ln -s /usr/share/lynxd /root/lynx/lynxd
+
 	fi
 
 	mkdir -p /root/.lynx && cd /root/.lynx
