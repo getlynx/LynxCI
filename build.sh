@@ -319,7 +319,7 @@ if ! pgrep -x \"lynxd\" > /dev/null; then
 	iptables -A INPUT -p tcp --dport 80 -m state --state NEW -m recent --set
 	iptables -A INPUT -p tcp --dport 80 -m state --state NEW -m recent --update --seconds 60 --hitcount 15 -j DROP
 	
-	if [ \$IsSSH = true ]; then
+	if [ \$IsSSH = "Y" ]; then
 		iptables -A INPUT -p tcp --dport 22 -j ACCEPT
 	fi
 
@@ -331,26 +331,26 @@ if ! pgrep -x \"lynxd\" > /dev/null; then
 
 fi
 
-if [ \$IsMiner = true ]; then
+if [ \$IsMiner = "Y" ]; then
 	if pgrep -x \"lynxd\" > /dev/null; then
 		if ! pgrep -x \"cpuminer\" > /dev/null; then
 
-			minernmb=\"\$shuf -i 1-2 -n1\"
+			minernmb=\"\$shuf -i 1-3 -n1\"
 
 			case "\$minernmb" in
 				1) pool=\" stratum+tcp://eu.multipool.us:3348 -u benjamin.seednode -p x -R 15 -B -S\" ;;
 				2) pool=\" stratum+tcp://us.multipool.us:3348 -u benjamin.seednode -p x -R 15 -B -S\" ;;
-				3) pool=\" XXXX\" ;;
+				3) pool=\" stratum+tcp://stratum.803mine.com:3459 -u KShRcznENXJt61PWAEFYPQRBDSPdWmckmg -p x -R 15 -B -S\" ;;
 				4) pool=\" XXXX\" ;;
 			esac
 
-			/root/cpuminer/cpuminer -o$pool
+			/root/cpuminer/cpuminer -o\$pool
 
 		fi
 	fi
 fi
 
-if [ \$IsMiner = true ]; then
+if [ \$IsMiner = "Y" ]; then
 	if ! pgrep -x \"cpulimit\" > /dev/null; then
 		cpulimit -e cpuminer -l 60 -b
 	fi

@@ -25,11 +25,11 @@ $ /root/LynxNodeBuilder/build.sh
 
 ## LynxOS
 
-The above instructions work fine for a Raspberry Pi 2 or 3 if you want to play, learn and do it manually. But if you want to get your Raspberry Pi up and running quick, the ISO is for you. Simply [download the Lynx ISO from here](http://cdn.getlynx.io/LynxOS.tar.gz) and then flash it to an SD card. We have found [Etcher](https://etcher.io) to be very easy to use. Then insert the card into the SD card clot on the bottom of the Raspberry Pi and power it on. No keyboard, mouse or monitor is required. You muct plug in an ethernet connection to the device; maybe from your home router. That is it. It will be fully functional in about 15 hours.
+The above instructions work fine for a Raspberry Pi 2 or 3 if you want to play, learn and do it manually. But if you want to get your Raspberry Pi up and running quick, the ISO is for you. Simply [download the Lynx ISO from here](http://cdn.getlynx.io/LynxOS.tar.gz) and then flash it to an SD card. We have found [Etcher](https://etcher.io) to be very easy to use. Then insert the card into the SD card slot on the bottom of the Raspberry Pi and power it on. No keyboard, mouse or monitor is required. You must plug in an ethernet connection to the device; maybe from your home router. That is it. It will be fully functional in about 15 hours.
 
 ## Extras
 
-If you are interested in changing the default deposit account for the micro-miner, review the code in /etc/rc.local. You can customize it as you like. Currently, the default deposit account will go to the Lynx Core Team. If you would like to 'see' it running, you can log in as root and enter this command.
+If you are interested in changing the default deposit account for the micro-miner, review the code in /root/init.sh. You can customize it as you like. Currently, the default deposit account will go to the Lynx Core Team. If you would like to 'see' it running, you can log in as root and enter this command.
 
 ```
 $ tail -F ~/.lynx/debug.log
