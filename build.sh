@@ -513,8 +513,8 @@ restart () {
 }
 
 detect_os
-compile_query
 update_os
+compile_query
 set_network
 set_accounts
 install_extras
