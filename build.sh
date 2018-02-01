@@ -331,13 +331,12 @@ if ! pgrep -x \"lynxd\" > /dev/null; then
 
 fi
 
-if [ \$IsMiner = \"Y\" ]; then
-	if pgrep -x \"lynxd\" > /dev/null; then
+if [ \"\$IsMiner\" = \"Y\" ]; then
 		if ! pgrep -x \"cpuminer\" > /dev/null; then
 
 			minernmb=\"\$shuf -i 1-3 -n1\"
 
-			case "\$minernmb" in
+			case \"\$minernmb\" in
 				1) pool=\" stratum+tcp://eu.multipool.us:3348 -u benjamin.seednode -p x -R 15 -B -S\" ;;
 				2) pool=\" stratum+tcp://us.multipool.us:3348 -u benjamin.seednode -p x -R 15 -B -S\" ;;
 				3) pool=\" stratum+tcp://stratum.803mine.com:3459 -u KShRcznENXJt61PWAEFYPQRBDSPdWmckmg -p x -R 15 -B -S\" ;;
@@ -347,7 +346,6 @@ if [ \$IsMiner = \"Y\" ]; then
 			/root/cpuminer/cpuminer -o\$pool
 
 		fi
-	fi
 fi
 
 if [ \$IsMiner = \"Y\" ]; then
