@@ -180,7 +180,7 @@ install_blockcrawler () {
 	server {
         listen 80 default_server;
         listen [::]:80 default_server;
-        root /var/www/html;
+        root /var/www/html/BlockCrawler;
         index index.php;
         server_name _;
         location / {
@@ -198,12 +198,13 @@ install_blockcrawler () {
 
 	cd /var/www/html/ && wget http://cdn.getlynx.io/BlockCrawler.tar.gz
 	tar -xvf BlockCrawler.tar.gz
-	cd BlockCrawler && mv * .. && cd .. && rm -R BlockCrawler
+	chmod 744 -R /var/www/html/Blockcrawler/
+	chown root:root -R /var/www/html/Blockcrawler/
 
-	sed -i -e 's/'"127.0.0.1"'/'"$ipaddr"'/g' /var/www/html/bc_daemon.php
-	sed -i -e 's/'"8332"'/'"9332"'/g' /var/www/html/bc_daemon.php
-	sed -i -e 's/'"username"'/'"$rrpcuser"'/g' /var/www/html/bc_daemon.php
-	sed -i -e 's/'"password"'/'"$rrpcpassword"'/g' /var/www/html/bc_daemon.php
+	sed -i -e 's/'"127.0.0.1"'/'"$ipaddr"'/g' /var/www/html/Blockcrawler/bc_daemon.php
+	sed -i -e 's/'"8332"'/'"9332"'/g' /var/www/html/Blockcrawler/bc_daemon.php
+	sed -i -e 's/'"username"'/'"$rrpcuser"'/g' /var/www/html/Blockcrawler/bc_daemon.php
+	sed -i -e 's/'"password"'/'"$rrpcpassword"'/g' /var/www/html/Blockcrawler/bc_daemon.php
 	print_success "Block Crawler code is secured for this Lynxd node."
 
 	systemctl restart nginx && systemctl enable nginx && systemctl restart php7.0-fpm
