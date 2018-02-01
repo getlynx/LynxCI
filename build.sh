@@ -70,7 +70,7 @@ compile_query () {
 		elif [[ "$ans1" == "n" || "$ans1" == "N" ]]; then
 			compile_lynx=Y
 		else
-			compile_lynx=Y
+			compile_lynx=N
 		fi
 
 		#
