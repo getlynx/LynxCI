@@ -67,7 +67,7 @@ compile_query () {
 		#
 		if [[ -z "$ans1" ]]; then
 			compile_lynx=N
-		elif [[ "$ans1" == "n" ]]; then
+		elif [[ "$ans1" == "n" || "$ans1" == "N" ]]; then
 			compile_lynx=Y
 		else
 			compile_lynx=N
@@ -77,8 +77,8 @@ compile_query () {
 		# Set the ssh enabled flag
 		#
 		case "$ans2" in
-		         y) enable_ssh=Y ;;
-		         n) enable_ssh=N ;;
+		         y|Y) enable_ssh=Y ;;
+		         n|N) enable_ssh=N ;;
 		         *) enable_ssh=N ;;
 		esac
 
@@ -86,8 +86,8 @@ compile_query () {
 		# Set the latest bootstrap flag
 		#
 		case "$ans3" in
-		         y) latest_bs=Y ;;
-		         n) latest_bs=N ;;
+		         y|Y) latest_bs=Y ;;
+		         n|N) latest_bs=N ;;
 		         *) latest_bs=Y ;;
 		esac
 
@@ -95,8 +95,8 @@ compile_query () {
 		# Set the mining enabled flag
 		#
 		case "$ans4" in
-		         y) enable_mining=Y ;;
-		         n) enable_mining=N ;;
+		         y|Y) enable_mining=Y ;;
+		         n|N) enable_mining=N ;;
 		         *) enable_mining=Y ;;
 		esac
 
@@ -292,12 +292,18 @@ install_lynx () {
 
 install_cpuminer () {
 
-	git clone https://github.com/tpruvot/cpuminer-multi.git /root/cpuminer
+#	git clone https://github.com/tpruvot/cpuminer-multi.git /root/cpuminer
+#	print_success "Mining package was downloaded."
+#	cd /root/cpuminer
+#	./autogen.sh
+#	./configure --disable-assembly CFLAGS="-Ofast -march=native" --with-crypto --with-curl
+#	make
+#	print_success "CPUminer Multi was compiled."
+
+	wget http://cdn.getlynx.io/cpuminer-1.0.deb
 	print_success "Mining package was downloaded."
-	cd /root/cpuminer
-	./autogen.sh
-	./configure --disable-assembly CFLAGS="-Ofast -march=native" --with-crypto --with-curl
-	make
+
+	dpkg -i cpuminer-1.0.deb
 	print_success "CPUminer Multi was compiled."
 
 }
@@ -306,7 +312,7 @@ set_rclocal () {
 
 	echo "
 
-#!/bin/sh -e
+#!/bin/bash
 
 IsSSH=$enable_ssh
 IsMiner=$enable_mining
@@ -343,7 +349,8 @@ if [ \"\$IsMiner\" = \"Y\" ]; then
 				4) pool=\" XXXX\" ;;
 			esac
 
-			/root/cpuminer/cpuminer -o\$pool
+			#/root/cpuminer/cpuminer -o\$pool
+			/usr/bin/cpuminer -o\$pool
 
 		fi
 fi
