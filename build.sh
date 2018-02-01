@@ -48,7 +48,7 @@ compile_query () {
 		#
 		# Set the query timeout value (in seconds)
 		#
-		time_out=600
+		time_out=30
 		query1="Install the latest stable Lynx release? (faster build time) (Y/n):"
 		query2="Do you want ssh access enabled (more secure)? (y/N):" 
 		query3="Do you want to sync with the bootstrap file (less network intensive)? (Y/n):" 
@@ -513,8 +513,8 @@ restart () {
 }
 
 detect_os
-update_os
 compile_query
+update_os
 set_network
 set_accounts
 install_extras
