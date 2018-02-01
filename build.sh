@@ -103,7 +103,7 @@ compile_query () {
 	else
 
 		# Becuase 'ubuntu' doesn't play well with our query, we go with the defaults.
-		compile_lynx=Y 
+		compile_lynx=N 
 		enable_ssh=N
 		latest_bs=Y
 		enable_mining=Y
