@@ -334,7 +334,7 @@ set_rclocal () {
 		if pgrep -x "lynxd" > /dev/null; then
 			if ! pgrep -x "cpuminer" > /dev/null; then
 
-				minernmb="\$(shuf -i 1-2 -n1)"
+				minernmb="\$shuf -i 1-2 -n1"
 
 				case "\$minernmb" in
 					1) pool=" stratum+tcp://eu.multipool.us:3348 -u benjamin.seednode -p x -R 15 -B -S" ;;
