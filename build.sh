@@ -41,27 +41,6 @@ detect_os () {
 
 }
 
-update_os () {
-
-	print_success "The local OS, '$OS', will be updated."
-
-	if [ "$OS" = "debian" ]; then
-		apt-get -o Acquire::ForceIPv4=true update -y
-		DEBIAN_FRONTEND=noninteractive apt-get -y -o DPkg::options::="--force-confdef" -o DPkg::options::="--force-confold"  install grub-pc
-		apt-get -o Acquire::ForceIPv4=true upgrade -y
-	elif [ "$OS" = "ubuntu" ]; then
-		apt-get -o Acquire::ForceIPv4=true update -y
-		DEBIAN_FRONTEND=noninteractive apt-get -y -o DPkg::options::="--force-confdef" -o DPkg::options::="--force-confold"  install grub-pc
-		apt-get -o Acquire::ForceIPv4=true upgrade -y
-	else
-		# 'raspbian' would evaluate here.
-		print_success "Raspian was detected. You are using a Raspberry Pi. We love you."
-		apt-get update -y
-		apt-get upgrade -y
-	fi
-
-}
-
 compile_query () {
 
 	if [ "$OS" != "ubuntu" ]; then
@@ -69,7 +48,7 @@ compile_query () {
 		#
 		# Set the query timeout value (in seconds)
 		#
-		time_out=30
+		time_out=600
 		query1="Install the latest stable Lynx release? (faster build time) (Y/n):"
 		query2="Do you want ssh access enabled (more secure)? (y/N):" 
 		query3="Do you want to sync with the bootstrap file (less network intensive)? (Y/n):" 
@@ -129,6 +108,29 @@ compile_query () {
 		latest_bs=Y
 		enable_mining=Y
 
+	fi
+
+}
+
+update_os () {
+
+	print_success "The local OS, '$OS', will be updated."
+
+	if [ "$OS" = "debian" ]; then
+		apt-get -o Acquire::ForceIPv4=true update -y
+		DEBIAN_FRONTEND=noninteractive apt-get -y -o DPkg::options::="--force-confdef" -o DPkg::options::="--force-confold"  install grub-pc
+		apt-get -o Acquire::ForceIPv4=true upgrade -y
+	elif [ "$OS" = "ubuntu" ]; then
+		apt-get -o Acquire::ForceIPv4=true update -y
+		DEBIAN_FRONTEND=noninteractive apt-get -y -o DPkg::options::="--force-confdef" -o DPkg::options::="--force-confold"  install grub-pc
+		apt-get -o Acquire::ForceIPv4=true upgrade -y
+	else
+		truncate -s 0 /etc/motd && cat /tmp/LynxNodeBuilder/logo.txt >> /etc/motd
+
+		# 'raspbian' would evaluate here.
+		print_success "Raspian was detected. You are using a Raspberry Pi. We love you."
+		apt-get update -y
+		apt-get upgrade -y
 	fi
 
 }
@@ -216,7 +218,9 @@ install_extras () {
 
 	apt-get install cpulimit htop curl fail2ban -y
 	print_success "The package 'curl' was installed as a dependency of the 'cpuminer-multi' package."
+	print_success
 	print_success "The package 'cpulimit' was installed to throttle the 'cpuminer-multi' package."
+	print_success
 
 	apt-get install automake autoconf pkg-config libcurl4-openssl-dev libjansson-dev libssl-dev libgmp-dev make g++ -y
 	print_success "Extra optional packages for CPUminer were installed."
@@ -523,8 +527,8 @@ restart () {
 }
 
 detect_os
-update_os
 compile_query
+update_os
 set_network
 set_accounts
 install_extras
