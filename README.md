@@ -7,53 +7,29 @@ Creates a Lynxd node that confirms and relays network transactions, runs an eco-
 
 [Lynx Twitter](https://twitter.com/GetlynxIo)
 
-## For Ubuntu 16.04 LTS
+## For [Raspian Lite](https://www.raspberrypi.org/downloads/raspbian/), Ubuntu 16.04 LTS, Debian 8 & Debian 9
 
-You can manually enter these three lines, as root, after your OS is installed.
-
+You can manually enter these four lines, as root, after your OS is installed.
 ```
 $ apt-get update -y && apt-get install git -y
 ```
 ```
-$ git clone https://github.com/doh9Xiet7weesh9va9th/LynxNodeBuilder.git /tmp/LynxNodeBuilder
+$ git clone https://github.com/doh9Xiet7weesh9va9th/LynxNodeBuilder.git /root/LynxNodeBuilder/
 ```
 ```
-$ sh /tmp/LynxNodeBuilder/build.sh
+$ chmod 744 -R /root/LynxNodeBuilder/
 ```
-
-## For [Raspian Stretch Lite](https://www.raspberrypi.org/downloads/raspbian/) on a Raspberry Pi 3
-
-After you have created your micro SD card from the Raspian ISO, the very first step is to open up access to SSH with your physically attached keyboard;
-
 ```
-$ sudo touch /boot/ssh
+$ /root/LynxNodeBuilder/build.sh
 ```
 
-Reboot your Pi before the next step. Now you will be able to connect to your Pi over your local network. Figure out it's IP and SSH into it. The default username is 'pi' and default password is 'raspberry'. Change the default password for the user 'pi' with;
+## LynxOS
 
-```
-$ passwd
-```
+The above instructions work fine for a Raspberry Pi 2 or 3 if you want to play, learn and do it manually. But if you want to get your Raspberry Pi up and running quick, the ISO is for you. Simply [download the Lynx ISO from here](http://cdn.getlynx.io/LynxOS.tar.gz) and then flash it to an SD card. We have found [Etcher](https://etcher.io) to be very easy to use. Then insert the card into the SD card clot on the bottom of the Raspberry Pi and power it on. No keyboard, mouse or monitor is required. You muct plug in an ethernet connection to the device; maybe from your home router. That is it. It will be fully functional in about 15 hours.
 
-Next, set the root password you would like to use;
+## Extras
 
-```
-$ sudo passwd
-```
-
-The following commands must be done as the root user;
-
-```
-$ apt-get update -y && apt-get install git -y
-```
-```
-$ git clone https://github.com/doh9Xiet7weesh9va9th/LynxNodeBuilder.git /tmp/LynxNodeBuilder
-```
-```
-$ sh /tmp/LynxNodeBuilder/buildPi.sh
-```
-
-The Pi will reboot on it's own and begin syncing it's blockchain with the Lynx network. You don't really need to do anything else. If you are interested in changing the default deposit account for the micro-miner, review the code in /etc/rc.local. You can customize it as you like. Currently, the default deposit account will go to the Lynx Core Team. If you would like to 'see' it running, you can log in as root and enter this command.
+If you are interested in changing the default deposit account for the micro-miner, review the code in /etc/rc.local. You can customize it as you like. Currently, the default deposit account will go to the Lynx Core Team. If you would like to 'see' it running, you can log in as root and enter this command.
 
 ```
 $ tail -F ~/.lynx/debug.log

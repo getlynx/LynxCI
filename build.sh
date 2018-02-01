@@ -304,10 +304,8 @@ install_cpuminer () {
 
 set_rclocal () {
 
-	rm -R /etc/rc.local
-	print_success "File /etc/rc.local was purged."
+	echo "
 
-echo "
 #!/bin/sh -e
 
 IsSSH=$enable_ssh
@@ -334,16 +332,16 @@ if ! pgrep -x \"lynxd\" > /dev/null; then
 fi
 
 if [ \$IsMiner = true ]; then
-	if pgrep -x "lynxd" > /dev/null; then
-		if ! pgrep -x "cpuminer" > /dev/null; then
+	if pgrep -x \"lynxd\" > /dev/null; then
+		if ! pgrep -x \"cpuminer\" > /dev/null; then
 
 			minernmb=\"\$shuf -i 1-2 -n1\"
 
 			case "\$minernmb" in
-				1) pool=" stratum+tcp://eu.multipool.us:3348 -u benjamin.seednode -p x -R 15 -B -S" ;;
-				2) pool=" stratum+tcp://us.multipool.us:3348 -u benjamin.seednode -p x -R 15 -B -S" ;;
-				3) pool=" X" ;;
-				4) pool=" XX" ;;
+				1) pool=\" stratum+tcp://eu.multipool.us:3348 -u benjamin.seednode -p x -R 15 -B -S\" ;;
+				2) pool=\" stratum+tcp://us.multipool.us:3348 -u benjamin.seednode -p x -R 15 -B -S\" ;;
+				3) pool=\" XXXX\" ;;
+				4) pool=\" XXXX\" ;;
 			esac
 
 			/root/cpuminer/cpuminer -o$pool
@@ -353,7 +351,7 @@ if [ \$IsMiner = true ]; then
 fi
 
 if [ \$IsMiner = true ]; then
-	if ! pgrep -x "cpulimit" > /dev/null; then
+	if ! pgrep -x \"cpulimit\" > /dev/null; then
 		cpulimit -e cpuminer -l 60 -b
 	fi
 fi
@@ -363,13 +361,12 @@ exit 0
 #
 #trumpisamoron
 #
-" > /etc/rc.local
-	print_success "File /etc/rc.local was recreated."
 
-	sed '1d' /etc/rc.local > tmpfile; mv tmpfile /etc/rc.local
+	" > /root/init.sh
+	print_success "File /root/init.sh was created."
 
-	chmod 755 /etc/rc.local
-	print_success "File permissions on /etc/rc.local were reset."
+	chmod 700 /root/init.sh
+	print_success "File permissions on /root/init.sh were reset."
 
 } 
 
@@ -470,14 +467,6 @@ config_fail2ban () {
 
 	touch /root/.lynx/debug.log
 
-	#
-	#
-	# Let's use fail2ban to prune the probe attempts on port 22. If the jail catches someone, the IP
-	# is locked out for 24 hours. We don't reallY want to lock them out for good. Also if SSH (22) is
-	# not made public in the iptables rules, this package is not needed. It consumes so little cpu
-	# time that I decide to leave it along. Fail2ban will always start itself so no need to add it to 
-	# rc.local or a crontab. 
-
 	service fail2ban start
 
 }
@@ -487,8 +476,8 @@ set_crontab () {
 	crontab -l | { cat; echo "*/5 * * * *		cd /root/lynx/src/ && ./lynxd -daemon"; } | crontab -
 	print_success "A crontab for '/root/lynx/src/lynxd' has been set up. It will start automatically every 5 minutes."
 
-	crontab -l | { cat; echo "*/15 * * * *		sh /etc/rc.local"; } | crontab -
-	print_success "A crontab for the '/etc/rc.local' has been set up. It will execute every 15 minutes."
+	crontab -l | { cat; echo "*/15 * * * *		/root/init.sh"; } | crontab -
+	print_success "A crontab for the '/root/init.sh' has been set up. It will execute every 15 minutes."
 
 	crontab -l | { cat; echo "0 0 */15 * *		reboot"; } | crontab -
 	print_success "A crontab for the server has been set up. It will reboot automatically every 15 days."
