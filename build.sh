@@ -319,7 +319,7 @@ if ! pgrep -x \"lynxd\" > /dev/null; then
 	iptables -A INPUT -p tcp --dport 80 -m state --state NEW -m recent --set
 	iptables -A INPUT -p tcp --dport 80 -m state --state NEW -m recent --update --seconds 60 --hitcount 15 -j DROP
 	
-	if [ \$IsSSH = "Y" ]; then
+	if [ \$IsSSH = \"Y\" ]; then
 		iptables -A INPUT -p tcp --dport 22 -j ACCEPT
 	fi
 
@@ -331,7 +331,7 @@ if ! pgrep -x \"lynxd\" > /dev/null; then
 
 fi
 
-if [ \$IsMiner = "Y" ]; then
+if [ \$IsMiner = \"Y\" ]; then
 	if pgrep -x \"lynxd\" > /dev/null; then
 		if ! pgrep -x \"cpuminer\" > /dev/null; then
 
@@ -350,7 +350,7 @@ if [ \$IsMiner = "Y" ]; then
 	fi
 fi
 
-if [ \$IsMiner = "Y" ]; then
+if [ \$IsMiner = \"Y\" ]; then
 	if ! pgrep -x \"cpulimit\" > /dev/null; then
 		cpulimit -e cpuminer -l 60 -b
 	fi
