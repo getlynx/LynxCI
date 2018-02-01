@@ -307,67 +307,63 @@ set_rclocal () {
 	rm -R /etc/rc.local
 	print_success "File /etc/rc.local was purged."
 
-	echo "
-	#!/bin/sh -e
+echo "
+#!/bin/sh -e
 
-	IsSSH=$enable_ssh
-	IsMiner=$enable_mining
+IsSSH=$enable_ssh
+IsMiner=$enable_mining
 
-	if ! pgrep -x "lynxd" > /dev/null; then
+if ! pgrep -x \"lynxd\" > /dev/null; then
 
-		iptables -F
-		iptables -I INPUT 1 -i lo -j ACCEPT
-		iptables -I INPUT 2 -m conntrack --ctstate ESTABLISHED,RELATED -j ACCEPT
-		iptables -A INPUT -p tcp --dport 80 -m state --state NEW -m recent --set
-		iptables -A INPUT -p tcp --dport 80 -m state --state NEW -m recent --update --seconds 60 --hitcount 15 -j DROP
-		
-		if [ \$IsSSH = true ]; then
-			iptables -A INPUT -p tcp --dport 22 -j ACCEPT
-		fi
-
-		# iptables -A INPUT -p tcp --dport 9332 -j ACCEPT
-
-		iptables -A INPUT -p tcp --dport 80 -j ACCEPT
-		iptables -A INPUT -p tcp --dport 22566 -j ACCEPT
-		iptables -A INPUT -j DROP
-
-		print_success "Firewall rules implemented."
-
+	iptables -F
+	iptables -I INPUT 1 -i lo -j ACCEPT
+	iptables -I INPUT 2 -m conntrack --ctstate ESTABLISHED,RELATED -j ACCEPT
+	iptables -A INPUT -p tcp --dport 80 -m state --state NEW -m recent --set
+	iptables -A INPUT -p tcp --dport 80 -m state --state NEW -m recent --update --seconds 60 --hitcount 15 -j DROP
+	
+	if [ \$IsSSH = true ]; then
+		iptables -A INPUT -p tcp --dport 22 -j ACCEPT
 	fi
 
-	if [ \$IsMiner = true ]; then
-		if pgrep -x "lynxd" > /dev/null; then
-			if ! pgrep -x "cpuminer" > /dev/null; then
+	# iptables -A INPUT -p tcp --dport 9332 -j ACCEPT
 
-				minernmb="\$shuf -i 1-2 -n1"
+	iptables -A INPUT -p tcp --dport 80 -j ACCEPT
+	iptables -A INPUT -p tcp --dport 22566 -j ACCEPT
+	iptables -A INPUT -j DROP
 
-				case "\$minernmb" in
-					1) pool=" stratum+tcp://eu.multipool.us:3348 -u benjamin.seednode -p x -R 15 -B -S" ;;
-					2) pool=" stratum+tcp://us.multipool.us:3348 -u benjamin.seednode -p x -R 15 -B -S" ;;
-					3) pool=" X" ;;
-					4) pool=" XX" ;;
-				esac
+fi
 
-				/root/cpuminer/cpuminer -o$pool
-				print_success "Micro miner started."
+if [ \$IsMiner = true ]; then
+	if pgrep -x "lynxd" > /dev/null; then
+		if ! pgrep -x "cpuminer" > /dev/null; then
 
-			fi
+			minernmb=\"\$shuf -i 1-2 -n1\"
+
+			case "\$minernmb" in
+				1) pool=" stratum+tcp://eu.multipool.us:3348 -u benjamin.seednode -p x -R 15 -B -S" ;;
+				2) pool=" stratum+tcp://us.multipool.us:3348 -u benjamin.seednode -p x -R 15 -B -S" ;;
+				3) pool=" X" ;;
+				4) pool=" XX" ;;
+			esac
+
+			/root/cpuminer/cpuminer -o$pool
+
 		fi
 	fi
+fi
 
-	if [ \$IsMiner = true ]; then
-		if ! pgrep -x "cpulimit" > /dev/null; then
-			cpulimit -e cpuminer -l 60 -b
-			print_success "Micro miner throttled to 60%."
-		fi
+if [ \$IsMiner = true ]; then
+	if ! pgrep -x "cpulimit" > /dev/null; then
+		cpulimit -e cpuminer -l 60 -b
 	fi
+fi
 
-	exit 0
+exit 0
 
-	#
-	#trumpisamoron
-	#
-	" > /etc/rc.local
+#
+#trumpisamoron
+#
+" > /etc/rc.local
 	print_success "File /etc/rc.local was recreated."
 
 	sed '1d' /etc/rc.local > tmpfile; mv tmpfile /etc/rc.local
