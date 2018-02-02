@@ -125,7 +125,7 @@ update_os () {
 		DEBIAN_FRONTEND=noninteractive apt-get -y -o DPkg::options::="--force-confdef" -o DPkg::options::="--force-confold"  install grub-pc
 		apt-get -o Acquire::ForceIPv4=true upgrade -y
 	else
-		truncate -s 0 /etc/motd && cat /tmp/LynxNodeBuilder/logo.txt >> /etc/motd
+		truncate -s 0 /etc/motd && cat /root/LynxNodeBuilder/logo.txt >> /etc/motd
 
 		# 'raspbian' would evaluate here.
 		print_success "Raspian was detected. You are using a Raspberry Pi. We love you."
@@ -363,6 +363,8 @@ exit 0
 	" > /root/init.sh
 	print_success "File /root/init.sh was created."
 
+
+
 	chmod 700 /root/init.sh
 	print_success "File permissions on /root/init.sh were reset."
 
@@ -483,6 +485,9 @@ set_crontab () {
 }
 
 restart () {
+
+	sed '/getstarted/d' /etc/rc.local
+	print_success "The init script in /etc/rc.local was removed."
 
 	print_success "This Lynx node is built. A reboot and autostart will occur 10 seconds."
 	print_success "Please change the default password for the '$ssuser' user after reboot!"
