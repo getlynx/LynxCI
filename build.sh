@@ -118,7 +118,7 @@ compile_query () {
 
 		compile_lynx=Y 
 		enable_ssh=Y
-		latest_bs=Y
+		latest_bs=N
 		enable_mining=Y
 
 	fi
@@ -247,6 +247,19 @@ install_extras () {
 	apt-get install automake autoconf pkg-config libcurl4-openssl-dev libjansson-dev libssl-dev libgmp-dev make g++ -y
 	print_success "Extra optional packages for CPUminer were installed."
 } 
+
+install_miniupnpc () {
+
+    print_success "Installing miniupnpc from source."
+    rm -rf miniupnpc-2.0 miniupnpc-2.0.tar.gz &&
+    wget -q http://miniupnp.free.fr/files/download.php?file=miniupnpc-2.0.tar.gz -O miniupnpc-2.0.tar.gz && \
+    tar xzf miniupnpc-2.0.tar.gz && \
+    cd miniupnpc-2.0 && \
+    make install > build.out 2>&1 && \
+    cd .. && \
+    rm -rf miniupnpc-2.0 miniupnpc-2.0.tar.gz
+
+}
 
 install_lynx () {
 
