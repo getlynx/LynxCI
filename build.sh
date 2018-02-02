@@ -43,68 +43,81 @@ detect_os () {
 
 compile_query () {
 
-	if [ "$OS" != "ubuntu" ]; then
+	# Becuase the package dev is still ongoing, let't escape it so we have a stable script.
 
-		#
-		# Set the query timeout value (in seconds)
-		#
-		time_out=30
-		query1="Install the latest stable Lynx release? (faster build time) (Y/n):"
-		query2="Do you want ssh access enabled (more secure)? (y/N):" 
-		query3="Do you want to sync with the bootstrap file (less network intensive)? (Y/n):" 
-		query4="Do you want the miners to run (supports the Lynx network)? (Y/n):"
+	if [ "1" = "0" ]; then
 
-		#
-		# Get all the user inputs
-		#
-		read -t $time_out -p "$query1 " ans1
-		read -t $time_out -p "$query2 " ans2
-		read -t $time_out -p "$query3 " ans3
-		read -t $time_out -p "$query4 " ans4
+		if [ "$OS" != "ubuntu" ]; then
 
-		#
-		# Set the compile lynx flag 
-		#
-		if [[ -z "$ans1" ]]; then
-			compile_lynx=N
-		elif [[ "$ans1" == "n" || "$ans1" == "N" ]]; then
-			compile_lynx=Y
+			#
+			# Set the query timeout value (in seconds)
+			#
+			time_out=30
+			query1="Install the latest stable Lynx release? (faster build time) (Y/n):"
+			query2="Do you want ssh access enabled (more secure)? (y/N):" 
+			query3="Do you want to sync with the bootstrap file (less network intensive)? (Y/n):" 
+			query4="Do you want the miners to run (supports the Lynx network)? (Y/n):"
+
+			#
+			# Get all the user inputs
+			#
+			read -t $time_out -p "$query1 " ans1
+			read -t $time_out -p "$query2 " ans2
+			read -t $time_out -p "$query3 " ans3
+			read -t $time_out -p "$query4 " ans4
+
+			#
+			# Set the compile lynx flag 
+			#
+			if [[ -z "$ans1" ]]; then
+				compile_lynx=N
+			elif [[ "$ans1" == "n" || "$ans1" == "N" ]]; then
+				compile_lynx=Y
+			else
+				compile_lynx=N
+			fi
+
+			#
+			# Set the ssh enabled flag
+			#
+			case "$ans2" in
+			         y|Y) enable_ssh=Y ;;
+			         n|N) enable_ssh=N ;;
+			         *) enable_ssh=N ;;
+			esac
+
+			#
+			# Set the latest bootstrap flag
+			#
+			case "$ans3" in
+			         y|Y) latest_bs=Y ;;
+			         n|N) latest_bs=N ;;
+			         *) latest_bs=Y ;;
+			esac
+
+			#
+			# Set the mining enabled flag
+			#
+			case "$ans4" in
+			         y|Y) enable_mining=Y ;;
+			         n|N) enable_mining=N ;;
+			         *) enable_mining=Y ;;
+			esac
+
 		else
-			compile_lynx=N
+
+			# Becuase 'ubuntu' doesn't play well with our query, we go with the defaults.
+			compile_lynx=N 
+			enable_ssh=N
+			latest_bs=Y
+			enable_mining=Y
+
 		fi
-
-		#
-		# Set the ssh enabled flag
-		#
-		case "$ans2" in
-		         y|Y) enable_ssh=Y ;;
-		         n|N) enable_ssh=N ;;
-		         *) enable_ssh=N ;;
-		esac
-
-		#
-		# Set the latest bootstrap flag
-		#
-		case "$ans3" in
-		         y|Y) latest_bs=Y ;;
-		         n|N) latest_bs=N ;;
-		         *) latest_bs=Y ;;
-		esac
-
-		#
-		# Set the mining enabled flag
-		#
-		case "$ans4" in
-		         y|Y) enable_mining=Y ;;
-		         n|N) enable_mining=N ;;
-		         *) enable_mining=Y ;;
-		esac
 
 	else
 
-		# Becuase 'ubuntu' doesn't play well with our query, we go with the defaults.
-		compile_lynx=N 
-		enable_ssh=N
+		compile_lynx=Y 
+		enable_ssh=Y
 		latest_bs=Y
 		enable_mining=Y
 
@@ -155,17 +168,25 @@ set_accounts () {
 	sed -i 's/PermitRootLogin yes/PermitRootLogin no/' /etc/ssh/sshd_config
 	print_success "Direct login via the root account has been disabled. You must log in as a user."
 
-	ssuser="lynx"
-	print_warning "The user account '$ssuser' was created."
+	if [ "$OS" = "raspian" ]; then
 
-	sspassword="lynx"
-	print_warning "The default password is '$sspassword'. Be sure to change after this build is complete."
+		# Since the Pi account, already exists, no need to create a 'lynx' account.
 
-	adduser $ssuser --disabled-password --gecos "" && \
-	echo "$ssuser:$sspassword" | chpasswd
+	else
 
-	adduser $ssuser sudo
-	print_success "The new user '$ssuser', has sudo access."
+		ssuser="lynx"
+		print_warning "The user account '$ssuser' was created."
+
+		sspassword="lynx"
+		print_warning "The default password is '$sspassword'. Be sure to change after this build is complete."
+
+		adduser $ssuser --disabled-password --gecos "" && \
+		echo "$ssuser:$sspassword" | chpasswd
+
+		adduser $ssuser sudo
+		print_success "The new user '$ssuser', has sudo access."
+
+	fi
 
 }
 
@@ -293,11 +314,22 @@ install_lynx () {
 
 install_cpuminer () {
 
-	wget http://cdn.getlynx.io/cpuminer-1.0.deb
+	git clone https://github.com/tpruvot/cpuminer-multi.git /root/cpuminer
 	print_success "Mining package was downloaded."
+	cd /root/cpuminer
+	./autogen.sh
 
-	dpkg -i cpuminer-1.0.deb
-	print_success "Mining binary was installed."
+	if [ "$OS" = "debian" ]; then
+		./configure CFLAGS="*-march=native*" --with-crypto --with-curl
+	elif [ "$OS" = "ubuntu" ]; then
+		./configure CFLAGS="*-march=native*" --with-crypto --with-curl
+	else
+		# raspian
+		./configure --disable-assembly CFLAGS="-Ofast -march=native" --with-crypto --with-curl
+	fi
+
+	make
+	print_success "CPUminer Multi was compiled."
 
 }
 
@@ -490,26 +522,18 @@ restart () {
 	print_success "The init script in /etc/rc.local was removed."
 
 	print_success "This Lynx node is built. A reboot and autostart will occur 10 seconds."
-	print_success "Please change the default password for the '$ssuser' user after reboot!"
-	sleep 1
-	print_success "Please change the default password for the '$ssuser' user after reboot!"
-	sleep 1
-	print_success "Please change the default password for the '$ssuser' user after reboot!"
-	sleep 1
-	print_success "Please change the default password for the '$ssuser' user after reboot!"
-	sleep 1
-	print_success "Please change the default password for the '$ssuser' user after reboot!"
-	sleep 1
-	print_success "Please change the default password for the '$ssuser' user after reboot!"
-	sleep 1
-	print_success "Please change the default password for the '$ssuser' user after reboot!"
-	sleep 1
-	print_success "Please change the default password for the '$ssuser' user after reboot!"
-	sleep 1
-	print_success "Please change the default password for the '$ssuser' user after reboot!"
-	sleep 1
-	print_success "Please change the default password for the '$ssuser' user after reboot!"
-	sleep 1
+
+	if [ "$OS" = "raspian" ]; then
+
+		print_success "Please change the default password for the 'pi' user after reboot!"
+		sleep 30
+
+	else
+
+		print_success "Please change the default password for the '$ssuser' user after reboot!"
+		sleep 30
+
+	fi
 
 	reboot
 
