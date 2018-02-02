@@ -293,19 +293,11 @@ install_lynx () {
 
 install_cpuminer () {
 
-#	git clone https://github.com/tpruvot/cpuminer-multi.git /root/cpuminer
-#	print_success "Mining package was downloaded."
-#	cd /root/cpuminer
-#	./autogen.sh
-#	./configure --disable-assembly CFLAGS="-Ofast -march=native" --with-crypto --with-curl
-#	make
-#	print_success "CPUminer Multi was compiled."
-
 	wget http://cdn.getlynx.io/cpuminer-1.0.deb
 	print_success "Mining package was downloaded."
 
 	dpkg -i cpuminer-1.0.deb
-	print_success "CPUminer Multi was compiled."
+	print_success "Mining binary was installed."
 
 }
 
