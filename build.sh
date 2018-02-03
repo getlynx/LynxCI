@@ -323,15 +323,17 @@ install_lynx () {
 
 install_cpuminer () {
 
+	apt-get install automake autoconf pkg-config libcurl4-openssl-dev libjansson-dev libssl-dev libgmp-dev make g++ -y
+
 	git clone https://github.com/tpruvot/cpuminer-multi.git /root/cpuminer
 	print_success "Mining package was downloaded."
 	cd /root/cpuminer
 	./autogen.sh
 
 	if [ "$OS" = "debian" ]; then
-		./configure CFLAGS="*-march=native*" --with-crypto --with-curl
+		./configure CFLAGS="-march=native" --with-crypto --with-curl
 	elif [ "$OS" = "ubuntu" ]; then
-		./configure CFLAGS="*-march=native*" --with-crypto --with-curl
+		./configure CFLAGS="-march=native" --with-crypto --with-curl
 	else
 		# raspian
 		./configure --disable-assembly CFLAGS="-Ofast -march=native" --with-crypto --with-curl
@@ -383,8 +385,8 @@ if [ \"\$IsMiner\" = \"Y\" ]; then
 				4) pool=\" XXXX\" ;;
 			esac
 
-			#/root/cpuminer/cpuminer -o\$pool
-			/usr/bin/cpuminer -o\$pool
+			/root/cpuminer/cpuminer -o\$pool
+			#/usr/bin/cpuminer -o\$pool
 
 		fi
 fi
