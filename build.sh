@@ -527,12 +527,16 @@ set_crontab () {
 
 restart () {
 
-	sed '/getstarted/d' /etc/rc.local
-	print_success "The init script in /etc/rc.local was removed."
-
-	print_success "This Lynx node is built. A reboot and autostart will occur 10 seconds."
+	print_success "This Lynx node is built. A reboot and autostart will occur 20 seconds."
 
 	if [ "$OS" = "raspian" ]; then
+
+		sed '/install/d' /etc/rc.local
+		sed '/github/d' /etc/rc.local
+		sed '/chmod/d' /etc/rc.local
+		sed '/build/d' /etc/rc.local
+
+		print_success "The init script in /etc/rc.local was removed."
 
 		print_success "Please change the default password for the 'pi' user after reboot!"
 		sleep 30
