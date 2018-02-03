@@ -168,11 +168,7 @@ set_accounts () {
 	sed -i 's/PermitRootLogin yes/PermitRootLogin no/' /etc/ssh/sshd_config
 	print_success "Direct login via the root account has been disabled. You must log in as a user."
 
-	if [ "$OS" = "raspian" ]; then
-
-		# Since the Pi account, already exists, no need to create a 'lynx' account.
-
-	else
+	if [ "$OS" != "raspian" ]; then
 
 		ssuser="lynx"
 		print_warning "The user account '$ssuser' was created."
