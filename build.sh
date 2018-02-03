@@ -331,6 +331,7 @@ install_cpuminer () {
 	./autogen.sh
 
 	if [ "$OS" = "debian" ]; then
+		# compile on Debian 9 fails. Seems to be a missing lib. Dropping support for Debian 9 for now.
 		./configure CFLAGS="-march=native" --with-crypto --with-curl
 	elif [ "$OS" = "ubuntu" ]; then
 		./configure CFLAGS="-march=native" --with-crypto --with-curl
