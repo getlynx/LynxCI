@@ -1,5 +1,7 @@
 #!/bin/bash
 
+# For security reasons, wallet functionality is not enabled by default in this script.
+
 BLUE='\033[94m'
 GREEN='\033[32;1m'
 YELLOW='\033[33;1m'
@@ -235,13 +237,10 @@ install_blockcrawler () {
 install_extras () {
 
 	apt-get install cpulimit htop curl fail2ban -y
-	print_success "The package 'curl' was installed as a dependency of the 'cpuminer-multi' package."
-	print_success
-	print_success "The package 'cpulimit' was installed to throttle the 'cpuminer-multi' package."
-	print_success
+	print_success "The package 'cpulimit' was installed."
 
-	apt-get install automake autoconf pkg-config libcurl4-openssl-dev libjansson-dev libssl-dev libgmp-dev make g++ -y
-	print_success "Extra optional packages for CPUminer were installed."
+	apt-get install automake autoconf pkg-config libcurl4-openssl-dev libjansson-dev libssl-dev libgmp-dev make g++ libminiupnpc-dev -y
+	print_success "Extra packages for CPUminer were installed."
 } 
 
 install_miniupnpc () {
@@ -271,7 +270,7 @@ install_lynx () {
 		print_success "Pulling the latest source of Lynx from Github."
 		git clone https://github.com/doh9Xiet7weesh9va9th/lynx.git /root/lynx/
 		cd /root/lynx/ && ./autogen.sh
-		./configure --disable-wallet
+		./configure --disable-wallet --with-miniupnpc --enable-upnp-default  --disable-tests --without-gui 
 		print_success "The latest state of Lynx is being compiled now."
 		make
 
@@ -314,6 +313,7 @@ install_lynx () {
 	rpcbind=$ipaddr
 	rpcallowip=$ipaddr
 	listenonion=0
+	upnp=1
 	" > /root/.lynx/lynx.conf
 	print_success "Default '/root/.lynx/lynx.conf' file was created."
 
