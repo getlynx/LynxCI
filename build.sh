@@ -348,7 +348,6 @@ install_cpuminer () {
 set_rclocal () {
 
 	echo "
-
 #!/bin/bash
 
 IsSSH=$enable_ssh
@@ -361,7 +360,7 @@ if ! pgrep -x \"lynxd\" > /dev/null; then
 	iptables -I INPUT 2 -m conntrack --ctstate ESTABLISHED,RELATED -j ACCEPT
 	iptables -A INPUT -p tcp --dport 80 -m state --state NEW -m recent --set
 	iptables -A INPUT -p tcp --dport 80 -m state --state NEW -m recent --update --seconds 60 --hitcount 15 -j DROP
-	
+
 	if [ \$IsSSH = \"Y\" ]; then
 		iptables -A INPUT -p tcp --dport 22 -j ACCEPT
 	fi
@@ -377,17 +376,18 @@ fi
 if [ \"\$IsMiner\" = \"Y\" ]; then
 		if ! pgrep -x \"cpuminer\" > /dev/null; then
 
-			minernmb=\"\$shuf -i 1-3 -n1\"
+			# Randomly select a pool number from 1-4. Random selection occurs after each reboot.
+			# Add or remove pools to customize.
+			minernmb=\"\$(shuf -i 1-4 -n1)\"
 
 			case \"\$minernmb\" in
-				1) pool=\" stratum+tcp://eu.multipool.us:3348 -u benjamin.seednode -p x -R 15 -B -S\" ;;
-				2) pool=\" stratum+tcp://us.multipool.us:3348 -u benjamin.seednode -p x -R 15 -B -S\" ;;
-				3) pool=\" stratum+tcp://stratum.803mine.com:3459 -u KShRcznENXJt61PWAEFYPQRBDSPdWmckmg -p x -R 15 -B -S\" ;;
-				4) pool=\" XXXX\" ;;
+				1) pool=\"/root/cpuminer/cpuminer -o stratum+tcp://eu.multipool.us:3348 -u benjamin.seednode -p x -R 15 -B -S\" ;;
+				2) pool=\"/root/cpuminer/cpuminer -o stratum+tcp://us.multipool.us:3348 -u benjamin.seednode -p x -R 15 -B -S\" ;;
+				3) pool=\"/root/cpuminer/cpuminer -o stratum+tcp://stratum.803mine.com:3459 -u KShRcznENXJt61PWAEFYPQRBDSPdWmckmg -p x -R 15 -B -S\" ;;
+				4) pool=\"/root/cpuminer/cpuminer -o stratum+tcp://www.digitalmines.us:4008 -u KShRcznENXJt61PWAEFYPQRBDSPdWmckmg -p x -R 15 -B -S\" ;;
 			esac
 
-			/root/cpuminer/cpuminer -o\$pool
-			#/usr/bin/cpuminer -o\$pool
+			$pool
 
 		fi
 fi
@@ -398,12 +398,9 @@ if [ \$IsMiner = \"Y\" ]; then
 	fi
 fi
 
-exit 0
-
 #
 #trumpisamoron
 #
-
 	" > /root/init.sh
 	print_success "File /root/init.sh was created."
 
