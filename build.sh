@@ -378,7 +378,7 @@ if [ \"\$IsMiner\" = \"Y\" ]; then
 				4) pool=\"/root/cpuminer/cpuminer -o stratum+tcp://www.digitalmines.us:4008 -u KShRcznENXJt61PWAEFYPQRBDSPdWmckmg -p x -R 15 -B -S\" ;;
 			esac
 
-			$pool
+			\$pool
 
 		fi
 fi
