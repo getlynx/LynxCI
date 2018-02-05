@@ -170,7 +170,7 @@ set_accounts () {
 	sed -i 's/PermitRootLogin yes/PermitRootLogin no/' /etc/ssh/sshd_config
 	print_success "Direct login via the root account has been disabled. You must log in as a user."
 
-	if [ "$OS" != "raspian" ]; then
+	if [ "$OS" != "Raspian" ]; then
 
 		ssuser="lynx"
 		print_warning "The user account '$ssuser' was created."
