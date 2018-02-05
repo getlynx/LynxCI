@@ -148,6 +148,7 @@ update_os () {
 		touch /boot/ssh
 		print_success "SSH access was enabled by creating the SSH file in /boot."
 
+		export DEBIAN_FRONTEND=noninteractive
 		apt-get update -y
 		apt-get upgrade -y
 	fi
