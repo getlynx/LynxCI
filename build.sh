@@ -143,7 +143,7 @@ update_os () {
 		truncate -s 0 /etc/motd && cat /root/LynxNodeBuilder/logo.txt >> /etc/motd
 
 		# 'raspbian' would evaluate here.
-		print_success "Raspian was detected. You are using a Raspberry Pi. We love you."
+		print_success "Raspbian was detected. You are using a Raspberry Pi. We love you."
 		apt-get update -y
 		apt-get upgrade -y
 	fi
@@ -199,7 +199,7 @@ install_blockcrawler () {
 	server {
         listen 80 default_server;
         listen [::]:80 default_server;
-        root /var/www/html/BlockCrawler;
+        root /var/www/html/Blockcrawler;
         index index.php;
         server_name _;
         location / {
@@ -217,8 +217,8 @@ install_blockcrawler () {
 
 	cd /var/www/html/ && wget http://cdn.getlynx.io/BlockCrawler.tar.gz
 	tar -xvf BlockCrawler.tar.gz
-	chmod 744 -R /var/www/html/Blockcrawler/
-	chown root:root -R /var/www/html/Blockcrawler/
+	chmod 755 -R /var/www/html/Blockcrawler/
+	chown www-data:www-data -R /var/www/html/Blockcrawler/
 
 	sed -i -e 's/'"127.0.0.1"'/'"$ipaddr"'/g' /var/www/html/Blockcrawler/bc_daemon.php
 	sed -i -e 's/'"8332"'/'"9332"'/g' /var/www/html/Blockcrawler/bc_daemon.php
@@ -327,7 +327,7 @@ install_cpuminer () {
 	elif [ "$OS" = "ubuntu" ]; then
 		./configure CFLAGS="-march=native" --with-crypto --with-curl
 	else
-		# raspian
+		# raspbian
 		./configure --disable-assembly CFLAGS="-Ofast -march=native" --with-crypto --with-curl
 	fi
 
@@ -520,7 +520,7 @@ restart () {
 
 	print_success "This Lynx node is built. A reboot and autostart will occur 20 seconds."
 
-	if [ "$OS" = "raspian" ]; then
+	if [ "$OS" = "raspbian" ]; then
 
 		sed '/install/d' /etc/rc.local
 		sed '/github/d' /etc/rc.local
