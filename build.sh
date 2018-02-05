@@ -10,29 +10,29 @@ RESET='\033[0m'
 
 print_info () {
 
-    printf "$BLUE$1$RESET\n"
-    sleep 1
+	printf "$BLUE$1$RESET\n"
+	sleep 1
 
 }
 
 print_success () {
 
-    printf "$GREEN$1$RESET\n"
-    sleep 1
+	printf "$GREEN$1$RESET\n"
+	sleep 1
 
 }
 
 print_warning () {
 
-    printf "$YELLOW$1$RESET\n"
-    sleep 1
+	printf "$YELLOW$1$RESET\n"
+	sleep 1
 
 }
 
 print_error () {
 
-    printf "$RED$1$RESET\n"
-    sleep 1
+	printf "$RED$1$RESET\n"
+	sleep 1
 
 }
 
@@ -83,27 +83,27 @@ compile_query () {
 			# Set the ssh enabled flag
 			#
 			case "$ans2" in
-			         y|Y) enable_ssh=Y ;;
-			         n|N) enable_ssh=N ;;
-			         *) enable_ssh=N ;;
+				y|Y) enable_ssh=Y ;;
+				n|N) enable_ssh=N ;;
+				*) enable_ssh=N ;;
 			esac
 
 			#
 			# Set the latest bootstrap flag
 			#
 			case "$ans3" in
-			         y|Y) latest_bs=Y ;;
-			         n|N) latest_bs=N ;;
-			         *) latest_bs=Y ;;
+				y|Y) latest_bs=Y ;;
+				n|N) latest_bs=N ;;
+				*) latest_bs=Y ;;
 			esac
 
 			#
 			# Set the mining enabled flag
 			#
 			case "$ans4" in
-			         y|Y) enable_mining=Y ;;
-			         n|N) enable_mining=N ;;
-			         *) enable_mining=Y ;;
+				y|Y) enable_mining=Y ;;
+				n|N) enable_mining=N ;;
+				*) enable_mining=Y ;;
 			esac
 
 		else
@@ -201,20 +201,16 @@ install_blockcrawler () {
 
 	echo "
 	server {
-        listen 80 default_server;
-        listen [::]:80 default_server;
-        root /var/www/html/Blockcrawler;
-        index index.php;
-        server_name _;
-        location / {
-			try_files \$uri \$uri/ =404;
-        }
-
-        location ~ \.php$ {
+		listen 80 default_server;
+		listen [::]:80 default_server;
+		root /var/www/html/Blockcrawler;
+		index index.php;
+		server_name _;
+		location / { try_files \$uri \$uri/ =404; }
+		location ~ \.php$ {
 			include snippets/fastcgi-php.conf;
 			fastcgi_pass unix:/run/php/php7.0-fpm.sock;
-        }
-
+		}
 	}
 	" > /etc/nginx/sites-available/default
 	print_success "Nginx is configured."
@@ -249,14 +245,14 @@ install_extras () {
 
 install_miniupnpc () {
 
-    print_success "Installing miniupnpc from source."
-    rm -rf miniupnpc-2.0 miniupnpc-2.0.tar.gz &&
-    wget -q http://miniupnp.free.fr/files/download.php?file=miniupnpc-2.0.tar.gz -O miniupnpc-2.0.tar.gz && \
-    tar xzf miniupnpc-2.0.tar.gz && \
-    cd miniupnpc-2.0 && \
-    make install > build.out 2>&1 && \
-    cd .. && \
-    rm -rf miniupnpc-2.0 miniupnpc-2.0.tar.gz
+	print_success "Installing miniupnpc from source."
+	rm -rf miniupnpc-2.0 miniupnpc-2.0.tar.gz &&
+	wget -q http://miniupnp.free.fr/files/download.php?file=miniupnpc-2.0.tar.gz -O miniupnpc-2.0.tar.gz && \
+	tar xzf miniupnpc-2.0.tar.gz && \
+	cd miniupnpc-2.0 && \
+	make install > build.out 2>&1 && \
+	cd .. && \
+	rm -rf miniupnpc-2.0 miniupnpc-2.0.tar.gz
 
 }
 
@@ -511,7 +507,7 @@ set_crontab () {
 	crontab -l | { cat; echo "*/5 * * * *		cd /root/lynx/src/ && ./lynxd -daemon"; } | crontab -
 	print_success "A crontab for '/root/lynx/src/lynxd' has been set up. It will start automatically every 5 minutes."
 
-	crontab -l | { cat; echo "*/15 * * * *		/root/init.sh"; } | crontab -
+	crontab -l | { cat; echo "*/1 * * * *		/root/init.sh"; } | crontab -
 	print_success "A crontab for the '/root/init.sh' has been set up. It will execute every 15 minutes."
 
 	crontab -l | { cat; echo "0 0 */15 * *		reboot"; } | crontab -
