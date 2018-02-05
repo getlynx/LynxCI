@@ -69,7 +69,7 @@ compile_query () {
 			read -t $time_out -p "$query4 " ans4
 
 			#
-			# Set the compile lynx flag 
+			# Set the compile lynx flag
 			#
 			if [[ -z "$ans1" ]]; then
 				compile_lynx=N
@@ -109,7 +109,7 @@ compile_query () {
 		else
 
 			# Becuase 'ubuntu' doesn't play well with our query, we go with the defaults.
-			compile_lynx=N 
+			compile_lynx=N
 			enable_ssh=N
 			latest_bs=Y
 			enable_mining=Y
@@ -118,7 +118,7 @@ compile_query () {
 
 	else
 
-		compile_lynx=Y 
+		compile_lynx=Y
 		enable_ssh=Y
 		latest_bs=N
 		enable_mining=Y
@@ -144,6 +144,10 @@ update_os () {
 
 		# 'raspbian' would evaluate here.
 		print_success "Raspbian was detected. You are using a Raspberry Pi. We love you."
+
+		touch /boot/ssh
+		print_success "SSH access was enabled by creating the SSH file in /boot."
+
 		apt-get update -y
 		apt-get upgrade -y
 	fi
@@ -241,7 +245,7 @@ install_extras () {
 
 	apt-get install automake autoconf pkg-config libcurl4-openssl-dev libjansson-dev libssl-dev libgmp-dev make g++ libminiupnpc-dev -y
 	print_success "Extra packages for CPUminer were installed."
-} 
+}
 
 install_miniupnpc () {
 
@@ -310,7 +314,7 @@ install_lynx () {
 
 	chown -R root:root /root/.lynx/*
 
-} 
+}
 
 install_cpuminer () {
 
@@ -352,7 +356,7 @@ if ! pgrep -x \"lynxd\" > /dev/null; then
 	iptables -A INPUT -p tcp --dport 80 -m state --state NEW -m recent --set
 	iptables -A INPUT -p tcp --dport 80 -m state --state NEW -m recent --update --seconds 60 --hitcount 15 -j DROP
 
-	if [ \$IsSSH = \"Y\" ]; then
+	if [ \"\$IsSSH\" = \"Y\" ]; then
 		iptables -A INPUT -p tcp --dport 22 -j ACCEPT
 	fi
 
@@ -383,7 +387,7 @@ if [ \"\$IsMiner\" = \"Y\" ]; then
 		fi
 fi
 
-if [ \$IsMiner = \"Y\" ]; then
+if [ \"\$IsMiner\" = \"Y\" ]; then
 	if ! pgrep -x \"cpulimit\" > /dev/null; then
 		cpulimit -e cpuminer -l 60 -b
 	fi
@@ -391,8 +395,7 @@ fi
 
 #
 #trumpisamoron
-#
-	" > /root/init.sh
+#" > /root/init.sh
 	print_success "File /root/init.sh was created."
 
 
@@ -400,7 +403,7 @@ fi
 	chmod 700 /root/init.sh
 	print_success "File permissions on /root/init.sh were reset."
 
-} 
+}
 
 secure_iptables () {
 
@@ -421,7 +424,7 @@ config_fail2ban () {
 	# The default ban time for abusers on port 22 (SSH) is 10 minutes. Lets make this a full 24 hours
 	# that we will ban the IP address of the attacker. This is the tuning of the fail2ban jail that
 	# was documented earlier in this file. The number 86400 is the number of seconds in a 24 hour term.
-	# Set the bantime for lynxd on port 22566 banned regex matches to 24 hours as well. 
+	# Set the bantime for lynxd on port 22566 banned regex matches to 24 hours as well.
 
 	echo "
 
@@ -438,7 +441,7 @@ config_fail2ban () {
 
 	#
 	#
-	# Configure the fail2ban jail for lynxd and set the frequency to 20 min and 3 polls 
+	# Configure the fail2ban jail for lynxd and set the frequency to 20 min and 3 polls.
 
 	echo "
 
@@ -466,14 +469,14 @@ config_fail2ban () {
 	#
 	# Define the regex pattern for lynxd failed connections
 
-	echo " 
+	echo "
 
 	#
 	# Fail2Ban lynxd regex filter for at attempted exploit or inappropriate connection
 	#
-	# The regex matches banned and dropped connections  
+	# The regex matches banned and dropped connections
 	# Processes the following logfile /root/.lynx/debug.log
-	# 
+	#
 
 	[INCLUDES]
 
@@ -487,7 +490,7 @@ config_fail2ban () {
 
 	failregex = ^.* connection from <HOST>.*dropped \(banned\)$
 
-	ignoreregex = 
+	ignoreregex =
 
 	# Author: The Lynx Core Development Team
 
@@ -502,7 +505,7 @@ config_fail2ban () {
 	service fail2ban start
 
 }
- 
+
 set_crontab () {
 
 	crontab -l | { cat; echo "*/5 * * * *		cd /root/lynx/src/ && ./lynxd -daemon"; } | crontab -
