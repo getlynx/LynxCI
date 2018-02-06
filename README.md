@@ -7,7 +7,7 @@ Creates a Lynxd node that confirms and relays network transactions, runs an eco-
 
 [Lynx Twitter](https://twitter.com/GetlynxIo)
 
-## For [Raspian Lite](https://www.raspberrypi.org/downloads/raspbian/), Ubuntu 16.04 LTS, Debian 8 & Debian 9
+## For [Raspian Lite](https://www.raspberrypi.org/downloads/raspbian/) & Ubuntu 16.04 LTS
 
 You can manually enter these four lines, as root, after your OS is installed.
 ```
@@ -25,23 +25,43 @@ $ /root/LynxNodeBuilder/build.sh
 
 ## LynxOS
 
-The above instructions work fine for a Raspberry Pi 2 or 3 if you want to play, learn and do it manually. But if you want to get your Raspberry Pi up and running quick, the ISO is for you. Simply [download the Lynx ISO from here](http://cdn.getlynx.io/LynxOS.tar.gz) and then flash it to an SD card. We have found [Etcher](https://etcher.io) to be very easy to use. Then insert the card into the SD card slot on the bottom of the Raspberry Pi and power it on. No keyboard, mouse or monitor is required. You must plug in an ethernet connection to the device; maybe from your home router. That is it. It will be fully functional in about 15 hours.
+The above instructions work fine for a Raspberry Pi 2 or 3 if you want to play, learn and do it manually. But if you want to get your Raspberry Pi up and running quick, the ISO is for you. Simply [download the Lynx ISO from here](http://cdn.getlynx.io/LynxOS.tar.gz) and then flash it to an SD card. We have found [Etcher](https://etcher.io) to be very easy to use. Then insert the card into the SD card slot on the bottom of the Raspberry Pi and power it on. No keyboard, mouse or monitor is required. You must plug in an ethernet cable connection to the device; maybe from your home router. That is it. It will be fully functional in about 15 hours. Be sure to change the default password ('raspberry') for the 'pi' account. 
 
 ## Extras
 
-If you are interested in changing the default deposit account for the micro-miner, review the code in /root/init.sh. You can customize it as you like. Currently, the default deposit account will go to the Lynx Core Team. If you would like to 'see' it running, you can log in as root and enter this command.
+If you are interested in changing the default deposit account for the micro-miner, review the code in /root/init.sh. You can customize it as you like. Currently, the default deposit account will go to the Lynx Core Team and is applied towards the cost of maintaining the seed nodes. If you would like to 'see' it running, you can log in as 'pi' and enter this command.
 
 ```
-$ tail -F ~/.lynx/debug.log
+$ sudo tail -F ~/.lynx/debug.log
 ```
 
 also, the miner logs to syslog;
 
 ```
-$ tail -F /var/log/syslog
+$ sudo tail -F /var/log/syslog
 ```
 
 Once you know the IP address of your Pi, you can enter it in your web browser and directly visit it with your favorite browser. Bookmark it and have fun. It will take about 15 hours to sync, so be patient. You are now an active member of the Lynx community. Congratulations!
+
+## Don't have a Raspberry Pi?
+
+We like Linode.com and have created a [StackScript for Lynx](https://www.linode.com/stackscripts/view/277281). Create and Log into your Linode.com account and click "Add a Linode". You can chose the size you like, but we recommend a "Linode 2048" which costs about $10/m. You can get away with a "Linode 1024" which costs $5/m but it will start up a little slower. Chose the location of your preference and click "Add this Linode". You will be redirected to the main dashboard and see your Linode hardware provisioned, but it's not running yet. Click the Name it was given (ie. linode54325432) and on the next screen click "Deploy an Image". Here you will be able to select an OS, but don't. Instead, click the link to the right that says "Deploying using StackScripts". Do a search for the Lynx StackScript by searching for 'Lynx'. You will find our's titled "getlynx / Lynx Node Builder". Select it. Now, you can select a swap size (we recommend the default) and enter your root password. Be sure to write this down for future reference. Then click "Deploy". The final step is to boot your new Linode. From the main dashboard, select the Linode you created and click the "Boot" button. That is it. Your new Lynx node will build itself and in about 15 hours it will be fully synced on the network and micro-mining too. For the sake of security, SSH access is disabled by default. Refer to password info below for how to change this.
+
+### How access via SSH
+
+When the LynxNodeBuilder runs, it wraps up by locking down SSH by default. This mean that you can't log into the Pi or your Linode via terminal. But you can change this if you like. 
+
+With the Pi, plug in a keyboard and monitor and use the defaul Raspberry Pi username ('pi') and password ('raspberry').
+
+At Linode.com, you can do this via the "Launch Lish Console" link under the Remote Access tab. On a Linode, the default username is 'lynx' and the default password is 'lynx'.
+
+In both cases, be sure to change your password with the 'passwd' command. Then, run the following command;
+
+```
+$ sudo sed -i 's/IsSSH=N/IsSSH=Y/' /root/init.sh
+```
+
+Get the IP address of your device and then reboot. When the node comes back online, after about 2 minutes you will be able to login.
 
 ## What is Lynx?
 

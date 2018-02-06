@@ -119,7 +119,7 @@ compile_query () {
 	else
 
 		compile_lynx=Y
-		enable_ssh=Y
+		enable_ssh=N
 		latest_bs=N
 		enable_mining=Y
 
@@ -148,7 +148,6 @@ update_os () {
 		touch /boot/ssh
 		print_success "SSH access was enabled by creating the SSH file in /boot."
 
-		export DEBIAN_FRONTEND=noninteractive
 		apt-get update -y
 		apt-get upgrade -y
 	fi
