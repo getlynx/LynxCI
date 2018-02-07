@@ -119,7 +119,7 @@ compile_query () {
 	else
 
 		compile_lynx=Y
-		enable_ssh=N
+		enable_ssh=Y
 		latest_bs=N
 		enable_mining=Y
 
@@ -336,68 +336,81 @@ install_cpuminer () {
 
 }
 
-set_rclocal () {
+set_firewall () {
 
 	echo "
-#!/bin/bash
 
-IsSSH=$enable_ssh
-IsMiner=$enable_mining
+	#!/bin/bash
 
-if ! pgrep -x \"lynxd\" > /dev/null; then
+	IsSSH=$enable_ssh
 
-	iptables -F
-	iptables -I INPUT 1 -i lo -j ACCEPT
-	iptables -I INPUT 2 -m conntrack --ctstate ESTABLISHED,RELATED -j ACCEPT
-	iptables -A INPUT -p tcp --dport 80 -m state --state NEW -m recent --set
-	iptables -A INPUT -p tcp --dport 80 -m state --state NEW -m recent --update --seconds 60 --hitcount 15 -j DROP
+	/sbin/iptables -F
+	/sbin/iptables -I INPUT 1 -i lo -j ACCEPT
+	/sbin/iptables -I INPUT 2 -m conntrack --ctstate ESTABLISHED,RELATED -j ACCEPT
+	/sbin/iptables -A INPUT -p tcp --dport 80 -m state --state NEW -m recent --set
+	/sbin/iptables -A INPUT -p tcp --dport 80 -m state --state NEW -m recent --update --seconds 60 --hitcount 15 -j DROP
 
 	if [ \"\$IsSSH\" = \"Y\" ]; then
-		iptables -A INPUT -p tcp --dport 22 -j ACCEPT
+		/sbin/iptables -A INPUT -p tcp --dport 22 -j ACCEPT
 	fi
 
-	# iptables -A INPUT -p tcp --dport 9332 -j ACCEPT
+	/sbin/iptables -A INPUT -p tcp --dport 80 -j ACCEPT
+	/sbin/iptables -A INPUT -p tcp --dport 22566 -j ACCEPT
+	/sbin/iptables -A INPUT -j DROP
 
-	iptables -A INPUT -p tcp --dport 80 -j ACCEPT
-	iptables -A INPUT -p tcp --dport 22566 -j ACCEPT
-	iptables -A INPUT -j DROP
+	#
+	#trumpisamoron
+	#
 
-fi
+	" > /root/firewall.sh
 
-if [ \"\$IsMiner\" = \"Y\" ]; then
-		if ! pgrep -x \"cpuminer\" > /dev/null; then
+	print_success "Firewall rules are set in /root/firewall.sh"
 
-			# Randomly select a pool number from 1-4. Random selection occurs after each reboot.
-			# Add or remove pools to customize.
-			minernmb=\"\$(shuf -i 1-4 -n1)\"
+}
 
-			case \"\$minernmb\" in
-				1) pool=\"/root/cpuminer/cpuminer -o stratum+tcp://eu.multipool.us:3348 -u benjamin.seednode -p x -R 15 -B -S\" ;;
-				2) pool=\"/root/cpuminer/cpuminer -o stratum+tcp://us.multipool.us:3348 -u benjamin.seednode -p x -R 15 -B -S\" ;;
-				3) pool=\"/root/cpuminer/cpuminer -o stratum+tcp://stratum.803mine.com:3459 -u KShRcznENXJt61PWAEFYPQRBDSPdWmckmg -p x -R 15 -B -S\" ;;
-				4) pool=\"/root/cpuminer/cpuminer -o stratum+tcp://www.digitalmines.us:4008 -u KShRcznENXJt61PWAEFYPQRBDSPdWmckmg -p x -R 15 -B -S\" ;;
-			esac
+set_miner () {
 
-			\$pool
+	echo "
 
+	#!/bin/bash
+
+	IsMiner=$enable_mining
+
+	if [[ \"\$IsMiner\" == \"Y\" && \"pgrep -x 'cpuminer'\" ]]; then
+	      
+		# Randomly select a pool number from 1-4. 
+		# Random selection occurs after each reboot, when this script is run.
+		# Add or remove pools to customize. 
+		# Be sure to increase the number 4 to the new total.
+		minernmb=\"\$(shuf -i 1-4 -n1)\"
+
+		case \"\$minernmb\" in
+			1) pool=\"/root/cpuminer/cpuminer -o stratum+tcp://eu.multipool.us:3348 -u benjamin.seednode -p x -R 15 -B -S\" ;;
+			2) pool=\"/root/cpuminer/cpuminer -o stratum+tcp://us.multipool.us:3348 -u benjamin.seednode -p x -R 15 -B -S\" ;;
+			3) pool=\"/root/cpuminer/cpuminer -o stratum+tcp://stratum.803mine.com:3459 -u KShRcznENXJt61PWAEFYPQRBDSPdWmckmg -p x -R 15 -B -S\" ;;
+			4) pool=\"/root/cpuminer/cpuminer -o stratum+tcp://www.digitalmines.us:4008 -u KShRcznENXJt61PWAEFYPQRBDSPdWmckmg -p x -R 15 -B -S\" ;;
+		esac
+
+		\$pool
+
+	fi
+
+	if [ \"\$IsMiner\" = \"Y\" ]; then
+		if ! pgrep -x \"cpulimit\" > /dev/null; then
+			cpulimit -e cpuminer -l 50 -b
 		fi
-fi
-
-if [ \"\$IsMiner\" = \"Y\" ]; then
-	if ! pgrep -x \"cpulimit\" > /dev/null; then
-		cpulimit -e cpuminer -l 50 -b
 	fi
-fi
 
-#
-#trumpisamoron
-#" > /root/init.sh
-	print_success "File /root/init.sh was created."
+	#
+	#trumpisamoron
+	#
 
+	" > /root/miner.sh
 
+	print_success "File /root/miner.sh was created."
 
-	chmod 700 /root/init.sh
-	print_success "File permissions on /root/init.sh were reset."
+	chmod 700 /root/miner.sh
+	print_success "File permissions on /root/miner.sh were reset."
 
 }
 
@@ -504,11 +517,23 @@ config_fail2ban () {
 
 set_crontab () {
 
-	crontab -l | { cat; echo "*/5 * * * *		cd /root/lynx/src/ && ./lynxd -daemon"; } | crontab -
-	print_success "A crontab for '/root/lynx/src/lynxd' has been set up. It will start automatically every 5 minutes."
+	crontab -l | { cat; echo "@reboot			/root/firewall.sh"; } | crontab -
+	print_success "A crontab for the '/root/firewall.sh' has been set up. It will run on boot."
 
-	crontab -l | { cat; echo "*/1 * * * *		/root/init.sh"; } | crontab -
-	print_success "A crontab for the '/root/init.sh' has been set up. It will execute every 15 minutes."
+	crontab -l | { cat; echo "*/60 * * * *		/root/firewall.sh"; } | crontab -
+	print_success "A crontab for the '/root/firewall.sh' has been set up. It will reset every hour."
+
+	crontab -l | { cat; echo "@reboot			cd /root/lynx/src/ && ./lynxd -daemon"; } | crontab -
+	print_success "A crontab for '/root/lynx/src/lynxd' has been set up. It will run on boot."
+
+	crontab -l | { cat; echo "*/10 * * * *		cd /root/lynx/src/ && ./lynxd -daemon"; } | crontab -
+	print_success "A crontab for '/root/lynx/src/lynxd' has been set up. It will start automatically every 10 minutes."
+
+	crontab -l | { cat; echo "@reboot			/root/miner.sh"; } | crontab -
+	print_success "A crontab for the '/root/miner.sh' has been set up. It will run on boot."
+
+	crontab -l | { cat; echo "*/15 * * * *		/root/miner.sh"; } | crontab -
+	print_success "A crontab for the '/root/miner.sh' has been set up. It will execute every 15 minutes."
 
 	crontab -l | { cat; echo "0 0 */15 * *		reboot"; } | crontab -
 	print_success "A crontab for the server has been set up. It will reboot automatically every 15 days."
@@ -531,21 +556,39 @@ restart () {
 
 	fi
 
+	touch /boot/lynxos
+
 	reboot
 
 }
 
-detect_os
-compile_query
-update_os
-set_network
-set_accounts
-install_extras
-install_lynx
-install_blockcrawler
-install_cpuminer
-set_rclocal
-secure_iptables
-config_fail2ban
-set_crontab
-restart
+if [ -f /boot/lynxos ]; then
+
+	print_error "Previous LynxOS detected. Install aborted."
+	rm -Rf /root/getstarted.sh
+
+	sleep 30	
+
+	restart
+
+else
+
+	print_error "Starting installation of LynxOS."
+
+	detect_os
+	compile_query
+	update_os
+	set_network
+	set_accounts
+	install_extras
+	install_lynx
+	install_blockcrawler
+	install_cpuminer
+	set_firewall
+	set_miner
+	secure_iptables
+	config_fail2ban
+	set_crontab
+	restart
+
+fi
