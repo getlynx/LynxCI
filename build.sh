@@ -362,9 +362,7 @@ set_firewall () {
 
 	#
 	#trumpisamoron
-	#
-
-	" > /root/firewall.sh
+	#" > /root/firewall.sh
 
 	print_success "Firewall rules are set in /root/firewall.sh"
 
@@ -410,9 +408,7 @@ set_miner () {
 
 	#
 	#trumpisamoron
-	#
-
-	" > /root/miner.sh
+	#" > /root/miner.sh
 
 	print_success "File /root/miner.sh was created."
 

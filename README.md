@@ -32,7 +32,7 @@ The above instructions work fine for a Raspberry Pi 2 or 3 if you want to play, 
 If you are interested in changing the default deposit account for the micro-miner, review the code in /root/init.sh. You can customize it as you like. Currently, the default deposit account will go to the Lynx Core Team and is applied towards the cost of maintaining the seed nodes. If you would like to see it running, log in and enter this command.
 
 ```
-$ sudo tail -F ~/.lynx/debug.log
+$ sudo tail -F /root/.lynx/debug.log
 ```
 
 also, the miner logs to syslog;
@@ -55,11 +55,13 @@ With the Pi, plug in a keyboard and monitor and use the defaul Raspberry Pi user
 
 At Linode.com, you can do this via the "Launch Lish Console" link under the Remote Access tab. On a Linode, the default username is 'lynx' and the default password is 'lynx'.
 
-In both cases, be sure to change your password with the 'passwd' command. Then, run the following command;
+In both cases, be sure to change your password with the 'passwd' command. Then, run the following command as the root user;
 
 ```
-$ sudo sed -i 's/IsSSH=N/IsSSH=Y/' /root/firewall.sh && /root/firewall.sh
+$ sed -i 's/IsSSH=N/IsSSH=Y/' /root/firewall.sh && /root/firewall.sh
 ```
+
+REQUIRED STEP: If you do this step and don't change your default password, your Pi will get hacked within a matter of time. Don't forget!
 
 ## What is Lynx?
 
