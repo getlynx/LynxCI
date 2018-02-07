@@ -118,8 +118,8 @@ compile_query () {
 
 	else
 
-		compile_lynx=N
-		enable_ssh=Y
+		compile_lynx=Y
+		enable_ssh=N
 		latest_bs=N
 		enable_mining=Y
 
