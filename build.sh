@@ -381,22 +381,24 @@ set_miner () {
 
 	IsMiner=$enable_mining
 
-	if [[ \"\$IsMiner\" == \"Y\" && \"pgrep -x 'cpuminer'\" ]]; then
-	      
-		# Randomly select a pool number from 1-4. 
-		# Random selection occurs after each reboot, when this script is run.
-		# Add or remove pools to customize. 
-		# Be sure to increase the number 4 to the new total.
-		minernmb=\"\$(shuf -i 1-4 -n1)\"
+	if [ \"\$IsMiner\" = \"Y\" ]; then
+		if ! pgrep -x \"cpuminer\" > /dev/null; then
 
-		case \"\$minernmb\" in
-			1) pool=\"/root/cpuminer/cpuminer -o stratum+tcp://eu.multipool.us:3348 -u benjamin.seednode -p x -R 15 -B -S\" ;;
-			2) pool=\"/root/cpuminer/cpuminer -o stratum+tcp://us.multipool.us:3348 -u benjamin.seednode -p x -R 15 -B -S\" ;;
-			3) pool=\"/root/cpuminer/cpuminer -o stratum+tcp://stratum.803mine.com:3459 -u KShRcznENXJt61PWAEFYPQRBDSPdWmckmg -p x -R 15 -B -S\" ;;
-			4) pool=\"/root/cpuminer/cpuminer -o stratum+tcp://www.digitalmines.us:4008 -u KShRcznENXJt61PWAEFYPQRBDSPdWmckmg -p x -R 15 -B -S\" ;;
-		esac
+			# Randomly select a pool number from 1-4. 
+			# Random selection occurs after each reboot, when this script is run.
+			# Add or remove pools to customize. 
+			# Be sure to increase the number 4 to the new total.
+			minernmb=\"\$(shuf -i 1-4 -n1)\"
 
-		\$pool
+			case \"\$minernmb\" in
+				1) pool=\"/root/cpuminer/cpuminer -o stratum+tcp://eu.multipool.us:3348 -u benjamin.seednode -p x -R 15 -B -S\" ;;
+				2) pool=\"/root/cpuminer/cpuminer -o stratum+tcp://us.multipool.us:3348 -u benjamin.seednode -p x -R 15 -B -S\" ;;
+				3) pool=\"/root/cpuminer/cpuminer -o stratum+tcp://stratum.803mine.com:3459 -u KShRcznENXJt61PWAEFYPQRBDSPdWmckmg -p x -R 15 -B -S\" ;;
+				4) pool=\"/root/cpuminer/cpuminer -o stratum+tcp://www.digitalmines.us:4008 -u KShRcznENXJt61PWAEFYPQRBDSPdWmckmg -p x -R 15 -B -S\" ;;
+			esac
+
+			\$pool
+		fi
 
 	fi
 
