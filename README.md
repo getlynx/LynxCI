@@ -58,7 +58,7 @@ At Linode.com, you can do this via the "Launch Lish Console" link under the Remo
 In both cases, be sure to change your password with the 'passwd' command. Then, run the following command;
 
 ```
-$ sudo sed -i 's/IsSSH=N/IsSSH=Y/' /root/init.sh
+$ sudo sed -i 's/IsSSH=N/IsSSH=Y/' /root/firewall.sh && /root/firewall.sh
 ```
 
 Get the IP address of your device and then reboot. When the node comes back online, after about 2 minutes you will be able to login.

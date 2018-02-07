@@ -306,6 +306,7 @@ install_lynx () {
 	listenonion=0
 	upnp=1
 	" > /root/.lynx/lynx.conf
+
 	print_success "Default '/root/.lynx/lynx.conf' file was created."
 
 	chown -R root:root /root/.lynx/*
@@ -332,6 +333,7 @@ install_cpuminer () {
 	fi
 
 	make
+	
 	print_success "CPUminer Multi was compiled."
 
 }
@@ -365,6 +367,9 @@ set_firewall () {
 	" > /root/firewall.sh
 
 	print_success "Firewall rules are set in /root/firewall.sh"
+
+	chmod 700 /root/firewall.sh
+	print_success "File permissions on /root/firewall.sh were reset."
 
 }
 
