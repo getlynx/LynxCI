@@ -333,7 +333,7 @@ install_cpuminer () {
 	fi
 
 	make
-	
+
 	print_success "CPUminer Multi was compiled."
 
 }
@@ -571,10 +571,6 @@ if [ -f /boot/lynxos ]; then
 
 	print_error "Previous LynxOS detected. Install aborted."
 	rm -Rf /root/getstarted.sh
-
-	sleep 30	
-
-	restart
 
 else
 

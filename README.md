@@ -61,8 +61,6 @@ In both cases, be sure to change your password with the 'passwd' command. Then, 
 $ sudo sed -i 's/IsSSH=N/IsSSH=Y/' /root/firewall.sh && /root/firewall.sh
 ```
 
-Get the IP address of your device and then reboot. When the node comes back online, after about 2 minutes you will be able to login.
-
 ## What is Lynx?
 
 Lynx is a secure cryptocurrency with fast transaction speeds and low-transaction fees. It’s also eco-friendly & easy-to-use. In 2017, our team upgraded and rebranded an existing coin (MEOW) as Lynx. How? We successfully forked Litecoin and ported the Kittehcoin blockchain history to it. This gives Lynx all the benefits of Litecoin with the full transaction history of Kittehcoin. These upgrades fixed the flaws in the original coin and revived its community of users. It’s cryptocurrency from the past; redesigned for the future.
