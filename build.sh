@@ -354,6 +354,9 @@ set_firewall () {
 
 	if [ \"\$IsSSH\" = \"Y\" ]; then
 		/sbin/iptables -A INPUT -p tcp --dport 22 -j ACCEPT
+	else
+		/sbin/iptables -A INPUT -p tcp -s 10.0.0.0/8 --dport 22 -j ACCEPT
+		/sbin/iptables -A INPUT -p tcp -s 192.168.0.0/16 --dport 22 -j ACCEPT
 	fi
 
 	/sbin/iptables -A INPUT -p tcp --dport 80 -j ACCEPT
