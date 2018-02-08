@@ -120,7 +120,7 @@ compile_query () {
 
 		compile_lynx=Y
 		enable_ssh=N
-		latest_bs=N
+		latest_bs=Y
 		enable_mining=Y
 
 	fi
