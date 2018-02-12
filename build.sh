@@ -270,7 +270,13 @@ install_lynx () {
 		print_success "Pulling the latest source of Lynx from Github."
 		git clone https://github.com/doh9Xiet7weesh9va9th/lynx.git /root/lynx/
 		cd /root/lynx/ && ./autogen.sh
-		./configure --disable-wallet --with-miniupnpc --enable-upnp-default  --disable-tests --without-gui 
+
+		if [ "$OS" = "raspbian" ]; then
+			./configure --disable-wallet --with-miniupnpc --enable-upnp-default  --disable-tests --without-gui
+		else
+			./configure --disable-wallet
+		fi
+
 		print_success "The latest state of Lynx is being compiled now."
 		make
 
