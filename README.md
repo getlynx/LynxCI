@@ -29,7 +29,7 @@ The above instructions work fine for a Raspberry Pi 2 or 3 if you want to play, 
 
 ## Extras
 
-If you are interested in changing the default deposit account for the micro-miner, review the code in /root/init.sh. You can customize it as you like. Currently, the default deposit account will go to the Lynx Core Team and is applied towards the cost of maintaining the seed nodes. If you would like to see it running, log in and enter this command.
+If you are interested in changing the default deposit account for the micro-miner, review the code in /root/miner.sh. You can customize it as you like. Currently, the default deposit account will go to the Lynx Core Team and is applied towards the cost of maintaining the seed nodes. If you would like to see it running, log in and enter this command.
 
 ```
 $ sudo tail -F /root/.lynx/debug.log
