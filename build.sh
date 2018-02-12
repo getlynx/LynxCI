@@ -568,20 +568,20 @@ restart () {
 
 	fi
 
-	touch /boot/lynxos
+	touch /boot/lynxci
 
 	reboot
 
 }
 
-if [ -f /boot/lynxos ]; then
+if [ -f /boot/lynxci ]; then
 
-	print_error "Previous LynxOS detected. Install aborted."
+	print_error "Previous LynxCI detected. Install aborted."
 	rm -Rf /root/getstarted.sh
 
 else
 
-	print_error "Starting installation of LynxOS."
+	print_error "Starting installation of LynxCI."
 
 	detect_os
 	compile_query
