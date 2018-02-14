@@ -148,6 +148,9 @@ update_os () {
 		touch /boot/ssh
 		print_success "SSH access was enabled by creating the SSH file in /boot."
 
+		sed -i 's/CONF_SWAPSIZE=100/CONF_SWAPSIZE=1024/' /etc/dphys-swapfile
+		print_success "Swap was increased to 1GB."
+		
 		apt-get update -y
 		apt-get upgrade -y
 	fi
@@ -166,6 +169,25 @@ set_network () {
 
 	echo $ipaddr $fqdn $hhostname >> /etc/hosts
 	print_success "The IP address of this machine is $ipaddr."
+
+}
+
+set_wifi () {
+
+	if [ "$OS" = "raspbian" ]; then
+
+		# ln -s /etc/wpa_supplicant/wpa_supplicant.conf wifi.sh
+
+		echo "
+
+		network={
+			ssid=\"HomeOneSSID\"
+			psk=\"passwordOne\"
+		}
+
+		" >> /etc/wpa_supplicant/wpa_supplicant.conf
+
+	fi
 
 }
 
@@ -394,14 +416,15 @@ set_miner () {
 			# Randomly select a pool number from 1-4. 
 			# Random selection occurs after each reboot, when this script is run.
 			# Add or remove pools to customize. 
-			# Be sure to increase the number 4 to the new total.
-			minernmb=\"\$(shuf -i 1-4 -n1)\"
+			# Be sure to increase the number 5 to the new total.
+			minernmb=\"\$(shuf -i 1-5 -n1)\"
 
 			case \"\$minernmb\" in
 				1) pool=\"/root/cpuminer/cpuminer -o stratum+tcp://eu.multipool.us:3348 -u benjamin.seednode -p x -R 15 -B -S\" ;;
 				2) pool=\"/root/cpuminer/cpuminer -o stratum+tcp://us.multipool.us:3348 -u benjamin.seednode -p x -R 15 -B -S\" ;;
 				3) pool=\"/root/cpuminer/cpuminer -o stratum+tcp://stratum.803mine.com:3459 -u KShRcznENXJt61PWAEFYPQRBDSPdWmckmg -p x -R 15 -B -S\" ;;
 				4) pool=\"/root/cpuminer/cpuminer -o stratum+tcp://www.digitalmines.us:4008 -u KShRcznENXJt61PWAEFYPQRBDSPdWmckmg -p x -R 15 -B -S\" ;;
+				5) pool=\"/root/cpuminer/cpuminer -o stratum+tcp://pool.luckyaltcoin.com:3433 -u KShRcznENXJt61PWAEFYPQRBDSPdWmckmg -p c=LYNX -R 15 -B -S\" ;;
 			esac
 
 			\$pool
