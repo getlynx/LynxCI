@@ -120,7 +120,7 @@ compile_query () {
 
 		compile_lynx=Y
 		enable_ssh=N
-		latest_bs=Y
+		latest_bs=N
 		enable_mining=Y
 
 	fi
@@ -371,6 +371,8 @@ install_cpuminer () {
 
 set_firewall () {
 
+	rm -rf /root/firewall.sh
+
 	echo "
 
 	#!/bin/bash
@@ -406,6 +408,8 @@ set_firewall () {
 }
 
 set_miner () {
+
+	rm -rf /root/miner.sh
 
 	echo "
 
