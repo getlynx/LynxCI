@@ -290,6 +290,7 @@ install_lynx () {
 	if [ "$compile_lynx" = "Y" ]; then
 
 		print_success "Pulling the latest source of Lynx from Github."
+		rm -rf /root/lynx/
 		git clone https://github.com/doh9Xiet7weesh9va9th/lynx.git /root/lynx/
 		cd /root/lynx/ && ./autogen.sh
 
@@ -311,6 +312,7 @@ install_lynx () {
 
 	fi
 
+	rm -rf /root/.lynx/
 	mkdir -p /root/.lynx && cd /root/.lynx
 	print_success "Created the '.lynx' directory."
 
@@ -345,6 +347,7 @@ install_cpuminer () {
 
 	apt-get install automake autoconf pkg-config libcurl4-openssl-dev libjansson-dev libssl-dev libgmp-dev make g++ -y
 
+	rm -rf /root/cpuminer
 	git clone https://github.com/tpruvot/cpuminer-multi.git /root/cpuminer
 	print_success "Mining package was downloaded."
 	cd /root/cpuminer
