@@ -120,7 +120,7 @@ compile_query () {
 
 		compile_lynx=Y
 		enable_ssh=N
-		latest_bs=N
+		latest_bs=Y
 		enable_mining=Y
 
 	fi
@@ -186,6 +186,8 @@ set_wifi () {
 		}
 
 		" >> /etc/wpa_supplicant/wpa_supplicant.conf
+
+		sed -i 's/GB/US/' /etc/ssh/sshd_config
 
 	fi
 
