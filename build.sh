@@ -120,7 +120,7 @@ compile_query () {
 
 		compile_lynx=Y
 		enable_ssh=N
-		latest_bs=Y
+		latest_bs=N
 		enable_mining=Y
 
 	fi
@@ -297,7 +297,8 @@ install_lynx () {
 		cd /root/lynx/ && ./autogen.sh
 
 		if [ "$OS" = "raspbian" ]; then
-			./configure --disable-wallet --with-miniupnpc --enable-upnp-default  --disable-tests --without-gui
+			#./configure --disable-wallet --with-miniupnpc --enable-upnp-default  --disable-tests --without-gui
+			./configure --disable-wallet --disable-tests
 		else
 			./configure --disable-wallet
 		fi
