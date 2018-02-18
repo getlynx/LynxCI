@@ -296,10 +296,9 @@ install_lynx () {
 		cd /root/lynx/ && ./autogen.sh
 
 		if [ "$OS" = "raspbian" ]; then
-			#./configure --disable-wallet --with-miniupnpc --enable-upnp-default  --disable-tests --without-gui
-			./configure --disable-wallet --disable-tests
+			./configure --without-gui --disable-wallet --disable-tests --with-miniupnpc --enable-upnp-default
 		else
-			./configure --disable-wallet
+			./configure --without-gui --disable-wallet --disable-tests
 		fi
 
 		print_success "The latest state of Lynx is being compiled now."
