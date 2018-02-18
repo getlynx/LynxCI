@@ -172,27 +172,6 @@ set_network () {
 
 }
 
-set_wifi () {
-
-	if [ "$OS" = "raspbian" ]; then
-
-		# ln -s /etc/wpa_supplicant/wpa_supplicant.conf wifi.sh
-
-		echo "
-
-		network={
-			ssid=\"HomeOneSSID\"
-			psk=\"passwordOne\"
-		}
-
-		" >> /etc/wpa_supplicant/wpa_supplicant.conf
-
-		sed -i 's/GB/US/' /etc/ssh/sshd_config
-
-	fi
-
-}
-
 set_accounts () {
 
 	sed -i 's/PermitRootLogin yes/PermitRootLogin no/' /etc/ssh/sshd_config
@@ -265,19 +244,6 @@ install_extras () {
 
 	apt-get install automake autoconf pkg-config libcurl4-openssl-dev libjansson-dev libssl-dev libgmp-dev make g++ libminiupnpc-dev -y
 	print_success "Extra packages for CPUminer were installed."
-}
-
-install_miniupnpc () {
-
-	print_success "Installing miniupnpc from source."
-	rm -rf miniupnpc-2.0 miniupnpc-2.0.tar.gz &&
-	wget -q http://miniupnp.free.fr/files/download.php?file=miniupnpc-2.0.tar.gz -O miniupnpc-2.0.tar.gz && \
-	tar xzf miniupnpc-2.0.tar.gz && \
-	cd miniupnpc-2.0 && \
-	make install > build.out 2>&1 && \
-	cd .. && \
-	rm -rf miniupnpc-2.0 miniupnpc-2.0.tar.gz
-
 }
 
 install_lynx () {
