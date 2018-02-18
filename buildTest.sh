@@ -567,16 +567,10 @@ set_crontab () {
 	crontab -l | { cat; echo "*/60 * * * *		/root/firewall.sh"; } | crontab -
 	print_success "A crontab for the '/root/firewall.sh' has been set up. It will reset every hour."
 
-	crontab -l | { cat; echo "@reboot			cd /root/lynx/src/ && ./lynxd -daemon"; } | crontab -
-	print_success "A crontab for '/root/lynx/src/lynxd' has been set up. It will run on boot."
-
-	crontab -l | { cat; echo "*/10 * * * *		cd /root/lynx/src/ && ./lynxd -daemon"; } | crontab -
+	crontab -l | { cat; echo "*/2 * * * *		cd /root/lynx/src/ && ./lynxd -daemon"; } | crontab -
 	print_success "A crontab for '/root/lynx/src/lynxd' has been set up. It will start automatically every 10 minutes."
 
-	crontab -l | { cat; echo "@reboot			/root/miner.sh"; } | crontab -
-	print_success "A crontab for the '/root/miner.sh' has been set up. It will run on boot."
-
-	crontab -l | { cat; echo "*/15 * * * *		/root/miner.sh"; } | crontab -
+	crontab -l | { cat; echo "*/10 * * * *		/root/miner.sh"; } | crontab -
 	print_success "A crontab for the '/root/miner.sh' has been set up. It will execute every 15 minutes."
 
 	crontab -l | { cat; echo "0 0 */15 * *		reboot"; } | crontab -
