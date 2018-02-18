@@ -177,17 +177,20 @@ set_wifi () {
 	if [ "$OS" = "raspbian" ]; then
 
 		print_error "To set up wifi, edit the /boot/wpa_supplicant.conf file."
-		cat > /boot/wpa_supplicant.conf << EOF
+		
+		echo "
+
 		ctrl_interface=DIR=/var/run/wpa_supplicant GROUP=netdev
 		update_config=1
 		country=US
 
 		network={
-			ssid="Your network SSID"
-			psk="Your WPA/WPA2 security key"
-			key_mgmt=WPA-PSK
+			ssid=\"Your network SSID\"
+			psk=\"Your WPA/WPA2 security key\"
+			key_mgmt=\"WPA-PSK\"
 		}
-		EOF
+
+		" >> /boot/wpa_supplicant.conf
 
 	fi
 
