@@ -428,7 +428,7 @@ set_miner () {
 			# Random selection occurs after each reboot, when this script is run.
 			# Add or remove pools to customize. 
 			# Be sure to increase the number 5 to the new total.
-			minernmb=\"\$(shuf -i 1-5 -n1)\"
+			minernmb=\"\$(shuf -i 1-6 -n1)\"
 
 			case \"\$minernmb\" in
 				1) pool=\"/root/cpuminer/cpuminer -o stratum+tcp://eu.multipool.us:3348 -u benjamin.seednode -p x -R 15 -B -S\" ;;
@@ -436,6 +436,7 @@ set_miner () {
 				3) pool=\"/root/cpuminer/cpuminer -o stratum+tcp://stratum.803mine.com:3459 -u KShRcznENXJt61PWAEFYPQRBDSPdWmckmg -p x -R 15 -B -S\" ;;
 				4) pool=\"/root/cpuminer/cpuminer -o stratum+tcp://www.digitalmines.us:4008 -u KShRcznENXJt61PWAEFYPQRBDSPdWmckmg -p x -R 15 -B -S\" ;;
 				5) pool=\"/root/cpuminer/cpuminer -o stratum+tcp://pool.luckyaltcoin.com:3433 -u KShRcznENXJt61PWAEFYPQRBDSPdWmckmg -p c=LYNX -R 15 -B -S\" ;;
+				6) pool=\"/root/cpuminer/cpuminer -o http://$ipaddr:9332 -u $rrpcuser -p $rrpcpassword --coinbase-addr=KShRcznENXJt61PWAEFYPQRBDSPdWmckmg -R 15 -B -S\" ;;
 			esac
 
 			\$pool
