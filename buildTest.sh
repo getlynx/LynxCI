@@ -172,30 +172,6 @@ set_network () {
 
 }
 
-set_wifi () {
-
-	if [ "$OS" = "raspbian" ]; then
-
-		print_error "To set up wifi, edit the /boot/wpa_supplicant.conf file."
-		
-		echo "
-
-		ctrl_interface=DIR=/var/run/wpa_supplicant GROUP=netdev
-		update_config=1
-		country=US
-
-		network={
-			ssid=\"Your network SSID\"
-			psk=\"Your WPA/WPA2 security key\"
-			key_mgmt=\"WPA-PSK\"
-		}
-
-		" >> /boot/wpa_supplicant.conf
-
-	fi
-
-}
-
 set_accounts () {
 
 	sed -i 's/PermitRootLogin yes/PermitRootLogin no/' /etc/ssh/sshd_config
@@ -424,7 +400,7 @@ set_miner () {
 	if [ \"\$IsMiner\" = \"Y\" ]; then
 		if ! pgrep -x \"cpuminer\" > /dev/null; then
 
-			# Randomly select a pool number from 1-4. 
+			# Randomly select a pool number from 1-6. 
 			# Random selection occurs after each reboot, when this script is run.
 			# Add or remove pools to customize. 
 			# Be sure to increase the number 5 to the new total.
@@ -616,7 +592,6 @@ else
 	compile_query
 	update_os
 	set_network
-	set_wifi
 	set_accounts
 	install_extras
 	install_miniupnpc
