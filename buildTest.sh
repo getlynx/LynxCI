@@ -149,7 +149,7 @@ update_os () {
 		print_success "SSH access was enabled by creating the SSH file in /boot."
 
 		sed -i 's/CONF_SWAPSIZE=100/CONF_SWAPSIZE=1024/' /etc/dphys-swapfile
-		print_success "Swap was increased to 1GB."
+		print_success "Swap will be increased to 1GB on reboot."
 		
 		apt-get update -y
 		apt-get upgrade -y
@@ -169,6 +169,30 @@ set_network () {
 
 	echo $ipaddr $fqdn $hhostname >> /etc/hosts
 	print_success "The IP address of this machine is $ipaddr."
+
+}
+
+set_wifi () {
+
+	if [ "$OS" = "raspbian" ]; then
+
+		print_error "To set up wifi, edit the /boot/wpa_supplicant.conf file."
+		
+		echo "
+
+		ctrl_interface=DIR=/var/run/wpa_supplicant GROUP=netdev
+		update_config=1
+		country=US
+
+		network={
+			ssid=\"Your network SSID\"
+			psk=\"Your WPA/WPA2 security key\"
+			key_mgmt=\"WPA-PSK\"
+		}
+
+		" >> /boot/wpa_supplicant.conf
+
+	fi
 
 }
 
@@ -586,12 +610,13 @@ if [ -f /boot/lynxci ]; then
 
 else
 
-	print_error "Starting installation of LynxCI."
+	print_error "Starting installation of LynxCI. This will be a cpu and memory intensive process that will last hours, depending on your hardware."
 
 	detect_os
 	compile_query
 	update_os
 	set_network
+	set_wifi
 	set_accounts
 	install_extras
 	install_miniupnpc
