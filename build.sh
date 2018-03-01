@@ -244,6 +244,18 @@ install_extras () {
 
 	apt-get install automake autoconf pkg-config libcurl4-openssl-dev libjansson-dev libssl-dev libgmp-dev make g++ libminiupnpc-dev -y
 	print_success "Extra packages for CPUminer were installed."
+
+}
+
+install_miniupnpc () {
+
+	if [ "$OS" = "raspbian" ]; then
+
+		print_info "Installing miniupnpc."
+		apt-get install libminiupnpc-dev -y
+
+	fi
+
 }
 
 install_lynx () {
@@ -263,10 +275,9 @@ install_lynx () {
 		cd /root/lynx/ && ./autogen.sh
 
 		if [ "$OS" = "raspbian" ]; then
-			#./configure --disable-wallet --with-miniupnpc --enable-upnp-default  --disable-tests --without-gui
-			./configure --disable-wallet --disable-tests
+			./configure --without-gui --disable-wallet --disable-tests --with-miniupnpc --enable-upnp-default
 		else
-			./configure --disable-wallet
+			./configure --without-gui --disable-wallet --disable-tests
 		fi
 
 		print_success "The latest state of Lynx is being compiled now."
@@ -389,11 +400,11 @@ set_miner () {
 	if [ \"\$IsMiner\" = \"Y\" ]; then
 		if ! pgrep -x \"cpuminer\" > /dev/null; then
 
-			# Randomly select a pool number from 1-4. 
+			# Randomly select a pool number from 1-6. 
 			# Random selection occurs after each reboot, when this script is run.
 			# Add or remove pools to customize. 
 			# Be sure to increase the number 5 to the new total.
-			minernmb=\"\$(shuf -i 1-5 -n1)\"
+			minernmb=\"\$(shuf -i 1-6 -n1)\"
 
 			case \"\$minernmb\" in
 				1) pool=\"/root/cpuminer/cpuminer -o stratum+tcp://eu.multipool.us:3348 -u benjamin.seednode -p x -R 15 -B -S\" ;;
@@ -401,6 +412,7 @@ set_miner () {
 				3) pool=\"/root/cpuminer/cpuminer -o stratum+tcp://stratum.803mine.com:3459 -u KShRcznENXJt61PWAEFYPQRBDSPdWmckmg -p x -R 15 -B -S\" ;;
 				4) pool=\"/root/cpuminer/cpuminer -o stratum+tcp://www.digitalmines.us:4008 -u KShRcznENXJt61PWAEFYPQRBDSPdWmckmg -p x -R 15 -B -S\" ;;
 				5) pool=\"/root/cpuminer/cpuminer -o stratum+tcp://pool.luckyaltcoin.com:3433 -u KShRcznENXJt61PWAEFYPQRBDSPdWmckmg -p c=LYNX -R 15 -B -S\" ;;
+				6) pool=\"/root/cpuminer/cpuminer -o http://$ipaddr:9332 -u $rrpcuser -p $rrpcpassword --coinbase-addr=KShRcznENXJt61PWAEFYPQRBDSPdWmckmg -R 15 -B -S\" ;;
 			esac
 
 			\$pool
@@ -534,16 +546,10 @@ set_crontab () {
 	crontab -l | { cat; echo "*/60 * * * *		/root/firewall.sh"; } | crontab -
 	print_success "A crontab for the '/root/firewall.sh' has been set up. It will reset every hour."
 
-	crontab -l | { cat; echo "@reboot			cd /root/lynx/src/ && ./lynxd -daemon"; } | crontab -
-	print_success "A crontab for '/root/lynx/src/lynxd' has been set up. It will run on boot."
-
-	crontab -l | { cat; echo "*/10 * * * *		cd /root/lynx/src/ && ./lynxd -daemon"; } | crontab -
+	crontab -l | { cat; echo "*/2 * * * *		cd /root/lynx/src/ && ./lynxd -daemon"; } | crontab -
 	print_success "A crontab for '/root/lynx/src/lynxd' has been set up. It will start automatically every 10 minutes."
 
-	crontab -l | { cat; echo "@reboot			/root/miner.sh"; } | crontab -
-	print_success "A crontab for the '/root/miner.sh' has been set up. It will run on boot."
-
-	crontab -l | { cat; echo "*/15 * * * *		/root/miner.sh"; } | crontab -
+	crontab -l | { cat; echo "*/10 * * * *		/root/miner.sh"; } | crontab -
 	print_success "A crontab for the '/root/miner.sh' has been set up. It will execute every 15 minutes."
 
 	crontab -l | { cat; echo "0 0 */15 * *		reboot"; } | crontab -
@@ -588,6 +594,7 @@ else
 	set_network
 	set_accounts
 	install_extras
+	install_miniupnpc
 	install_lynx
 	install_blockcrawler
 	install_cpuminer
