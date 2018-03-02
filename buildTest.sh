@@ -176,7 +176,7 @@ set_wifi () {
 
 	if [ "$OS" = "raspbian" ]; then
 
-		print_error "To set up wifi, edit the /boot/wpa_supplicant.conf file."
+		print_error "To set up wifi, edit the /etc/wpa_supplicant/wpa_supplicant.conf file."
 		
 		echo "
 
@@ -405,7 +405,7 @@ install_mongo () {
 	service mongod start
 	mongo
 	use explorerdb
-	db.createUser( { user: "$HOSTNAME", pwd: "$SSPASSWORD", roles: [ "readWrite" ] } )
+	db.createUser( { user: "$rrpcuser", pwd: "$rrpcpassword", roles: [ "readWrite" ] } )
 	exit
 
 }
