@@ -167,8 +167,17 @@ set_network () {
 	echo $hhostname > /etc/hostname && hostname -F /etc/hostname
 	print_success "Setting the local host name to '$hhostname.'"
 
-	echo $ipaddr $fqdn $hhostname >> /etc/hosts
-	print_success "The IP address of this machine is $ipaddr."
+	if [ "$OS" = "raspbian" ]; then
+
+		sed -i -e 's/'"127.0.1.1       raspberrypi"'/'"127.0.1.1       raspberrypi $fqdn $hhostname"'/g' /etc/hosts
+		print_success "The IP address of this machine is $ipaddr."
+
+	else
+
+		echo $ipaddr $fqdn $hhostname >> /etc/hosts
+		print_success "The IP address of this machine is $ipaddr."
+
+	fi
 
 }
 
