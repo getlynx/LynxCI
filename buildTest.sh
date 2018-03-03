@@ -196,7 +196,7 @@ set_wifi () {
 		network={
 			ssid=\"Your network SSID\"
 			psk=\"Your WPA/WPA2 security key\"
-			key_mgmt=\"WPA-PSK\"
+			key_mgmt=WPA-PSK
 		}
 
 		" >> /boot/wpa_supplicant.conf
