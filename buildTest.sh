@@ -173,7 +173,7 @@ set_network () {
 
 	if [ "$OS" = "raspbian" ]; then
 
-		sed -i '/127.0.1.1/c\127.0.1.1       raspberrypi $fqdn $hhostname' /etc/hosts
+		sed -i "/127.0.1.1/c\127.0.1.1       raspberrypi $fqdn $hhostname" /etc/hosts
 		print_success "The IP address of this machine is $ipaddr."
 
 	else
