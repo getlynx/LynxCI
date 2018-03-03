@@ -120,7 +120,7 @@ compile_query () {
 
 		compile_lynx=Y
 		enable_ssh=N
-		latest_bs=N
+		latest_bs=Y
 		enable_mining=Y
 
 	fi
@@ -141,6 +141,9 @@ update_os () {
 		apt-get -o Acquire::ForceIPv4=true upgrade -y
 	else
 		truncate -s 0 /etc/motd && cat /root/LynxNodeBuilder/logo.txt >> /etc/motd
+
+		echo " | To set up wifi, edit the /etc/wpa_supplicant/wpa_supplicant.conf file.      |
+ '-----------------------------------------------------------------------------'" >> /etc/motd
 
 		# 'raspbian' would evaluate here.
 		print_success "Raspbian was detected. You are using a Raspberry Pi. We love you."
@@ -169,7 +172,7 @@ set_network () {
 
 	if [ "$OS" = "raspbian" ]; then
 
-		sed -i -e 's/'"127.0.1.1       raspberrypi"'/'"127.0.1.1       raspberrypi $fqdn $hhostname"'/g' /etc/hosts
+		sed -i '/127.0.1.1/c\127.0.1.1       raspberrypi $fqdn $hhostname' /etc/hosts
 		print_success "The IP address of this machine is $ipaddr."
 
 	else
