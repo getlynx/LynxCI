@@ -142,7 +142,8 @@ update_os () {
 	else
 		truncate -s 0 /etc/motd && cat /root/LynxNodeBuilder/logo.txt >> /etc/motd
 
-		echo " | To set up wifi, edit the /etc/wpa_supplicant/wpa_supplicant.conf file.      |
+		echo "
+		 | To set up wifi, edit the /etc/wpa_supplicant/wpa_supplicant.conf file.      |
  '-----------------------------------------------------------------------------'" >> /etc/motd
 
 		# 'raspbian' would evaluate here.
