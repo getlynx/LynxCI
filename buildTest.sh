@@ -386,6 +386,21 @@ install_cpuminer () {
 
 }
 
+install_mongo () {
+
+    apt-get install mongodb-server -y
+    service mongodb start
+    if [ -f /var/log/mongodb/mongodb.log ]; then
+            print_success "MongoDB was installed, and is running!"
+    else
+            mongodbstart
+    fi
+
+    echo "'db.addUser("$rpcuser", "$rpcpassword", true);'" > file.js
+    mongo --host 127.0.0.1:27017 file.js
+
+}
+
 set_firewall () {
 
 	rm -rf /root/firewall.sh
@@ -636,6 +651,7 @@ else
 	install_lynx
 	install_blockcrawler
 	install_cpuminer
+	install_mongo
 	set_firewall
 	set_miner
 	secure_iptables
