@@ -119,8 +119,8 @@ compile_query () {
 	else
 
 		compile_lynx=Y
-		enable_ssh=N
-		latest_bs=Y
+		enable_ssh=Y
+		latest_bs=N
 		enable_mining=Y
 
 	fi
@@ -352,6 +352,7 @@ install_lynx () {
 	rpcallowip=127.0.0.1
 	listenonion=0
 	upnp=1
+	txindex=1
 	" > /root/.lynx/lynx.conf
 
 	print_success "Default '/root/.lynx/lynx.conf' file was created."
