@@ -648,7 +648,7 @@ else
 	set_accounts
 	install_extras
 	install_miniupnpc
-	install_lynx
+	#install_lynx
 	install_blockcrawler
 	install_cpuminer
 	install_mongo
