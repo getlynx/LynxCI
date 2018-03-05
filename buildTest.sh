@@ -143,7 +143,7 @@ update_os () {
 		truncate -s 0 /etc/motd && cat /root/LynxNodeBuilder/logo.txt >> /etc/motd
 
 		echo "
-		 | To set up wifi, edit the /etc/wpa_supplicant/wpa_supplicant.conf file.      |
+ | To set up wifi, edit the /etc/wpa_supplicant/wpa_supplicant.conf file.      |
  '-----------------------------------------------------------------------------'" >> /etc/motd
 
 		# 'raspbian' would evaluate here.
@@ -456,7 +456,7 @@ set_miner () {
 			# Randomly select a pool number from 1-6. 
 			# Random selection occurs after each reboot, when this script is run.
 			# Add or remove pools to customize. 
-			# Be sure to increase the number 5 to the new total.
+			# Be sure to increase the number 6 to the new total.
 			minernmb=\"\$(shuf -i 1-6 -n1)\"
 
 			case \"\$minernmb\" in
@@ -536,7 +536,7 @@ config_fail2ban () {
 
 	[sshd]
 	port		= ssh
-	logpath 	= %(sshd_log)s
+	logpath		= %(sshd_log)s
 
 	#
 	# LYNX
@@ -545,8 +545,8 @@ config_fail2ban () {
 	[lynxd]
 	port		= 22566
 	logpath		= /root/.lynx/debug.log
-	findtime 	= 1200
-	maxretry 	= 3
+	findtime	= 1200
+	maxretry	= 3
 
 	" > /etc/fail2ban/jail.local
 
@@ -649,7 +649,7 @@ else
 	set_accounts
 	install_extras
 	install_miniupnpc
-	#install_lynx
+	install_lynx
 	install_blockcrawler
 	install_cpuminer
 	install_mongo
