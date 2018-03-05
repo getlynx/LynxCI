@@ -397,8 +397,8 @@ install_mongo () {
             mongodbstart
     fi
 
-    echo "'db.addUser("$rpcuser", "$rpcpassword", true);'" > file.js
-    mongo --host 127.0.0.1:27017 file.js
+    echo "'db.addUser("$rpcuser", "$rpcpassword", true);'" > /tmp/file.js
+    mongo --host 127.0.0.1:27017 /tmp/file.js
 
 }
 
