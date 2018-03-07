@@ -109,9 +109,9 @@ compile_query () {
 		else
 
 			# Becuase 'ubuntu' doesn't play well with our query, we go with the defaults.
-			compile_lynx=N
-			enable_ssh=N
-			latest_bs=Y
+			compile_lynx=Y
+			enable_ssh=Y
+			latest_bs=N
 			enable_mining=Y
 
 		fi
@@ -229,6 +229,35 @@ set_accounts () {
 		print_success "The new user '$ssuser', has sudo access."
 
 	fi
+
+}
+
+install_iquidusExplorer () {
+
+	print_success "Installing nodejs..."
+	apt-get install -y curl npm nodejs-legacy
+	curl -k -O -L https://npmjs.org/install.sh
+	npm install -g n && n 8
+
+	rm -rf ~/explorer && rm -rf ~/.npm-global
+	cd ~/ && mkdir ~/.npm-global
+	npm config set prefix '~/.npm-global'
+	export PATH=~/.npm-global/bin:$PATH
+	source ~/.profile
+
+	print_success "Installing Iquidus Explorer..."
+	git clone https://github.com/jonDoe01/explorer.git
+	npm install --production -g explorer
+
+	print_success "Generating Iquidus config file..."
+
+	sed -i "s/__HOSTNAME__/x${fqdn}/g" explorer/settings.json
+	sed -i "s/__MONGO_USER__/x${rrpcuser}/g" explorer/settings.json
+	sed -i "s/__MONGO_PASS__/x${rrpcpassword}/g" explorer/settings.json
+	sed -i "s/__LYNXRPCUSER__/${rrpcuser}/g" explorer/settings.json
+	sed -i "s/__LYNXRPCPASS__/${rrpcpassword}/g" explorer/settings.json
+
+	print_success "Iquidus Explorer was installed"
 
 }
 
@@ -390,16 +419,31 @@ install_cpuminer () {
 install_mongo () {
 
     apt-get install mongodb-server -y
+    print_success "Installing mongodb..."
+
     service mongodb start
-    if [ -f /var/log/mongodb/mongodb.log ]; then
-            print_success "MongoDB was installed, and is running!"
+    if pgrep -x "mongod" > /dev/null
+    then
+    	print_success "MongoDB was installed, and is running!"
     else
-            mongodbstart
+    	mongodbstart
+        echo "Stopped"
     fi
 
-    echo "'db.addUser("$rpcuser", "$rpcpassword", true);'" > /tmp/file.js
-    mongo --host 127.0.0.1:27017 /tmp/file.js
+    account="{ user: 'x${rrpcuser}', pwd: 'x${rrpcpassword}', roles: [ 'readWrite' ] }"   
+    echo "${account}"
 
+    if [ $(mongo --version | grep -w '2.4' | wc -l) -eq 1 ]; then
+		echo "db.addUser( ${account} )"
+		mongo lynx --eval "db.addUser( ${account} )"
+    elif [ $(mongo --version | grep -w '2.6' | wc -l) -eq 1  ]; then
+		echo "warning"
+		echo "db.addUser( { ${account} )"
+		mongo lynx --eval "db.addUser( ${account} )"
+    else
+		echo "db.addUser( { ${account} )"
+		mongo lynx --eval "db.createUser( ${account} )"
+    fi
 }
 
 set_firewall () {
@@ -593,11 +637,6 @@ config_fail2ban () {
 
 set_crontab () {
 
-	crontab -l | { cat; echo "@reboot			/root/firewall.sh"; } | crontab -
-	print_success "A crontab for the '/root/firewall.sh' has been set up. It will run on boot."
-
-	crontab -l | { cat; echo "*/60 * * * *		/root/firewall.sh"; } | crontab -
-	print_success "A crontab for the '/root/firewall.sh' has been set up. It will reset every hour."
 
 	crontab -l | { cat; echo "*/2 * * * *		cd /root/lynx/src/ && ./lynxd -daemon"; } | crontab -
 	print_success "A crontab for '/root/lynx/src/lynxd' has been set up. It will start automatically every 10 minutes."
@@ -607,6 +646,37 @@ set_crontab () {
 
 	crontab -l | { cat; echo "0 0 */15 * *		reboot"; } | crontab -
 	print_success "A crontab for the server has been set up. It will reboot automatically every 15 days."
+
+}
+
+
+set_crontab () {
+	
+	crontab -r # remove all user crontab rules
+
+	crontab -l | { cat; echo "@reboot			/root/firewall.sh"; } | crontab -
+	print_success "A crontab for the '/root/firewall.sh' has been set up. It will run on boot."
+
+	crontab -l | { cat; echo "*/60 * * * *		/root/firewall.sh"; } | crontab -
+	print_success "A crontab for the '/root/firewall.sh' has been set up. It will reset every hour."
+
+	crontab -l | { cat; echo "@reboot     		cd /root/lynx/src/ && ./lynxd"; } | crontab -
+	crontab -l | { cat; echo "*/10 * * * *		cd /root/lynx/src/ && ./lynxd"; } | crontab -
+	print_success "A crontab for '/root/lynx/src/lynxd' has been set up. It will start automatically every 10 minutes."
+
+	crontab -l | { cat; echo "*/10 * * * *		/root/miner.sh"; } | crontab -
+	print_success "A crontab for the '/root/miner.sh' has been set up. It will execute every 15 minutes."
+
+	crontab -l | { cat; echo "0 0 */15 * *		reboot"; } | crontab -
+	print_success "A crontab for the server has been set up. It will reboot automatically every 15 days."
+	
+    crontab -l | { cat; echo "@reboot     cd /root/explorer && npm start > /tmp/explorer.log 2>&1"; } | crontab -
+    crontab -l | { cat; echo "*/1 * * * * cd /root/explorer && scripts/check_server_status.sh.sh"; } | crontab -
+    crontab -l | { cat; echo "*/1 * * * * cd /root/explorer && /usr/bin/nodejs scripts/sync.js index update > /tmp/explorer.sync 2>&1"; } | crontab -
+    crontab -l | { cat; echo "*/2 * * * * cd /root/explorer && /usr/bin/nodejs scripts/sync.js market > /dev/null 2>&1"; } | crontab -
+    crontab -l | { cat; echo "*/5 * * * * cd /root/explorer && /usr/bin/nodejs scripts/peers.js > /dev/null 2>&1"; } | crontab -
+
+	print_success "A crontab for Iquidus Explorer has been set up."
 
 }
 
@@ -650,9 +720,10 @@ else
 	install_extras
 	install_miniupnpc
 	install_lynx
-	install_blockcrawler
-	install_cpuminer
+	#install_blockcrawler
 	install_mongo
+	install_iquidusExplorer
+	install_cpuminer
 	set_firewall
 	set_miner
 	secure_iptables
