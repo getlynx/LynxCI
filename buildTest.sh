@@ -120,7 +120,7 @@ compile_query () {
 
 		compile_lynx=Y
 		enable_ssh=Y
-		latest_bs=N
+		latest_bs=Y
 		enable_mining=Y
 
 	fi
@@ -358,16 +358,17 @@ install_lynx () {
 
 	fi
 
-	rm -rf /root/.lynx/
-	mkdir -p /root/.lynx && cd /root/.lynx
+	cd ~/ && rm -rf .lynx && mkdir .lynx
+	
 	print_success "Created the '.lynx' directory."
 
 	if [[ "$latest_bs" == "Y" ]]; then
-		wget http://cdn.getlynx.io/bootstrap.tar.gz
-		tar -xvf bootstrap.tar.gz bootstrap.dat
-		print_success "The bootstrap.dat file was downloaded and will be used after reboot."
+		wget http://cdn.getlynx.io/node-bootstrap.tar.gz
+		tar -xvf node-bootstrap.tar.gz .lynx
+		rm -rf node-bootstrap.tar.gz
+		print_success "The node-bootstrap file was downloaded and will be used after reboot."
 	else
-		print_error "The bootstrap.dat file was not downloaded."
+		print_error "The node-bootstrap file was not downloaded."
 	fi
 
 	echo "
