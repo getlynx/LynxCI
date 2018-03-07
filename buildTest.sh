@@ -520,7 +520,7 @@ set_miner () {
 
 	if [ \"\$IsMiner\" = \"Y\" ]; then
 		if ! pgrep -x \"cpulimit\" > /dev/null; then
-			cpulimit -e cpuminer -l 50 -b
+			cpulimit -e cpuminer -l 25 -b
 		fi
 	fi
 
