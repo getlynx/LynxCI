@@ -358,11 +358,11 @@ install_lynx () {
 
 	fi
 
-	cd ~/ && rm -rf .lynx && mkdir .lynx
-	
-	print_success "Created the '.lynx' directory."
-
 	if [[ "$latest_bs" == "Y" ]]; then
+
+		cd ~/ && rm -rf .lynx && mkdir .lynx
+		print_success "Created the '.lynx' directory."
+
 		wget http://cdn.getlynx.io/node-bootstrap.tar.gz
 		tar -xvf node-bootstrap.tar.gz .lynx
 		rm -rf node-bootstrap.tar.gz
@@ -672,7 +672,7 @@ set_crontab () {
 	print_success "A crontab for the server has been set up. It will reboot automatically every 15 days."
 	
     crontab -l | { cat; echo "@reboot     cd /root/explorer && npm start > /tmp/explorer.log 2>&1"; } | crontab -
-    crontab -l | { cat; echo "*/1 * * * * cd /root/explorer && scripts/check_server_status.sh.sh"; } | crontab -
+    crontab -l | { cat; echo "*/1 * * * * cd /root/explorer && scripts/check_server_status.sh"; } | crontab -
     crontab -l | { cat; echo "*/1 * * * * cd /root/explorer && /usr/bin/nodejs scripts/sync.js index update > /tmp/explorer.sync 2>&1"; } | crontab -
     crontab -l | { cat; echo "*/2 * * * * cd /root/explorer && /usr/bin/nodejs scripts/sync.js market > /dev/null 2>&1"; } | crontab -
     crontab -l | { cat; echo "*/5 * * * * cd /root/explorer && /usr/bin/nodejs scripts/peers.js > /dev/null 2>&1"; } | crontab -
