@@ -259,47 +259,8 @@ install_iquidusExplorer () {
 
 	print_success "Iquidus Explorer was installed"
 
-}
-
-install_blockcrawler () {
-
-	apt-get install nginx php7.0-fpm php-curl -y
-	print_success "Installing Nginx..."
-
-	mv /etc/nginx/sites-available/default /etc/nginx/sites-available/default.backup
-
-	echo "
-	server {
-		listen 80 default_server;
-		listen [::]:80 default_server;
-		root /var/www/html/Blockcrawler;
-		index index.php;
-		server_name _;
-		location / { try_files \$uri \$uri/ =404; }
-		location ~ \.php$ {
-			include snippets/fastcgi-php.conf;
-			fastcgi_pass unix:/run/php/php7.0-fpm.sock;
-		}
-	}
-	" > /etc/nginx/sites-available/default
-	print_success "Nginx is configured."
-
-	cd /var/www/html/ && wget http://cdn.getlynx.io/BlockCrawler.tar.gz
-	tar -xvf BlockCrawler.tar.gz
-	chmod 755 -R /var/www/html/Blockcrawler/
-	chown www-data:www-data -R /var/www/html/Blockcrawler/
-
-	sed -i -e 's/'"127.0.0.1"'/'"$ipaddr"'/g' /var/www/html/Blockcrawler/bc_daemon.php
-	sed -i -e 's/'"8332"'/'"9332"'/g' /var/www/html/Blockcrawler/bc_daemon.php
-	sed -i -e 's/'"username"'/'"$rrpcuser"'/g' /var/www/html/Blockcrawler/bc_daemon.php
-	sed -i -e 's/'"password"'/'"$rrpcpassword"'/g' /var/www/html/Blockcrawler/bc_daemon.php
-	print_success "Block Crawler code is secured for this Lynxd node."
-
-	systemctl restart nginx && systemctl enable nginx && systemctl restart php7.0-fpm
-	print_success "Nginx is set to auto start on boot."
-
 	iptables -I INPUT 3 -p tcp --dport 80 -j ACCEPT
-	print_success "The Block Crawler can be browsed at http://$ipaddr/"
+	print_success "The local Iquidus Explorer can be browsed at http://$hhostname.local/"
 
 }
 
@@ -653,7 +614,8 @@ set_crontab () {
 
 set_crontab () {
 	
-	crontab -r # remove all user crontab rules
+	# In the event that any other crontabs exist, let's purge them all.
+	crontab -r
 
 	crontab -l | { cat; echo "@reboot			/root/firewall.sh"; } | crontab -
 	print_success "A crontab for the '/root/firewall.sh' has been set up. It will run on boot."
@@ -665,17 +627,17 @@ set_crontab () {
 	crontab -l | { cat; echo "*/10 * * * *		cd /root/lynx/src/ && ./lynxd"; } | crontab -
 	print_success "A crontab for '/root/lynx/src/lynxd' has been set up. It will start automatically every 10 minutes."
 
-	crontab -l | { cat; echo "*/10 * * * *		/root/miner.sh"; } | crontab -
+	crontab -l | { cat; echo "*/15 * * * *		/root/miner.sh"; } | crontab -
 	print_success "A crontab for the '/root/miner.sh' has been set up. It will execute every 15 minutes."
 
 	crontab -l | { cat; echo "0 0 */15 * *		reboot"; } | crontab -
 	print_success "A crontab for the server has been set up. It will reboot automatically every 15 days."
 	
-    crontab -l | { cat; echo "@reboot     cd /root/explorer && npm start > /tmp/explorer.log 2>&1"; } | crontab -
-    crontab -l | { cat; echo "*/1 * * * * cd /root/explorer && scripts/check_server_status.sh"; } | crontab -
-    crontab -l | { cat; echo "*/1 * * * * cd /root/explorer && /usr/bin/nodejs scripts/sync.js index update > /tmp/explorer.sync 2>&1"; } | crontab -
-    crontab -l | { cat; echo "*/2 * * * * cd /root/explorer && /usr/bin/nodejs scripts/sync.js market > /dev/null 2>&1"; } | crontab -
-    crontab -l | { cat; echo "*/5 * * * * cd /root/explorer && /usr/bin/nodejs scripts/peers.js > /dev/null 2>&1"; } | crontab -
+    crontab -l | { cat; echo "@reboot     		cd /root/explorer && npm start > /tmp/explorer.log 2>&1"; } | crontab -
+    crontab -l | { cat; echo "*/1 * * * * 		cd /root/explorer && scripts/check_server_status.sh"; } | crontab -
+    crontab -l | { cat; echo "*/1 * * * * 		cd /root/explorer && /usr/bin/nodejs scripts/sync.js index update > /tmp/explorer.sync 2>&1"; } | crontab -
+    crontab -l | { cat; echo "*/2 * * * * 		cd /root/explorer && /usr/bin/nodejs scripts/sync.js market > /dev/null 2>&1"; } | crontab -
+    crontab -l | { cat; echo "*/5 * * * * 		cd /root/explorer && /usr/bin/nodejs scripts/peers.js > /dev/null 2>&1"; } | crontab -
 
 	print_success "A crontab for Iquidus Explorer has been set up."
 
@@ -721,7 +683,6 @@ else
 	install_extras
 	install_miniupnpc
 	install_lynx
-	#install_blockcrawler
 	install_mongo
 	install_iquidusExplorer
 	install_cpuminer
