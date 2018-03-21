@@ -237,7 +237,7 @@ install_iquidusExplorer () {
 	if [ "$OS" = "raspbian" ]; then
 
 		print_success "Installing nodejs [ARM]..."
-		cd && wget https://nodejs.org/dist/v8.10.0/node-v8.10.0-linux-armv6l.tar.gz
+		cd ~/ && wget https://nodejs.org/dist/v8.10.0/node-v8.10.0-linux-armv6l.tar.gz
         tar -xvf node-v8.10.0-linux-armv6l.tar.gz
         cd node-v8.10.0-linux-armv6l
         sudo cp -R * /usr/local/
