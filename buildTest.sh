@@ -246,7 +246,7 @@ install_iquidusExplorer () {
 	source ~/.profile
 
 	print_success "Installing Iquidus Explorer..."
-	git clone https://github.com/jonDoe01/explorer.git
+	git clone https://github.com/doh9Xiet7weesh9va9th/LynxExplorer.git
 	npm install --production -g explorer
 
 	print_success "Generating Iquidus config file..."
