@@ -234,10 +234,22 @@ set_accounts () {
 
 install_iquidusExplorer () {
 
-	print_success "Installing nodejs..."
-	apt-get install -y curl npm nodejs-legacy
-	curl -k -O -L https://npmjs.org/install.sh
-	npm install -g n && n 8
+	if [ "$OS" = "raspbian" ]; then
+
+		print_success "Installing nodejs [ARM]..."
+		cd && wget https://nodejs.org/dist/v8.10.0/node-v8.10.0-linux-armv6l.tar.gz
+        tar -xvf node-v8.10.0-linux-armv6l.tar.gz
+        cd node-v8.10.0-linux-armv6l
+        sudo cp -R * /usr/local/
+
+	else
+
+		print_success "Installing nodejs..."
+		apt-get install -y curl npm nodejs-legacy
+		curl -k -O -L https://npmjs.org/install.sh
+		npm install -g n && n 8
+
+	fi
 
 	rm -rf ~/explorer && rm -rf ~/.npm-global
 	cd ~/ && mkdir ~/.npm-global
@@ -259,8 +271,7 @@ install_iquidusExplorer () {
 
 	print_success "Iquidus Explorer was installed"
 
-	iptables -I INPUT 3 -p tcp --dport 80 -j ACCEPT
-	print_success "The local Iquidus Explorer can be browsed at http://$hhostname.local/"
+	print_success "The local Block Explorer can be browsed at http://$hhostname.local/"
 
 }
 
