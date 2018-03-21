@@ -251,12 +251,15 @@ install_iquidusExplorer () {
 
 	fi
 
+	# If the script looped for some reason, let's purge a previous install so we can start from scratch.
 	rm -rf ~/explorer && rm -rf ~/.npm-global
 	cd ~/ && mkdir ~/.npm-global
 	npm config set prefix '~/.npm-global'
 	export PATH=~/.npm-global/bin:$PATH
 	source ~/.profile
 
+	# Hop back into the home dir so our path's work in the upcoming commands.
+	cd ~/
 	print_success "Installing Iquidus Explorer..."
 	git clone https://github.com/doh9Xiet7weesh9va9th/LynxExplorer.git
 	npm install --production -g explorer
@@ -717,19 +720,19 @@ else
 	compile_query
 	update_os
 	set_network
-	set_wifi
+	##set_wifi
 	set_accounts
 	install_extras
-	install_miniupnpc
-	install_lynx
+	##install_miniupnpc
+	##install_lynx
 	#install_blockcrawler
-	install_mongo
+	##install_mongo
 	install_iquidusExplorer
-	install_cpuminer
-	set_firewall
-	set_miner
-	secure_iptables
-	config_fail2ban
+	##install_cpuminer
+	##set_firewall
+	##set_miner
+	##secure_iptables
+	##config_fail2ban
 	set_crontab
 	restart
 
