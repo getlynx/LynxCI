@@ -187,7 +187,18 @@ set_network () {
 
 set_wifi () {
 
+	# The only time we want to set up the wifi is if the script is running on a Raspberry Pi. The
+	# script should just skip over this step if we are on any OS other then Raspian. 
+
 	if [ "$OS" = "raspbian" ]; then
+
+		# Let's assume the files already exists, so we will delete them and start from scratch.
+
+		rm -Rf /boot/wpa_supplicant.conf
+		rm -Rf /etc/wpa_supplicant/wpa_supplicant.conf
+
+		# Let the user know the file they need to edit AFTER the script completes and the
+		# Raspberry Pi reboots for the first time.
 
 		print_error "To set up wifi, edit the /etc/wpa_supplicant/wpa_supplicant.conf file."
 		
