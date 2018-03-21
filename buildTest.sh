@@ -1,7 +1,5 @@
 #!/bin/bash
 
-# For security reasons, wallet functionality is not enabled by default in this script.
-
 BLUE='\033[94m'
 GREEN='\033[32;1m'
 YELLOW='\033[33;1m'
@@ -43,84 +41,119 @@ detect_os () {
 
 }
 
+detect_ec2() {
+
+	IsEC2="N"
+
+    # This first, simple check will work for many older instance types.
+
+    if [ -f /sys/hypervisor/uuid ]; then
+
+		# File should be readable by non-root users.
+
+		if [ `head -c 3 /sys/hypervisor/uuid` == "ec2" ]; then
+			IsEC2="Y"
+		fi
+
+    # This check will work on newer m5/c5 instances, but only if you have root!
+
+    elif [ -r /sys/devices/virtual/dmi/id/product_uuid ]; then
+
+		# If the file exists AND is readable by us, we can rely on it.
+
+		if [ `head -c 3 /sys/devices/virtual/dmi/id/product_uuid` == "EC2" ]; then
+			IsEC2="Y"
+		fi
+
+    else
+
+		# Fallback check of http://169.254.169.254/. If we wanted to be REALLY
+		# authoritative, we could follow Amazon's suggestions for cryptographically
+		# verifying their signature, see here:
+		# https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/instance-identity-documents.html
+		# but this is almost certainly overkill for this purpose (and the above
+		# checks of "EC2" prefixes have a higher false positive potential, anyway).
+
+		if $(curl -s -m 5 http://169.254.169.254/latest/dynamic/instance-identity/document | grep -q availabilityZone) ; then
+			IsEC2="Y"
+		fi
+    fi
+
+}
+
+detect_vps () {
+
+	detect_ec2
+}
+
 compile_query () {
 
-	# Becuase the package dev is still ongoing, let't escape it so we have a stable script.
+	# Since this script is currently written to support Raspian and Ubuntu, we will only display
+	# the configuration prompts on Raspian (for the Raspberry Pi users).
 
-	if [ "1" = "0" ]; then
+	if [ "$OS" != "ubuntu" ]; then
 
-		if [ "$OS" != "ubuntu" ]; then
+		#
+		# Set the query timeout value (in seconds)
+		#
+		time_out=15
+		query1="Install the latest stable Lynx release? (faster build time) (Y/n):"
+		query2="Do you want ssh access enabled (more secure)? (y/N):"
+		query3="Do you want to sync with the bootstrap file (less network intensive)? (Y/n):"
+		query4="Do you want the miners to run (supports the Lynx network)? (Y/n):"
 
-			#
-			# Set the query timeout value (in seconds)
-			#
-			time_out=30
-			query1="Install the latest stable Lynx release? (faster build time) (Y/n):"
-			query2="Do you want ssh access enabled (more secure)? (y/N):" 
-			query3="Do you want to sync with the bootstrap file (less network intensive)? (Y/n):" 
-			query4="Do you want the miners to run (supports the Lynx network)? (Y/n):"
+		#
+		# Get all the user inputs
+		#
+		read -t $time_out -p "$query1 " ans1
+		read -t $time_out -p "$query2 " ans2
+		read -t $time_out -p "$query3 " ans3
+		read -t $time_out -p "$query4 " ans4
 
-			#
-			# Get all the user inputs
-			#
-			read -t $time_out -p "$query1 " ans1
-			read -t $time_out -p "$query2 " ans2
-			read -t $time_out -p "$query3 " ans3
-			read -t $time_out -p "$query4 " ans4
-
-			#
-			# Set the compile lynx flag
-			#
-			if [[ -z "$ans1" ]]; then
-				compile_lynx=N
-			elif [[ "$ans1" == "n" || "$ans1" == "N" ]]; then
-				compile_lynx=Y
-			else
-				compile_lynx=N
-			fi
-
-			#
-			# Set the ssh enabled flag
-			#
-			case "$ans2" in
-				y|Y) enable_ssh=Y ;;
-				n|N) enable_ssh=N ;;
-				*) enable_ssh=N ;;
-			esac
-
-			#
-			# Set the latest bootstrap flag
-			#
-			case "$ans3" in
-				y|Y) latest_bs=Y ;;
-				n|N) latest_bs=N ;;
-				*) latest_bs=Y ;;
-			esac
-
-			#
-			# Set the mining enabled flag
-			#
-			case "$ans4" in
-				y|Y) enable_mining=Y ;;
-				n|N) enable_mining=N ;;
-				*) enable_mining=Y ;;
-			esac
-
-		else
-
-			# Becuase 'ubuntu' doesn't play well with our query, we go with the defaults.
+		#
+		# Set the compile lynx flag
+		#
+		if [[ -z "$ans1" ]]; then
+			compile_lynx=N
+		elif [[ "$ans1" == "n" || "$ans1" == "N" ]]; then
 			compile_lynx=Y
-			enable_ssh=Y
-			latest_bs=N
-			enable_mining=Y
-
+		else
+			compile_lynx=N
 		fi
+
+		#
+		# Set the ssh enabled flag
+		#
+		case "$ans2" in
+			y|Y) enable_ssh=Y ;;
+			n|N) enable_ssh=N ;;
+			*) enable_ssh=N ;;
+		esac
+
+		#
+		# Set the latest bootstrap flag
+		#
+		case "$ans3" in
+			y|Y) useBootstrapFile=Y ;;
+			n|N) useBootstrapFile=N ;;
+			*) useBootstrapFile=Y ;;
+		esac
+
+		#
+		# Set the mining enabled flag
+		#
+		case "$ans4" in
+			y|Y) enable_mining=Y ;;
+			n|N) enable_mining=N ;;
+			*) enable_mining=Y ;;
+		esac
 
 	else
 
+		# Becuase 'ubuntu' doesn't play well with our query, we go with the defaults.
 		compile_lynx=Y
 		enable_ssh=Y
-		latest_bs=Y
+		useBootstrapFile=Y
 		enable_mining=Y
 
 	fi
@@ -287,48 +320,6 @@ install_iquidusExplorer () {
 
 }
 
-install_blockcrawler () {
-
-	apt-get install nginx php7.0-fpm php-curl -y
-	print_success "Installing Nginx..."
-
-	mv /etc/nginx/sites-available/default /etc/nginx/sites-available/default.backup
-
-	echo "
-	server {
-		listen 80 default_server;
-		listen [::]:80 default_server;
-		root /var/www/html/Blockcrawler;
-		index index.php;
-		server_name _;
-		location / { try_files \$uri \$uri/ =404; }
-		location ~ \.php$ {
-			include snippets/fastcgi-php.conf;
-			fastcgi_pass unix:/run/php/php7.0-fpm.sock;
-		}
-	}
-	" > /etc/nginx/sites-available/default
-	print_success "Nginx is configured."
-
-	cd /var/www/html/ && wget http://cdn.getlynx.io/BlockCrawler.tar.gz
-	tar -xvf BlockCrawler.tar.gz
-	chmod 755 -R /var/www/html/Blockcrawler/
-	chown www-data:www-data -R /var/www/html/Blockcrawler/
-
-	sed -i -e 's/'"127.0.0.1"'/'"$ipaddr"'/g' /var/www/html/Blockcrawler/bc_daemon.php
-	sed -i -e 's/'"8332"'/'"9332"'/g' /var/www/html/Blockcrawler/bc_daemon.php
-	sed -i -e 's/'"username"'/'"$rrpcuser"'/g' /var/www/html/Blockcrawler/bc_daemon.php
-	sed -i -e 's/'"password"'/'"$rrpcpassword"'/g' /var/www/html/Blockcrawler/bc_daemon.php
-	print_success "Block Crawler code is secured for this Lynxd node."
-
-	systemctl restart nginx && systemctl enable nginx && systemctl restart php7.0-fpm
-	print_success "Nginx is set to auto start on boot."
-
-	iptables -I INPUT 3 -p tcp --dport 80 -j ACCEPT
-	print_success "The Block Crawler can be browsed at http://$ipaddr/"
-
-}
-
 install_extras () {
 
 	apt-get install cpulimit htop curl fail2ban -y
@@ -384,7 +375,7 @@ install_lynx () {
 
 	fi
 
-	if [[ "$latest_bs" == "Y" ]]; then
+	if [[ "$useBootstrapFile" == "Y" ]]; then
 
 		cd ~/ && rm -rf .lynx && mkdir .lynx
 		print_success "Created the '.lynx' directory."
@@ -526,9 +517,9 @@ set_miner () {
 	if [ \"\$IsMiner\" = \"Y\" ]; then
 		if ! pgrep -x \"cpuminer\" > /dev/null; then
 
-			# Randomly select a pool number from 1-6. 
+			# Randomly select a pool number from 1-6.
 			# Random selection occurs after each reboot, when this script is run.
-			# Add or remove pools to customize. 
+			# Add or remove pools to customize.
 			# Be sure to increase the number 6 to the new total.
 			minernmb=\"\$(shuf -i 1-6 -n1)\"
 
@@ -726,6 +717,7 @@ else
 	print_error "Starting installation of LynxCI. This will be a cpu and memory intensive process that will last hours, depending on your hardware."
 
 	detect_os
+	detect_vps
 	compile_query
 	update_os
 	set_network
@@ -734,7 +726,6 @@ else
 	install_extras
 	install_miniupnpc
 	install_lynx
-	#install_blockcrawler
 	install_mongo
 	install_iquidusExplorer
 	install_cpuminer
