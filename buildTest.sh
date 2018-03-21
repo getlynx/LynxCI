@@ -258,19 +258,19 @@ install_iquidusExplorer () {
 	export PATH=~/.npm-global/bin:$PATH
 	source ~/.profile
 
-	# Hop back into the home dir so our path's work in the upcoming commands.
-	cd ~/
 	print_success "Installing Iquidus Explorer..."
 	git clone https://github.com/doh9Xiet7weesh9va9th/LynxExplorer.git
 	npm install --production -g explorer
 
 	print_success "Generating Iquidus config file..."
 
-	sed -i "s/__HOSTNAME__/x${fqdn}/g" explorer/settings.json
-	sed -i "s/__MONGO_USER__/x${rrpcuser}/g" explorer/settings.json
-	sed -i "s/__MONGO_PASS__/x${rrpcpassword}/g" explorer/settings.json
-	sed -i "s/__LYNXRPCUSER__/${rrpcuser}/g" explorer/settings.json
-	sed -i "s/__LYNXRPCPASS__/${rrpcpassword}/g" explorer/settings.json
+	sed -i "s/__HOSTNAME__/x${fqdn}/g" /root/LynxExplorer/settings.json
+	sed -i "s/__MONGO_USER__/x${rrpcuser}/g" /root/LynxExplorer/settings.json
+	sed -i "s/__MONGO_PASS__/x${rrpcpassword}/g" /root/LynxExplorer/settings.json
+	sed -i "s/__LYNXRPCUSER__/${rrpcuser}/g" /root/LynxExplorer/settings.json
+	sed -i "s/__LYNXRPCPASS__/${rrpcpassword}/g" /root/LynxExplorer/settings.json
+
+	rm -Rf /root/node-v8.10.0-linux-armv6*
 
 	print_success "Iquidus Explorer was installed"
 
@@ -720,19 +720,19 @@ else
 	compile_query
 	update_os
 	set_network
-	##set_wifi
+	set_wifi
 	set_accounts
 	install_extras
-	##install_miniupnpc
-	##install_lynx
+	install_miniupnpc
+	install_lynx
 	#install_blockcrawler
 	install_mongo
 	install_iquidusExplorer
-	##install_cpuminer
-	##set_firewall
-	##set_miner
-	##secure_iptables
-	##config_fail2ban
+	install_cpuminer
+	set_firewall
+	set_miner
+	secure_iptables
+	config_fail2ban
 	set_crontab
 	restart
 
