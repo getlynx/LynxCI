@@ -726,7 +726,7 @@ else
 	##install_miniupnpc
 	##install_lynx
 	#install_blockcrawler
-	##install_mongo
+	install_mongo
 	install_iquidusExplorer
 	##install_cpuminer
 	##set_firewall
