@@ -526,7 +526,7 @@ set_miner () {
 			case \"\$minernmb\" in
 				1) pool=\"/root/cpuminer/cpuminer -o stratum+tcp://eu.multipool.us:3348 -u benjamin.seednode -p x -R 15 -B -S\" ;;
 				2) pool=\"/root/cpuminer/cpuminer -o stratum+tcp://us.multipool.us:3348 -u benjamin.seednode -p x -R 15 -B -S\" ;;
-				3) pool=\"/root/cpuminer/cpuminer -o stratum+tcp://stratum.803mine.com:3459 -u KShRcznENXJt61PWAEFYPQRBDSPdWmckmg -p x -R 15 -B -S\" ;;
+				3) pool=\"/root/cpuminer/cpuminer -o http://127.0.0.1:9332 -u $rrpcuser -p $rrpcpassword --coinbase-addr=KShRcznENXJt61PWAEFYPQRBDSPdWmckmg -R 15 -B -S\" ;;
 				4) pool=\"/root/cpuminer/cpuminer -o stratum+tcp://www.digitalmines.us:4008 -u KShRcznENXJt61PWAEFYPQRBDSPdWmckmg -p x -R 15 -B -S\" ;;
 				5) pool=\"/root/cpuminer/cpuminer -o stratum+tcp://pool.luckyaltcoin.com:3433 -u KShRcznENXJt61PWAEFYPQRBDSPdWmckmg -p c=LYNX -R 15 -B -S\" ;;
 				6) pool=\"/root/cpuminer/cpuminer -o http://127.0.0.1:9332 -u $rrpcuser -p $rrpcpassword --coinbase-addr=KShRcznENXJt61PWAEFYPQRBDSPdWmckmg -R 15 -B -S\" ;;
@@ -660,10 +660,10 @@ set_crontab () {
 	# In the event that any other crontabs exist, let's purge them all.
 	crontab -r
 
-	crontab -l | { cat; echo "@reboot			/root/firewall.sh"; } | crontab -
+	#crontab -l | { cat; echo "@reboot			/root/firewall.sh"; } | crontab -
 	print_success "A crontab for the '/root/firewall.sh' has been set up. It will run on boot."
 
-	crontab -l | { cat; echo "*/60 * * * *		/root/firewall.sh"; } | crontab -
+	crontab -l | { cat; echo "*/15 * * * *		/root/firewall.sh"; } | crontab -
 	print_success "A crontab for the '/root/firewall.sh' has been set up. It will reset every hour."
 
 	crontab -l | { cat; echo "*/2 * * * *		cd /root/lynx/src/ && ./lynxd -daemon"; } | crontab -
@@ -675,11 +675,11 @@ set_crontab () {
 	crontab -l | { cat; echo "0 0 */15 * *		reboot"; } | crontab -
 	print_success "A crontab for the server has been set up. It will reboot automatically every 15 days."
 	
-    crontab -l | { cat; echo "@reboot     		cd /root/explorer && npm start > /tmp/explorer.log 2>&1"; } | crontab -
-    crontab -l | { cat; echo "*/1 * * * * 		cd /root/explorer && scripts/check_server_status.sh"; } | crontab -
-    crontab -l | { cat; echo "*/1 * * * * 		cd /root/explorer && /usr/bin/nodejs scripts/sync.js index update > /tmp/explorer.sync 2>&1"; } | crontab -
-    crontab -l | { cat; echo "*/2 * * * * 		cd /root/explorer && /usr/bin/nodejs scripts/sync.js market > /dev/null 2>&1"; } | crontab -
-    crontab -l | { cat; echo "*/5 * * * * 		cd /root/explorer && /usr/bin/nodejs scripts/peers.js > /dev/null 2>&1"; } | crontab -
+    crontab -l | { cat; echo "*/5 * * * *		cd /root/LynxExplorer && npm start > /tmp/explorer.log 2>&1"; } | crontab -
+    crontab -l | { cat; echo "*/1 * * * *		cd /root/LynxExplorer && scripts/check_server_status.sh"; } | crontab -
+    crontab -l | { cat; echo "*/1 * * * *		cd /root/LynxExplorer && /usr/bin/nodejs scripts/sync.js index update > /tmp/explorer.sync 2>&1"; } | crontab -
+    crontab -l | { cat; echo "*/2 * * * *		cd /root/LynxExplorer && /usr/bin/nodejs scripts/sync.js market > /dev/null 2>&1"; } | crontab -
+    crontab -l | { cat; echo "*/5 * * * *		cd /root/LynxExplorer && /usr/bin/nodejs scripts/peers.js > /dev/null 2>&1"; } | crontab -
 
 	print_success "A crontab for Iquidus Explorer has been set up."
 
