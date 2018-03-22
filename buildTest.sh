@@ -663,10 +663,10 @@ set_crontab () {
 	#crontab -l | { cat; echo "@reboot			/root/firewall.sh"; } | crontab -
 	print_success "A crontab for the '/root/firewall.sh' has been set up. It will run on boot."
 
-	crontab -l | { cat; echo "*/15 * * * *		/root/firewall.sh"; } | crontab -
+	crontab -l | { cat; echo "*/30 * * * *		/root/firewall.sh"; } | crontab -
 	print_success "A crontab for the '/root/firewall.sh' has been set up. It will reset every hour."
 
-	crontab -l | { cat; echo "*/2 * * * *		cd /root/lynx/src/ && ./lynxd -daemon"; } | crontab -
+	crontab -l | { cat; echo "*/15 * * * *		cd /root/lynx/src/ && ./lynxd"; } | crontab -
 	print_success "A crontab for '/root/lynx/src/lynxd' has been set up. It will start automatically every 2 minutes."
 
 	crontab -l | { cat; echo "*/10 * * * *		/root/miner.sh"; } | crontab -
@@ -675,11 +675,11 @@ set_crontab () {
 	crontab -l | { cat; echo "0 0 */15 * *		reboot"; } | crontab -
 	print_success "A crontab for the server has been set up. It will reboot automatically every 15 days."
 	
-    crontab -l | { cat; echo "*/5 * * * *		cd /root/LynxExplorer && npm start > /tmp/explorer.log 2>&1"; } | crontab -
-    crontab -l | { cat; echo "*/1 * * * *		cd /root/LynxExplorer && scripts/check_server_status.sh"; } | crontab -
-    crontab -l | { cat; echo "*/1 * * * *		cd /root/LynxExplorer && /usr/bin/nodejs scripts/sync.js index update > /tmp/explorer.sync 2>&1"; } | crontab -
-    crontab -l | { cat; echo "*/2 * * * *		cd /root/LynxExplorer && /usr/bin/nodejs scripts/sync.js market > /dev/null 2>&1"; } | crontab -
-    crontab -l | { cat; echo "*/5 * * * *		cd /root/LynxExplorer && /usr/bin/nodejs scripts/peers.js > /dev/null 2>&1"; } | crontab -
+    crontab -l | { cat; echo "@reboot			cd /root/LynxExplorer && npm start > /tmp/explorer.log 2>&1"; } | crontab -
+    crontab -l | { cat; echo "*/3 * * * *		cd /root/LynxExplorer && scripts/check_server_status.sh"; } | crontab -
+    crontab -l | { cat; echo "*/3 * * * *		cd /root/LynxExplorer && /usr/bin/nodejs scripts/sync.js index update > /tmp/explorer.sync 2>&1"; } | crontab -
+    crontab -l | { cat; echo "*/4 * * * *		cd /root/LynxExplorer && /usr/bin/nodejs scripts/sync.js market > /dev/null 2>&1"; } | crontab -
+    crontab -l | { cat; echo "*/10 * * * *		cd /root/LynxExplorer && /usr/bin/nodejs scripts/peers.js > /dev/null 2>&1"; } | crontab -
 
 	print_success "A crontab for Iquidus Explorer has been set up."
 
