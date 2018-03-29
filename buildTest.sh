@@ -339,9 +339,9 @@ install_iquidusExplorer () {
 
 install_blockcrawler () {
 
-	# At the beginning of the script we asked the user t to chose if the Block Crawler should
-	# be installed or not. If they opted for it or they didn't change the default, then the 
-	# less resource inntensive Block Crawler will be installed.
+	# At the beginning of the script we asked the user to chose if the Block Crawler should be 
+	# installed or not. If they opted for it or they didn't change the default, then the less 
+	# resource inntensive Block Crawler will be installed.
 
 	if [ "$blockchainViewer" = "C" ]; then
 	
@@ -492,33 +492,37 @@ install_cpuminer () {
 
 install_mongo () {
 
-    apt-get install mongodb-server -y
-    print_success "Installing mongodb..."
+	if [ "$blockchainViewer" = "E" ]; then
 
-    service mongodb start
-    if pgrep -x "mongod" > /dev/null
-    then
-    	print_success "MongoDB was installed, and is running!"
-    else
-    	mongodbstart
-        echo "Stopped"
-    fi
+	    apt-get install mongodb-server -y
+	    print_success "Installing mongodb..."
 
-    sleep 10 # fix connection error issue
+	    service mongodb start
+	    if pgrep -x "mongod" > /dev/null
+	    then
+	    	print_success "MongoDB was installed, and is running!"
+	    else
+	    	mongodbstart
+	        echo "Stopped"
+	    fi
 
-    account="{ user: 'x${rrpcuser}', pwd: 'x${rrpcpassword}', roles: [ 'readWrite' ] }"   
-    echo "${account}"
+	    sleep 10 # fix connection error issue
 
-    if [ $(mongo --version | grep -w '2.4' | wc -l) -eq 1 ]; then
-		echo "db.addUser( ${account} )"
-		mongo lynx --eval "db.addUser( ${account} )"
-    elif [ $(mongo --version | grep -w '2.6' | wc -l) -eq 1  ]; then
-		echo "warning"
-		echo "db.addUser( { ${account} )"
-		mongo lynx --eval "db.addUser( ${account} )"
-    else
-		echo "db.addUser( { ${account} )"
-		mongo lynx --eval "db.createUser( ${account} )"
+	    account="{ user: 'x${rrpcuser}', pwd: 'x${rrpcpassword}', roles: [ 'readWrite' ] }"   
+	    echo "${account}"
+
+	    if [ $(mongo --version | grep -w '2.4' | wc -l) -eq 1 ]; then
+			echo "db.addUser( ${account} )"
+			mongo lynx --eval "db.addUser( ${account} )"
+	    elif [ $(mongo --version | grep -w '2.6' | wc -l) -eq 1  ]; then
+			echo "warning"
+			echo "db.addUser( { ${account} )"
+			mongo lynx --eval "db.addUser( ${account} )"
+	    else
+			echo "db.addUser( { ${account} )"
+			mongo lynx --eval "db.createUser( ${account} )"
+	    fi
+
     fi
 }
 
@@ -537,7 +541,10 @@ set_firewall () {
 
 	IsSSH=$enable_ssh
 
+	# Let's flush any pre existing iptables rules that might exist and start with a clean slate.
+
 	/sbin/iptables -F
+
 	/sbin/iptables -I INPUT 1 -i lo -j ACCEPT
 	/sbin/iptables -I INPUT 2 -m conntrack --ctstate ESTABLISHED,RELATED -j ACCEPT
 	/sbin/iptables -A INPUT -p tcp --dport 80 -m state --state NEW -m recent --set
@@ -732,13 +739,13 @@ set_crontab () {
 	# In the event that any other crontabs exist, let's purge them all.
 	crontab -r
 
-	#crontab -l | { cat; echo "@reboot			/root/firewall.sh"; } | crontab -
+	crontab -l | { cat; echo "@reboot			/root/firewall.sh"; } | crontab -
 	print_success "A crontab for the '/root/firewall.sh' has been set up. It will run on boot."
 
-	crontab -l | { cat; echo "*/30 * * * *		/root/firewall.sh"; } | crontab -
+	crontab -l | { cat; echo "*/60 * * * *		/root/firewall.sh"; } | crontab -
 	print_success "A crontab for the '/root/firewall.sh' has been set up. It will reset every hour."
 
-	crontab -l | { cat; echo "*/15 * * * *		cd /root/lynx/src/ && ./lynxd"; } | crontab -
+	crontab -l | { cat; echo "*/5 * * * *		cd /root/lynx/src/ && ./lynxd"; } | crontab -
 	print_success "A crontab for '/root/lynx/src/lynxd' has been set up. It will start automatically every 2 minutes."
 
 	crontab -l | { cat; echo "*/10 * * * *		/root/miner.sh"; } | crontab -
@@ -746,14 +753,18 @@ set_crontab () {
 
 	crontab -l | { cat; echo "0 0 */15 * *		reboot"; } | crontab -
 	print_success "A crontab for the server has been set up. It will reboot automatically every 15 days."
-	
-    crontab -l | { cat; echo "@reboot			cd /root/LynxExplorer && npm start > /tmp/explorer.log 2>&1"; } | crontab -
-    crontab -l | { cat; echo "*/3 * * * *		cd /root/LynxExplorer && scripts/check_server_status.sh"; } | crontab -
-    crontab -l | { cat; echo "*/3 * * * *		cd /root/LynxExplorer && /usr/bin/nodejs scripts/sync.js index update > /tmp/explorer.sync 2>&1"; } | crontab -
-    crontab -l | { cat; echo "*/4 * * * *		cd /root/LynxExplorer && /usr/bin/nodejs scripts/sync.js market > /dev/null 2>&1"; } | crontab -
-    crontab -l | { cat; echo "*/10 * * * *		cd /root/LynxExplorer && /usr/bin/nodejs scripts/peers.js > /dev/null 2>&1"; } | crontab -
 
-	print_success "A crontab for Iquidus Explorer has been set up."
+	if [ "$blockchainViewer" = "E" ]; then
+
+	    crontab -l | { cat; echo "@reboot			cd /root/LynxExplorer && npm start > /tmp/explorer.log 2>&1"; } | crontab -
+	    crontab -l | { cat; echo "*/3 * * * *		cd /root/LynxExplorer && scripts/check_server_status.sh"; } | crontab -
+	    crontab -l | { cat; echo "*/3 * * * *		cd /root/LynxExplorer && /usr/bin/nodejs scripts/sync.js index update > /tmp/explorer.sync 2>&1"; } | crontab -
+	    crontab -l | { cat; echo "*/4 * * * *		cd /root/LynxExplorer && /usr/bin/nodejs scripts/sync.js market > /dev/null 2>&1"; } | crontab -
+	    crontab -l | { cat; echo "*/10 * * * *		cd /root/LynxExplorer && /usr/bin/nodejs scripts/peers.js > /dev/null 2>&1"; } | crontab -
+
+		print_success "A crontab for Iquidus Explorer has been set up."
+
+	fi
 
 }
 
