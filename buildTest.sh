@@ -99,7 +99,7 @@ compile_query () {
 		query1="Install the light weight Block Crawler (C) or resource intensive Block Explorer (e) (C/e):"
 		query2="Do you want SSH access enabled for public access? (y/N):"
 		query3="Do you want to sync with the bootstrap file (less network intensive)? (Y/n):"
-		query4="Do you want the miners to run (supports the Lynx network)? (Y/n):"
+		query4="Do you want the miner to run? (Y/n):"
 
 		# This answer tells us to install the Block Crawler which is much less system intensive
 		# or the Block Explorer which takes forever to index. It is recommended to stick to the 
@@ -116,6 +116,10 @@ compile_query () {
 		read -t $time_out -p "$query2 " ans2
 
 		read -t $time_out -p "$query3 " ans3
+
+		# We are currently mining to pools and solo mining. The device randomly set this for you but
+		# you can override this along with your own mining address in the set_miner() function.
+
 		read -t $time_out -p "$query4 " ans4
 
 		# Set the flag to determine if the Explorer or Crawler is being installed. The default is
@@ -133,7 +137,7 @@ compile_query () {
 		case "$ans2" in
 			y|Y) enable_ssh=Y ;;
 			n|N) enable_ssh=N ;;
-			*) enable_ssh=N ;;
+			*) enable_ssh=Y ;;
 		esac
 
 		#
@@ -145,9 +149,8 @@ compile_query () {
 			*) useBootstrapFile=Y ;;
 		esac
 
-		#
 		# Set the mining enabled flag
-		#
+
 		case "$ans4" in
 			y|Y) enable_mining=Y ;;
 			n|N) enable_mining=N ;;
