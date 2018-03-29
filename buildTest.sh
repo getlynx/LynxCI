@@ -662,7 +662,7 @@ config_fail2ban () {
 
 
 	[lynxd]
-	enabled = true
+	enabled = false
 	bantime = 86400
 
 	" > /etc/fail2ban/jail.d/defaults-debian.conf
@@ -693,8 +693,6 @@ config_fail2ban () {
 
 	" > /etc/fail2ban/jail.local
 
-	#
-	#
 	# Define the regex pattern for lynxd failed connections
 
 	echo "
