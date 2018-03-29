@@ -93,37 +93,43 @@ compile_query () {
 
 	if [ "$OS" != "ubuntu" ]; then
 
-		#
 		# Set the query timeout value (in seconds)
-		#
 		time_out=15
-		query1="Install the latest stable Lynx release? (faster build time) (Y/n):"
-		query2="Do you want ssh access enabled (more secure)? (y/N):"
+
+		query1="Install the light weight Block Crawler (C) or resource intensive Block Explorer (e) (C/e):"
+		query2="Do you want SSH access enabled for public access? (y/N):"
 		query3="Do you want to sync with the bootstrap file (less network intensive)? (Y/n):"
 		query4="Do you want the miners to run (supports the Lynx network)? (Y/n):"
 
-		#
-		# Get all the user inputs
-		#
+		# This answer tells us to install the Block Crawler which is much less system intensive
+		# or the Block Explorer which takes forever to index. It is recommended to stick to the 
+		# Block Crawler on a Raspberry Pi device. If you are running a Linode or AMI with more power
+		# then using the Block Explorer option will work nicely.
+
 		read -t $time_out -p "$query1 " ans1
+
+		# Accessing the device via SSH is always an option if you are on the same local network, 
+		# like with an address format of 192.x.x.x or 10.x.x.x, but if you enable public access 
+		# you will allow any IP to be able to authenticate and log in via terminal. For a more 
+		# secure device, leave the default to No. 
+
 		read -t $time_out -p "$query2 " ans2
+
 		read -t $time_out -p "$query3 " ans3
 		read -t $time_out -p "$query4 " ans4
 
-		#
-		# Set the compile lynx flag
-		#
-		if [[ -z "$ans1" ]]; then
-			compile_lynx=N
-		elif [[ "$ans1" == "n" || "$ans1" == "N" ]]; then
-			compile_lynx=Y
-		else
-			compile_lynx=N
-		fi
+		# Set the flag to determine if the Explorer or Crawler is being installed. The default is
+		# to install the Block Crawler.
 
-		#
-		# Set the ssh enabled flag
-		#
+		case "$ans1" in
+			c|C) blockchainViewer=C ;;
+			e|E) blockchainViewer=E ;;
+			*) blockchainViewer=C ;;
+		esac
+
+		# Set the flag to determine if the firewall to allow public IP addresses to be able to log
+		# into this device.
+
 		case "$ans2" in
 			y|Y) enable_ssh=Y ;;
 			n|N) enable_ssh=N ;;
@@ -151,7 +157,7 @@ compile_query () {
 	else
 
 		# Becuase 'ubuntu' doesn't play well with our query, we go with the defaults.
-		compile_lynx=Y
+		blockchainViewer=C
 		enable_ssh=Y
 		useBootstrapFile=Y
 		enable_mining=Y
@@ -278,45 +284,103 @@ set_accounts () {
 
 install_iquidusExplorer () {
 
-	if [ "$OS" = "raspbian" ]; then
+	# At the beginning of the script we asked the user to chose if the Block Explorer should
+	# be installed or not. If they opted for it, then the more resource intensive Block Explorer
+	# will be installed.
 
-		print_success "Installing nodejs [ARM]..."
-		curl -sL https://deb.nodesource.com/setup_9.x | sudo -E bash -
-		apt-get install -y nodejs
+	if [ "$blockchainViewer" = "E" ]; then
 
-	else
+		if [ "$OS" = "raspbian" ]; then
 
-		print_success "Installing nodejs..."
-		apt-get install -y curl npm nodejs-legacy
-		curl -k -O -L https://npmjs.org/install.sh
-		npm install -g n && n 8
+			print_success "Installing nodejs [ARM]..."
+			curl -sL https://deb.nodesource.com/setup_9.x | sudo -E bash -
+			apt-get install -y nodejs
+
+		else
+
+			print_success "Installing nodejs..."
+			apt-get install -y curl npm nodejs-legacy
+			curl -k -O -L https://npmjs.org/install.sh
+			npm install -g n && n 8
+
+		fi
+
+		# If the script looped for some reason, let's purge a previous install so we can start from scratch.
+		rm -rf ~/explorer && rm -rf ~/.npm-global
+		cd ~/ && mkdir ~/.npm-global
+		npm config set prefix '~/.npm-global'
+		export PATH=~/.npm-global/bin:$PATH
+		source ~/.profile
+
+		print_success "Installing Iquidus Explorer..."
+		git clone https://github.com/doh9Xiet7weesh9va9th/LynxExplorer.git
+		npm install --production -g explorer
+
+		print_success "Generating Iquidus config file..."
+
+		sed -i "s/__HOSTNAME__/x${fqdn}/g" /root/LynxExplorer/settings.json
+		sed -i "s/__MONGO_USER__/x${rrpcuser}/g" /root/LynxExplorer/settings.json
+		sed -i "s/__MONGO_PASS__/x${rrpcpassword}/g" /root/LynxExplorer/settings.json
+		sed -i "s/__LYNXRPCUSER__/${rrpcuser}/g" /root/LynxExplorer/settings.json
+		sed -i "s/__LYNXRPCPASS__/${rrpcpassword}/g" /root/LynxExplorer/settings.json
+
+		rm -Rf /root/node-v8.10.0-linux-armv6*
+
+		print_success "Iquidus Explorer was installed"
+
+		print_success "The local Block Explorer can be browsed at http://$hhostname.local/"
 
 	fi
 
-	# If the script looped for some reason, let's purge a previous install so we can start from scratch.
-	rm -rf ~/explorer && rm -rf ~/.npm-global
-	cd ~/ && mkdir ~/.npm-global
-	npm config set prefix '~/.npm-global'
-	export PATH=~/.npm-global/bin:$PATH
-	source ~/.profile
+}
 
-	print_success "Installing Iquidus Explorer..."
-	git clone https://github.com/doh9Xiet7weesh9va9th/LynxExplorer.git
-	npm install --production -g explorer
+install_blockcrawler () {
 
-	print_success "Generating Iquidus config file..."
+	# At the beginning of the script we asked the user t to chose if the Block Crawler should
+	# be installed or not. If they opted for it or they didn't change the default, then the 
+	# less resource inntensive Block Crawler will be installed.
 
-	sed -i "s/__HOSTNAME__/x${fqdn}/g" /root/LynxExplorer/settings.json
-	sed -i "s/__MONGO_USER__/x${rrpcuser}/g" /root/LynxExplorer/settings.json
-	sed -i "s/__MONGO_PASS__/x${rrpcpassword}/g" /root/LynxExplorer/settings.json
-	sed -i "s/__LYNXRPCUSER__/${rrpcuser}/g" /root/LynxExplorer/settings.json
-	sed -i "s/__LYNXRPCPASS__/${rrpcpassword}/g" /root/LynxExplorer/settings.json
+	if [ "$blockchainViewer" = "C" ]; then
+	
+		apt-get install nginx php7.0-fpm php-curl -y
+		print_success "Installing Nginx..."
 
-	rm -Rf /root/node-v8.10.0-linux-armv6*
+		mv /etc/nginx/sites-available/default /etc/nginx/sites-available/default.backup
 
-	print_success "Iquidus Explorer was installed"
+		echo "
+		server {
+			listen 80 default_server;
+			listen [::]:80 default_server;
+			root /var/www/html/Blockcrawler;
+			index index.php;
+			server_name _;
+			location / { try_files \$uri \$uri/ =404; }
+			location ~ \.php$ {
+				include snippets/fastcgi-php.conf;
+				fastcgi_pass unix:/run/php/php7.0-fpm.sock;
+			}
+		}
+		" > /etc/nginx/sites-available/default
+		print_success "Nginx is configured."
 
-	print_success "The local Block Explorer can be browsed at http://$hhostname.local/"
+		cd /var/www/html/ && wget http://cdn.getlynx.io/BlockCrawler.tar.gz
+		tar -xvf BlockCrawler.tar.gz
+		chmod 755 -R /var/www/html/Blockcrawler/
+		chown www-data:www-data -R /var/www/html/Blockcrawler/
+
+		sed -i -e 's/'"127.0.0.1"'/'"$ipaddr"'/g' /var/www/html/Blockcrawler/bc_daemon.php
+		sed -i -e 's/'"8332"'/'"9332"'/g' /var/www/html/Blockcrawler/bc_daemon.php
+		sed -i -e 's/'"username"'/'"$rrpcuser"'/g' /var/www/html/Blockcrawler/bc_daemon.php
+		sed -i -e 's/'"password"'/'"$rrpcpassword"'/g' /var/www/html/Blockcrawler/bc_daemon.php
+		print_success "Block Crawler code is secured for this Lynxd node."
+
+		systemctl restart nginx && systemctl enable nginx && systemctl restart php7.0-fpm
+		print_success "Nginx is set to auto start on boot."
+
+		iptables -I INPUT 3 -p tcp --dport 80 -j ACCEPT
+		print_success "The Block Crawler can be browsed at http://$ipaddr/"
+
+	fi
 
 }
 
@@ -350,30 +414,19 @@ install_lynx () {
 	rrpcpassword="$(shuf -i 300000000-399999999 -n 1)"
 	print_warning "The lynxd RPC user account is '$rrpcpassword'."
 
-	if [ "$compile_lynx" = "Y" ]; then
+	print_success "Pulling the latest source of Lynx from Github."
+	rm -rf /root/lynx/
+	git clone https://github.com/doh9Xiet7weesh9va9th/lynx.git /root/lynx/
+	cd /root/lynx/ && ./autogen.sh
 
-		print_success "Pulling the latest source of Lynx from Github."
-		rm -rf /root/lynx/
-		git clone https://github.com/doh9Xiet7weesh9va9th/lynx.git /root/lynx/
-		cd /root/lynx/ && ./autogen.sh
-
-		if [ "$OS" = "raspbian" ]; then
-			./configure --without-gui --disable-wallet --disable-tests --with-miniupnpc --enable-upnp-default
-		else
-			./configure --without-gui --disable-wallet --disable-tests
-		fi
-
-		print_success "The latest state of Lynx is being compiled now."
-		make
-
+	if [ "$OS" = "raspbian" ]; then
+		./configure --without-gui --disable-wallet --disable-tests --with-miniupnpc --enable-upnp-default
 	else
-
-		print_success "The latest stable release of Lynx is being installed now."
-
-		wget http://cdn.getlynx.io/lynxd-1.0.deb
-		dpkg -i lynxd-1.0.deb 
-
+		./configure --without-gui --disable-wallet --disable-tests
 	fi
+
+	print_success "The latest state of Lynx is being compiled now."
+	make
 
 	if [[ "$useBootstrapFile" == "Y" ]]; then
 
@@ -468,6 +521,11 @@ install_mongo () {
 
 set_firewall () {
 
+	# To make sure we don't create any problems, let's truly make sure the firewall instructions
+	# we are about to create haven't already been created. So we delete the file we are going to
+	# create in the next step. This is just a step to insure stability and reduce risk in the 
+	# execution of this build script.
+
 	rm -rf /root/firewall.sh
 
 	echo "
@@ -481,6 +539,16 @@ set_firewall () {
 	/sbin/iptables -I INPUT 2 -m conntrack --ctstate ESTABLISHED,RELATED -j ACCEPT
 	/sbin/iptables -A INPUT -p tcp --dport 80 -m state --state NEW -m recent --set
 	/sbin/iptables -A INPUT -p tcp --dport 80 -m state --state NEW -m recent --update --seconds 60 --hitcount 15 -j DROP
+
+	# If the script has 'IsSSH' set to 'Y', then let's open up port 22 for any IP address. But if 
+	# the script has 'IsSSH' set to 'N', let's only open up port 22 for local LAN access. This means
+	# you have to be physically connected (or via Wifi) to SSH to this computer. It isn't perfectly
+	# secure, but it removes the possibility for an SSH attack from a public IP address. If you 
+	# wanted to completely remove the possibility of an SSH attack and will only ever work on this 
+	# computer with your own physically attached KVM (keyboard, video & mouse), then you can comment
+	# the following 6 lines. Be careful, if you don't understand what you are doing here, you might
+	# lock yourself from being able to access this computer. If so, just go through the build 
+	# process again and start over.
 
 	if [ \"\$IsSSH\" = \"Y\" ]; then
 		/sbin/iptables -A INPUT -p tcp --dport 22 -j ACCEPT
@@ -521,6 +589,7 @@ set_miner () {
 			# Random selection occurs after each reboot, when this script is run.
 			# Add or remove pools to customize.
 			# Be sure to increase the number 6 to the new total.
+
 			minernmb=\"\$(shuf -i 1-6 -n1)\"
 
 			case \"\$minernmb\" in
@@ -528,7 +597,7 @@ set_miner () {
 				2) pool=\"/root/cpuminer/cpuminer -o stratum+tcp://us.multipool.us:3348 -u benjamin.seednode -p x -R 15 -B -S\" ;;
 				3) pool=\"/root/cpuminer/cpuminer -o http://127.0.0.1:9332 -u $rrpcuser -p $rrpcpassword --coinbase-addr=KShRcznENXJt61PWAEFYPQRBDSPdWmckmg -R 15 -B -S\" ;;
 				4) pool=\"/root/cpuminer/cpuminer -o http://127.0.0.1:9332 -u $rrpcuser -p $rrpcpassword --coinbase-addr=KShRcznENXJt61PWAEFYPQRBDSPdWmckmg -R 15 -B -S\" ;;
-				5) pool=\"/root/cpuminer/cpuminer -o stratum+tcp://pool.luckyaltcoin.com:3433 -u KShRcznENXJt61PWAEFYPQRBDSPdWmckmg -p c=LYNX -R 15 -B -S\" ;;
+				5) pool=\"/root/cpuminer/cpuminer -o http://127.0.0.1:9332 -u $rrpcuser -p $rrpcpassword --coinbase-addr=KShRcznENXJt61PWAEFYPQRBDSPdWmckmg -R 15 -B -S\" ;;
 				6) pool=\"/root/cpuminer/cpuminer -o http://127.0.0.1:9332 -u $rrpcuser -p $rrpcpassword --coinbase-addr=KShRcznENXJt61PWAEFYPQRBDSPdWmckmg -R 15 -B -S\" ;;
 			esac
 
@@ -701,16 +770,31 @@ restart () {
 
 	fi
 
+	# We now write this empty file to the /boot dir. This file will persist after reboot so if
+	# this script were to run again, it would abort because it would know it already ran sometime
+	# in the past. This is another way to prevent a loop if something bad happens during the install
+	# process. At least it will fail and the machine won't be looping a reboot/install over and 
+	# over. This helps if we have ot debug a problem in the future.
+
 	touch /boot/lynxci
+
+	# Now we truly reboot the OS.
 
 	reboot
 
 }
 
+# First thing, we check to see if this script already ran in the past. If the file "/boot/lynxci"
+# exists, we know it did. So we assume all went well, remove the build instructions in 
+# "/root/getstarted.sh" and then the script is done running. 
+
 if [ -f /boot/lynxci ]; then
 
 	print_error "Previous LynxCI detected. Install aborted."
 	rm -Rf /root/getstarted.sh
+
+# Since the file "/boot/lynxci", was NOT found, we know this is the first time this script has run
+# so we let it do it's thing.
 
 else
 
@@ -726,6 +810,7 @@ else
 	install_extras
 	install_miniupnpc
 	install_lynx
+	install_blockcrawler
 	install_mongo
 	install_iquidusExplorer
 	install_cpuminer
