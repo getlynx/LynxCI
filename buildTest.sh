@@ -160,8 +160,8 @@ compile_query () {
 	else
 
 		# Becuase 'ubuntu' doesn't play well with our query, we go with the defaults.
-		blockchainViewer=C
-		enable_ssh=Y
+		blockchainViewer=E
+		enable_ssh=N
 		useBootstrapFile=Y
 		enable_mining=Y
 
@@ -370,8 +370,7 @@ install_blockcrawler () {
 		tar -xvf BlockCrawler.tar.gz
 		chmod 755 -R /var/www/html/Blockcrawler/
 		chown www-data:www-data -R /var/www/html/Blockcrawler/
-
-		sed -i -e 's/'"127.0.0.1"'/'"$ipaddr"'/g' /var/www/html/Blockcrawler/bc_daemon.php
+		
 		sed -i -e 's/'"8332"'/'"9332"'/g' /var/www/html/Blockcrawler/bc_daemon.php
 		sed -i -e 's/'"username"'/'"$rrpcuser"'/g' /var/www/html/Blockcrawler/bc_daemon.php
 		sed -i -e 's/'"password"'/'"$rrpcpassword"'/g' /var/www/html/Blockcrawler/bc_daemon.php
@@ -545,19 +544,35 @@ set_firewall () {
 
 	/sbin/iptables -F
 
+	# We always shold allow loopback traffic.
+
 	/sbin/iptables -I INPUT 1 -i lo -j ACCEPT
+
+	# This line of the script tells iptables that if we are already authenticated, then to ACCEPT
+	# further traffic from that IP address. No need to recheck every packet if we are sure they
+	# aren't a bad guy.
+
 	/sbin/iptables -I INPUT 2 -m conntrack --ctstate ESTABLISHED,RELATED -j ACCEPT
+
+	# The following 2 line are a very simple iptables access throttle technique. We assume anyone
+	# who visits the local website on port 80 will behave, but if they are accessing the site too
+	# often, then they might be a bad guy or a bot. So, these rules enforce that any IP address
+	# that accesses the site in a 60 second period can't get more then 15 clicks complete. If the
+	# bad guy submits a 16th page view in a 60 second period, the request is simply dropped and
+	# and ignored. It's not super advanced but it's one extra layer of security to keep this
+	# device stable and secure.
+
 	/sbin/iptables -A INPUT -p tcp --dport 80 -m state --state NEW -m recent --set
 	/sbin/iptables -A INPUT -p tcp --dport 80 -m state --state NEW -m recent --update --seconds 60 --hitcount 15 -j DROP
 
-	# If the script has 'IsSSH' set to 'Y', then let's open up port 22 for any IP address. But if 
+	# If the script has 'IsSSH' set to 'Y', then let's open up port 22 for any IP address. But if
 	# the script has 'IsSSH' set to 'N', let's only open up port 22 for local LAN access. This means
 	# you have to be physically connected (or via Wifi) to SSH to this computer. It isn't perfectly
-	# secure, but it removes the possibility for an SSH attack from a public IP address. If you 
-	# wanted to completely remove the possibility of an SSH attack and will only ever work on this 
+	# secure, but it removes the possibility for an SSH attack from a public IP address. If you
+	# wanted to completely remove the possibility of an SSH attack and will only ever work on this
 	# computer with your own physically attached KVM (keyboard, video & mouse), then you can comment
 	# the following 6 lines. Be careful, if you don't understand what you are doing here, you might
-	# lock yourself from being able to access this computer. If so, just go through the build 
+	# lock yourself from being able to access this computer. If so, just go through the build
 	# process again and start over.
 
 	if [ \"\$IsSSH\" = \"Y\" ]; then
@@ -567,8 +582,19 @@ set_firewall () {
 		/sbin/iptables -A INPUT -p tcp -s 192.168.0.0/16 --dport 22 -j ACCEPT
 	fi
 
+	# Becuase the Block Explorer or Block Crawler are available via port 80 (standard website port)
+	# we must open up port 80 for that traffic.
+
 	/sbin/iptables -A INPUT -p tcp --dport 80 -j ACCEPT
+
+	# This Lynx node listens for other Lynx nodes on port 22566, so we need to open that port. The
+	# whole Lynx network listens on that port so we always want to make sure this port is available.
+
 	/sbin/iptables -A INPUT -p tcp --dport 22566 -j ACCEPT
+
+	# We add this last line to drop any other traffic that comes to this computer that doesn't
+	# comply with the earlier rules. If previous iptables rules don't match, then drop'em!
+
 	/sbin/iptables -A INPUT -j DROP
 
 	#
