@@ -293,20 +293,9 @@ install_iquidusExplorer () {
 
 	if [ "$blockchainViewer" = "E" ]; then
 
-		if [ "$OS" = "raspbian" ]; then
-
-			print_success "Installing nodejs [ARM]..."
-			curl -sL https://deb.nodesource.com/setup_9.x | sudo -E bash -
-			apt-get install -y nodejs
-
-		else
-
-			print_success "Installing nodejs..."
-			apt-get install -y curl npm nodejs-legacy
-			curl -k -O -L https://npmjs.org/install.sh
-			npm install -g n && n 8
-
-		fi
+		print_success "Installing nodejs [ARM]..."
+		curl -sL https://deb.nodesource.com/setup_9.x | sudo -E bash -
+		apt-get install -y nodejs
 
 		# If the script looped for some reason, let's purge a previous install so we can start from scratch.
 		rm -rf ~/explorer && rm -rf ~/.npm-global
