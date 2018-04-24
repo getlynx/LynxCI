@@ -746,7 +746,8 @@ config_fail2ban () {
 	#
 	#
 	# With the extra jails added for monitoring lynxd, we need to touch the debug.log file for fail2ban to start without error.
-
+	mkdir /root/.lynx/
+	chmod 755 /root/.lynx/
 	touch /root/.lynx/debug.log
 
 	service fail2ban start
