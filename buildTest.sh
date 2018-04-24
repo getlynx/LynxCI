@@ -843,7 +843,7 @@ else
 	set_accounts
 	install_extras
 	install_miniupnpc
-	#install_lynx
+	install_lynx
 	install_blockcrawler
 	install_mongo
 	install_iquidusExplorer
