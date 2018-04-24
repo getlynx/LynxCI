@@ -297,20 +297,14 @@ install_iquidusExplorer () {
 
 		curl -o- https://raw.githubusercontent.com/creationix/nvm/v0.31.0/install.sh | bash
 		sleep 5
-
-		# If the script looped for some reason, let's purge a previous install so we can start from scratch.
-		#rm -rf ~/explorer && rm -rf ~/.npm-global
-		#cd ~/ && mkdir ~/.npm-global
-		#npm config set prefix '~/.npm-global'
-		#export PATH=~/.npm-global/bin:$PATH
-		#source ~/.profile
-		#source ~/.bashrc
 		source $HOME/.nvm/nvm.sh
 		sleep 5
 		nvm install stable
 		nvm alias default stable
 		sleep 5
+
 		print_success "Installing Iquidus Explorer..."
+		
 		git clone https://github.com/doh9Xiet7weesh9va9th/LynxExplorer.git /root/LynxExplorer/
 		npm install --production -g explorer
 
@@ -321,8 +315,6 @@ install_iquidusExplorer () {
 		sed -i "s/__MONGO_PASS__/x${rrpcpassword}/g" /root/LynxExplorer/settings.json
 		sed -i "s/__LYNXRPCUSER__/${rrpcuser}/g" /root/LynxExplorer/settings.json
 		sed -i "s/__LYNXRPCPASS__/${rrpcpassword}/g" /root/LynxExplorer/settings.json
-
-		#rm -Rf /root/node-v8.10.0-linux-armv6*
 
 		print_success "Iquidus Explorer was installed"
 
