@@ -296,15 +296,17 @@ install_iquidusExplorer () {
 		print_success "Installing nodejs [ARM]..."
 
 		curl -o- https://raw.githubusercontent.com/creationix/nvm/v0.31.0/install.sh | bash
+		sleep 5
 
 		# If the script looped for some reason, let's purge a previous install so we can start from scratch.
-		rm -rf ~/explorer && rm -rf ~/.npm-global
-		cd ~/ && mkdir ~/.npm-global
-		npm config set prefix '~/.npm-global'
-		export PATH=~/.npm-global/bin:$PATH
+		#rm -rf ~/explorer && rm -rf ~/.npm-global
+		#cd ~/ && mkdir ~/.npm-global
+		#npm config set prefix '~/.npm-global'
+		#export PATH=~/.npm-global/bin:$PATH
 		#source ~/.profile
 		#source ~/.bashrc
 		source $HOME/.nvm/nvm.sh
+		sleep 5
 		nvm install stable
 		nvm alias default stable
 
