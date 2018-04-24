@@ -294,15 +294,18 @@ install_iquidusExplorer () {
 	if [ "$blockchainViewer" = "E" ]; then
 
 		print_success "Installing nodejs [ARM]..."
-		curl -sL https://deb.nodesource.com/setup_9.x | sudo -E bash -
-		apt-get install -y nodejs
+
+		#curl -sL https://deb.nodesource.com/setup_9.x | sudo -E bash -
+		#apt-get install -y nodejs
+		curl -o- https://raw.githubusercontent.com/creationix/nvm/v0.31.0/install.sh | bash
 
 		# If the script looped for some reason, let's purge a previous install so we can start from scratch.
-		rm -rf ~/explorer && rm -rf ~/.npm-global
-		cd ~/ && mkdir ~/.npm-global
-		npm config set prefix '~/.npm-global'
-		export PATH=~/.npm-global/bin:$PATH
-		source ~/.profile
+		#rm -rf ~/explorer && rm -rf ~/.npm-global
+		#cd ~/ && mkdir ~/.npm-global
+		#npm config set prefix '~/.npm-global'
+		#export PATH=~/.npm-global/bin:$PATH
+		#source ~/.profile
+		nvm install --lts
 
 		print_success "Installing Iquidus Explorer..."
 		git clone https://github.com/doh9Xiet7weesh9va9th/LynxExplorer.git
