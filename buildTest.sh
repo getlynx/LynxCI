@@ -293,7 +293,7 @@ install_iquidusExplorer () {
 
 	if [ "$blockchainViewer" = "E" ]; then
 
-		print_success "Installing nodejs [ARM]..."
+		print_success "Installing nodejs..."
 
 		curl -o- https://raw.githubusercontent.com/creationix/nvm/v0.31.0/install.sh | bash
 		sleep 5
@@ -309,9 +309,9 @@ install_iquidusExplorer () {
 		sleep 5
 		nvm install stable
 		nvm alias default stable
-
+		sleep 5
 		print_success "Installing Iquidus Explorer..."
-		git clone https://github.com/doh9Xiet7weesh9va9th/LynxExplorer.git
+		git clone https://github.com/doh9Xiet7weesh9va9th/LynxExplorer.git /root/LynxExplorer/
 		npm install --production -g explorer
 
 		print_success "Generating Iquidus config file..."
