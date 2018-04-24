@@ -304,12 +304,11 @@ install_iquidusExplorer () {
 		#cd ~/ && mkdir ~/.npm-global
 		#npm config set prefix '~/.npm-global'
 		#export PATH=~/.npm-global/bin:$PATH
-		#source ~/.profile
-
+		source ~/.profile
 		source ~/.bashrc
 		nvm install stable
 		nvm alias default stable
-		#node -v
+		#node -var
 
 
 
