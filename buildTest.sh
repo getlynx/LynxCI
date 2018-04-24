@@ -312,14 +312,20 @@ install_iquidusExplorer () {
 
 		print_success "Generating Iquidus config file..."
 
+		# We need to update the json file in the LynxExplorer node app with the lynxd RPC access
+		# credentials for this device. Since they are created dynamically each time, we just do
+		# find and replace in the json file.
+
 		sed -i "s/__HOSTNAME__/x${fqdn}/g" /root/LynxExplorer/settings.json
 		sed -i "s/__MONGO_USER__/x${rrpcuser}/g" /root/LynxExplorer/settings.json
 		sed -i "s/__MONGO_PASS__/x${rrpcpassword}/g" /root/LynxExplorer/settings.json
 		sed -i "s/__LYNXRPCUSER__/${rrpcuser}/g" /root/LynxExplorer/settings.json
 		sed -i "s/__LYNXRPCPASS__/${rrpcpassword}/g" /root/LynxExplorer/settings.json
 
-		print_success "Iquidus Explorer was installed"
+		# Yeah, we are probably putting to many comments in this script, but I hope it proves
+		# helpful to someone when they are having fun but don't know what a part of it does.
 
+		print_success "Iquidus Explorer was installed"
 		print_success "The local Block Explorer can be browsed at http://$hhostname.local/"
 
 	fi
