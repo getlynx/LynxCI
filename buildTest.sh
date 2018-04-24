@@ -305,7 +305,13 @@ install_iquidusExplorer () {
 		#npm config set prefix '~/.npm-global'
 		#export PATH=~/.npm-global/bin:$PATH
 		#source ~/.profile
-		nvm install --lts
+
+		source ~/.bashrc
+		nvm install stable
+		nvm alias default stable
+		#node -v
+
+
 
 		print_success "Installing Iquidus Explorer..."
 		git clone https://github.com/doh9Xiet7weesh9va9th/LynxExplorer.git
@@ -319,7 +325,7 @@ install_iquidusExplorer () {
 		sed -i "s/__LYNXRPCUSER__/${rrpcuser}/g" /root/LynxExplorer/settings.json
 		sed -i "s/__LYNXRPCPASS__/${rrpcpassword}/g" /root/LynxExplorer/settings.json
 
-		rm -Rf /root/node-v8.10.0-linux-armv6*
+		#rm -Rf /root/node-v8.10.0-linux-armv6*
 
 		print_success "Iquidus Explorer was installed"
 
@@ -839,7 +845,7 @@ else
 	set_accounts
 	install_extras
 	install_miniupnpc
-	install_lynx
+	#install_lynx
 	install_blockcrawler
 	install_mongo
 	install_iquidusExplorer
