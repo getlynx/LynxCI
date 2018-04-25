@@ -302,7 +302,7 @@ install_iquidusExplorer () {
 		nvm install stable
 		nvm alias default stable
 		sleep 5
-		ln -s "\$(which node)" /usr/bin/nodejs
+		ln -s "$(which node)" /usr/bin/nodejs
 		sleep 5
 
 		print_success "Installing Iquidus Explorer..."
