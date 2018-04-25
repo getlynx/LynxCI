@@ -308,7 +308,8 @@ install_iquidusExplorer () {
 		print_success "Installing Iquidus Explorer..."
 		
 		git clone https://github.com/doh9Xiet7weesh9va9th/LynxExplorer.git /root/LynxExplorer/
-		npm install --production -g explorer
+		# cd /root/LynxExplorer/ && npm install --production -g explorer
+		cd /root/LynxExplorer/ && npm install
 
 		print_success "Generating Iquidus config file..."
 
