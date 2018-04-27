@@ -295,21 +295,27 @@ install_iquidusExplorer () {
 
 		print_success "Installing nodejs..."
 
-		curl -o- https://raw.githubusercontent.com/creationix/nvm/v0.31.0/install.sh | bash
-		sleep 5
-		source $HOME/.nvm/nvm.sh
-		sleep 5
-		nvm install stable
-		nvm alias default stable
-		sleep 5
-		ln -s "$(which node)" /usr/bin/nodejs
-		sleep 5
+		curl -o- https://raw.githubusercontent.com/creationix/nvm/v0.33.8/install.sh | bash
+		export NVM_DIR="$HOME/.nvm"
+		# This loads nvm
+		[ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh" 
+		# This loads nvm bash_completion
+		[ -s "$NVM_DIR/bash_completion" ] && \. "$NVM_DIR/bash_completion"  
+		nvm install --lts
+		npm install pm2 -g
 
 		print_success "Installing Iquidus Explorer..."
+
+		sleep 5
+		# Setup log rotate for PM2 Logs
+		pm2 install pm2-logrotate
+		pm2 set pm2-logrotate:retain 7
+		pm2 set pm2-logrotate:compress true
+
+		print_success "Installed PM2..."
 		
 		git clone https://github.com/doh9Xiet7weesh9va9th/LynxExplorer.git /root/LynxExplorer/
-		# cd /root/LynxExplorer/ && npm install --production -g explorer
-		cd /root/LynxExplorer/ && npm install
+		cd /root/LynxExplorer/ && npm install --production
 
 		print_success "Generating Iquidus config file..."
 
@@ -322,6 +328,12 @@ install_iquidusExplorer () {
 		sed -i "s/__MONGO_PASS__/x${rrpcpassword}/g" /root/LynxExplorer/settings.json
 		sed -i "s/__LYNXRPCUSER__/${rrpcuser}/g" /root/LynxExplorer/settings.json
 		sed -i "s/__LYNXRPCPASS__/${rrpcpassword}/g" /root/LynxExplorer/settings.json
+
+		pm2 stop IquidusExplorer
+		pm2 delete IquidusExplorer
+		pm2 start npm --name IquidusExplorer -- start
+		pm2 save
+		pm2 startup ubuntu
 
 		# Yeah, we are probably putting to many comments in this script, but I hope it proves
 		# helpful to someone when they are having fun but don't know what a part of it does.
