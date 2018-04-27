@@ -300,7 +300,10 @@ install_iquidusExplorer () {
 		# This loads nvm
 		[ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh" 
 		# This loads nvm bash_completion
-		[ -s "$NVM_DIR/bash_completion" ] && \. "$NVM_DIR/bash_completion"  
+		[ -s "$NVM_DIR/bash_completion" ] && \. "$NVM_DIR/bash_completion" 
+
+		source $HOME/.nvm/nvm.sh
+		 
 		nvm install --lts
 		npm install pm2 -g
 
@@ -789,7 +792,7 @@ set_crontab () {
 
 	if [ "$blockchainViewer" = "E" ]; then
 
-	    crontab -l | { cat; echo "@reboot			cd /root/LynxExplorer && npm start > /tmp/explorer.log 2>&1"; } | crontab -
+	    #crontab -l | { cat; echo "@reboot			cd /root/LynxExplorer && npm start > /tmp/explorer.log 2>&1"; } | crontab -
 	    crontab -l | { cat; echo "*/3 * * * *		cd /root/LynxExplorer && scripts/check_server_status.sh"; } | crontab -
 	    crontab -l | { cat; echo "*/3 * * * *		cd /root/LynxExplorer && /usr/bin/nodejs scripts/sync.js index update > /tmp/explorer.sync 2>&1"; } | crontab -
 	    crontab -l | { cat; echo "*/4 * * * *		cd /root/LynxExplorer && /usr/bin/nodejs scripts/sync.js market > /dev/null 2>&1"; } | crontab -
