@@ -295,6 +295,9 @@ install_iquidusExplorer () {
 
 		print_success "Installing nodejs..."
 
+		apt-get install nodejs
+		sleep 5
+		
 		curl -o- https://raw.githubusercontent.com/creationix/nvm/v0.33.8/install.sh | bash
 		export NVM_DIR="$HOME/.nvm"
 		# This loads nvm
