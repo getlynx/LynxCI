@@ -295,9 +295,9 @@ install_iquidusExplorer () {
 
 		print_success "Installing nodejs..."
 
-		apt-get install nodejs
+		apt-get install nodejs -y
 		sleep 5
-		
+
 		curl -o- https://raw.githubusercontent.com/creationix/nvm/v0.33.8/install.sh | bash
 		export NVM_DIR="$HOME/.nvm"
 		# This loads nvm
@@ -658,7 +658,7 @@ set_miner () {
 
 	if [ \"\$IsMiner\" = \"Y\" ]; then
 		if ! pgrep -x \"cpulimit\" > /dev/null; then
-			cpulimit -e cpuminer -l 25 -b
+			cpulimit -e cpuminer -l 10 -b
 		fi
 	fi
 
