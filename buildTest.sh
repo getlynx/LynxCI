@@ -1,10 +1,18 @@
 #!/bin/bash
 
+# Wanna set up up your own custom color codes? Here is a fun article to read if you wanna play.
+# https://stackoverflow.com/questions/5947742/how-to-change-the-output-color-of-echo-in-linux
+
 BLUE='\033[94m'
 GREEN='\033[32;1m'
 YELLOW='\033[33;1m'
 RED='\033[91;1m'
 RESET='\033[0m'
+
+# The following functions allow the script to print messages to the screen while it's running. 
+# Nothing fancy is going on with the following 4 functions. If you are watching the script run
+# You can see the display of messages. This is both fun to watch and proves helpful if you are 
+# trying to trace a bug.
 
 print_info () {
 
