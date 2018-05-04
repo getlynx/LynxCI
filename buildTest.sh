@@ -793,7 +793,7 @@ set_crontab () {
 	crontab -l | { cat; echo "*/10 * * * *		/root/miner.sh"; } | crontab -
 	print_success "A crontab for the '/root/miner.sh' has been set up. It will execute every 15 minutes."
 
-	crontab -l | { cat; echo "0 0 */15 * *		reboot"; } | crontab -
+	crontab -l | { cat; echo "0 0 */15 * *		/sbin/shutdown -r now"; } | crontab -
 	print_success "A crontab for the server has been set up. It will reboot automatically every 15 days."
 
 	if [ "$blockchainViewer" = "E" ]; then
