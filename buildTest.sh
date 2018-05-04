@@ -161,7 +161,7 @@ compile_query () {
 
 		# Becuase 'ubuntu' doesn't play well with our query, we go with the defaults.
 		blockchainViewer=E
-		enable_ssh=N
+		enable_ssh=Y
 		useBootstrapFile=Y
 		enable_mining=Y
 
@@ -245,14 +245,17 @@ set_wifi () {
 		print_error "To set up wifi, edit the /etc/wpa_supplicant/wpa_supplicant.conf file."
 		
 		echo "
+
 		ctrl_interface=DIR=/var/run/wpa_supplicant GROUP=netdev
 		update_config=1
 		country=US
+
 		network={
 			ssid=\"Your network SSID\"
 			psk=\"Your WPA/WPA2 security key\"
 			key_mgmt=WPA-PSK
 		}
+
 		" >> /boot/wpa_supplicant.conf
 
 	fi
@@ -300,22 +303,22 @@ install_iquidusExplorer () {
 
         print_success "Installing nodejs..."
         apt-get install -y curl npm nodejs-legacy
-	curl -k -O -L https://npmjs.org/install.sh
+	#curl -k -O -L https://npmjs.org/install.sh
         npm install -g n && n 8
 
 	# change npm dir prefix 
-	mkdir ~/.npm-global
-  	npm config set prefix '~/.npm-global'
-  	export PATH=~/.npm-global/bin:$PATH
-  	source ~/.profile
+	#mkdir ~/.npm-global
+  	#npm config set prefix '~/.npm-global'
+  	#export PATH=~/.npm-global/bin:$PATH
+  	#source ~/.profile
 	
 	print_success "Installing PM2..."
 
 	npm install pm2 -g
 		
-	pm2 install pm2-logrotate
-	pm2 set pm2-logrotate:retain 7
-	pm2 set pm2-logrotate:compress true
+	#pm2 install pm2-logrotate
+	#pm2 set pm2-logrotate:retain 7
+	#pm2 set pm2-logrotate:compress true
 
 	print_success "Installing Iquidus Explorer..."
 
@@ -546,16 +549,25 @@ set_firewall () {
 	rm -rf /root/firewall.sh
 
 	echo "
+
 	#!/bin/bash
+
 	IsSSH=$enable_ssh
+
 	# Let's flush any pre existing iptables rules that might exist and start with a clean slate.
+
 	/sbin/iptables -F
+
 	# We always shold allow loopback traffic.
+
 	/sbin/iptables -I INPUT 1 -i lo -j ACCEPT
+
 	# This line of the script tells iptables that if we are already authenticated, then to ACCEPT
 	# further traffic from that IP address. No need to recheck every packet if we are sure they
 	# aren't a bad guy.
+
 	/sbin/iptables -I INPUT 2 -m conntrack --ctstate ESTABLISHED,RELATED -j ACCEPT
+
 	# The following 2 line are a very simple iptables access throttle technique. We assume anyone
 	# who visits the local website on port 80 will behave, but if they are accessing the site too
 	# often, then they might be a bad guy or a bot. So, these rules enforce that any IP address
@@ -563,8 +575,10 @@ set_firewall () {
 	# bad guy submits a 16th page view in a 60 second period, the request is simply dropped and
 	# and ignored. It's not super advanced but it's one extra layer of security to keep this
 	# device stable and secure.
+
 	/sbin/iptables -A INPUT -p tcp --dport 80 -m state --state NEW -m recent --set
 	/sbin/iptables -A INPUT -p tcp --dport 80 -m state --state NEW -m recent --update --seconds 60 --hitcount 15 -j DROP
+
 	# If the script has 'IsSSH' set to 'Y', then let's open up port 22 for any IP address. But if
 	# the script has 'IsSSH' set to 'N', let's only open up port 22 for local LAN access. This means
 	# you have to be physically connected (or via Wifi) to SSH to this computer. It isn't perfectly
@@ -574,21 +588,29 @@ set_firewall () {
 	# the following 6 lines. Be careful, if you don't understand what you are doing here, you might
 	# lock yourself from being able to access this computer. If so, just go through the build
 	# process again and start over.
+
 	if [ \"\$IsSSH\" = \"Y\" ]; then
 		/sbin/iptables -A INPUT -p tcp --dport 22 -j ACCEPT
 	else
 		/sbin/iptables -A INPUT -p tcp -s 10.0.0.0/8 --dport 22 -j ACCEPT
 		/sbin/iptables -A INPUT -p tcp -s 192.168.0.0/16 --dport 22 -j ACCEPT
 	fi
+
 	# Becuase the Block Explorer or Block Crawler are available via port 80 (standard website port)
 	# we must open up port 80 for that traffic.
+
 	/sbin/iptables -A INPUT -p tcp --dport 80 -j ACCEPT
+
 	# This Lynx node listens for other Lynx nodes on port 22566, so we need to open that port. The
 	# whole Lynx network listens on that port so we always want to make sure this port is available.
+
 	/sbin/iptables -A INPUT -p tcp --dport 22566 -j ACCEPT
+
 	# We add this last line to drop any other traffic that comes to this computer that doesn't
 	# comply with the earlier rules. If previous iptables rules don't match, then drop'em!
+
 	/sbin/iptables -A INPUT -j DROP
+
 	#
 	#trumpisamoron
 	#" > /root/firewall.sh
@@ -605,15 +627,21 @@ set_miner () {
 	rm -rf /root/miner.sh
 
 	echo "
+
 	#!/bin/bash
+
 	IsMiner=$enable_mining
+
 	if [ \"\$IsMiner\" = \"Y\" ]; then
 		if ! pgrep -x \"cpuminer\" > /dev/null; then
+
 			# Randomly select a pool number from 1-6.
 			# Random selection occurs after each reboot, when this script is run.
 			# Add or remove pools to customize.
 			# Be sure to increase the number 6 to the new total.
+
 			minernmb=\"\$(shuf -i 1-6 -n1)\"
+
 			case \"\$minernmb\" in
 				1) pool=\"/root/cpuminer/cpuminer -o stratum+tcp://eu.multipool.us:3348 -u benjamin.seednode -p x -R 15 -B -S\" ;;
 				2) pool=\"/root/cpuminer/cpuminer -o stratum+tcp://us.multipool.us:3348 -u benjamin.seednode -p x -R 15 -B -S\" ;;
@@ -622,14 +650,18 @@ set_miner () {
 				5) pool=\"/root/cpuminer/cpuminer -o http://127.0.0.1:9332 -u $rrpcuser -p $rrpcpassword --coinbase-addr=KShRcznENXJt61PWAEFYPQRBDSPdWmckmg -R 15 -B -S\" ;;
 				6) pool=\"/root/cpuminer/cpuminer -o http://127.0.0.1:9332 -u $rrpcuser -p $rrpcpassword --coinbase-addr=KShRcznENXJt61PWAEFYPQRBDSPdWmckmg -R 15 -B -S\" ;;
 			esac
+
 			\$pool
 		fi
+
 	fi
+
 	if [ \"\$IsMiner\" = \"Y\" ]; then
 		if ! pgrep -x \"cpulimit\" > /dev/null; then
 			cpulimit -e cpuminer -l 10 -b
 		fi
 	fi
+
 	#
 	#trumpisamoron
 	#" > /root/miner.sh
@@ -663,12 +695,16 @@ config_fail2ban () {
 	# Set the bantime for lynxd on port 22566 banned regex matches to 24 hours as well.
 
 	echo "
+
 	[sshd]
 	enabled = true
 	bantime = 86400
+
+
 	[lynxd]
 	enabled = false
 	bantime = 86400
+
 	" > /etc/fail2ban/jail.d/defaults-debian.conf
 
 	#
@@ -676,40 +712,54 @@ config_fail2ban () {
 	# Configure the fail2ban jail for lynxd and set the frequency to 20 min and 3 polls.
 
 	echo "
+
 	#
 	# SSH
 	#
+
 	[sshd]
 	port		= ssh
 	logpath		= %(sshd_log)s
+
 	#
 	# LYNX
 	#
+
 	[lynxd]
 	port		= 22566
 	logpath		= /root/.lynx/debug.log
 	findtime	= 1200
 	maxretry	= 3
+
 	" > /etc/fail2ban/jail.local
 
 	# Define the regex pattern for lynxd failed connections
 
 	echo "
+
 	#
 	# Fail2Ban lynxd regex filter for at attempted exploit or inappropriate connection
 	#
 	# The regex matches banned and dropped connections
 	# Processes the following logfile /root/.lynx/debug.log
 	#
+
 	[INCLUDES]
+
 	# Read common prefixes. If any customizations available -- read them from
 	# common.local
 	before = common.conf
+
 	[Definition]
+
 	#_daemon = lynxd
+
 	failregex = ^.* connection from <HOST>.*dropped \(banned\)$
+
 	ignoreregex =
+
 	# Author: The Lynx Core Development Team
+
 	" > /etc/fail2ban/filter.d/lynxd.conf
 
 	#
@@ -744,15 +794,12 @@ set_crontab () {
 	print_success "A crontab for the server has been set up. It will reboot automatically every 15 days."
 
 	if [ "$blockchainViewer" = "E" ]; then
-
 	    #crontab -l | { cat; echo "@reboot			cd /root/LynxExplorer && npm start > /tmp/explorer.log 2>&1"; } | crontab -
-	    crontab -l | { cat; echo "*/3 * * * *		cd /root/LynxExplorer && scripts/check_server_status.sh"; } | crontab -
-	    crontab -l | { cat; echo "*/3 * * * *		cd /root/LynxExplorer && /usr/bin/nodejs scripts/sync.js index update > /tmp/explorer.sync 2>&1"; } | crontab -
-	    crontab -l | { cat; echo "*/4 * * * *		cd /root/LynxExplorer && /usr/bin/nodejs scripts/sync.js market > /dev/null 2>&1"; } | crontab -
-	    crontab -l | { cat; echo "*/10 * * * *		cd /root/LynxExplorer && /usr/bin/nodejs scripts/peers.js > /dev/null 2>&1"; } | crontab -
-
+		crontab -l | { cat; echo "*/2 * * * *		cd /root/LynxExplorer && scripts/check_server_status.sh"; } | crontab -
+		crontab -l | { cat; echo "*/3 * * * *		cd /root/LynxExplorer && /usr/bin/nodejs scripts/sync.js index update >> /tmp/explorer.sync 2>&1"; } | crontab -
+		crontab -l | { cat; echo "*/4 * * * *		cd /root/LynxExplorer && /usr/bin/nodejs scripts/sync.js market > /dev/null 2>&1"; } | crontab -
+		crontab -l | { cat; echo "*/10 * * * *		cd /root/LynxExplorer && /usr/bin/nodejs scripts/peers.js > /dev/null 2>&1"; } | crontab -
 		print_success "A crontab for Iquidus Explorer has been set up."
-
 	fi
 
 }
