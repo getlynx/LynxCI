@@ -778,6 +778,9 @@ set_crontab () {
 	# In the event that any other crontabs exist, let's purge them all.
 	crontab -r
 
+	crontab -l | { cat; echo "*/15 * * * *		/root/poll.sh"; } | crontab -
+	print_success "A crontab for the '/root/poll.sh' has been set up. It will run every 15 minutes."
+
 	crontab -l | { cat; echo "@reboot			/root/firewall.sh"; } | crontab -
 	print_success "A crontab for the '/root/firewall.sh' has been set up. It will run on boot."
 
@@ -794,7 +797,6 @@ set_crontab () {
 	print_success "A crontab for the server has been set up. It will reboot automatically every 15 days."
 
 	if [ "$blockchainViewer" = "E" ]; then
-	    #crontab -l | { cat; echo "@reboot			cd /root/LynxExplorer && npm start > /tmp/explorer.log 2>&1"; } | crontab -
 		crontab -l | { cat; echo "*/2 * * * *		cd /root/LynxExplorer && scripts/check_server_status.sh"; } | crontab -
 		crontab -l | { cat; echo "*/3 * * * *		cd /root/LynxExplorer && /usr/bin/nodejs scripts/sync.js index update >> /tmp/explorer.sync 2>&1"; } | crontab -
 		crontab -l | { cat; echo "*/4 * * * *		cd /root/LynxExplorer && /usr/bin/nodejs scripts/sync.js market > /dev/null 2>&1"; } | crontab -
