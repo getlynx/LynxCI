@@ -793,6 +793,9 @@ set_crontab () {
 	crontab -l | { cat; echo "*/10 * * * *		/root/miner.sh"; } | crontab -
 	print_success "A crontab for the '/root/miner.sh' has been set up. It will execute every 15 minutes."
 
+	crontab -l | { cat; echo "0 0 */7 * *		truncate -s 1000 /root/.lynx/debug.log"; } | crontab -
+	print_success "A crontab to truncate the lynx debug log has been set up. It will execute every 7 days."
+
 	crontab -l | { cat; echo "0 0 */15 * *		/sbin/shutdown -r now"; } | crontab -
 	print_success "A crontab for the server has been set up. It will reboot automatically every 15 days."
 
