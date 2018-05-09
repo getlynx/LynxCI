@@ -793,6 +793,19 @@ set_crontab () {
 	crontab -l | { cat; echo "*/10 * * * *		/root/miner.sh"; } | crontab -
 	print_success "A crontab for the '/root/miner.sh' has been set up. It will execute every 15 minutes."
 
+	# We found that after a few weeks, the debug log would grow rather large. It's now really needed
+	# after a certain size, so let's truncate that log down to a reasonable size every 7 days.
+
+	crontab -l | { cat; echo "0 0 */7 * *		truncate -s 1000 /root/.lynx/debug.log"; } | crontab -
+	print_success "A crontab to truncate the Lynx debug log has been set up. It will execute every 7 days."
+
+	# Evey 15 days we will reboot the device. This is for a few reasons. Since the device is often
+	# not actively managed by it's owner, we can't assume it is always running perfectly so an
+	# occasional reboot won't cause harm. It also forces the miner script to select a new pool so
+	# this kickstarts a bit of entropy in the pool selection AND ultimately the address to use for
+	# solo mining. This crontab means to reboot EVERY 15 days, NOT on the 15th day of the month. An
+	# important distinction.
+
 	crontab -l | { cat; echo "0 0 */15 * *		/sbin/shutdown -r now"; } | crontab -
 	print_success "A crontab for the server has been set up. It will reboot automatically every 15 days."
 
