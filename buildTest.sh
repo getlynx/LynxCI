@@ -405,17 +405,36 @@ install_extras () {
 	apt-get install cpulimit htop curl fail2ban -y
 	print_success "The package 'cpulimit' was installed."
 
-	apt-get install automake autoconf pkg-config libcurl4-openssl-dev libjansson-dev libssl-dev libgmp-dev make g++ libminiupnpc-dev -y
+	apt-get install automake autoconf pkg-config libcurl4-openssl-dev libjansson-dev libssl-dev libgmp-dev make g++ -y
 	print_success "Extra packages for CPUminer were installed."
 
 }
+
+# The MiniUPnP project offers software which supports the UPnP Internet Gateway Device (IGD)
+# specifications. You can read more about it here --> http://miniupnp.free.fr
+# We use this code because most folks don't know how to configure their home cable modem or wifi
+# router to allow outside access to the Lynx node. While this Lynx node can talk to others, the 
+# others on the network can't always talk to this device, especially if it's behind a router at 
+# home. Currently, this library is only installed if the device is a Raspberry Pi.
 
 install_miniupnpc () {
 
 	if [ "$OS" = "raspbian" ]; then
 
 		print_info "Installing miniupnpc."
-		apt-get install libminiupnpc-dev -y
+
+		cd ~/ && rm -rf miniupnpc-2.1 && rm -rf miniupnpc-2.1.tar.gz
+		wget http://miniupnp.free.fr/files/download.php?file=miniupnpc-2.1.tar.gz -O miniupnpc-2.1.tar.gz
+		tar -xvf miniupnpc-2.1.tar.gz miniupnpc-2.1
+		rm -rf miniupnpc-2.1.tar.gz
+		cd ~/miniupnpc-2.1 && make -f Makefile.linux
+
+	
+
+
+
+
+	
 
 	fi
 
