@@ -803,12 +803,12 @@ set_crontab () {
 	# signal to the listed URL's. The ONLY data we collect is the MAC address, public and private
 	# IP address and the latest known Lynx block heigh number. This allows development to more 
 	# accurately measure network usage and allows the pricing calculator and mapping code used by
-	# Lynx to be more accurate.
+	# Lynx to be more accurate. If you want to turn off particiaption in the polling service, all
+	# you have to do is remove the 3 crontab.
 
 	crontab -l | { cat; echo "*/15 * * * *		/root/LynxNodeBuilder/poll.sh http://seed00.getlynx.io:8080"; } | crontab -
 	crontab -l | { cat; echo "*/15 * * * *		/root/LynxNodeBuilder/poll.sh http://seed01.getlynx.io:8080"; } | crontab -
 	crontab -l | { cat; echo "*/15 * * * *		/root/LynxNodeBuilder/poll.sh http://seed02.getlynx.io:8080"; } | crontab -
-	print_success "A crontab for the Lynx network statistics polling has been set up. It will run every 15 minutes."
 
 	crontab -l | { cat; echo "@reboot			/root/firewall.sh"; } | crontab -
 	print_success "A crontab for the '/root/firewall.sh' has been set up. It will run on boot."
@@ -822,10 +822,10 @@ set_crontab () {
 	crontab -l | { cat; echo "*/10 * * * *		/root/miner.sh"; } | crontab -
 	print_success "A crontab for the '/root/miner.sh' has been set up. It will execute every 15 minutes."
 
-	# We found that after a few weeks, the debug log would grow rather large. It's now really needed
+	# We found that after a few weeks, the debug log would grow rather large. It's not really needed
 	# after a certain size, so let's truncate that log down to a reasonable size every 7 days.
 
-	crontab -l | { cat; echo "0 0 */7 * *		truncate -s 1000 /root/.lynx/debug.log"; } | crontab -
+	crontab -l | { cat; echo "0 0 */7 * *		truncate -s 1KB /root/.lynx/debug.log"; } | crontab -
 	print_success "A crontab to truncate the Lynx debug log has been set up. It will execute every 7 days."
 
 	# Evey 15 days we will reboot the device. This is for a few reasons. Since the device is often
