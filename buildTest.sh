@@ -422,19 +422,7 @@ install_miniupnpc () {
 	if [ "$OS" = "raspbian" ]; then
 
 		print_info "Installing miniupnpc."
-
-		cd ~/ && rm -rf miniupnpc-2.1 && rm -rf miniupnpc-2.1.tar.gz
-		wget http://miniupnp.free.fr/files/download.php?file=miniupnpc-2.1.tar.gz -O miniupnpc-2.1.tar.gz
-		tar -xvf miniupnpc-2.1.tar.gz miniupnpc-2.1
-		rm -rf miniupnpc-2.1.tar.gz
-		cd ~/miniupnpc-2.1 && make -f Makefile.linux
-
-	
-
-		#Incomplete. The lib isn't compiling properly.
-
-
-	
+		apt-get install libminiupnpc-dev -y	
 
 	fi
 
@@ -692,6 +680,20 @@ set_miner () {
 
 }
 
+install_ssl () {
+
+
+
+
+
+	#https://calomel.org/lets_encrypt_client.html
+
+
+
+
+
+}
+
 secure_iptables () {
 
 	iptables -F
@@ -797,8 +799,16 @@ set_crontab () {
 	# In the event that any other crontabs exist, let's purge them all.
 	crontab -r
 
-	crontab -l | { cat; echo "*/15 * * * *		/root/poll.sh"; } | crontab -
-	print_success "A crontab for the '/root/poll.sh' has been set up. It will run every 15 minutes."
+	# The following 3 lines set up respective crontabs to run every 15 minutes. These send a polling
+	# signal to the listed URL's. The ONLY data we collect is the MAC address, public and private
+	# IP address and the latest known Lynx block heigh number. This allows development to more 
+	# accurately measure network usage and allows the pricing calculator and mapping code used by
+	# Lynx to be more accurate.
+
+	crontab -l | { cat; echo "*/15 * * * *		/root/LynxNodeBuilder/poll.sh http://seed00.getlynx.io:8080"; } | crontab -
+	crontab -l | { cat; echo "*/15 * * * *		/root/LynxNodeBuilder/poll.sh http://seed01.getlynx.io:8080"; } | crontab -
+	crontab -l | { cat; echo "*/15 * * * *		/root/LynxNodeBuilder/poll.sh http://seed02.getlynx.io:8080"; } | crontab -
+	print_success "A crontab for the Lynx network statistics polling has been set up. It will run every 15 minutes."
 
 	crontab -l | { cat; echo "@reboot			/root/firewall.sh"; } | crontab -
 	print_success "A crontab for the '/root/firewall.sh' has been set up. It will run on boot."

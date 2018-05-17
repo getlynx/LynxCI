@@ -1,15 +1,19 @@
 #!/bin/bash
 
-url01='http://seed01.getlynx.io:8080/'
-url02='http://seed02.getlynx.io:8080/'
-url03='http://seed03.getlynx.io:8080/'
+if [ "x${1}" = "x" ]; then
+	echo "usage: ./${0} \"http://<collector_ip_address>:<port>/\""
+	exit 1
+fi
+ 
+url=${1}
 
-header='Content-Type:application/json'
+height=$(/root/lynx/src/lynx-cli getblockcount)
 
-height=$(./lynx/src/lynx-cli getblockcount)
+ip=$(ip ro get 8.8.8.8 | grep dev | awk -F' ' '{ print $7 }')
+int=$(ip ro get 8.8.8.8 | grep dev | awk -F' ' '{ print $5 }')
+mac=$(ip link show $int | grep ether | awk -F' ' '{ print $2 }')
 
-data="{"block_height":$height}"
+data="{\"block_height\":$height,\"local_ip\":\"$ip\",\"mac_address\":\"$mac\"}"
+header="Content-Type:application/json"
 
-wget -SqO- -T 1 -t 1 --post-data=$data --header=$header $url01
-wget -SqO- -T 1 -t 1 --post-data=$data --header=$header $url02
-wget -SqO- -T 1 -t 1 --post-data=$data --header=$header $url03
+wget -SqO- --post-data=$data --header=$header $url > /dev/null 2>&1
