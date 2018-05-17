@@ -405,17 +405,24 @@ install_extras () {
 	apt-get install cpulimit htop curl fail2ban -y
 	print_success "The package 'cpulimit' was installed."
 
-	apt-get install automake autoconf pkg-config libcurl4-openssl-dev libjansson-dev libssl-dev libgmp-dev make g++ libminiupnpc-dev -y
+	apt-get install automake autoconf pkg-config libcurl4-openssl-dev libjansson-dev libssl-dev libgmp-dev make g++ -y
 	print_success "Extra packages for CPUminer were installed."
 
 }
+
+# The MiniUPnP project offers software which supports the UPnP Internet Gateway Device (IGD)
+# specifications. You can read more about it here --> http://miniupnp.free.fr
+# We use this code because most folks don't know how to configure their home cable modem or wifi
+# router to allow outside access to the Lynx node. While this Lynx node can talk to others, the 
+# others on the network can't always talk to this device, especially if it's behind a router at 
+# home. Currently, this library is only installed if the device is a Raspberry Pi.
 
 install_miniupnpc () {
 
 	if [ "$OS" = "raspbian" ]; then
 
 		print_info "Installing miniupnpc."
-		apt-get install libminiupnpc-dev -y
+		apt-get install libminiupnpc-dev -y	
 
 	fi
 
@@ -673,6 +680,20 @@ set_miner () {
 
 }
 
+install_ssl () {
+
+
+
+
+
+	#https://calomel.org/lets_encrypt_client.html
+
+
+
+
+
+}
+
 secure_iptables () {
 
 	iptables -F
@@ -778,8 +799,16 @@ set_crontab () {
 	# In the event that any other crontabs exist, let's purge them all.
 	crontab -r
 
-	crontab -l | { cat; echo "*/15 * * * *		/root/poll.sh"; } | crontab -
-	print_success "A crontab for the '/root/poll.sh' has been set up. It will run every 15 minutes."
+	# The following 3 lines set up respective crontabs to run every 15 minutes. These send a polling
+	# signal to the listed URL's. The ONLY data we collect is the MAC address, public and private
+	# IP address and the latest known Lynx block heigh number. This allows development to more 
+	# accurately measure network usage and allows the pricing calculator and mapping code used by
+	# Lynx to be more accurate.
+
+	crontab -l | { cat; echo "*/15 * * * *		/root/LynxNodeBuilder/poll.sh http://seed00.getlynx.io:8080"; } | crontab -
+	crontab -l | { cat; echo "*/15 * * * *		/root/LynxNodeBuilder/poll.sh http://seed01.getlynx.io:8080"; } | crontab -
+	crontab -l | { cat; echo "*/15 * * * *		/root/LynxNodeBuilder/poll.sh http://seed02.getlynx.io:8080"; } | crontab -
+	print_success "A crontab for the Lynx network statistics polling has been set up. It will run every 15 minutes."
 
 	crontab -l | { cat; echo "@reboot			/root/firewall.sh"; } | crontab -
 	print_success "A crontab for the '/root/firewall.sh' has been set up. It will run on boot."
@@ -816,7 +845,7 @@ set_crontab () {
 		crontab -l | { cat; echo "*/10 * * * *		cd /root/LynxExplorer && /usr/bin/nodejs scripts/peers.js > /dev/null 2>&1"; } | crontab -
 		print_success "A crontab for Iquidus Explorer has been set up."
 	fi
-
+	
 }
 
 restart () {
