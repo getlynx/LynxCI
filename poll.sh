@@ -16,4 +16,4 @@ mac=$(ip link show $int | grep ether | awk -F' ' '{ print $2 }')
 data="{\"block_height\":$height,\"local_ip\":\"$ip\",\"mac_address\":\"$mac\"}"
 header="Content-Type:application/json"
 
-wget -SqO- T 1 -t 1 --post-data=$data --header=$header $url > /dev/null 2>&1
+wget -SqO- -T 1 -t 1 --post-data=$data --header=$header $url > /dev/null 2>&1
