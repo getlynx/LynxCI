@@ -680,20 +680,6 @@ set_miner () {
 
 }
 
-install_ssl () {
-
-
-
-
-
-	#https://calomel.org/lets_encrypt_client.html
-
-
-
-
-
-}
-
 secure_iptables () {
 
 	iptables -F
