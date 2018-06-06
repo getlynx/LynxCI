@@ -482,7 +482,8 @@ install_lynx () {
 		make -j4
 		make install
 
-
+		# Now that the Berkeley DB is installed, let's jump to the lynx directory and finish the 
+		# configure statement WITH the Berkeley DB parameters included.
 		
 		cd /root/lynx/ && ./autogen.sh
 
@@ -751,7 +752,7 @@ install_ssl () {
 
 
 	#https://calomel.org/lets_encrypt_client.html
-
+	print_success "SSL creation scripts are still in process."
 
 
 
