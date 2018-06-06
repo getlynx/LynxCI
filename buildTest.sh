@@ -437,19 +437,83 @@ install_lynx () {
 	rrpcpassword="$(shuf -i 300000000-399999999 -n 1)"
 	print_warning "The lynxd RPC user account is '$rrpcpassword'."
 
-	print_success "Pulling the latest source of Lynx from Github."
-	rm -rf /root/lynx/
-	git clone https://github.com/doh9Xiet7weesh9va9th/lynx.git /root/lynx/
-	cd /root/lynx/ && ./autogen.sh
+	# This option was added by some of the developers who wished to run Lynx WITH the wallet
+	# enabled. Since we don't recommend it, because not all users are savvy enough to keep a Linux
+	# really secure, we normally don't provide this as an iption during setup. BUT, if you really
+	# know what you are doing, you know that you can change the value of this parameter to 'Y'
+	# before compile and it will install the needed dependencies and enable wallet functions in the 
+	# Lynxd build process.
 
-	if [ "$OS" = "raspbian" ]; then
-		./configure --without-gui --disable-wallet --disable-tests --with-miniupnpc --enable-upnp-default
+	install_wallet="N"
+
+	# Okay, Let's install the wallet with this version of Lynx!
+
+	if [ "$install_wallet" = "Y" ]; then
+
+		print_success "Pulling the latest source of Lynx."
+
+		# It isn't a bad idea to assume bad things might have happened before this build. Regardless
+		# of the directory existing or not, delete it and start over again. It's just safer!
+
+		rm -rf /root/lynx/
+
+		# Pull down the latest stable production version of Lynx from the repo and drop it into the 
+		# the preferred directory structure.
+
+		git clone https://github.com/doh9Xiet7weesh9va9th/lynx.git /root/lynx/
+
+		# Since we are installing the wallet with this build, we need the Berkeley DB source. This 
+		# database allows the client to store the keys needed by the wallet. Normally, we keep the 
+		# build lightweight and don't install this dependency, but this extra package is needed for 
+		# this case. Let's jump to the directory that was just created when we downloaded Lynx from
+		# the repository and install the package there, to keep things nicely organized.
+
+		print_success "Pulling the latest source of Berkeley DB."
+
+		cd /root/lynx/ && wget http://download.oracle.com/berkeley-db/db-4.8.30.NC.tar.gz
+
+		# Now that we have the tarbar file, lets unpack it and jump to a sub directory within it.
+
+		tar -xzvf db-4.8.30.NC.tar.gz && cd db-4.8.30.NC/build_unix/
+
+		# Configure and run the make file to compile the Berkeley DB source.
+
+		../dist/configure --enable-cxx
+		make -j4
+		make install
+
+
+		
+		cd /root/lynx/ && ./autogen.sh
+
+		if [ "$OS" = "raspbian" ]; then
+			./configure CPPFLAGS="-I/usr/local/BerkeleyDB.4.8/include -O2" LDFLAGS="-L/usr/local/BerkeleyDB.4.8/lib" --without-gui --disable-tests --with-miniupnpc --enable-upnp-default 
+		else
+			./configure CPPFLAGS="-I/usr/local/BerkeleyDB.4.8/include -O2" LDFLAGS="-L/usr/local/BerkeleyDB.4.8/lib" --without-gui --disable-tests
+		fi
+
+		print_success "The latest state of Lynx is being compiled, with the wallet enabled, now."
+		make
+
+	# This is the default state - to NOT install the wallet with this version of Lynx!
+
 	else
-		./configure --without-gui --disable-wallet --disable-tests
-	fi
 
-	print_success "The latest state of Lynx is being compiled now."
-	make
+		print_success "Pulling the latest source of Lynx."
+		rm -rf /root/lynx/
+		git clone https://github.com/doh9Xiet7weesh9va9th/lynx.git /root/lynx/
+		cd /root/lynx/ && ./autogen.sh
+
+		if [ "$OS" = "raspbian" ]; then
+			./configure --without-gui --disable-wallet --disable-tests --with-miniupnpc --enable-upnp-default
+		else
+			./configure --without-gui --disable-wallet --disable-tests
+		fi
+
+		print_success "The latest state of Lynx is being compiled now."
+		make
+
+	fi
 
 	if [[ "$useBootstrapFile" == "Y" ]]; then
 
