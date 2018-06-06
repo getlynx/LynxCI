@@ -470,19 +470,25 @@ install_lynx () {
 
 		print_success "Pulling the latest source of Berkeley DB."
 
-		#cd /root/lynx/ && wget http://download.oracle.com/berkeley-db/db-4.8.30.NC.tar.gz
-		cd /root/lynx/ && wget http://download.oracle.com/berkeley-db/db-5.3.28.NC.tar.gz
+
+
+		mkdir -p /root/lynx/db4
+		cd /root/lynx/ && wget http://download.oracle.com/berkeley-db/db-4.8.30.NC.tar.gz
 
 		# Now that we have the tarbar file, lets unpack it and jump to a sub directory within it.
 
-		#tar -xzvf db-4.8.30.NC.tar.gz && cd db-4.8.30.NC/build_unix/
-		tar -xzvf db-5.3.28.NC.tar.gz && cd /root/lynx/db-5.3.28.NC/build_unix
+		tar -xzvf db-4.8.30.NC.tar.gz && cd db-4.8.30.NC/build_unix/
 
 		# Configure and run the make file to compile the Berkeley DB source.
 
-		../dist/configure --enable-cxx
-		make -j4
+		../dist/configure --enable-cxx --disable-shared --with-pic --prefix=/root/lynx/db4
+		#make -j4
 		make install
+
+		#export BDB_INCLUDE_PATH="/usr/local/BerkeleyDB.4.8/include"
+		#export BDB_LIB_PATH="/usr/local/BerkeleyDB.4.8/lib"
+		#ln -s /usr/local/BerkeleyDB.4.8/lib/libdb-4.8.so /usr/lib/libdb-4.8.so
+		#ln -s /usr/local/BerkeleyDB.4.8/lib/libdb_cxx-4.8.so /usr/lib/libdb_cxx-4.8.so
 
 		# Now that the Berkeley DB is installed, let's jump to the lynx directory and finish the 
 		# configure statement WITH the Berkeley DB parameters included.
@@ -491,15 +497,15 @@ install_lynx () {
 
 		if [ "$OS" = "raspbian" ]; then
 			#./configure CPPFLAGS="-I/usr/local/BerkeleyDB.4.8/include -O2" LDFLAGS="-L/usr/local/BerkeleyDB.4.8/lib" --without-gui --disable-tests --with-miniupnpc --enable-upnp-default 
-			./configure CPPFLAGS="-I/usr/local/BerkeleyDB.5.3/include -O2" LDFLAGS="-L/usr/local/BerkeleyDB.5.3/lib" --without-gui --disable-tests --with-miniupnpc --enable-upnp-default
-			
+			./configure LDFLAGS="-L/root/lynx/db4/lib/" CPPFLAGS="-I/root/lynx/db4/include/" CXXFLAGS="--param ggc-min-expand=1 --param ggc-min-heapsize=32768" --enable-cxx --without-gui --disable-shared --with-pic --with-miniupnpc --enable-upnp-default
 		else
 			#./configure CPPFLAGS="-I/usr/local/BerkeleyDB.4.8/include -O2" LDFLAGS="-L/usr/local/BerkeleyDB.4.8/lib" --without-gui --disable-tests
-			./configure CPPFLAGS="-I/usr/local/BerkeleyDB.5.3/include -O2" LDFLAGS="-L/usr/local/BerkeleyDB.5.3/lib" --without-gui --disable-tests
+			./configure LDFLAGS="-L/root/lynx/db4/lib/" CPPFLAGS="-I/root/lynx/db4/include/" CXXFLAGS="--param ggc-min-expand=1 --param ggc-min-heapsize=32768" --enable-cxx --without-gui --disable-shared --with-pic
 		fi
 
-		print_success "The latest state of Lynx is being compiled, with the wallet enabled, now."
 		make
+
+		print_success "The latest state of Lynx is being compiled, with the wallet enabled, now."
 
 	# This is the default state - to NOT install the wallet with this version of Lynx!
 
