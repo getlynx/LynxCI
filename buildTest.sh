@@ -470,11 +470,13 @@ install_lynx () {
 
 		print_success "Pulling the latest source of Berkeley DB."
 
-		cd /root/lynx/ && wget http://download.oracle.com/berkeley-db/db-4.8.30.NC.tar.gz
+		#cd /root/lynx/ && wget http://download.oracle.com/berkeley-db/db-4.8.30.NC.tar.gz
+		cd /root/lynx/ && wget http://download.oracle.com/berkeley-db/db-5.3.28.NC.tar.gz
 
 		# Now that we have the tarbar file, lets unpack it and jump to a sub directory within it.
 
-		tar -xzvf db-4.8.30.NC.tar.gz && cd db-4.8.30.NC/build_unix/
+		#tar -xzvf db-4.8.30.NC.tar.gz && cd db-4.8.30.NC/build_unix/
+		tar -xzvf db-5.3.28.NC.tar.gz && cd /root/lynx/db-5.3.28.NC/build_unix
 
 		# Configure and run the make file to compile the Berkeley DB source.
 
@@ -488,9 +490,12 @@ install_lynx () {
 		cd /root/lynx/ && ./autogen.sh
 
 		if [ "$OS" = "raspbian" ]; then
-			./configure CPPFLAGS="-I/usr/local/BerkeleyDB.4.8/include -O2" LDFLAGS="-L/usr/local/BerkeleyDB.4.8/lib" --without-gui --disable-tests --with-miniupnpc --enable-upnp-default 
+			#./configure CPPFLAGS="-I/usr/local/BerkeleyDB.4.8/include -O2" LDFLAGS="-L/usr/local/BerkeleyDB.4.8/lib" --without-gui --disable-tests --with-miniupnpc --enable-upnp-default 
+			./configure CPPFLAGS="-I/usr/local/BerkeleyDB.5.3/include -O2" LDFLAGS="-L/usr/local/BerkeleyDB.5.3/lib" --without-gui --disable-tests --with-miniupnpc --enable-upnp-default
+			
 		else
-			./configure CPPFLAGS="-I/usr/local/BerkeleyDB.4.8/include -O2" LDFLAGS="-L/usr/local/BerkeleyDB.4.8/lib" --without-gui --disable-tests
+			#./configure CPPFLAGS="-I/usr/local/BerkeleyDB.4.8/include -O2" LDFLAGS="-L/usr/local/BerkeleyDB.4.8/lib" --without-gui --disable-tests
+			./configure CPPFLAGS="-I/usr/local/BerkeleyDB.5.3/include -O2" LDFLAGS="-L/usr/local/BerkeleyDB.5.3/lib" --without-gui --disable-tests
 		fi
 
 		print_success "The latest state of Lynx is being compiled, with the wallet enabled, now."
