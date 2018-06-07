@@ -498,7 +498,7 @@ install_lynx () {
 			./configure LDFLAGS="-L/root/lynx/db4/lib/" CPPFLAGS="-I/root/lynx/db4/include/ -O2" --enable-cxx --without-gui --disable-shared --disable-tests && make
 		fi
 
-		print_success "The latest state of Lynx is being compiled, with the wallet enabled, now."
+		print_success "The latest state of Lynx is being compiled, with the wallet enabled."
 
 	# This is the default state - to NOT install the wallet with this version of Lynx!
 
@@ -510,13 +510,12 @@ install_lynx () {
 		cd /root/lynx/ && ./autogen.sh
 
 		if [ "$OS" = "raspbian" ]; then
-			./configure --without-gui --disable-wallet --disable-tests --with-miniupnpc --enable-upnp-default
+			./configure --enable-cxx --without-gui --disable-wallet --disable-tests --with-miniupnpc --enable-upnp-default && make
 		else
-			./configure --without-gui --disable-wallet --disable-tests
+			./configure --enable-cxx --without-gui --disable-wallet --disable-tests && make
 		fi
 
-		print_success "The latest state of Lynx is being compiled now."
-		make
+		print_success "The latest state of Lynx is being compiled, without wallet functions enabled."
 
 	fi
 
