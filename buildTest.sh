@@ -684,7 +684,7 @@ set_firewall () {
 	# By default, the RPC port 9223 is NOT opened to the public. The only reason you need to open
 	# this port is to allow RPC access from the outside. If so, just uncomment the line below and
 	# execute the firewall.sh manually again. If you allow external RPC access, you will also need
-	# to specify 'allowip' addresses in the /root/.lynx/lynx.conf file. You can have more then one.
+	# to specify rpcallowip addresses in the /root/.lynx/lynx.conf file. You can have more then one.
 
 	#/sbin/iptables -A INPUT -p tcp --dport 9332 -j ACCEPT
 
