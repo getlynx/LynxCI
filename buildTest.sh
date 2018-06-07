@@ -493,12 +493,8 @@ install_lynx () {
 		cd /root/lynx/ && ./autogen.sh
 
 		if [ "$OS" = "raspbian" ]; then
-			#./configure CPPFLAGS="-I/usr/local/BerkeleyDB.4.8/include -O2" LDFLAGS="-L/usr/local/BerkeleyDB.4.8/lib" --without-gui --disable-tests --with-miniupnpc --enable-upnp-default 
-			#./configure LDFLAGS="-L/root/lynx/db4/lib/" CPPFLAGS="-I/root/lynx/db4/include/" CXXFLAGS="--param ggc-min-expand=1 --param ggc-min-heapsize=32768" --enable-cxx --without-gui --disable-shared --with-pic --with-miniupnpc --enable-upnp-default
 			./configure LDFLAGS="-L/root/lynx/db4/lib/" CPPFLAGS="-I/root/lynx/db4/include/ -O2" --enable-cxx --without-gui --disable-shared --with-miniupnpc --enable-upnp-default --disable-tests && make
 		else
-			#./configure CPPFLAGS="-I/usr/local/BerkeleyDB.4.8/include -O2" LDFLAGS="-L/usr/local/BerkeleyDB.4.8/lib" --without-gui --disable-tests
-			#./configure LDFLAGS="-L/root/lynx/db4/lib/" CPPFLAGS="-I/root/lynx/db4/include/" CXXFLAGS="--param ggc-min-expand=1 --param ggc-min-heapsize=32768" --enable-cxx --without-gui --disable-shared --with-pic
 			./configure LDFLAGS="-L/root/lynx/db4/lib/" CPPFLAGS="-I/root/lynx/db4/include/ -O2" --enable-cxx --without-gui --disable-shared --disable-tests && make
 		fi
 
@@ -651,16 +647,16 @@ set_firewall () {
 	# The following 2 line are a very simple iptables access throttle technique. We assume anyone
 	# who visits the local website on port 80 will behave, but if they are accessing the site too
 	# often, then they might be a bad guy or a bot. So, these rules enforce that any IP address
-	# that accesses the site in a 60 second period can't get more then 15 clicks complete. If the
+	# that accesses the site in a 60 second period can not get more then 15 clicks completed. If the
 	# bad guy submits a 16th page view in a 60 second period, the request is simply dropped and
-	# and ignored. It's not super advanced but it's one extra layer of security to keep this
-	# device stable and secure.
+	# and ignored. Its not super advanced but its one extra layer of security to keep this device 
+	# stable and secure.
 
 	/sbin/iptables -A INPUT -p tcp --dport 80 -m state --state NEW -m recent --set
 	/sbin/iptables -A INPUT -p tcp --dport 80 -m state --state NEW -m recent --update --seconds 60 --hitcount 15 -j DROP
 
-	# If the script has 'IsSSH' set to 'Y', then let's open up port 22 for any IP address. But if
-	# the script has 'IsSSH' set to 'N', let's only open up port 22 for local LAN access. This means
+	# If the script has IsSSH set to Y, then let's open up port 22 for any IP address. But if
+	# the script has IsSSH set to N, let's only open up port 22 for local LAN access. This means
 	# you have to be physically connected (or via Wifi) to SSH to this computer. It isn't perfectly
 	# secure, but it removes the possibility for an SSH attack from a public IP address. If you
 	# wanted to completely remove the possibility of an SSH attack and will only ever work on this
@@ -686,16 +682,12 @@ set_firewall () {
 
 	/sbin/iptables -A INPUT -p tcp --dport 22566 -j ACCEPT
 
-	# In the build script, a flag was set to NOT enable the wallet in the compile of Lynx. If you 
-	# switched this flag to 'Y', then this node has the wallet enabled and in able to support it's
-	# usage, we have to open port 9332, the RPC port for Lynx. If we stick with the default, we will
-	# leave this commented out so the port remains closed to outside traffic.
+	# By default, the RPC port 9223 is NOT opened to the public. The only reason you need to open
+	# this port is to allow RPC access from the outside. If so, just uncomment the line below and
+	# execute the firewall.sh manually again. If you allow external RPC access, you will also need
+	# to specify 'allowip' addresses in the /root/.lynx/lynx.conf file. You can have more then one.
 
-	if [ "$install_wallet" = "Y" ]; then
-		/sbin/iptables -A INPUT -p tcp --dport 9332 -j ACCEPT
-	else
-		# /sbin/iptables -A INPUT -p tcp --dport 9332 -j ACCEPT
-	fi
+	#/sbin/iptables -A INPUT -p tcp --dport 9332 -j ACCEPT
 
 	# We add this last line to drop any other traffic that comes to this computer that doesn't
 	# comply with the earlier rules. If previous iptables rules don't match, then drop'em!
