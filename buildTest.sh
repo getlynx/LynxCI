@@ -470,9 +470,13 @@ install_lynx () {
 
 		print_success "Pulling the latest source of Berkeley DB."
 
+		# We will need this db4 directory soon so let's delete and create it.
 
-
+		rm -rf /root/lynx/db4
 		mkdir -p /root/lynx/db4
+
+		# We need a very specific version of the Berkeley DB for the wallet to function properly.
+
 		cd /root/lynx/ && wget http://download.oracle.com/berkeley-db/db-4.8.30.NC.tar.gz
 
 		# Now that we have the tarbar file, lets unpack it and jump to a sub directory within it.
@@ -481,14 +485,7 @@ install_lynx () {
 
 		# Configure and run the make file to compile the Berkeley DB source.
 
-		../dist/configure --enable-cxx --disable-shared --with-pic --prefix=/root/lynx/db4
-		#make -j4
-		make install
-
-		#export BDB_INCLUDE_PATH="/usr/local/BerkeleyDB.4.8/include"
-		#export BDB_LIB_PATH="/usr/local/BerkeleyDB.4.8/lib"
-		#ln -s /usr/local/BerkeleyDB.4.8/lib/libdb-4.8.so /usr/lib/libdb-4.8.so
-		#ln -s /usr/local/BerkeleyDB.4.8/lib/libdb_cxx-4.8.so /usr/lib/libdb_cxx-4.8.so
+		../dist/configure --enable-cxx --disable-shared --with-pic --prefix=/root/lynx/db4 && make install
 
 		# Now that the Berkeley DB is installed, let's jump to the lynx directory and finish the 
 		# configure statement WITH the Berkeley DB parameters included.
@@ -497,13 +494,13 @@ install_lynx () {
 
 		if [ "$OS" = "raspbian" ]; then
 			#./configure CPPFLAGS="-I/usr/local/BerkeleyDB.4.8/include -O2" LDFLAGS="-L/usr/local/BerkeleyDB.4.8/lib" --without-gui --disable-tests --with-miniupnpc --enable-upnp-default 
-			./configure LDFLAGS="-L/root/lynx/db4/lib/" CPPFLAGS="-I/root/lynx/db4/include/" CXXFLAGS="--param ggc-min-expand=1 --param ggc-min-heapsize=32768" --enable-cxx --without-gui --disable-shared --with-pic --with-miniupnpc --enable-upnp-default
+			#./configure LDFLAGS="-L/root/lynx/db4/lib/" CPPFLAGS="-I/root/lynx/db4/include/" CXXFLAGS="--param ggc-min-expand=1 --param ggc-min-heapsize=32768" --enable-cxx --without-gui --disable-shared --with-pic --with-miniupnpc --enable-upnp-default
+			./configure LDFLAGS="-L/root/lynx/db4/lib/" CPPFLAGS="-I/root/lynx/db4/include/ -O2" --enable-cxx --without-gui --disable-shared --with-miniupnpc --enable-upnp-default --disable-tests && make
 		else
 			#./configure CPPFLAGS="-I/usr/local/BerkeleyDB.4.8/include -O2" LDFLAGS="-L/usr/local/BerkeleyDB.4.8/lib" --without-gui --disable-tests
-			./configure LDFLAGS="-L/root/lynx/db4/lib/" CPPFLAGS="-I/root/lynx/db4/include/" CXXFLAGS="--param ggc-min-expand=1 --param ggc-min-heapsize=32768" --enable-cxx --without-gui --disable-shared --with-pic
+			#./configure LDFLAGS="-L/root/lynx/db4/lib/" CPPFLAGS="-I/root/lynx/db4/include/" CXXFLAGS="--param ggc-min-expand=1 --param ggc-min-heapsize=32768" --enable-cxx --without-gui --disable-shared --with-pic
+			./configure LDFLAGS="-L/root/lynx/db4/lib/" CPPFLAGS="-I/root/lynx/db4/include/ -O2" --enable-cxx --without-gui --disable-shared --disable-tests && make
 		fi
-
-		make
 
 		print_success "The latest state of Lynx is being compiled, with the wallet enabled, now."
 
@@ -688,6 +685,17 @@ set_firewall () {
 	# whole Lynx network listens on that port so we always want to make sure this port is available.
 
 	/sbin/iptables -A INPUT -p tcp --dport 22566 -j ACCEPT
+
+	# In the build script, a flag was set to NOT enable the wallet in the compile of Lynx. If you 
+	# switched this flag to 'Y', then this node has the wallet enabled and in able to support it's
+	# usage, we have to open port 9332, the RPC port for Lynx. If we stick with the default, we will
+	# leave this commented out so the port remains closed to outside traffic.
+
+	if [ "$install_wallet" = "Y" ]; then
+		/sbin/iptables -A INPUT -p tcp --dport 9332 -j ACCEPT
+	else
+		# /sbin/iptables -A INPUT -p tcp --dport 9332 -j ACCEPT
+	fi
 
 	# We add this last line to drop any other traffic that comes to this computer that doesn't
 	# comply with the earlier rules. If previous iptables rules don't match, then drop'em!
@@ -899,10 +907,10 @@ set_crontab () {
 	print_success "A crontab for the '/root/miner.sh' has been set up. It will execute every 15 minutes."
 
 	# We found that after a few weeks, the debug log would grow rather large. It's not really needed
-	# after a certain size, so let's truncate that log down to a reasonable size every 7 days.
+	# after a certain size, so let's truncate that log down to a reasonable size every 2 days.
 
-	crontab -l | { cat; echo "0 0 */7 * *		truncate -s 1KB /root/.lynx/debug.log"; } | crontab -
-	print_success "A crontab to truncate the Lynx debug log has been set up. It will execute every 7 days."
+	crontab -l | { cat; echo "0 0 */2 * *		truncate -s 1KB /root/.lynx/debug.log"; } | crontab -
+	print_success "A crontab to truncate the Lynx debug log has been set up. It will execute every 2 days."
 
 	# Evey 15 days we will reboot the device. This is for a few reasons. Since the device is often
 	# not actively managed by it's owner, we can't assume it is always running perfectly so an
