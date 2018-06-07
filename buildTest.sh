@@ -444,7 +444,7 @@ install_lynx () {
 	# before compile and it will install the needed dependencies and enable wallet functions in the 
 	# Lynxd build process.
 
-	install_wallet="Y"
+	install_wallet="N"
 
 	# Okay, Let's install the wallet with this version of Lynx!
 
