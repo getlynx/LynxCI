@@ -432,9 +432,9 @@ install_lynx () {
 
 	apt-get install git-core build-essential autoconf libtool libssl-dev libboost-all-dev libminiupnpc-dev libevent-dev libncurses5-dev pkg-config -y
 
-	rrpcuser="$(shuf -i 200000000-299999999 -n 1)"
+	rrpcuser="$(shuf -i 1000000000-3999999999 -n 1)$(shuf -i 1000000000-3999999999 -n 1)$(shuf -i 1000000000-3999999999 -n 1)"
 	print_warning "The lynxd RPC user account is '$rrpcuser'."
-	rrpcpassword="$(shuf -i 300000000-399999999 -n 1)"
+	rrpcpassword="$(shuf -i 1000000000-3999999999 -n 1)$(shuf -i 1000000000-3999999999 -n 1)$(shuf -i 1000000000-3999999999 -n 1)"
 	print_warning "The lynxd RPC user account is '$rrpcpassword'."
 
 	# This option was added by some of the developers who wished to run Lynx WITH the wallet
@@ -539,9 +539,11 @@ install_lynx () {
 	rpcpassword=$rrpcpassword
 	rpcport=9332
 	port=22566
-	rpcbind=127.0.0.1
-	rpcallowip=127.0.0.1
-	listenonion=0
+	rpcbind=0.0.0.0
+	rpcbind=::
+	rpcallowip=0.0.0.0/24
+	rpcallowip=::/0
+	listenonion=1
 	upnp=1
 	txindex=1
 	" > /root/.lynx/lynx.conf
@@ -681,12 +683,11 @@ set_firewall () {
 
 	/sbin/iptables -A INPUT -p tcp --dport 22566 -j ACCEPT
 
-	# By default, the RPC port 9223 is NOT opened to the public. The only reason you need to open
-	# this port is to allow RPC access from the outside. If so, just uncomment the line below and
-	# execute the firewall.sh manually again. If you allow external RPC access, you will also need
-	# to specify rpcallowip addresses in the /root/.lynx/lynx.conf file. You can have more then one.
+	# By default, the RPC port 9223 is opened to the public. This is so the node can both listen 
+	# for and discover other nodes. It is preferred to have a node that is not just a leecher but
+	# also a seeder.
 
-	#/sbin/iptables -A INPUT -p tcp --dport 9332 -j ACCEPT
+	/sbin/iptables -A INPUT -p tcp --dport 9332 -j ACCEPT
 
 	# We add this last line to drop any other traffic that comes to this computer that doesn't
 	# comply with the earlier rules. If previous iptables rules don't match, then drop'em!
