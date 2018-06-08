@@ -137,7 +137,7 @@ compile_query () {
 		case "$ans2" in
 			y|Y) enable_ssh=Y ;;
 			n|N) enable_ssh=N ;;
-			*) enable_ssh=Y ;;
+			*) enable_ssh=N ;;
 		esac
 
 		#
@@ -186,6 +186,8 @@ update_os () {
 
 		echo "
  | To set up wifi, edit the /etc/wpa_supplicant/wpa_supplicant.conf file.      |
+ '-----------------------------------------------------------------------------'
+ | For local tools to play and learn, type 'sudo /root/lynx/src/lynx-cli help' |
  '-----------------------------------------------------------------------------'" >> /etc/motd
 
 		# 'raspbian' would evaluate here.
