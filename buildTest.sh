@@ -196,11 +196,26 @@ update_os () {
 		touch /boot/ssh
 		print_success "SSH access was enabled by creating the SSH file in /boot."
 
-		sed -i 's/CONF_SWAPSIZE=100/CONF_SWAPSIZE=1024/' /etc/dphys-swapfile
-		print_success "Swap will be increased to 1GB on reboot."
-		
 		apt-get update -y
 		apt-get upgrade -y
+	fi
+
+}
+
+expand_swap () {
+
+	# We are only modifying the swap amount for a Raspberry Pi device. In the future, other
+	# environments will have their own place in the following conditional statement.
+
+	if [ "$OS" = "raspbian" ]; then
+
+		# On a Raspberry Pi 3, the default swap is 100MB. This is a little restrictive, so we are
+		# expanding it to a full 1GB of swap. We don't usually touch too much swap but during the 
+		# initial compile and build process, it does consume a good bit so lets provision this.
+
+		sed -i 's/CONF_SWAPSIZE=100/CONF_SWAPSIZE=1024/' /etc/dphys-swapfile
+		print_success "Swap will be increased to 1GB on reboot."
+
 	fi
 
 }
@@ -976,6 +991,7 @@ else
 	detect_vps
 	compile_query
 	update_os
+	expand_swap
 	set_network
 	set_wifi
 	set_accounts
