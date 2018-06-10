@@ -425,6 +425,15 @@ install_extras () {
 	apt-get install automake autoconf pkg-config libcurl4-openssl-dev libjansson-dev libssl-dev libgmp-dev make g++ -y
 	print_success "Extra packages for CPUminer were installed."
 
+	# Let's install 'HTTPie: a CLI, cURL-like tool for humans' so that we can later check if the 
+	# node is a leecher of a seeder. This will allow the device to dynamically sole mine locally or 
+	# or to a seed node if it's a leecher. It will also help the home Pi user to tune their wi-fi
+	# router in case it's acting like a leecher to the Lynx network. 
+	# For more details on this cool package, visit https://github.com/jakubroztocil/httpie
+
+	apt-get install httpie -y
+	print_success "HTTPie package was installed."
+	
 }
 
 # The MiniUPnP project offers software which supports the UPnP Internet Gateway Device (IGD)
