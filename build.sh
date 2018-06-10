@@ -137,7 +137,7 @@ compile_query () {
 		case "$ans2" in
 			y|Y) enable_ssh=Y ;;
 			n|N) enable_ssh=N ;;
-			*) enable_ssh=Y ;;
+			*) enable_ssh=N ;;
 		esac
 
 		#
@@ -186,6 +186,8 @@ update_os () {
 
 		echo "
  | To set up wifi, edit the /etc/wpa_supplicant/wpa_supplicant.conf file.      |
+ '-----------------------------------------------------------------------------'
+ | For local tools to play and learn, type 'sudo /root/lynx/src/lynx-cli help' |
  '-----------------------------------------------------------------------------'" >> /etc/motd
 
 		# 'raspbian' would evaluate here.
@@ -194,11 +196,26 @@ update_os () {
 		touch /boot/ssh
 		print_success "SSH access was enabled by creating the SSH file in /boot."
 
-		sed -i 's/CONF_SWAPSIZE=100/CONF_SWAPSIZE=1024/' /etc/dphys-swapfile
-		print_success "Swap will be increased to 1GB on reboot."
-		
 		apt-get update -y
 		apt-get upgrade -y
+	fi
+
+}
+
+expand_swap () {
+
+	# We are only modifying the swap amount for a Raspberry Pi device. In the future, other
+	# environments will have their own place in the following conditional statement.
+
+	if [ "$OS" = "raspbian" ]; then
+
+		# On a Raspberry Pi 3, the default swap is 100MB. This is a little restrictive, so we are
+		# expanding it to a full 1GB of swap. We don't usually touch too much swap but during the 
+		# initial compile and build process, it does consume a good bit so lets provision this.
+
+		sed -i 's/CONF_SWAPSIZE=100/CONF_SWAPSIZE=1024/' /etc/dphys-swapfile
+		print_success "Swap will be increased to 1GB on reboot."
+
 	fi
 
 }
@@ -432,24 +449,92 @@ install_lynx () {
 
 	apt-get install git-core build-essential autoconf libtool libssl-dev libboost-all-dev libminiupnpc-dev libevent-dev libncurses5-dev pkg-config -y
 
-	rrpcuser="$(shuf -i 200000000-299999999 -n 1)"
+	rrpcuser="$(shuf -i 1000000000-3999999999 -n 1)$(shuf -i 1000000000-3999999999 -n 1)$(shuf -i 1000000000-3999999999 -n 1)"
 	print_warning "The lynxd RPC user account is '$rrpcuser'."
-	rrpcpassword="$(shuf -i 300000000-399999999 -n 1)"
+	rrpcpassword="$(shuf -i 1000000000-3999999999 -n 1)$(shuf -i 1000000000-3999999999 -n 1)$(shuf -i 1000000000-3999999999 -n 1)"
 	print_warning "The lynxd RPC user account is '$rrpcpassword'."
 
-	print_success "Pulling the latest source of Lynx from Github."
-	rm -rf /root/lynx/
-	git clone https://github.com/doh9Xiet7weesh9va9th/lynx.git /root/lynx/
-	cd /root/lynx/ && ./autogen.sh
+	# This option was added by some of the developers who wished to run Lynx WITH the wallet
+	# enabled. Since we don't recommend it, because not all users are savvy enough to keep a Linux
+	# really secure, we normally don't provide this as an iption during setup. BUT, if you really
+	# know what you are doing, you know that you can change the value of this parameter to 'Y'
+	# before compile and it will install the needed dependencies and enable wallet functions in the 
+	# Lynxd build process.
 
-	if [ "$OS" = "raspbian" ]; then
-		./configure --without-gui --disable-wallet --disable-tests --with-miniupnpc --enable-upnp-default
+	install_wallet="N"
+
+	# Okay, Let's install the wallet with this version of Lynx!
+
+	if [ "$install_wallet" = "Y" ]; then
+
+		print_success "Pulling the latest source of Lynx."
+
+		# It isn't a bad idea to assume bad things might have happened before this build. Regardless
+		# of the directory existing or not, delete it and start over again. It's just safer!
+
+		rm -rf /root/lynx/
+
+		# Pull down the latest stable production version of Lynx from the repo and drop it into the 
+		# the preferred directory structure.
+
+		git clone https://github.com/doh9Xiet7weesh9va9th/lynx.git /root/lynx/
+
+		# Since we are installing the wallet with this build, we need the Berkeley DB source. This 
+		# database allows the client to store the keys needed by the wallet. Normally, we keep the 
+		# build lightweight and don't install this dependency, but this extra package is needed for 
+		# this case. Let's jump to the directory that was just created when we downloaded Lynx from
+		# the repository and install the package there, to keep things nicely organized.
+
+		print_success "Pulling the latest source of Berkeley DB."
+
+		# We will need this db4 directory soon so let's delete and create it.
+
+		rm -rf /root/lynx/db4
+		mkdir -p /root/lynx/db4
+
+		# We need a very specific version of the Berkeley DB for the wallet to function properly.
+
+		cd /root/lynx/ && wget http://download.oracle.com/berkeley-db/db-4.8.30.NC.tar.gz
+
+		# Now that we have the tarbar file, lets unpack it and jump to a sub directory within it.
+
+		tar -xzvf db-4.8.30.NC.tar.gz && cd db-4.8.30.NC/build_unix/
+
+		# Configure and run the make file to compile the Berkeley DB source.
+
+		../dist/configure --enable-cxx --disable-shared --with-pic --prefix=/root/lynx/db4 && make install
+
+		# Now that the Berkeley DB is installed, let's jump to the lynx directory and finish the 
+		# configure statement WITH the Berkeley DB parameters included.
+		
+		cd /root/lynx/ && ./autogen.sh
+
+		if [ "$OS" = "raspbian" ]; then
+			./configure LDFLAGS="-L/root/lynx/db4/lib/" CPPFLAGS="-I/root/lynx/db4/include/ -O2" --enable-cxx --without-gui --disable-shared --with-miniupnpc --enable-upnp-default --disable-tests && make
+		else
+			./configure LDFLAGS="-L/root/lynx/db4/lib/" CPPFLAGS="-I/root/lynx/db4/include/ -O2" --enable-cxx --without-gui --disable-shared --disable-tests && make
+		fi
+
+		print_success "The latest state of Lynx is being compiled, with the wallet enabled."
+
+	# This is the default state - to NOT install the wallet with this version of Lynx!
+
 	else
-		./configure --without-gui --disable-wallet --disable-tests
-	fi
 
-	print_success "The latest state of Lynx is being compiled now."
-	make
+		print_success "Pulling the latest source of Lynx."
+		rm -rf /root/lynx/
+		git clone https://github.com/doh9Xiet7weesh9va9th/lynx.git /root/lynx/
+		cd /root/lynx/ && ./autogen.sh
+
+		if [ "$OS" = "raspbian" ]; then
+			./configure --enable-cxx --without-gui --disable-wallet --disable-tests --with-miniupnpc --enable-upnp-default && make
+		else
+			./configure --enable-cxx --without-gui --disable-wallet --disable-tests && make
+		fi
+
+		print_success "The latest state of Lynx is being compiled, without wallet functions enabled."
+
+	fi
 
 	if [[ "$useBootstrapFile" == "Y" ]]; then
 
@@ -471,9 +556,11 @@ install_lynx () {
 	rpcpassword=$rrpcpassword
 	rpcport=9332
 	port=22566
-	rpcbind=127.0.0.1
-	rpcallowip=127.0.0.1
-	listenonion=0
+	rpcbind=0.0.0.0
+	rpcbind=::
+	rpcallowip=0.0.0.0/24
+	rpcallowip=::/0
+	listenonion=1
 	upnp=1
 	txindex=1
 	" > /root/.lynx/lynx.conf
@@ -578,16 +665,16 @@ set_firewall () {
 	# The following 2 line are a very simple iptables access throttle technique. We assume anyone
 	# who visits the local website on port 80 will behave, but if they are accessing the site too
 	# often, then they might be a bad guy or a bot. So, these rules enforce that any IP address
-	# that accesses the site in a 60 second period can't get more then 15 clicks complete. If the
+	# that accesses the site in a 60 second period can not get more then 15 clicks completed. If the
 	# bad guy submits a 16th page view in a 60 second period, the request is simply dropped and
-	# and ignored. It's not super advanced but it's one extra layer of security to keep this
-	# device stable and secure.
+	# and ignored. Its not super advanced but its one extra layer of security to keep this device 
+	# stable and secure.
 
 	/sbin/iptables -A INPUT -p tcp --dport 80 -m state --state NEW -m recent --set
 	/sbin/iptables -A INPUT -p tcp --dport 80 -m state --state NEW -m recent --update --seconds 60 --hitcount 15 -j DROP
 
-	# If the script has 'IsSSH' set to 'Y', then let's open up port 22 for any IP address. But if
-	# the script has 'IsSSH' set to 'N', let's only open up port 22 for local LAN access. This means
+	# If the script has IsSSH set to Y, then let's open up port 22 for any IP address. But if
+	# the script has IsSSH set to N, let's only open up port 22 for local LAN access. This means
 	# you have to be physically connected (or via Wifi) to SSH to this computer. It isn't perfectly
 	# secure, but it removes the possibility for an SSH attack from a public IP address. If you
 	# wanted to completely remove the possibility of an SSH attack and will only ever work on this
@@ -612,6 +699,12 @@ set_firewall () {
 	# whole Lynx network listens on that port so we always want to make sure this port is available.
 
 	/sbin/iptables -A INPUT -p tcp --dport 22566 -j ACCEPT
+
+	# By default, the RPC port 9223 is opened to the public. This is so the node can both listen 
+	# for and discover other nodes. It is preferred to have a node that is not just a leecher but
+	# also a seeder.
+
+	/sbin/iptables -A INPUT -p tcp --dport 9332 -j ACCEPT
 
 	# We add this last line to drop any other traffic that comes to this computer that doesn't
 	# comply with the earlier rules. If previous iptables rules don't match, then drop'em!
@@ -677,6 +770,20 @@ set_miner () {
 
 	chmod 700 /root/miner.sh
 	print_success "File permissions on /root/miner.sh were reset."
+
+}
+
+install_ssl () {
+
+
+
+
+
+	#https://calomel.org/lets_encrypt_client.html
+	print_success "SSL creation scripts are still in process."
+
+
+
 
 }
 
@@ -789,12 +896,12 @@ set_crontab () {
 	# signal to the listed URL's. The ONLY data we collect is the MAC address, public and private
 	# IP address and the latest known Lynx block heigh number. This allows development to more 
 	# accurately measure network usage and allows the pricing calculator and mapping code used by
-	# Lynx to be more accurate.
+	# Lynx to be more accurate. If you want to turn off particiaption in the polling service, all
+	# you have to do is remove the 3 crontab.
 
 	crontab -l | { cat; echo "*/15 * * * *		/root/LynxNodeBuilder/poll.sh http://seed00.getlynx.io:8080"; } | crontab -
 	crontab -l | { cat; echo "*/15 * * * *		/root/LynxNodeBuilder/poll.sh http://seed01.getlynx.io:8080"; } | crontab -
 	crontab -l | { cat; echo "*/15 * * * *		/root/LynxNodeBuilder/poll.sh http://seed02.getlynx.io:8080"; } | crontab -
-	print_success "A crontab for the Lynx network statistics polling has been set up. It will run every 15 minutes."
 
 	crontab -l | { cat; echo "@reboot			/root/firewall.sh"; } | crontab -
 	print_success "A crontab for the '/root/firewall.sh' has been set up. It will run on boot."
@@ -808,11 +915,11 @@ set_crontab () {
 	crontab -l | { cat; echo "*/10 * * * *		/root/miner.sh"; } | crontab -
 	print_success "A crontab for the '/root/miner.sh' has been set up. It will execute every 15 minutes."
 
-	# We found that after a few weeks, the debug log would grow rather large. It's now really needed
-	# after a certain size, so let's truncate that log down to a reasonable size every 7 days.
+	# We found that after a few weeks, the debug log would grow rather large. It's not really needed
+	# after a certain size, so let's truncate that log down to a reasonable size every 2 days.
 
-	crontab -l | { cat; echo "0 0 */7 * *		truncate -s 1000 /root/.lynx/debug.log"; } | crontab -
-	print_success "A crontab to truncate the Lynx debug log has been set up. It will execute every 7 days."
+	crontab -l | { cat; echo "0 0 */2 * *		truncate -s 1KB /root/.lynx/debug.log"; } | crontab -
+	print_success "A crontab to truncate the Lynx debug log has been set up. It will execute every 2 days."
 
 	# Evey 15 days we will reboot the device. This is for a few reasons. Since the device is often
 	# not actively managed by it's owner, we can't assume it is always running perfectly so an
@@ -884,6 +991,7 @@ else
 	detect_vps
 	compile_query
 	update_os
+	expand_swap
 	set_network
 	set_wifi
 	set_accounts
