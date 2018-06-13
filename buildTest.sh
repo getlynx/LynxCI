@@ -36,7 +36,7 @@ print_error () {
 
 detect_os () {
 
-	OS=`cat /etc/os-release | egrep '^ID=' | cut -d= -f2`
+	OS=`cat /etc/os-release | egrep '^PRETTY_NAME=' | cut -d= -f2`
 	print_success "The local OS is a flavor of '$OS'."
 
 }
@@ -177,7 +177,10 @@ update_os () {
 		apt-get -o Acquire::ForceIPv4=true update -y
 		DEBIAN_FRONTEND=noninteractive apt-get -y -o DPkg::options::="--force-confdef" -o DPkg::options::="--force-confold"  install grub-pc
 		apt-get -o Acquire::ForceIPv4=true upgrade -y
-	elif [ "$OS" = "ubuntu" ]; then
+	elif [ "$OS" = "Ubuntu 18.04 LTS" ]; then
+		apt-get update -y
+		apt-get upgrade -y
+	elif [ "$OS" = "Ubuntu 16.04.4 LTS" ]; then
 		apt-get -o Acquire::ForceIPv4=true update -y
 		DEBIAN_FRONTEND=noninteractive apt-get -y -o DPkg::options::="--force-confdef" -o DPkg::options::="--force-confold"  install grub-pc
 		apt-get -o Acquire::ForceIPv4=true upgrade -y
@@ -320,10 +323,18 @@ install_iquidusExplorer () {
 	# remove old data about npm/explorer
 	rm -rf ~/LynxExplorer && rm -rf ~/.npm-global
 
-        print_success "Installing nodejs..."
-        apt-get install -y curl npm nodejs-legacy
-	#curl -k -O -L https://npmjs.org/install.sh
-        npm install -g n && n 8
+	if [ "$OS" = "Ubuntu 18.04 LTS" ]; then
+		apt-get install curl software-properties-common
+		curl -sL https://deb.nodesource.com/setup_10.x | sudo -E bash -
+		apt-get install gcc g++ make
+		apt-get install -y nodejs
+		npm install -g n && n 8
+	else
+	    print_success "Installing nodejs..."
+	    apt-get install -y curl npm nodejs-legacy
+		#curl -k -O -L https://npmjs.org/install.sh
+	    npm install -g n && n 8
+	fi
 
 	# change npm dir prefix 
 	#mkdir ~/.npm-global
@@ -595,7 +606,9 @@ install_cpuminer () {
 	if [ "$OS" = "debian" ]; then
 		# compile on Debian 9 fails. Seems to be a missing lib. Dropping support for Debian 9 for now.
 		./configure CFLAGS="-march=native" --with-crypto --with-curl
-	elif [ "$OS" = "ubuntu" ]; then
+	elif [ "$OS" = "Ubuntu 18.04 LTS" ]; then
+		./configure CFLAGS="-march=native" --with-crypto --with-curl
+	elif [ "$OS" = "Ubuntu 18.04 LTS" ]; then
 		./configure CFLAGS="-march=native" --with-crypto --with-curl
 	else
 		# raspbian
