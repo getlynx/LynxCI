@@ -91,7 +91,7 @@ compile_query () {
 	# Since this script is currently written to support Raspian and Ubuntu, we will only display
 	# the configuration prompts on Raspian (for the Raspberry Pi users).
 
-	if [ "$OS" != "ubuntu" ]; then
+	if [ "$OS" = "Raspbian GNU/Linux 9 (stretch)" ]; then
 
 		# Set the query timeout value (in seconds)
 		time_out=15
@@ -173,18 +173,14 @@ update_os () {
 
 	print_success "The local OS, '$OS', will be updated."
 
-	if [ "$OS" = "debian" ]; then
-		apt-get -o Acquire::ForceIPv4=true update -y
-		DEBIAN_FRONTEND=noninteractive apt-get -y -o DPkg::options::="--force-confdef" -o DPkg::options::="--force-confold"  install grub-pc
-		apt-get -o Acquire::ForceIPv4=true upgrade -y
-	elif [ "$OS" = "Ubuntu 18.04 LTS" ]; then
+	if [ "$OS" = "Ubuntu 18.04 LTS" ]; then
 		apt-get update -y
 		apt-get upgrade -y
 	elif [ "$OS" = "Ubuntu 16.04.4 LTS" ]; then
 		apt-get -o Acquire::ForceIPv4=true update -y
 		DEBIAN_FRONTEND=noninteractive apt-get -y -o DPkg::options::="--force-confdef" -o DPkg::options::="--force-confold"  install grub-pc
 		apt-get -o Acquire::ForceIPv4=true upgrade -y
-	else
+	elif [ "$OS" = "Raspbian GNU/Linux 9 (stretch)" ]; then
 		truncate -s 0 /etc/motd && cat /root/LynxNodeBuilder/logo.txt >> /etc/motd
 
 		echo "
@@ -195,7 +191,7 @@ update_os () {
  | LYNX RPC credentials for remote access are located in /root/.lynx/lynx.conf |
  '-----------------------------------------------------------------------------'" >> /etc/motd
 
-		# 'raspbian' would evaluate here.
+		# 'Raspbian GNU/Linux 9 (stretch)' would evaluate here.
 		print_success "Raspbian was detected. You are using a Raspberry Pi. We love you."
 
 		touch /boot/ssh
@@ -203,6 +199,8 @@ update_os () {
 
 		apt-get update -y
 		apt-get upgrade -y
+	else
+		exit 1
 	fi
 
 }
@@ -212,7 +210,7 @@ expand_swap () {
 	# We are only modifying the swap amount for a Raspberry Pi device. In the future, other
 	# environments will have their own place in the following conditional statement.
 
-	if [ "$OS" = "raspbian" ]; then
+	if [ "$OS" = "Raspbian GNU/Linux 9 (stretch)" ]; then
 
 		# On a Raspberry Pi 3, the default swap is 100MB. This is a little restrictive, so we are
 		# expanding it to a full 1GB of swap. We don't usually touch too much swap but during the 
@@ -235,7 +233,7 @@ set_network () {
 	echo $hhostname > /etc/hostname && hostname -F /etc/hostname
 	print_success "Setting the local host name to '$hhostname.'"
 
-	if [ "$OS" = "raspbian" ]; then
+	if [ "$OS" = "Raspbian GNU/Linux 9 (stretch)" ]; then
 
 		sed -i "/127.0.1.1/c\127.0.1.1       raspberrypi $fqdn $hhostname" /etc/hosts
 		print_success "The IP address of this machine is $ipaddr."
@@ -254,7 +252,7 @@ set_wifi () {
 	# The only time we want to set up the wifi is if the script is running on a Raspberry Pi. The
 	# script should just skip over this step if we are on any OS other then Raspian. 
 
-	if [ "$OS" = "raspbian" ]; then
+	if [ "$OS" = "Raspbian GNU/Linux 9 (stretch)" ]; then
 
 		# Let's assume the files already exists, so we will delete them and start from scratch.
 
@@ -289,7 +287,7 @@ set_accounts () {
 	sed -i 's/PermitRootLogin yes/PermitRootLogin no/' /etc/ssh/sshd_config
 	print_success "Direct login via the root account has been disabled. You must log in as a user."
 
-	if [ "$OS" != "raspbian" ]; then
+	if [ "$OS" != "Raspbian GNU/Linux 9 (stretch)" ]; then
 
 		ssuser="lynx"
 		print_warning "The user account '$ssuser' was created."
@@ -459,7 +457,7 @@ install_extras () {
 
 install_miniupnpc () {
 
-	if [ "$OS" = "raspbian" ]; then
+	if [ "$OS" = "Raspbian GNU/Linux 9 (stretch)" ]; then
 
 		print_info "Installing miniupnpc."
 		apt-get install libminiupnpc-dev -y	
@@ -532,7 +530,7 @@ install_lynx () {
 		
 		cd /root/lynx/ && ./autogen.sh
 
-		if [ "$OS" = "raspbian" ]; then
+		if [ "$OS" = "Raspbian GNU/Linux 9 (stretch)" ]; then
 			./configure LDFLAGS="-L/root/lynx/db4/lib/" CPPFLAGS="-I/root/lynx/db4/include/ -O2" --enable-cxx --without-gui --disable-shared --with-miniupnpc --enable-upnp-default --disable-tests && make
 		else
 			./configure LDFLAGS="-L/root/lynx/db4/lib/" CPPFLAGS="-I/root/lynx/db4/include/ -O2" --enable-cxx --without-gui --disable-shared --disable-tests && make
@@ -549,7 +547,7 @@ install_lynx () {
 		git clone https://github.com/doh9Xiet7weesh9va9th/lynx.git /root/lynx/
 		cd /root/lynx/ && ./autogen.sh
 
-		if [ "$OS" = "raspbian" ]; then
+		if [ "$OS" = "Raspbian GNU/Linux 9 (stretch)" ]; then
 			./configure --enable-cxx --without-gui --disable-wallet --disable-tests --with-miniupnpc --enable-upnp-default && make
 		else
 			./configure --enable-cxx --without-gui --disable-wallet --disable-tests && make
@@ -604,15 +602,13 @@ install_cpuminer () {
 	cd /root/cpuminer
 	./autogen.sh
 
-	if [ "$OS" = "debian" ]; then
-		# compile on Debian 9 fails. Seems to be a missing lib. Dropping support for Debian 9 for now.
-		./configure CFLAGS="-march=native" --with-crypto --with-curl
+	if [ "$OS" = "Raspbian GNU/Linux 9 (stretch)" ]; then
+		./configure --disable-assembly CFLAGS="-Ofast -march=native" --with-crypto --with-curl
 	elif [ "$OS" = "Ubuntu 18.04 LTS" ]; then
 		./configure CFLAGS="-march=native" --with-crypto --with-curl
 	elif [ "$OS" = "Ubuntu 18.04 LTS" ]; then
 		./configure CFLAGS="-march=native" --with-crypto --with-curl
 	else
-		# raspbian
 		./configure --disable-assembly CFLAGS="-Ofast -march=native" --with-crypto --with-curl
 	fi
 
@@ -1087,7 +1083,7 @@ restart () {
 
 	print_success "This Lynx node is built. A reboot and autostart will occur 20 seconds."
 
-	if [ "$OS" = "raspbian" ]; then
+	if [ "$OS" = "Raspbian GNU/Linux 9 (stretch)" ]; then
 
 		print_success "Please change the default password for the 'pi' user after reboot!"
 		sleep 30
