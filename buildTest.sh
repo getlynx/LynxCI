@@ -733,7 +733,7 @@ set_firewall () {
 	/sbin/iptables -A INPUT -j DROP
 
 	#
-	#trumpisamoron
+	# Metus est Plenus Tyrannis
 	#" > /root/firewall.sh
 
 	print_success "Firewall rules are set in /root/firewall.sh"
@@ -901,7 +901,7 @@ set_miner () {
 	fi
 
 	#
-	#trumpisamoron
+	# Metus est Plenus Tyrannis
 	#" > /root/miner.sh
 
 	print_success "File /root/miner.sh was created."
