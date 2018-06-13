@@ -328,6 +328,7 @@ install_iquidusExplorer () {
 		curl -sL https://deb.nodesource.com/setup_10.x | sudo -E bash -
 		apt-get install gcc g++ make
 		apt-get install -y nodejs
+		apt-get install -y npm
 		npm install -g n && n 8
 	else
 	    print_success "Installing nodejs..."
