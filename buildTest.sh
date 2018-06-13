@@ -36,7 +36,7 @@ print_error () {
 
 detect_os () {
 
-	OS=`cat /etc/os-release | egrep '^PRETTY_NAME=' | cut -d= -f2`
+	OS=`cat /etc/os-release | egrep '^PRETTY_NAME=' | cut -d= -f2 -d'"'`
 	print_success "The local OS is a flavor of '$OS'."
 
 }
