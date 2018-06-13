@@ -188,6 +188,8 @@ update_os () {
  | To set up wifi, edit the /etc/wpa_supplicant/wpa_supplicant.conf file.      |
  '-----------------------------------------------------------------------------'
  | For local tools to play and learn, type 'sudo /root/lynx/src/lynx-cli help' |
+ '-----------------------------------------------------------------------------'
+ | LYNX RPC credentials for remote access are located in /root/.lynx/lynx.conf |
  '-----------------------------------------------------------------------------'" >> /etc/motd
 
 		# 'raspbian' would evaluate here.
@@ -431,7 +433,7 @@ install_extras () {
 	# router in case it's acting like a leecher to the Lynx network. 
 	# For more details on this cool package, visit https://github.com/jakubroztocil/httpie
 
-	apt-get install httpie -y
+	apt-get install httpie jq -y
 	print_success "HTTPie package was installed."
 	
 }
