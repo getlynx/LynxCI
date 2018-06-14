@@ -344,11 +344,19 @@ set_accounts () {
 
 	if \$(http v4.ifconfig.co/port/9332 | jq -r '.reachable') ]; then
 
-		echo \"Your public IP is\" \$ip_address \"and port 9332 IS reachable. Congrats!\"
+		echo \"
+
+		Your public IP is\" \$ip_address \"and port 9332 IS reachable. Congrats!
+
+		\"
 
 	else
 
-		echo \"Your public IP is\" \$ip_address \"and port 9332 IS NOT open. Visit https://getlynx.io/adjust-my-firewall/ for help!\"
+		echo \"
+
+		Your public IP is\" \$ip_address \"and port 9332 IS NOT open. Visit https://getlynx.io/adjust-my-firewall/ for help!
+
+		\"
 
 	fi
 
