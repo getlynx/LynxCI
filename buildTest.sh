@@ -214,32 +214,13 @@ update_os () {
 	elif [ "$OS" = "Raspbian GNU/Linux 9 (stretch)" ]; then
 		truncate -s 0 /etc/motd && cat /root/LynxNodeBuilder/logo.txt >> /etc/motd
 
-		ip_address=$(http v4.ifconfig.co/port/9332 | jq -r '.ip')
-		reachable=$(http v4.ifconfig.co/port/9332 | jq -r '.reachable')
-
-		if $(http v4.ifconfig.co/port/9332 | jq -r '.reachable') ]; then
-
-			statement="Your public IP is \$ip_address and port 9332 IS reachable. Congrats!"
-
-		else
-
-			statement="Your public IP is \$ip_address and port 9332 IS NOT open. Visit https://getlynx.io/adjust-my-firewall/ for help!"
-
-		fi
-
 		echo "
  | To set up wifi, edit the /etc/wpa_supplicant/wpa_supplicant.conf file.      |
  '-----------------------------------------------------------------------------'
  | For local tools to play and learn, type 'sudo /root/lynx/src/lynx-cli help' |
  '-----------------------------------------------------------------------------'
  | LYNX RPC credentials for remote access are located in /root/.lynx/lynx.conf |
- '-----------------------------------------------------------------------------'
-
-
-   $statement
-
-
-" >> /etc/motd
+ '-----------------------------------------------------------------------------'" >> /etc/motd
 
 		# 'Raspbian GNU/Linux 9 (stretch)' would evaluate here.
 		print_success "Raspbian was detected. You are using a Raspberry Pi. We love you."
@@ -338,7 +319,7 @@ set_accounts () {
 	sed -i 's/PermitRootLogin yes/PermitRootLogin no/' /etc/ssh/sshd_config
 	print_success "Direct login via the root account has been disabled. You must log in as a user."
 
-	if [ "$OS" != "Raspbian GNU/Linux 9 (stretch)" ]; then
+	#if [ "$OS" != "Raspbian GNU/Linux 9 (stretch)" ]; then
 
 		ssuser="lynx"
 		print_warning "The user account '$ssuser' was created."
@@ -346,13 +327,32 @@ set_accounts () {
 		sspassword="lynx"
 		print_warning "The default password is '$sspassword'. Be sure to change after this build is complete."
 
-		adduser $ssuser --disabled-password --gecos "" && \
-		echo "$ssuser:$sspassword" | chpasswd
+		adduser $ssuser --disabled-password --gecos "" && echo "$ssuser:$sspassword" | chpasswd
 
 		adduser $ssuser sudo
 		print_success "The new user '$ssuser', has sudo access."
 
+	#fi
+
+	# Let's lock the pi user account, no need to delete it.
+	usermod -L -e 1 pi
+
+	echo "
+
+	ip_address=\$(http v4.ifconfig.co/port/9332 | jq -r '.ip')
+	reachable=\$(http v4.ifconfig.co/port/9332 | jq -r '.reachable')
+
+	if \$(http v4.ifconfig.co/port/9332 | jq -r '.reachable') ]; then
+
+		echo \"Your public IP is\" \$ip_address \"and port 9332 IS reachable. Congrats!\"
+
+	else
+
+		echo \"Your public IP is\" \$ip_address \"and port 9332 IS NOT open. Visit https://getlynx.io/adjust-my-firewall/ for help!\"
+
 	fi
+
+	" >> /etc/profile
 
 }
 
