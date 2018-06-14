@@ -36,8 +36,13 @@ print_error () {
 
 detect_os () {
 
+	# We are inspecting the local operating system and extracting the full name so we know the 
+	# unique flavor. In the rest of the script we have various changes that are dedicated to
+	# certain operating system versions.
+
 	OS=`cat /etc/os-release | egrep '^PRETTY_NAME=' | cut -d= -f2 -d'"'`
-	print_success "The local OS is a flavor of '$OS'."
+
+	print_success "The local operating system is '$OS'."
 
 }
 
@@ -93,8 +98,14 @@ compile_query () {
 
 	if [ "$OS" = "Raspbian GNU/Linux 9 (stretch)" ]; then
 
-		# Set the query timeout value (in seconds)
-		time_out=15
+		# Set the query timeout value in seconds. Thie means the user has this number of seconds to
+		# answer all the 4 following questions. If no entry is made, a default value is assigned
+		# with the safest, most efficient and most secure answer for this build.
+
+		query_time_out=15
+
+		# The four questions help the script build the LynxCI node. Capital letters are the default
+		# values and if no answer is provided those are the one's used.
 
 		query1="Install the light weight Block Crawler (C) or resource intensive Block Explorer (e) (C/e):"
 		query2="Do you want SSH access enabled for public access? (y/N):"
@@ -106,21 +117,21 @@ compile_query () {
 		# Block Crawler on a Raspberry Pi device. If you are running a Linode or AMI with more power
 		# then using the Block Explorer option will work nicely.
 
-		read -t $time_out -p "$query1 " ans1
+		read -t $query_time_out -p "$query1 " ans1
 
 		# Accessing the device via SSH is always an option if you are on the same local network, 
 		# like with an address format of 192.x.x.x or 10.x.x.x, but if you enable public access 
 		# you will allow any IP to be able to authenticate and log in via terminal. For a more 
 		# secure device, leave the default to No. 
 
-		read -t $time_out -p "$query2 " ans2
+		read -t $query_time_out -p "$query2 " ans2
 
-		read -t $time_out -p "$query3 " ans3
+		read -t $query_time_out -p "$query3 " ans3
 
 		# We are currently mining to pools and solo mining. The device randomly set this for you but
 		# you can override this along with your own mining address in the set_miner() function.
 
-		read -t $time_out -p "$query4 " ans4
+		read -t $query_time_out -p "$query4 " ans4
 
 		# Set the flag to determine if the Explorer or Crawler is being installed. The default is
 		# to install the Block Crawler.
@@ -167,6 +178,25 @@ compile_query () {
 
 	fi
 
+}
+
+install_extras () {
+
+	apt-get install cpulimit htop curl fail2ban -y
+	print_success "The package 'cpulimit' was installed."
+
+	apt-get install automake autoconf pkg-config libcurl4-openssl-dev libjansson-dev libssl-dev libgmp-dev make g++ -y
+	print_success "Extra packages for CPUminer were installed."
+
+	# Let's install 'HTTPie: a CLI, cURL-like tool for humans' so that we can later check if the 
+	# node is a leecher of a seeder. This will allow the device to dynamically sole mine locally or 
+	# or to a seed node if it's a leecher. It will also help the home Pi user to tune their wi-fi
+	# router in case it's acting like a leecher to the Lynx network. 
+	# For more details on this cool package, visit https://github.com/jakubroztocil/httpie
+
+	apt-get install httpie jq -y
+	print_success "HTTPie package was installed."
+	
 }
 
 update_os () {
@@ -442,25 +472,6 @@ install_blockcrawler () {
 
 	fi
 
-}
-
-install_extras () {
-
-	apt-get install cpulimit htop curl fail2ban -y
-	print_success "The package 'cpulimit' was installed."
-
-	apt-get install automake autoconf pkg-config libcurl4-openssl-dev libjansson-dev libssl-dev libgmp-dev make g++ -y
-	print_success "Extra packages for CPUminer were installed."
-
-	# Let's install 'HTTPie: a CLI, cURL-like tool for humans' so that we can later check if the 
-	# node is a leecher of a seeder. This will allow the device to dynamically sole mine locally or 
-	# or to a seed node if it's a leecher. It will also help the home Pi user to tune their wi-fi
-	# router in case it's acting like a leecher to the Lynx network. 
-	# For more details on this cool package, visit https://github.com/jakubroztocil/httpie
-
-	apt-get install httpie jq -y
-	print_success "HTTPie package was installed."
-	
 }
 
 # The MiniUPnP project offers software which supports the UPnP Internet Gateway Device (IGD)
@@ -906,15 +917,8 @@ set_miner () {
 
 install_ssl () {
 
-
-
-
-
 	#https://calomel.org/lets_encrypt_client.html
 	print_success "SSL creation scripts are still in process."
-
-
-
 
 }
 
@@ -1116,17 +1120,17 @@ if [ -f /boot/lynxci ]; then
 
 else
 
-	print_error "Starting installation of LynxCI. This will be a cpu and memory intensive process that will last hours, depending on your hardware."
+	print_error "Starting installation of LynxCI. This will be a cpu and memory intensive process that could last hours, depending on your hardware."
 
 	detect_os
 	detect_vps
 	compile_query
+	install_extras
 	update_os
 	expand_swap
 	set_network
 	set_wifi
 	set_accounts
-	install_extras
 	install_miniupnpc
 	install_lynx
 	install_blockcrawler
