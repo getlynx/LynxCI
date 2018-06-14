@@ -182,10 +182,10 @@ compile_query () {
 
 install_extras () {
 
-	apt-get install cpulimit htop curl fail2ban -y
+	apt-get install cpulimit htop curl fail2ban -y &> /dev/null
 	print_success "The package 'cpulimit' was installed."
 
-	apt-get install automake autoconf pkg-config libcurl4-openssl-dev libjansson-dev libssl-dev libgmp-dev make g++ -y
+	apt-get install automake autoconf pkg-config libcurl4-openssl-dev libjansson-dev libssl-dev libgmp-dev make g++ -y &> /dev/null
 	print_success "Extra packages for CPUminer were installed."
 
 	# Let's install 'HTTPie: a CLI, cURL-like tool for humans' so that we can later check if the 
@@ -194,7 +194,7 @@ install_extras () {
 	# router in case it's acting like a leecher to the Lynx network. 
 	# For more details on this cool package, visit https://github.com/jakubroztocil/httpie
 
-	apt-get install httpie jq -y
+	apt-get install httpie jq -y &> /dev/null
 	print_success "HTTPie package was installed."
 	
 }
@@ -204,13 +204,12 @@ update_os () {
 	print_success "The local OS, '$OS', will be updated."
 
 	if [ "$OS" = "Ubuntu 18.04 LTS" ]; then
-		apt-get update -y
-		apt-get upgrade -y
-		apt-get dist-upgrade -y
+		apt-get update -y &> /dev/null
+		apt-get upgrade -y &> /dev/null
 	elif [ "$OS" = "Ubuntu 16.04.4 LTS" ]; then
-		apt-get -o Acquire::ForceIPv4=true update -y
+		apt-get -o Acquire::ForceIPv4=true update -y &> /dev/null
 		DEBIAN_FRONTEND=noninteractive apt-get -y -o DPkg::options::="--force-confdef" -o DPkg::options::="--force-confold"  install grub-pc
-		apt-get -o Acquire::ForceIPv4=true upgrade -y
+		apt-get -o Acquire::ForceIPv4=true upgrade -y &> /dev/null
 	elif [ "$OS" = "Raspbian GNU/Linux 9 (stretch)" ]; then
 		truncate -s 0 /etc/motd && cat /root/LynxNodeBuilder/logo.txt >> /etc/motd
 
@@ -228,9 +227,8 @@ update_os () {
 		touch /boot/ssh
 		print_success "SSH access was enabled by creating the SSH file in /boot."
 
-		apt-get update -y
-		apt-get upgrade -y
-		apt-get dist-upgrade -y
+		apt-get update -y &> /dev/null
+		apt-get upgrade -y &> /dev/null
 	else
 		exit 1
 	fi
@@ -381,15 +379,15 @@ install_iquidusExplorer () {
 	rm -rf ~/LynxExplorer && rm -rf ~/.npm-global
 
 	if [ "$OS" = "Ubuntu 18.04 LTS" ]; then
-		apt-get install curl software-properties-common
+		apt-get install curl software-properties-common -y &> /dev/null
 		curl -sL https://deb.nodesource.com/setup_10.x | sudo -E bash -
-		apt-get install gcc g++ make
-		apt-get install -y nodejs
-		apt-get install -y npm
+		apt-get install gcc g++ make -y &> /dev/null
+		apt-get install nodejs -y &> /dev/null
+		apt-get install npm -y &> /dev/null
 		npm install -g n && n 8
 	else
 	    print_success "Installing nodejs..."
-	    apt-get install -y curl npm nodejs-legacy
+	    apt-get install curl npm nodejs-legacy -y &> /dev/null
 		#curl -k -O -L https://npmjs.org/install.sh
 	    npm install -g n && n 8
 	fi
@@ -447,7 +445,7 @@ install_blockcrawler () {
 
 	if [ "$blockchainViewer" = "C" ]; then
 	
-		apt-get install nginx php7.0-fpm php-curl -y
+		apt-get install nginx php7.0-fpm php-curl -y &> /dev/null
 		print_success "Installing Nginx..."
 
 		mv /etc/nginx/sites-available/default /etc/nginx/sites-available/default.backup
@@ -500,7 +498,7 @@ install_miniupnpc () {
 	if [ "$OS" = "Raspbian GNU/Linux 9 (stretch)" ]; then
 
 		print_info "Installing miniupnpc."
-		apt-get install libminiupnpc-dev -y	
+		apt-get install libminiupnpc-dev -y	&> /dev/null
 
 	fi
 
@@ -508,7 +506,7 @@ install_miniupnpc () {
 
 install_lynx () {
 
-	apt-get install git-core build-essential autoconf libtool libssl-dev libboost-all-dev libminiupnpc-dev libevent-dev libncurses5-dev pkg-config -y
+	apt-get install git-core build-essential autoconf libtool libssl-dev libboost-all-dev libminiupnpc-dev libevent-dev libncurses5-dev pkg-config -y &> /dev/null
 
 	rrpcuser="$(shuf -i 1000000000-3999999999 -n 1)$(shuf -i 1000000000-3999999999 -n 1)$(shuf -i 1000000000-3999999999 -n 1)"
 	print_warning "The lynxd RPC user account is '$rrpcuser'."
@@ -634,7 +632,7 @@ install_lynx () {
 
 install_cpuminer () {
 
-	apt-get install automake autoconf pkg-config libcurl4-openssl-dev libjansson-dev libssl-dev libgmp-dev make g++ -y
+	apt-get install automake autoconf pkg-config libcurl4-openssl-dev libjansson-dev libssl-dev libgmp-dev make g++ -y &> /dev/null
 
 	rm -rf /root/cpuminer
 	git clone https://github.com/tpruvot/cpuminer-multi.git /root/cpuminer
@@ -662,7 +660,7 @@ install_mongo () {
 
 	if [ "$blockchainViewer" = "E" ]; then
 
-	    apt-get install mongodb-server -y
+	    apt-get install mongodb-server -y &> /dev/null
 	    print_success "Installing mongodb..."
 
 	    service mongodb start
