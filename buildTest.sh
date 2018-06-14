@@ -218,11 +218,11 @@ update_os () {
 
 		if $(http v4.ifconfig.co/port/9332 | jq -r '.reachable') ]; then
 
-			statement="Public IP is $ip and port 9332 IS reachable. Congrats!           |"
+			statement="Your public IP is $ip and port 9332 IS reachable. Congrats!"
 
 		else
 
-			statement="Public IP is $ip and port 9332 IS NOT open. Adjust your router?  |"
+			statement="Your public IP is $ip and port 9332 IS NOT open. Visit https://getlynx.io/adjust-my-firewall/ for help!"
 
 		fi
 
