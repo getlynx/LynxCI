@@ -219,11 +219,11 @@ update_os () {
 
 		if $(http v4.ifconfig.co/port/9332 | jq -r '.reachable') ]; then
 
-			statement="Your public IP is $ip and port 9332 IS reachable. Congrats!"
+			statement="Your public IP is \$ip and port 9332 IS reachable. Congrats!"
 
 		else
 
-			statement="Your public IP is $ip and port 9332 IS NOT open. Visit https://getlynx.io/adjust-my-firewall/ for help!"
+			statement="Your public IP is \$ip and port 9332 IS NOT open. Visit https://getlynx.io/adjust-my-firewall/ for help!"
 
 		fi
 
@@ -234,8 +234,12 @@ update_os () {
  '-----------------------------------------------------------------------------'
  | LYNX RPC credentials for remote access are located in /root/.lynx/lynx.conf |
  '-----------------------------------------------------------------------------'
- | $statement  
- '-----------------------------------------------------------------------------'" >> /etc/motd
+
+
+   $statement
+   
+
+" >> /etc/motd
 
 		# 'Raspbian GNU/Linux 9 (stretch)' would evaluate here.
 		print_success "Raspbian was detected. You are using a Raspberry Pi. We love you."
