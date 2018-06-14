@@ -214,16 +214,16 @@ update_os () {
 	elif [ "$OS" = "Raspbian GNU/Linux 9 (stretch)" ]; then
 		truncate -s 0 /etc/motd && cat /root/LynxNodeBuilder/logo.txt >> /etc/motd
 
-		ip=$(http v4.ifconfig.co/port/9332 | jq -r '.ip')
+		ip_address=$(http v4.ifconfig.co/port/9332 | jq -r '.ip')
 		reachable=$(http v4.ifconfig.co/port/9332 | jq -r '.reachable')
 
 		if $(http v4.ifconfig.co/port/9332 | jq -r '.reachable') ]; then
 
-			statement="Your public IP is \$ip and port 9332 IS reachable. Congrats!"
+			statement="Your public IP is \$ip_address and port 9332 IS reachable. Congrats!"
 
 		else
 
-			statement="Your public IP is \$ip and port 9332 IS NOT open. Visit https://getlynx.io/adjust-my-firewall/ for help!"
+			statement="Your public IP is \$ip_address and port 9332 IS NOT open. Visit https://getlynx.io/adjust-my-firewall/ for help!"
 
 		fi
 
@@ -237,7 +237,7 @@ update_os () {
 
 
    $statement
-   
+
 
 " >> /etc/motd
 
@@ -1131,10 +1131,10 @@ else
 	detect_os
 	detect_vps
 	compile_query
+	set_network
 	install_extras
 	update_os
 	expand_swap
-	set_network
 	set_wifi
 	set_accounts
 	install_miniupnpc
