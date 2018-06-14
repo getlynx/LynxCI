@@ -182,10 +182,10 @@ compile_query () {
 
 install_extras () {
 
-	apt-get install cpulimit htop curl fail2ban -y &> /dev/null
+	apt-get install cpulimit htop curl fail2ban -y
 	print_success "The package 'cpulimit' was installed."
 
-	apt-get install automake autoconf pkg-config libcurl4-openssl-dev libjansson-dev libssl-dev libgmp-dev make g++ -y &> /dev/null
+	apt-get install automake autoconf pkg-config libcurl4-openssl-dev libjansson-dev libssl-dev libgmp-dev make g++ -y
 	print_success "Extra packages for CPUminer were installed."
 
 	# Let's install 'HTTPie: a CLI, cURL-like tool for humans' so that we can later check if the 
@@ -194,7 +194,7 @@ install_extras () {
 	# router in case it's acting like a leecher to the Lynx network. 
 	# For more details on this cool package, visit https://github.com/jakubroztocil/httpie
 
-	apt-get install httpie jq -y &> /dev/null
+	apt-get install httpie jq -y
 	print_success "HTTPie package was installed."
 	
 }
@@ -204,9 +204,9 @@ update_os () {
 	print_success "The local OS, '$OS', will be updated."
 
 	if [ "$OS" = "Ubuntu 18.04 LTS" ]; then
-		apt-get update -y &> /dev/null
-		apt-get upgrade -y &> /dev/null
-		apt-get dist-upgrade -y &> /dev/null
+		apt-get update -y
+		apt-get upgrade -y
+		apt-get dist-upgrade -y
 	elif [ "$OS" = "Ubuntu 16.04.4 LTS" ]; then
 		apt-get -o Acquire::ForceIPv4=true update -y
 		DEBIAN_FRONTEND=noninteractive apt-get -y -o DPkg::options::="--force-confdef" -o DPkg::options::="--force-confold"  install grub-pc
@@ -247,9 +247,9 @@ update_os () {
 		touch /boot/ssh
 		print_success "SSH access was enabled by creating the SSH file in /boot."
 
-		apt-get update -y &> /dev/null
-		apt-get upgrade -y &> /dev/null
-		apt-get dist-upgrade -y &> /dev/null
+		apt-get update -y
+		apt-get upgrade -y
+		apt-get dist-upgrade -y
 	else
 		exit 1
 	fi
