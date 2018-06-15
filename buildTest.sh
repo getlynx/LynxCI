@@ -317,23 +317,25 @@ set_accounts () {
 	sed -i 's/PermitRootLogin yes/PermitRootLogin no/' /etc/ssh/sshd_config
 	print_success "Direct login via the root account has been disabled. You must log in as a user."
 
-	#if [ "$OS" != "Raspbian GNU/Linux 9 (stretch)" ]; then
+	ssuser="lynx"
+	print_warning "The user account '$ssuser' was created."
 
-		ssuser="lynx"
-		print_warning "The user account '$ssuser' was created."
+	sspassword="lynx"
+	print_warning "The default password is '$sspassword'. Be sure to change after this build is complete."
 
-		sspassword="lynx"
-		print_warning "The default password is '$sspassword'. Be sure to change after this build is complete."
+	adduser $ssuser --disabled-password --gecos "" && echo "$ssuser:$sspassword" | chpasswd
 
-		adduser $ssuser --disabled-password --gecos "" && echo "$ssuser:$sspassword" | chpasswd
+	adduser $ssuser sudo
+	print_success "The new user '$ssuser', has sudo access."
 
-		adduser $ssuser sudo
-		print_success "The new user '$ssuser', has sudo access."
+	# We only need to lock the Pi account if this is a Raspberry Pi. Otherwise, ignore this step.
 
-	#fi
+	if [ "$OS" = "Raspbian GNU/Linux 9 (stretch)" ]; then
 
-	# Let's lock the pi user account, no need to delete it.
-	usermod -L -e 1 pi
+		# Let's lock the pi user account, no need to delete it.
+		usermod -L -e 1 pi
+
+	fi
 
 	echo "
 
@@ -802,8 +804,6 @@ set_miner () {
 
 	killall -q \$(pgrep -f cpuminer)
 
-	logger -s \"CPU Miner process was killed.\"
-
 	# If the flag to mine is set to Y, then lets do some mining, otherwise skip this whole 
 	# conditional. Seems kind of obvious, but some of us are still learning.
 
@@ -818,8 +818,6 @@ set_miner () {
 			# accidently pick one.
 
 			chmod 644 /root/LynxNodeBuilder/miner-addresses.txt
-			cat /root/LynxNodeBuilder/miner-addresses.txt | tr -d \" \t\n\r\"
-			cat /root/LynxNodeBuilder/miner-addresses.txt | tr -d \"[:space:]\"
 
 			# Randomly select an address from the addresse file. You are welcome to change any value
 			# in that list.
@@ -828,9 +826,7 @@ set_miner () {
 
 			# With the randomly selected reward address, lets start solo mining.
 
-			/root/cpuminer/cpuminer -o http://127.0.0.1:9332 -u $rrpcuser -p $rrpcpassword --coinbase-addr=\$(random_address) -R 15 -B -S
-
-			logger -s \"CPU Miner process was started. Mining with \$(random_address).\"
+			/root/cpuminer/cpuminer -o http://127.0.0.1:9332 -u $rrpcuser -p $rrpcpassword --coinbase-addr=\"\$(random_address)\" -R 15 -B -S
 
 		fi
 	fi
