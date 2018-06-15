@@ -826,7 +826,7 @@ set_miner () {
 
 			# With the randomly selected reward address, lets start solo mining.
 
-			/root/cpuminer/cpuminer -o http://127.0.0.1:9332 -u $rrpcuser -p $rrpcpassword --coinbase-addr=\"\$(random_address)\" -R 15 -B -S
+			/root/cpuminer/cpuminer -o http://127.0.0.1:9332 -u $rrpcuser -p $rrpcpassword --coinbase-addr=\"\$random_address\" -R 15 -B -S
 
 		fi
 	fi
