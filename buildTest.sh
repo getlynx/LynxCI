@@ -802,6 +802,8 @@ set_miner () {
 
 	killall -q \$(pgrep -f cpuminer)
 
+	logger -s \"CPU Miner process was killed.\"
+
 	# If the flag to mine is set to Y, then lets do some mining, otherwise skip this whole 
 	# conditional. Seems kind of obvious, but some of us are still learning.
 
@@ -815,17 +817,20 @@ set_miner () {
 			# Just to make sure, lets purge any spaces of newlines in the file, so we don't 
 			# accidently pick one.
 
-			cat addresses.txt | tr -d \" \t\n\r\"
-			cat addresses.txt | tr -d \"[:space:]\"
+			chmod 644 /root/LynxNodeBuilder/miner-addresses.txt
+			cat /root/LynxNodeBuilder/miner-addresses.txt | tr -d \" \t\n\r\"
+			cat /root/LynxNodeBuilder/miner-addresses.txt | tr -d \"[:space:]\"
 
 			# Randomly select an address from the addresse file. You are welcome to change any value
 			# in that list.
 
-			random_address=\"\$(shuf -n 1 addresses.txt)\"
+			random_address=\"\$(shuf -n 1 /root/LynxNodeBuilder/miner-addresses.txt)\"
 
 			# With the randomly selected reward address, lets start solo mining.
 
 			/root/cpuminer/cpuminer -o http://127.0.0.1:9332 -u $rrpcuser -p $rrpcpassword --coinbase-addr=\$(random_address) -R 15 -B -S
+
+			logger -s \"CPU Miner process was started. Mining with \$(random_address).\"
 
 		fi
 	fi
