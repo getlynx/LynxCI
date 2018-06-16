@@ -621,7 +621,7 @@ install_lynx () {
 	rpcbind=::
 	rpcallowip=0.0.0.0/24
 	rpcallowip=::/0
-	listenonion=1
+	listenonion=0
 	upnp=1
 	txindex=1
 	" > /root/.lynx/lynx.conf
@@ -862,10 +862,30 @@ set_miner () {
 
 }
 
+# This function is still under development.
+
 install_ssl () {
 
 	#https://calomel.org/lets_encrypt_client.html
 	print_success "SSL creation scripts are still in process."
+
+}
+
+# This function is still under development.
+
+install_tor () {
+
+	apt install tor
+	systemctl enable tor
+	systemctl start tor
+
+	echo "
+	ControlPort 9051
+	CookieAuthentication 1
+	CookieAuthFileGroupReadable 1
+	" >> /etc/tor/torrc
+
+	usermod -a -G debian-tor root
 
 }
 
@@ -1025,20 +1045,6 @@ set_crontab () {
 
 restart () {
 
-	print_success "This Lynx node is built. A reboot and autostart will occur 20 seconds."
-
-	if [ "$OS" = "Raspbian GNU/Linux 9 (stretch)" ]; then
-
-		print_success "Please change the default password for the 'pi' user after reboot!"
-		sleep 30
-
-	else
-
-		print_success "Please change the default password for the '$ssuser' user after reboot!"
-		sleep 30
-
-	fi
-
 	# We now write this empty file to the /boot dir. This file will persist after reboot so if
 	# this script were to run again, it would abort because it would know it already ran sometime
 	# in the past. This is another way to prevent a loop if something bad happens during the install
@@ -1046,6 +1052,18 @@ restart () {
 	# over. This helps if we have ot debug a problem in the future.
 
 	touch /boot/lynxci
+
+	print_success "This Lynx node is built. A reboot and autostart will occur 30 seconds."
+
+	sleep 5
+
+	print_success "Please change the default password for the '$ssuser' user after reboot!"
+
+	sleep 5
+
+	print_success "After boot, it will take 5 minutes for all services to start. Be patient."
+
+	sleep 5
 
 	# Now we truly reboot the OS.
 
