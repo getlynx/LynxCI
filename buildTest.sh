@@ -790,6 +790,7 @@ set_miner () {
 	print_info "Initializing the local cpu miner script."
 
 	echo "
+	
 	#!/bin/bash
 
 	# This valus is set during the initial build of this node by the LynxCI installer. You can 
