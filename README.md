@@ -77,7 +77,7 @@ According to a recent article in [Wired magazine](https://www.wired.com/story/bi
 
 2. The individual mining reward is only 1 Lynx (+ fees).
 
-3. The cost of a transaction is 1 Lynx/kb with a cap of 10 Lynx.
+3. The cost of a transaction is 0.0001 Lynx/kb.
 
 Lynx is a cryptocurrency from the past re-designed for the future. We designed Lynx to have minimal environmental impact because we’re committed to creating global solutions and maintaining a small carbon footprint. Lynx business rules encourage the use of low-cost computing (like a Raspberry Pi which only consumes less than 3 watts of electricity) to mine the coin. As a result, the electrical cost to maintain the Lynx network is a fraction of a fraction which results in a low environmental impact. The emphasis on low-cost computing also creates a decentralized, broad miner base which also strengthens the stability and security of the currency.
 
