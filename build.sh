@@ -36,8 +36,13 @@ print_error () {
 
 detect_os () {
 
-	OS=`cat /etc/os-release | egrep '^ID=' | cut -d= -f2`
-	print_success "The local OS is a flavor of '$OS'."
+	# We are inspecting the local operating system and extracting the full name so we know the 
+	# unique flavor. In the rest of the script we have various changes that are dedicated to
+	# certain operating system versions.
+
+	OS=`cat /etc/os-release | egrep '^PRETTY_NAME=' | cut -d= -f2 -d'"'`
+
+	print_success "The local operating system is '$OS'."
 
 }
 
@@ -91,10 +96,16 @@ compile_query () {
 	# Since this script is currently written to support Raspian and Ubuntu, we will only display
 	# the configuration prompts on Raspian (for the Raspberry Pi users).
 
-	if [ "$OS" != "ubuntu" ]; then
+	if [ "$OS" = "Raspbian GNU/Linux 9 (stretch)" ]; then
 
-		# Set the query timeout value (in seconds)
-		time_out=15
+		# Set the query timeout value in seconds. Thie means the user has this number of seconds to
+		# answer all the 4 following questions. If no entry is made, a default value is assigned
+		# with the safest, most efficient and most secure answer for this build.
+
+		query_time_out=15
+
+		# The four questions help the script build the LynxCI node. Capital letters are the default
+		# values and if no answer is provided those are the one's used.
 
 		query1="Install the light weight Block Crawler (C) or resource intensive Block Explorer (e) (C/e):"
 		query2="Do you want SSH access enabled for public access? (y/N):"
@@ -106,21 +117,21 @@ compile_query () {
 		# Block Crawler on a Raspberry Pi device. If you are running a Linode or AMI with more power
 		# then using the Block Explorer option will work nicely.
 
-		read -t $time_out -p "$query1 " ans1
+		read -t $query_time_out -p "$query1 " ans1
 
 		# Accessing the device via SSH is always an option if you are on the same local network, 
 		# like with an address format of 192.x.x.x or 10.x.x.x, but if you enable public access 
 		# you will allow any IP to be able to authenticate and log in via terminal. For a more 
 		# secure device, leave the default to No. 
 
-		read -t $time_out -p "$query2 " ans2
+		read -t $query_time_out -p "$query2 " ans2
 
-		read -t $time_out -p "$query3 " ans3
+		read -t $query_time_out -p "$query3 " ans3
 
 		# We are currently mining to pools and solo mining. The device randomly set this for you but
 		# you can override this along with your own mining address in the set_miner() function.
 
-		read -t $time_out -p "$query4 " ans4
+		read -t $query_time_out -p "$query4 " ans4
 
 		# Set the flag to determine if the Explorer or Crawler is being installed. The default is
 		# to install the Block Crawler.
@@ -169,35 +180,57 @@ compile_query () {
 
 }
 
+install_extras () {
+
+	apt-get install cpulimit htop curl fail2ban -y &> /dev/null
+	print_success "The package 'cpulimit' was installed."
+
+	apt-get install automake autoconf pkg-config libcurl4-openssl-dev libjansson-dev libssl-dev libgmp-dev make g++ -y &> /dev/null
+	print_success "Extra packages for CPUminer were installed."
+
+	# Let's install 'HTTPie: a CLI, cURL-like tool for humans' so that we can later check if the 
+	# node is a leecher of a seeder. This will allow the device to dynamically sole mine locally or 
+	# or to a seed node if it's a leecher. It will also help the home Pi user to tune their wi-fi
+	# router in case it's acting like a leecher to the Lynx network. 
+	# For more details on this cool package, visit https://github.com/jakubroztocil/httpie
+
+	apt-get install httpie jq -y &> /dev/null
+	print_success "HTTPie package was installed."
+	
+}
+
 update_os () {
 
 	print_success "The local OS, '$OS', will be updated."
 
-	if [ "$OS" = "debian" ]; then
-		apt-get -o Acquire::ForceIPv4=true update -y
+	if [ "$OS" = "Ubuntu 18.04 LTS" ]; then
+		apt-get update -y &> /dev/null
+		apt-get upgrade -y &> /dev/null
+	elif [ "$OS" = "Ubuntu 16.04.4 LTS" ]; then
+		apt-get -o Acquire::ForceIPv4=true update -y &> /dev/null
 		DEBIAN_FRONTEND=noninteractive apt-get -y -o DPkg::options::="--force-confdef" -o DPkg::options::="--force-confold"  install grub-pc
-		apt-get -o Acquire::ForceIPv4=true upgrade -y
-	elif [ "$OS" = "ubuntu" ]; then
-		apt-get -o Acquire::ForceIPv4=true update -y
-		DEBIAN_FRONTEND=noninteractive apt-get -y -o DPkg::options::="--force-confdef" -o DPkg::options::="--force-confold"  install grub-pc
-		apt-get -o Acquire::ForceIPv4=true upgrade -y
-	else
+		apt-get -o Acquire::ForceIPv4=true upgrade -y &> /dev/null
+	elif [ "$OS" = "Raspbian GNU/Linux 9 (stretch)" ]; then
 		truncate -s 0 /etc/motd && cat /root/LynxNodeBuilder/logo.txt >> /etc/motd
 
 		echo "
  | To set up wifi, edit the /etc/wpa_supplicant/wpa_supplicant.conf file.      |
  '-----------------------------------------------------------------------------'
  | For local tools to play and learn, type 'sudo /root/lynx/src/lynx-cli help' |
+ '-----------------------------------------------------------------------------'
+ | LYNX RPC credentials for remote access are located in /root/.lynx/lynx.conf |
  '-----------------------------------------------------------------------------'" >> /etc/motd
 
-		# 'raspbian' would evaluate here.
+		# 'Raspbian GNU/Linux 9 (stretch)' would evaluate here.
 		print_success "Raspbian was detected. You are using a Raspberry Pi. We love you."
 
 		touch /boot/ssh
 		print_success "SSH access was enabled by creating the SSH file in /boot."
 
-		apt-get update -y
-		apt-get upgrade -y
+		apt-get update -y &> /dev/null
+		apt-get upgrade -y &> /dev/null
+	else
+		exit 1
 	fi
 
 }
@@ -207,7 +240,7 @@ expand_swap () {
 	# We are only modifying the swap amount for a Raspberry Pi device. In the future, other
 	# environments will have their own place in the following conditional statement.
 
-	if [ "$OS" = "raspbian" ]; then
+	if [ "$OS" = "Raspbian GNU/Linux 9 (stretch)" ]; then
 
 		# On a Raspberry Pi 3, the default swap is 100MB. This is a little restrictive, so we are
 		# expanding it to a full 1GB of swap. We don't usually touch too much swap but during the 
@@ -230,7 +263,7 @@ set_network () {
 	echo $hhostname > /etc/hostname && hostname -F /etc/hostname
 	print_success "Setting the local host name to '$hhostname.'"
 
-	if [ "$OS" = "raspbian" ]; then
+	if [ "$OS" = "Raspbian GNU/Linux 9 (stretch)" ]; then
 
 		sed -i "/127.0.1.1/c\127.0.1.1       raspberrypi $fqdn $hhostname" /etc/hosts
 		print_success "The IP address of this machine is $ipaddr."
@@ -249,7 +282,7 @@ set_wifi () {
 	# The only time we want to set up the wifi is if the script is running on a Raspberry Pi. The
 	# script should just skip over this step if we are on any OS other then Raspian. 
 
-	if [ "$OS" = "raspbian" ]; then
+	if [ "$OS" = "Raspbian GNU/Linux 9 (stretch)" ]; then
 
 		# Let's assume the files already exists, so we will delete them and start from scratch.
 
@@ -284,21 +317,50 @@ set_accounts () {
 	sed -i 's/PermitRootLogin yes/PermitRootLogin no/' /etc/ssh/sshd_config
 	print_success "Direct login via the root account has been disabled. You must log in as a user."
 
-	if [ "$OS" != "raspbian" ]; then
+	ssuser="lynx"
+	print_warning "The user account '$ssuser' was created."
 
-		ssuser="lynx"
-		print_warning "The user account '$ssuser' was created."
+	sspassword="lynx"
+	print_warning "The default password is '$sspassword'. Be sure to change after this build is complete."
 
-		sspassword="lynx"
-		print_warning "The default password is '$sspassword'. Be sure to change after this build is complete."
+	adduser $ssuser --disabled-password --gecos "" && echo "$ssuser:$sspassword" | chpasswd
 
-		adduser $ssuser --disabled-password --gecos "" && \
-		echo "$ssuser:$sspassword" | chpasswd
+	adduser $ssuser sudo
+	print_success "The new user '$ssuser', has sudo access."
 
-		adduser $ssuser sudo
-		print_success "The new user '$ssuser', has sudo access."
+	# We only need to lock the Pi account if this is a Raspberry Pi. Otherwise, ignore this step.
+
+	if [ "$OS" = "Raspbian GNU/Linux 9 (stretch)" ]; then
+
+		# Let's lock the pi user account, no need to delete it.
+		usermod -L -e 1 pi
 
 	fi
+
+	echo "
+
+	ip_address=\$(http v4.ifconfig.co/port/9332 | jq -r '.ip')
+	reachable=\$(http v4.ifconfig.co/port/9332 | jq -r '.reachable')
+
+	if \$(http v4.ifconfig.co/port/9332 | jq -r '.reachable') ]; then
+
+		echo \"
+
+		Your public IP is\" \$ip_address \"and port 9332 IS reachable. Congratulations, your Lynx node is a seeder.
+
+		\"
+
+	else
+
+		echo \"
+
+		Your public IP is\" \$ip_address \"and port 9332 IS NOT open. Visit https://getlynx.io/adjust-my-firewall/ for help!
+
+		\"
+
+	fi
+
+	" >> /etc/profile
 
 }
 
@@ -318,10 +380,19 @@ install_iquidusExplorer () {
 	# remove old data about npm/explorer
 	rm -rf ~/LynxExplorer && rm -rf ~/.npm-global
 
-        print_success "Installing nodejs..."
-        apt-get install -y curl npm nodejs-legacy
-	#curl -k -O -L https://npmjs.org/install.sh
-        npm install -g n && n 8
+	if [ "$OS" = "Ubuntu 18.04 LTS" ]; then
+		apt-get install curl software-properties-common -y &> /dev/null
+		curl -sL https://deb.nodesource.com/setup_10.x | sudo -E bash -
+		apt-get install gcc g++ make -y &> /dev/null
+		apt-get install nodejs -y &> /dev/null
+		apt-get install npm -y &> /dev/null
+		npm install -g n && n 8
+	else
+	    print_success "Installing nodejs..."
+	    apt-get install curl npm nodejs-legacy -y &> /dev/null
+		#curl -k -O -L https://npmjs.org/install.sh
+	    npm install -g n && n 8
+	fi
 
 	# change npm dir prefix 
 	#mkdir ~/.npm-global
@@ -376,7 +447,7 @@ install_blockcrawler () {
 
 	if [ "$blockchainViewer" = "C" ]; then
 	
-		apt-get install nginx php7.0-fpm php-curl -y
+		apt-get install nginx php7.0-fpm php-curl -y &> /dev/null
 		print_success "Installing Nginx..."
 
 		mv /etc/nginx/sites-available/default /etc/nginx/sites-available/default.backup
@@ -417,16 +488,6 @@ install_blockcrawler () {
 
 }
 
-install_extras () {
-
-	apt-get install cpulimit htop curl fail2ban -y
-	print_success "The package 'cpulimit' was installed."
-
-	apt-get install automake autoconf pkg-config libcurl4-openssl-dev libjansson-dev libssl-dev libgmp-dev make g++ -y
-	print_success "Extra packages for CPUminer were installed."
-
-}
-
 # The MiniUPnP project offers software which supports the UPnP Internet Gateway Device (IGD)
 # specifications. You can read more about it here --> http://miniupnp.free.fr
 # We use this code because most folks don't know how to configure their home cable modem or wifi
@@ -436,10 +497,10 @@ install_extras () {
 
 install_miniupnpc () {
 
-	if [ "$OS" = "raspbian" ]; then
+	if [ "$OS" = "Raspbian GNU/Linux 9 (stretch)" ]; then
 
 		print_info "Installing miniupnpc."
-		apt-get install libminiupnpc-dev -y	
+		apt-get install libminiupnpc-dev -y	&> /dev/null
 
 	fi
 
@@ -447,7 +508,7 @@ install_miniupnpc () {
 
 install_lynx () {
 
-	apt-get install git-core build-essential autoconf libtool libssl-dev libboost-all-dev libminiupnpc-dev libevent-dev libncurses5-dev pkg-config -y
+	apt-get install git-core build-essential autoconf libtool libssl-dev libboost-all-dev libminiupnpc-dev libevent-dev libncurses5-dev pkg-config -y &> /dev/null
 
 	rrpcuser="$(shuf -i 1000000000-3999999999 -n 1)$(shuf -i 1000000000-3999999999 -n 1)$(shuf -i 1000000000-3999999999 -n 1)"
 	print_warning "The lynxd RPC user account is '$rrpcuser'."
@@ -509,7 +570,7 @@ install_lynx () {
 		
 		cd /root/lynx/ && ./autogen.sh
 
-		if [ "$OS" = "raspbian" ]; then
+		if [ "$OS" = "Raspbian GNU/Linux 9 (stretch)" ]; then
 			./configure LDFLAGS="-L/root/lynx/db4/lib/" CPPFLAGS="-I/root/lynx/db4/include/ -O2" --enable-cxx --without-gui --disable-shared --with-miniupnpc --enable-upnp-default --disable-tests && make
 		else
 			./configure LDFLAGS="-L/root/lynx/db4/lib/" CPPFLAGS="-I/root/lynx/db4/include/ -O2" --enable-cxx --without-gui --disable-shared --disable-tests && make
@@ -526,7 +587,7 @@ install_lynx () {
 		git clone https://github.com/doh9Xiet7weesh9va9th/lynx.git /root/lynx/
 		cd /root/lynx/ && ./autogen.sh
 
-		if [ "$OS" = "raspbian" ]; then
+		if [ "$OS" = "Raspbian GNU/Linux 9 (stretch)" ]; then
 			./configure --enable-cxx --without-gui --disable-wallet --disable-tests --with-miniupnpc --enable-upnp-default && make
 		else
 			./configure --enable-cxx --without-gui --disable-wallet --disable-tests && make
@@ -560,7 +621,7 @@ install_lynx () {
 	rpcbind=::
 	rpcallowip=0.0.0.0/24
 	rpcallowip=::/0
-	listenonion=1
+	listenonion=0
 	upnp=1
 	txindex=1
 	" > /root/.lynx/lynx.conf
@@ -573,7 +634,7 @@ install_lynx () {
 
 install_cpuminer () {
 
-	apt-get install automake autoconf pkg-config libcurl4-openssl-dev libjansson-dev libssl-dev libgmp-dev make g++ -y
+	apt-get install automake autoconf pkg-config libcurl4-openssl-dev libjansson-dev libssl-dev libgmp-dev make g++ -y &> /dev/null
 
 	rm -rf /root/cpuminer
 	git clone https://github.com/tpruvot/cpuminer-multi.git /root/cpuminer
@@ -581,13 +642,13 @@ install_cpuminer () {
 	cd /root/cpuminer
 	./autogen.sh
 
-	if [ "$OS" = "debian" ]; then
-		# compile on Debian 9 fails. Seems to be a missing lib. Dropping support for Debian 9 for now.
+	if [ "$OS" = "Raspbian GNU/Linux 9 (stretch)" ]; then
+		./configure --disable-assembly CFLAGS="-Ofast -march=native" --with-crypto --with-curl
+	elif [ "$OS" = "Ubuntu 18.04 LTS" ]; then
 		./configure CFLAGS="-march=native" --with-crypto --with-curl
-	elif [ "$OS" = "ubuntu" ]; then
+	elif [ "$OS" = "Ubuntu 18.04 LTS" ]; then
 		./configure CFLAGS="-march=native" --with-crypto --with-curl
 	else
-		# raspbian
 		./configure --disable-assembly CFLAGS="-Ofast -march=native" --with-crypto --with-curl
 	fi
 
@@ -601,7 +662,7 @@ install_mongo () {
 
 	if [ "$blockchainViewer" = "E" ]; then
 
-	    apt-get install mongodb-server -y
+	    apt-get install mongodb-server -y &> /dev/null
 	    print_success "Installing mongodb..."
 
 	    service mongodb start
@@ -712,7 +773,7 @@ set_firewall () {
 	/sbin/iptables -A INPUT -j DROP
 
 	#
-	#trumpisamoron
+	# Metus est Plenus Tyrannis
 	#" > /root/firewall.sh
 
 	print_success "Firewall rules are set in /root/firewall.sh"
@@ -726,64 +787,105 @@ set_miner () {
 
 	rm -rf /root/miner.sh
 
-	echo "
+	print_info "Initializing the local cpu miner script."
 
+	echo "
 	#!/bin/bash
+
+	# This valus is set during the initial build of this node by the LynxCI installer. You can 
+	# override it by changing the value. Acceptable options are Y and N. If you set the value to
+	# N, this node will not mine blocks, but it will still confirm and relay transactions.
 
 	IsMiner=$enable_mining
 
+	# The objective of this script is to start the local miner and have it solo mine against the 
+	# local Lynx processes. So the first think we should do is assume a mining process is already 
+	# running and kill it.
+
+	killall -q \$(pgrep -f cpuminer)
+
+	# If the flag to mine is set to Y, then lets do some mining, otherwise skip this whole 
+	# conditional. Seems kind of obvious, but some of us are still learning.
+
 	if [ \"\$IsMiner\" = \"Y\" ]; then
+
+		# Only is the miner isn't running. We do this to ensure we don't accidently have two
+		# miner processes running at the same time.
+
 		if ! pgrep -x \"cpuminer\" > /dev/null; then
 
-			# Randomly select a pool number from 1-6.
-			# Random selection occurs after each reboot, when this script is run.
-			# Add or remove pools to customize.
-			# Be sure to increase the number 6 to the new total.
+			# Just to make sure, lets purge any spaces of newlines in the file, so we don't 
+			# accidently pick one.
 
-			minernmb=\"\$(shuf -i 1-6 -n1)\"
+			chmod 644 /root/LynxNodeBuilder/miner-addresses.txt
 
-			case \"\$minernmb\" in
-				1) pool=\"/root/cpuminer/cpuminer -o stratum+tcp://eu.multipool.us:3348 -u benjamin.seednode -p x -R 15 -B -S\" ;;
-				2) pool=\"/root/cpuminer/cpuminer -o stratum+tcp://us.multipool.us:3348 -u benjamin.seednode -p x -R 15 -B -S\" ;;
-				3) pool=\"/root/cpuminer/cpuminer -o http://127.0.0.1:9332 -u $rrpcuser -p $rrpcpassword --coinbase-addr=KShRcznENXJt61PWAEFYPQRBDSPdWmckmg -R 15 -B -S\" ;;
-				4) pool=\"/root/cpuminer/cpuminer -o http://127.0.0.1:9332 -u $rrpcuser -p $rrpcpassword --coinbase-addr=KShRcznENXJt61PWAEFYPQRBDSPdWmckmg -R 15 -B -S\" ;;
-				5) pool=\"/root/cpuminer/cpuminer -o http://127.0.0.1:9332 -u $rrpcuser -p $rrpcpassword --coinbase-addr=KShRcznENXJt61PWAEFYPQRBDSPdWmckmg -R 15 -B -S\" ;;
-				6) pool=\"/root/cpuminer/cpuminer -o http://127.0.0.1:9332 -u $rrpcuser -p $rrpcpassword --coinbase-addr=KShRcznENXJt61PWAEFYPQRBDSPdWmckmg -R 15 -B -S\" ;;
-			esac
+			# Randomly select an address from the addresse file. You are welcome to change any value
+			# in that list.
 
-			\$pool
+			random_address=\"\$(shuf -n 1 /root/LynxNodeBuilder/miner-addresses.txt)\"
+
+			# With the randomly selected reward address, lets start solo mining.
+
+			/root/cpuminer/cpuminer -o http://127.0.0.1:9332 -u $rrpcuser -p $rrpcpassword --coinbase-addr=\"\$random_address\" -R 15 -B -S
+
 		fi
-
 	fi
 
+	# If the process that throttles the miner is already running, then kill it. Just to be sure.
+
+	killall -q \$(pgrep -f cpulimit)
+
+	# If the miner flag is set to Y, the execute this conditional group.
+
 	if [ \"\$IsMiner\" = \"Y\" ]; then
+
+		# Only if the cpulimit process isn't already running, then start it.
+
 		if ! pgrep -x \"cpulimit\" > /dev/null; then
-			cpulimit -e cpuminer -l 10 -b
+
+			# Let's set the amount of CPU that the process cpuminer can use to 5%.
+
+			cpulimit -e cpuminer -l 5 -b
 		fi
 	fi
 
 	#
-	#trumpisamoron
-	#" > /root/miner.sh
+	# Metus est Plenus Tyrannis
+	#
+	" > /root/miner.sh
 
-	print_success "File /root/miner.sh was created."
+	print_info "The local cpu miner script was installed."
 
 	chmod 700 /root/miner.sh
-	print_success "File permissions on /root/miner.sh were reset."
+
+	print_info "File permissions of the local cpu miner script were updated."
 
 }
 
+# This function is still under development.
+
 install_ssl () {
-
-
-
-
 
 	#https://calomel.org/lets_encrypt_client.html
 	print_success "SSL creation scripts are still in process."
 
+}
 
+# This function is still under development.
 
+install_tor () {
+
+	apt install tor
+	systemctl enable tor
+	systemctl start tor
+
+	echo "
+	ControlPort 9051
+	CookieAuthentication 1
+	CookieAuthFileGroupReadable 1
+	" >> /etc/tor/torrc
+
+	usermod -a -G debian-tor root
 
 }
 
@@ -912,8 +1014,8 @@ set_crontab () {
 	crontab -l | { cat; echo "*/5 * * * *		cd /root/lynx/src/ && ./lynxd"; } | crontab -
 	print_success "A crontab for '/root/lynx/src/lynxd' has been set up. It will start automatically every 2 minutes."
 
-	crontab -l | { cat; echo "*/10 * * * *		/root/miner.sh"; } | crontab -
-	print_success "A crontab for the '/root/miner.sh' has been set up. It will execute every 15 minutes."
+	crontab -l | { cat; echo "*/5 * * * *		/root/miner.sh"; } | crontab -
+	print_success "A crontab for the '/root/miner.sh' has been set up. It will execute every 5 minutes."
 
 	# We found that after a few weeks, the debug log would grow rather large. It's not really needed
 	# after a certain size, so let's truncate that log down to a reasonable size every 2 days.
@@ -943,20 +1045,6 @@ set_crontab () {
 
 restart () {
 
-	print_success "This Lynx node is built. A reboot and autostart will occur 20 seconds."
-
-	if [ "$OS" = "raspbian" ]; then
-
-		print_success "Please change the default password for the 'pi' user after reboot!"
-		sleep 30
-
-	else
-
-		print_success "Please change the default password for the '$ssuser' user after reboot!"
-		sleep 30
-
-	fi
-
 	# We now write this empty file to the /boot dir. This file will persist after reboot so if
 	# this script were to run again, it would abort because it would know it already ran sometime
 	# in the past. This is another way to prevent a loop if something bad happens during the install
@@ -964,6 +1052,18 @@ restart () {
 	# over. This helps if we have ot debug a problem in the future.
 
 	touch /boot/lynxci
+
+	print_success "This Lynx node is built. A reboot and autostart will occur 30 seconds."
+
+	sleep 5
+
+	print_success "Please change the default password for the '$ssuser' user after reboot!"
+
+	sleep 5
+
+	print_success "After boot, it will take 5 minutes for all services to start. Be patient."
+
+	sleep 5
 
 	# Now we truly reboot the OS.
 
@@ -985,17 +1085,17 @@ if [ -f /boot/lynxci ]; then
 
 else
 
-	print_error "Starting installation of LynxCI. This will be a cpu and memory intensive process that will last hours, depending on your hardware."
+	print_error "Starting installation of LynxCI. This will be a cpu and memory intensive process that could last hours, depending on your hardware."
 
 	detect_os
 	detect_vps
 	compile_query
+	set_network
+	install_extras
 	update_os
 	expand_swap
-	set_network
 	set_wifi
 	set_accounts
-	install_extras
 	install_miniupnpc
 	install_lynx
 	install_blockcrawler
