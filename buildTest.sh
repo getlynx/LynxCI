@@ -415,9 +415,13 @@ install_iquidusExplorer () {
 		npm install -g n && n 8
 	else
 	    print_success "Installing nodejs..."
-	    apt-get install curl npm nodejs-legacy -y &> /dev/null
-		#curl -k -O -L https://npmjs.org/install.sh
-	    npm install -g n && n 8
+	    apt-get install curl software-properties-common -y &> /dev/null
+	    apt-get install gcc g++ make -y &> /dev/null
+	    curl -o- https://raw.githubusercontent.com/creationix/nvm/v0.33.11/install.sh | bash
+	    nvm install node
+	    nvm use v10.6.0
+	    nvm alias default v10.6.0
+	    ln -s /root/.nvm/versions/node/v10.6.0/bin/node /usr/bin/nodejs
 	fi
 
 	# change npm dir prefix 
