@@ -420,24 +420,13 @@ install_iquidusExplorer () {
 	    nvm alias default v10.6.0
 	    ln -s /root/.nvm/versions/node/v10.6.0/bin/node /usr/bin/nodejs
 	fi
-
-	# change npm dir prefix 
-	#mkdir ~/.npm-global
-  	#npm config set prefix '~/.npm-global'
-  	#export PATH=~/.npm-global/bin:$PATH
-  	#source ~/.profile
 	
-	print_success "Installing PM2..."
-
 	npm install pm2 -g
-		
-	#pm2 install pm2-logrotate
-	#pm2 set pm2-logrotate:retain 7
-	#pm2 set pm2-logrotate:compress true
-
-	print_success "Installing Iquidus Explorer..."
+	print_success "PM2 was installed."
 
 	git clone https://github.com/doh9Xiet7weesh9va9th/LynxExplorer.git
+	print_success "Iquidus Explorer was installed."
+	
 	cd /root/LynxExplorer/ && npm install --production
 
 	print_success "Generating Iquidus config file..."
