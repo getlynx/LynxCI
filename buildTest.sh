@@ -206,6 +206,7 @@ update_os () {
 	if [ "$OS" = "Ubuntu 18.04 LTS" ]; then
 		apt-get update -y &> /dev/null
 		apt-get upgrade -y &> /dev/null
+		apt-get dist-upgrade -y &> /dev/null
 	elif [ "$OS" = "Ubuntu 16.04.4 LTS" ]; then
 		apt-get -o Acquire::ForceIPv4=true update -y &> /dev/null
 		DEBIAN_FRONTEND=noninteractive apt-get -y -o DPkg::options::="--force-confdef" -o DPkg::options::="--force-confold"  install grub-pc
