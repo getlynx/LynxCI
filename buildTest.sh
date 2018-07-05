@@ -253,6 +253,31 @@ expand_swap () {
 
 }
 
+reduce_gpu_mem () {
+
+	# On the Pi, the default amount of gpu memory is set to be used with the GUI build. Instead 
+	# we are going to set the amount of gpu memmory to a minimum due to the use of the Command
+	# Line Interface (CLI) that we are using in this build. This means we don't have a GUI here,
+	# we only use the CLI. So no need to allocate GPU ram to something that isn't being used. Let's 
+	# assign the param below to the minimum value in the /boot/config.txt file.
+
+	if [ "$OS" = "Raspbian GNU/Linux 9 (stretch)" ]; then
+
+		# First, lets not assume that an entry doesn't already exist, so let's purge and preexisting
+		# gpu_mem variables from the respective file.
+
+		sed -i '/gpu_mem/d' /boot/config.txt
+
+		# Now, let's append the variable and value to the end of the file.
+
+		echo "gpu_mem=16" >> /boot/config.txt
+
+		print_success "GPU memory was reduced to 16MB."
+
+	fi
+
+}
+
 set_network () {
 
 	ipaddr=$(ip route get 1 | awk '{print $NF;exit}')
@@ -1009,6 +1034,21 @@ set_crontab () {
 	crontab -l | { cat; echo "@reboot			/root/firewall.sh"; } | crontab -
 	print_success "A crontab for the '/root/firewall.sh' has been set up. It will run on boot."
 
+	# Some power saving features only for the Raspberry Pi.
+
+	if [ "$OS" = "Raspbian GNU/Linux 9 (stretch)" ]; then
+
+		# This line forces the HDMI port to be enabled on boot. In case the device is plugged into a TV.
+
+		crontab -l | { cat; echo "@reboot			/opt/vc/bin/tvservice -p"; } | crontab -
+
+		# After 15 minutes, the TV HDMI port is turned off, to save power. Disable this crontab
+		# if you leave your Pi plugged into a TV and play with it regularly.
+
+		crontab -l | { cat; echo "*/15 * * * *		/opt/vc/bin/tvservice -o"; } | crontab -
+
+	fi
+
 	crontab -l | { cat; echo "*/60 * * * *		/root/firewall.sh"; } | crontab -
 	print_success "A crontab for the '/root/firewall.sh' has been set up. It will reset every hour."
 
@@ -1086,7 +1126,9 @@ if [ -f /boot/lynxci ]; then
 
 else
 
-	print_error "Starting installation of LynxCI. This will be a cpu and memory intensive process that could last hours, depending on your hardware."
+	print_error "Starting installation of LynxCI."
+	print_error "This will be a cpu and memory intensive process that could last hours"
+	print_error "...depending on your hardware."
 
 	detect_os
 	detect_vps
