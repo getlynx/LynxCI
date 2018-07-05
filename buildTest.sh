@@ -412,7 +412,10 @@ install_iquidusExplorer () {
 	    apt-get install curl software-properties-common -y &> /dev/null
 	    apt-get install gcc g++ make -y &> /dev/null
 	    curl -o- https://raw.githubusercontent.com/creationix/nvm/v0.33.11/install.sh | bash
-	    nvm install node
+	    export NVM_DIR="$HOME/.nvm"
+		[ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"  # This loads nvm
+		[ -s "$NVM_DIR/bash_completion" ] && \. "$NVM_DIR/bash_completion"  # This loads nvm bash_completion
+	    nvm install v10.6.0
 	    nvm use v10.6.0
 	    nvm alias default v10.6.0
 	    ln -s /root/.nvm/versions/node/v10.6.0/bin/node /usr/bin/nodejs
