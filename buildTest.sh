@@ -139,7 +139,7 @@ compile_query () {
 		case "$ans1" in
 			c|C) blockchainViewer=C ;;
 			e|E) blockchainViewer=E ;;
-			*) blockchainViewer=C ;;
+			*) blockchainViewer=E ;;
 		esac
 
 		# Set the flag to determine if the firewall to allow public IP addresses to be able to log
