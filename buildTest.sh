@@ -394,15 +394,25 @@ install_iquidusExplorer () {
 		return 1
 	fi
 
-	# chdir to root directory
+	# Let's jump pack to the root directory, since we can't assume we know where we were.
+
 	cd ~/
 
-	# remove old data about npm/explorer
+	# Let's not assume this is the first time this function is run, so let's purge the directory if
+	# it already exists. This way if the power goes out during install, the build process can 
+	# gracefully restart.
+
 	rm -rf ~/LynxExplorer && rm -rf ~/.npm-global
 
-    apt-get install curl software-properties-common -y &> /dev/null
+	# We might need curl and some other dependencies so let's grab those now. It is also possible 
+	# these packages might be used elsewhere in this script so installing them now is no problem.
+	# The apt installed is smart, if the package is already installed, it will either attempt to 
+	# upgrade the package or skip over the step. No harm done.
+
+    apt-get install curl software-properties-common gcc g++ make -y &> /dev/null
+
+
     curl -sL https://deb.nodesource.com/setup_10.x | sudo -E bash -
-    apt-get install gcc g++ make -y &> /dev/null
     apt-get install nodejs -y &> /dev/null
     print_success "NodeJS was installed."
 
@@ -410,7 +420,7 @@ install_iquidusExplorer () {
 	print_success "PM2 was installed."
 
 	git clone https://github.com/doh9Xiet7weesh9va9th/LynxExplorer.git
-	print_success "Iquidus Explorer was installed."
+	print_success "Block Explorer was installed."
 	
 	cd /root/LynxExplorer/ && npm install --production
 
@@ -647,7 +657,7 @@ install_cpuminer () {
 		./configure --disable-assembly CFLAGS="-Ofast -march=native" --with-crypto --with-curl
 	elif [ "$OS" = "Ubuntu 18.04 LTS" ]; then
 		./configure CFLAGS="-march=native" --with-crypto --with-curl
-	elif [ "$OS" = "Ubuntu 18.04 LTS" ]; then
+	elif [ "$OS" = "Ubuntu 16.04 LTS" ]; then
 		./configure CFLAGS="-march=native" --with-crypto --with-curl
 	else
 		./configure --disable-assembly CFLAGS="-Ofast -march=native" --with-crypto --with-curl
@@ -661,38 +671,46 @@ install_cpuminer () {
 
 install_mongo () {
 
-	if [ "$blockchainViewer" = "E" ]; then
+	if [ "$OS" = "Raspbian GNU/Linux 9 (stretch)" ]; then
+		apt-key adv --keyserver hkp://keyserver.ubuntu.com:80 --recv EA312927
+		echo "deb http://repo.mongodb.org/apt/debian jessie/mongodb-org/3.2 main" | sudo tee /etc/apt/sources.list.d/mongodb-org-3.2.
+		apt-get update -y &> /dev/null
+		apt-get install -y mongodb-org &> /dev/null
+	elif [ "$OS" = "Ubuntu 18.04 LTS" ]; then
+		apt-key adv --keyserver hkp://keyserver.ubuntu.com:80 --recv EA312927
+		echo "deb http://repo.mongodb.org/apt/ubuntu xenial/mongodb-org/3.2 multiverse" | sudo tee /etc/apt/sources.list.d/mongodb-org-3.2.list
+		apt-get update -y &> /dev/null
+		apt-get install -y mongodb-org &> /dev/null
+	else
+		apt-key adv --keyserver hkp://keyserver.ubuntu.com:80 --recv EA312927
+		echo "deb http://repo.mongodb.org/apt/ubuntu xenial/mongodb-org/3.2 multiverse" | sudo tee /etc/apt/sources.list.d/mongodb-org-3.2.list
+		apt-get update -y &> /dev/null
+		apt-get install -y mongodb-org &> /dev/null
+	fi
 
-	    apt-get install mongodb-server -y &> /dev/null
-	    print_success "Installing mongodb..."
+    print_success "MongoDB was installed."
 
-	    service mongodb start
-	    if pgrep -x "mongod" > /dev/null
-	    then
-	    	print_success "MongoDB was installed, and is running!"
-	    else
-	    	mongodbstart
-	        echo "Stopped"
-	    fi
+    service mongod start
 
-	    sleep 10 # fix connection error issue
+    sleep 10 # fix connection error issue
 
-	    account="{ user: 'x${rrpcuser}', pwd: 'x${rrpcpassword}', roles: [ 'readWrite' ] }"   
-	    echo "${account}"
+    print_success "MongoDB was started."
 
-	    if [ $(mongo --version | grep -w '2.4' | wc -l) -eq 1 ]; then
-			echo "db.addUser( ${account} )"
-			mongo lynx --eval "db.addUser( ${account} )"
-	    elif [ $(mongo --version | grep -w '2.6' | wc -l) -eq 1  ]; then
-			echo "warning"
-			echo "db.addUser( { ${account} )"
-			mongo lynx --eval "db.addUser( ${account} )"
-	    else
-			echo "db.addUser( { ${account} )"
-			mongo lynx --eval "db.createUser( ${account} )"
-	    fi
+    account="{ user: 'x${rrpcuser}', pwd: 'x${rrpcpassword}', roles: [ 'readWrite' ] }"   
+    echo "${account}"
 
+    if [ $(mongo --version | grep -w '2.4' | wc -l) -eq 1 ]; then
+		echo "db.addUser( ${account} )"
+		mongo lynx --eval "db.addUser( ${account} )"
+    elif [ $(mongo --version | grep -w '2.6' | wc -l) -eq 1  ]; then
+		echo "warning"
+		echo "db.addUser( { ${account} )"
+		mongo lynx --eval "db.addUser( ${account} )"
+    else
+		echo "db.addUser( { ${account} )"
+		mongo lynx --eval "db.createUser( ${account} )"
     fi
+
 }
 
 set_firewall () {
