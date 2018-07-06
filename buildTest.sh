@@ -400,27 +400,12 @@ install_iquidusExplorer () {
 	# remove old data about npm/explorer
 	rm -rf ~/LynxExplorer && rm -rf ~/.npm-global
 
-	if [ "$OS" = "Ubuntu 18.04 LTS" ]; then
-		apt-get install curl software-properties-common -y &> /dev/null
-		curl -sL https://deb.nodesource.com/setup_10.x | sudo -E bash -
-		apt-get install gcc g++ make -y &> /dev/null
-		apt-get install nodejs -y &> /dev/null
-		apt-get install npm -y &> /dev/null
-		npm install -g n && n 8
-	else
-	    print_success "Installing nodejs..."
-	    apt-get install curl software-properties-common -y &> /dev/null
-	    apt-get install gcc g++ make -y &> /dev/null
-	    curl -o- https://raw.githubusercontent.com/creationix/nvm/v0.33.11/install.sh | bash
-	    export NVM_DIR="$HOME/.nvm"
-		[ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"  # This loads nvm
-		[ -s "$NVM_DIR/bash_completion" ] && \. "$NVM_DIR/bash_completion"  # This loads nvm bash_completion
-	    nvm install v10.6.0
-	    nvm use v10.6.0
-	    nvm alias default v10.6.0
-	    ln -s /root/.nvm/versions/node/v10.6.0/bin/node /usr/bin/nodejs
-	fi
-	
+    apt-get install curl software-properties-common -y &> /dev/null
+    curl -sL https://deb.nodesource.com/setup_10.x | sudo -E bash -
+    apt-get install gcc g++ make -y &> /dev/null
+    apt-get install nodejs -y &> /dev/null
+    print_success "NodeJS was installed."
+
 	npm install pm2 -g
 	print_success "PM2 was installed."
 
