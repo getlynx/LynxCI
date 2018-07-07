@@ -204,9 +204,17 @@ update_os () {
 	print_success "The local OS, '$OS', will be updated."
 
 	if [ "$OS" = "Ubuntu 18.04 LTS" ]; then
-		apt-get update -y &> /dev/null
-		apt-get upgrade -y &> /dev/null
+
+		# Let's update the OS and then run any needed upgrades. We are also truncating the output
+		# to the screen to reduce clutter during the build.
+
+		apt-get update -y &> /dev/null && apt-get upgrade -y &> /dev/null
+
+		# Some tests have shown that completing a dist-upgrade was needed. We are running this just
+		# in case it's needed. It might be removed in the future scripts.
+
 		apt-get dist-upgrade -y &> /dev/null
+
 	elif [ "$OS" = "Ubuntu 16.04.4 LTS" ]; then
 		apt-get -o Acquire::ForceIPv4=true update -y &> /dev/null
 		DEBIAN_FRONTEND=noninteractive apt-get -y -o DPkg::options::="--force-confdef" -o DPkg::options::="--force-confold"  install grub-pc
@@ -228,8 +236,11 @@ update_os () {
 		touch /boot/ssh
 		print_success "SSH access was enabled by creating the SSH file in /boot."
 
-		apt-get update -y &> /dev/null
-		apt-get upgrade -y &> /dev/null
+		# Let's update the OS and then run any needed upgrades. We are also truncating the output
+		# to the screen to reduce clutter during the build.
+
+		apt-get update -y &> /dev/null && apt-get upgrade -y &> /dev/null
+
 	else
 		exit 1
 	fi
@@ -274,6 +285,26 @@ reduce_gpu_mem () {
 		echo "gpu_mem=16" >> /boot/config.txt
 
 		print_success "GPU memory was reduced to 16MB."
+
+	fi
+
+}
+
+disable_bluetooth () {
+
+
+	if [ "$OS" = "Raspbian GNU/Linux 9 (stretch)" ]; then
+
+		# First, lets not assume that an entry doesn't already exist, so let's purge and preexisting
+		# bluetooth variables from the respective file.
+
+		sed -i '/pi3-disable-bt/d' /boot/config.txt
+
+		# Now, let's append the variable and value to the end of the file.
+
+		echo "dtoverlay=pi3-disable-bt" >> /boot/config.txt
+
+		print_success "Bluetooth antenna was disabled."
 
 	fi
 
@@ -673,17 +704,17 @@ install_mongo () {
 
 	if [ "$OS" = "Raspbian GNU/Linux 9 (stretch)" ]; then
 		apt-key adv --keyserver hkp://keyserver.ubuntu.com:80 --recv EA312927
-		echo "deb http://repo.mongodb.org/apt/debian jessie/mongodb-org/3.2 main" | sudo tee /etc/apt/sources.list.d/mongodb-org-3.2.
+		echo "deb http://repo.mongodb.org/apt/debian jessie/mongodb-org/3.2 main" | tee /etc/apt/sources.list.d/mongodb-org-3.2.
 		apt-get update -y &> /dev/null
 		apt-get install -y mongodb-org &> /dev/null
 	elif [ "$OS" = "Ubuntu 18.04 LTS" ]; then
 		apt-key adv --keyserver hkp://keyserver.ubuntu.com:80 --recv EA312927
-		echo "deb http://repo.mongodb.org/apt/ubuntu xenial/mongodb-org/3.2 multiverse" | sudo tee /etc/apt/sources.list.d/mongodb-org-3.2.list
+		echo "deb http://repo.mongodb.org/apt/ubuntu xenial/mongodb-org/3.2 multiverse" | tee /etc/apt/sources.list.d/mongodb-org-3.2.list
 		apt-get update -y &> /dev/null
 		apt-get install -y mongodb-org &> /dev/null
 	else
 		apt-key adv --keyserver hkp://keyserver.ubuntu.com:80 --recv EA312927
-		echo "deb http://repo.mongodb.org/apt/ubuntu xenial/mongodb-org/3.2 multiverse" | sudo tee /etc/apt/sources.list.d/mongodb-org-3.2.list
+		echo "deb http://repo.mongodb.org/apt/ubuntu xenial/mongodb-org/3.2 multiverse" | tee /etc/apt/sources.list.d/mongodb-org-3.2.list
 		apt-get update -y &> /dev/null
 		apt-get install -y mongodb-org &> /dev/null
 	fi
@@ -1131,6 +1162,8 @@ else
 	install_extras
 	update_os
 	expand_swap
+	reduce_gpu_mem
+	disable_bluetooth
 	set_wifi
 	set_accounts
 	install_miniupnpc
