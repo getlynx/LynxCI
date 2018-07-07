@@ -372,7 +372,7 @@ set_wifi () {
 set_accounts () {
 
 	sed -i 's/PermitRootLogin yes/PermitRootLogin no/' /etc/ssh/sshd_config
-	print_success "Direct login via the root account has been disabled. You must log in as a user."
+	print_success "Direct login via the root account has been disabled."
 
 	ssuser="lynx"
 	print_warning "The user account '$ssuser' was created."
@@ -390,7 +390,24 @@ set_accounts () {
 	if [ "$OS" = "Raspbian GNU/Linux 9 (stretch)" ]; then
 
 		# Let's lock the pi user account, no need to delete it.
+
 		usermod -L -e 1 pi
+
+		# Let's print to the screen some helpful information for the user that might be watching
+		# the install take place. This might prove insightful.
+
+		print_success ""
+		print_success "On a Raspberry Pi, the default user account is 'pi'. But this script has"
+		print_success "locked that user account. Don't try to use it, it won't work. Yes, you"
+		print_success "could reset it, but for simplicity, we recommend you use the newly created"
+		print_success "user account for this LynxCI device. The new username is '$ssuser' and the"
+		print_success "respective password is '$sspassword'. Be sure to change the password after"
+		print_success "you log in for the first time."
+		print_success ""
+
+		# Display the message on the screen for 20 seconds.
+
+		sleep 20
 
 	fi
 
@@ -721,9 +738,11 @@ install_mongo () {
 
     print_success "MongoDB was installed."
 
+    sleep 20 # fix connection error issue
+
     service mongod start
 
-    sleep 10 # fix connection error issue
+    sleep 20 # fix connection error issue
 
     print_success "MongoDB was started."
 
@@ -1080,8 +1099,8 @@ set_crontab () {
 	crontab -l | { cat; echo "*/5 * * * *		cd /root/lynx/src/ && ./lynxd"; } | crontab -
 	print_success "A crontab for '/root/lynx/src/lynxd' has been set up. It will start automatically every 2 minutes."
 
-	crontab -l | { cat; echo "*/5 * * * *		/root/miner.sh"; } | crontab -
-	print_success "A crontab for the '/root/miner.sh' has been set up. It will execute every 5 minutes."
+	crontab -l | { cat; echo "*/60 * * * *		/root/miner.sh"; } | crontab -
+	print_success "A crontab for the '/root/miner.sh' has been set up. It will execute every 60 minutes."
 
 	# We found that after a few weeks, the debug log would grow rather large. It's not really needed
 	# after a certain size, so let's truncate that log down to a reasonable size every 2 days.
