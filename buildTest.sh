@@ -749,7 +749,6 @@ set_miner () {
 	print_info "Initializing the local cpu miner script."
 
 	echo "
-	
 	#!/bin/bash
 
 	# This valus is set during the initial build of this node by the LynxCI installer. You can
@@ -762,7 +761,7 @@ set_miner () {
 	# local Lynx processes. So the first think we should do is assume a mining process is already 
 	# running and kill it.
 
-	pkill -f cpuminer &> /dev/null
+	pkill -f cpuminer
 
 	# Let's wait 2 seconds and give the task a moment to finish.
 
@@ -797,7 +796,7 @@ set_miner () {
 
 	# If the process that throttles the miner is already running, then kill it. Just to be sure.
 
-	pkill -f cpulimit &> /dev/null
+	pkill -f cpulimit
 
 	# Let's wait 2 seconds and give the task a moment to finish.
 
