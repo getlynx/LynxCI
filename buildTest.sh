@@ -752,17 +752,21 @@ set_miner () {
 	
 	#!/bin/bash
 
-	# This valus is set during the initial build of this node by the LynxCI installer. You can 
+	# This valus is set during the initial build of this node by the LynxCI installer. You can
 	# override it by changing the value. Acceptable options are Y and N. If you set the value to
 	# N, this node will not mine blocks, but it will still confirm and relay transactions.
 
 	IsMiner=Y
 
-	# The objective of this script is to start the local miner and have it solo mine against the 
+	# The objective of this script is to start the local miner and have it solo mine against the
 	# local Lynx processes. So the first think we should do is assume a mining process is already 
 	# running and kill it.
 
-	killall -q \$(pgrep -f cpuminer)
+	pkill -f cpuminer
+
+	# Let's wait 2 seconds and give the task a moment to finish.
+
+	sleep 2
 
 	# If the flag to mine is set to Y, then lets do some mining, otherwise skip this whole 
 	# conditional. Seems kind of obvious, but some of us are still learning.
@@ -774,7 +778,7 @@ set_miner () {
 
 		if ! pgrep -x \"cpuminer\" > /dev/null; then
 
-			# Just to make sure, lets purge any spaces of newlines in the file, so we don't 
+			# Just to make sure, lets purge any spaces of newlines in the file, so we don't
 			# accidently pick one.
 
 			chmod 644 /root/LynxNodeBuilder/miner-addresses.txt
@@ -793,7 +797,11 @@ set_miner () {
 
 	# If the process that throttles the miner is already running, then kill it. Just to be sure.
 
-	killall -q \$(pgrep -f cpulimit)
+	pkill -f cpulimit
+
+	# Let's wait 2 seconds and give the task a moment to finish.
+
+	sleep 2
 
 	# If the miner flag is set to Y, the execute this conditional group.
 
@@ -811,8 +819,7 @@ set_miner () {
 
 	#
 	# Metus est Plenus Tyrannis
-	#
-	" > /root/miner.sh
+	#" > /root/miner.sh
 
 	print_info "The local cpu miner script was installed."
 
