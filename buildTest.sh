@@ -91,95 +91,6 @@ detect_vps () {
 	detect_ec2
 }
 
-compile_query () {
-
-	# Since this script is currently written to support Raspian and Ubuntu, we will only display
-	# the configuration prompts on Raspian (for the Raspberry Pi users).
-
-	if [ "$OS" = "Raspbian GNU/Linux 9 (stretch)" ]; then
-
-		# Set the query timeout value in seconds. Thie means the user has this number of seconds to
-		# answer all the 4 following questions. If no entry is made, a default value is assigned
-		# with the safest, most efficient and most secure answer for this build.
-
-		query_time_out=15
-
-		# The four questions help the script build the LynxCI node. Capital letters are the default
-		# values and if no answer is provided those are the one's used.
-
-		query1="Install the light weight Block Crawler (C) or resource intensive Block Explorer (e) (C/e):"
-		query2="Do you want SSH access enabled for public access? (y/N):"
-		query3="Do you want to sync with the bootstrap file (less network intensive)? (Y/n):"
-		query4="Do you want the miner to run? (Y/n):"
-
-		# This answer tells us to install the Block Crawler which is much less system intensive
-		# or the Block Explorer which takes forever to index. It is recommended to stick to the 
-		# Block Crawler on a Raspberry Pi device. If you are running a Linode or AMI with more power
-		# then using the Block Explorer option will work nicely.
-
-		read -t $query_time_out -p "$query1 " ans1
-
-		# Accessing the device via SSH is always an option if you are on the same local network, 
-		# like with an address format of 192.x.x.x or 10.x.x.x, but if you enable public access 
-		# you will allow any IP to be able to authenticate and log in via terminal. For a more 
-		# secure device, leave the default to No. 
-
-		read -t $query_time_out -p "$query2 " ans2
-
-		read -t $query_time_out -p "$query3 " ans3
-
-		# We are currently mining to pools and solo mining. The device randomly set this for you but
-		# you can override this along with your own mining address in the set_miner() function.
-
-		read -t $query_time_out -p "$query4 " ans4
-
-		# Set the flag to determine if the Explorer or Crawler is being installed. The default is
-		# to install the Block Crawler.
-
-		case "$ans1" in
-			c|C) blockchainViewer=C ;;
-			e|E) blockchainViewer=E ;;
-			*) blockchainViewer=E ;;
-		esac
-
-		# Set the flag to determine if the firewall to allow public IP addresses to be able to log
-		# into this device.
-
-		case "$ans2" in
-			y|Y) enable_ssh=Y ;;
-			n|N) enable_ssh=N ;;
-			*) enable_ssh=N ;;
-		esac
-
-		#
-		# Set the latest bootstrap flag
-		#
-		case "$ans3" in
-			y|Y) useBootstrapFile=Y ;;
-			n|N) useBootstrapFile=N ;;
-			*) useBootstrapFile=Y ;;
-		esac
-
-		# Set the mining enabled flag
-
-		case "$ans4" in
-			y|Y) enable_mining=Y ;;
-			n|N) enable_mining=N ;;
-			*) enable_mining=Y ;;
-		esac
-
-	else
-
-		# Becuase 'ubuntu' doesn't play well with our query, we go with the defaults.
-		blockchainViewer=E
-		enable_ssh=N
-		useBootstrapFile=Y
-		enable_mining=Y
-
-	fi
-
-}
-
 install_extras () {
 
 	apt-get install cpulimit htop curl fail2ban -y &> /dev/null
@@ -284,7 +195,7 @@ reduce_gpu_mem () {
 
 		echo "gpu_mem=16" >> /boot/config.txt
 
-		print_success "GPU memory was reduced to 16MB."
+		print_success "GPU memory was reduced to 16MB on reboot."
 
 	fi
 
@@ -434,14 +345,6 @@ set_accounts () {
 
 install_iquidusExplorer () {
 
-	# At the beginning of the script we asked the user to chose if the Block Explorer should
-	# be installed or not. If they opted for it, then the more resource intensive Block Explorer
-	# will be installed.
-
-	if [ "$blockchainViewer" != "E" ]; then
-		return 1
-	fi
-
 	# Let's jump pack to the root directory, since we can't assume we know where we were.
 
 	cd ~/
@@ -499,51 +402,43 @@ install_iquidusExplorer () {
 }
 
 install_blockcrawler () {
-
-	# At the beginning of the script we asked the user to chose if the Block Crawler should be 
-	# installed or not. If they opted for it or they didn't change the default, then the less 
-	# resource inntensive Block Crawler will be installed.
-
-	if [ "$blockchainViewer" = "C" ]; then
 	
-		apt-get install nginx php7.0-fpm php-curl -y &> /dev/null
-		print_success "Installing Nginx..."
+	apt-get install nginx php7.0-fpm php-curl -y &> /dev/null
+	print_success "Installing Nginx..."
 
-		mv /etc/nginx/sites-available/default /etc/nginx/sites-available/default.backup
+	mv /etc/nginx/sites-available/default /etc/nginx/sites-available/default.backup
 
-		echo "
-		server {
-			listen 80 default_server;
-			listen [::]:80 default_server;
-			root /var/www/html/Blockcrawler;
-			index index.php;
-			server_name _;
-			location / { try_files \$uri \$uri/ =404; }
-			location ~ \.php$ {
-				include snippets/fastcgi-php.conf;
-				fastcgi_pass unix:/run/php/php7.0-fpm.sock;
-			}
+	echo "
+	server {
+		listen 80 default_server;
+		listen [::]:80 default_server;
+		root /var/www/html/Blockcrawler;
+		index index.php;
+		server_name _;
+		location / { try_files \$uri \$uri/ =404; }
+		location ~ \.php$ {
+			include snippets/fastcgi-php.conf;
+			fastcgi_pass unix:/run/php/php7.0-fpm.sock;
 		}
-		" > /etc/nginx/sites-available/default
-		print_success "Nginx is configured."
+	}
+	" > /etc/nginx/sites-available/default
+	print_success "Nginx is configured."
 
-		cd /var/www/html/ && wget http://cdn.getlynx.io/BlockCrawler.tar.gz
-		tar -xvf BlockCrawler.tar.gz
-		chmod 755 -R /var/www/html/Blockcrawler/
-		chown www-data:www-data -R /var/www/html/Blockcrawler/
-		
-		sed -i -e 's/'"8332"'/'"9332"'/g' /var/www/html/Blockcrawler/bc_daemon.php
-		sed -i -e 's/'"username"'/'"$rrpcuser"'/g' /var/www/html/Blockcrawler/bc_daemon.php
-		sed -i -e 's/'"password"'/'"$rrpcpassword"'/g' /var/www/html/Blockcrawler/bc_daemon.php
-		print_success "Block Crawler code is secured for this Lynxd node."
+	cd /var/www/html/ && wget http://cdn.getlynx.io/BlockCrawler.tar.gz
+	tar -xvf BlockCrawler.tar.gz
+	chmod 755 -R /var/www/html/Blockcrawler/
+	chown www-data:www-data -R /var/www/html/Blockcrawler/
+	
+	sed -i -e 's/'"8332"'/'"9332"'/g' /var/www/html/Blockcrawler/bc_daemon.php
+	sed -i -e 's/'"username"'/'"$rrpcuser"'/g' /var/www/html/Blockcrawler/bc_daemon.php
+	sed -i -e 's/'"password"'/'"$rrpcpassword"'/g' /var/www/html/Blockcrawler/bc_daemon.php
+	print_success "Block Crawler code is secured for this Lynxd node."
 
-		systemctl restart nginx && systemctl enable nginx && systemctl restart php7.0-fpm
-		print_success "Nginx is set to auto start on boot."
+	systemctl restart nginx && systemctl enable nginx && systemctl restart php7.0-fpm
+	print_success "Nginx is set to auto start on boot."
 
-		iptables -I INPUT 3 -p tcp --dport 80 -j ACCEPT
-		print_success "The Block Crawler can be browsed at http://$ipaddr/"
-
-	fi
+	iptables -I INPUT 3 -p tcp --dport 80 -j ACCEPT
+	print_success "The Block Crawler can be browsed at http://$ipaddr/"
 
 }
 
@@ -656,18 +551,19 @@ install_lynx () {
 
 	fi
 
-	if [[ "$useBootstrapFile" == "Y" ]]; then
+	# To save time, we are using the bootstrap file to pull down the blockchain history. It saves
+	# a bit of time and also reduces the load on the network. If a lot of nodes come online at the
+	# same time, much of the network could be spent seeding blockchain history to the new node. This
+	# bootstrap file was created by the Lynx developers so it can be trusted. If it is updated, it
+	# will only be created and controlled by the trusted Lynx developers.
 
-		cd ~/ && rm -rf .lynx && mkdir .lynx
-		print_success "Created the '.lynx' directory."
+	cd ~/ && rm -rf .lynx && mkdir .lynx
+	print_success "Created the '.lynx' directory."
 
-		wget http://cdn.getlynx.io/node-bootstrap.tar.gz
-		tar -xvf node-bootstrap.tar.gz .lynx
-		rm -rf node-bootstrap.tar.gz
-		print_success "The node-bootstrap file was downloaded and will be used after reboot."
-	else
-		print_error "The node-bootstrap file was not downloaded."
-	fi
+	wget http://cdn.getlynx.io/node-bootstrap.tar.gz
+	tar -xvf node-bootstrap.tar.gz .lynx
+	rm -rf node-bootstrap.tar.gz
+	print_success "The node-bootstrap file was downloaded and will be used after reboot."
 
 	echo "
 	listen=1
@@ -776,7 +672,7 @@ set_firewall () {
 
 	#!/bin/bash
 
-	IsSSH=$enable_ssh
+	IsSSH=N
 
 	# Let's flush any pre existing iptables rules that might exist and start with a clean slate.
 
@@ -866,7 +762,7 @@ set_miner () {
 	# override it by changing the value. Acceptable options are Y and N. If you set the value to
 	# N, this node will not mine blocks, but it will still confirm and relay transactions.
 
-	IsMiner=$enable_mining
+	IsMiner=Y
 
 	# The objective of this script is to start the local miner and have it solo mine against the 
 	# local Lynx processes. So the first think we should do is assume a mining process is already 
@@ -1118,14 +1014,18 @@ set_crontab () {
 	crontab -l | { cat; echo "0 0 */15 * *		/sbin/shutdown -r now"; } | crontab -
 	print_success "A crontab for the server has been set up. It will reboot automatically every 15 days."
 
-	if [ "$blockchainViewer" = "E" ]; then
+	# This conditional determines if the local machine has more then 1024 MB of RAM available. If it
+	# does, then we assume the device can handle a little more more work, so we run processes that
+	# consume more RAM. If it does not evaluate positive, then we run the lightweight processes.
+	# For refernence, 1,024,000 KB = 1024 MB
+
+	if [[ "$(awk '/MemTotal/' /proc/meminfo | sed 's/[^0-9]*//g')" -gt "1024000" ]]; then
 		crontab -l | { cat; echo "*/2 * * * *		cd /root/LynxExplorer && scripts/check_server_status.sh"; } | crontab -
 		crontab -l | { cat; echo "*/3 * * * *		cd /root/LynxExplorer && /usr/bin/nodejs scripts/sync.js index update >> /tmp/explorer.sync 2>&1"; } | crontab -
 		crontab -l | { cat; echo "*/4 * * * *		cd /root/LynxExplorer && /usr/bin/nodejs scripts/sync.js market > /dev/null 2>&1"; } | crontab -
 		crontab -l | { cat; echo "*/10 * * * *		cd /root/LynxExplorer && /usr/bin/nodejs scripts/peers.js > /dev/null 2>&1"; } | crontab -
-		print_success "A crontab for Iquidus Explorer has been set up."
 	fi
-	
+
 }
 
 restart () {
@@ -1176,7 +1076,6 @@ else
 
 	detect_os
 	detect_vps
-	compile_query
 	set_network
 	install_extras
 	update_os
@@ -1187,9 +1086,19 @@ else
 	set_accounts
 	install_miniupnpc
 	install_lynx
-	install_blockcrawler
-	install_mongo
-	install_iquidusExplorer
+	
+	# This conditional determines if the local machine has more then 1024 MB of RAM available. If it
+	# does, then we assume the device can handle a little more more work, sp we run processes that
+	# consume more RAM. If it does not evaluate positive, then we run the lightweight processes.
+	# For refernence, 1,024,000 KB = 1024 MB
+
+	if [[ "$(awk '/MemTotal/' /proc/meminfo | sed 's/[^0-9]*//g')" -gt "1024000" ]]; then
+		install_mongo
+		install_iquidusExplorer
+	else
+		install_blockcrawler
+	fi
+
 	install_cpuminer
 	set_firewall
 	set_miner
