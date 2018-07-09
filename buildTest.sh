@@ -762,7 +762,7 @@ set_miner () {
 	# local Lynx processes. So the first think we should do is assume a mining process is already 
 	# running and kill it.
 
-	pkill -f cpuminer
+	pkill -f cpuminer &> /dev/null
 
 	# Let's wait 2 seconds and give the task a moment to finish.
 
@@ -797,7 +797,7 @@ set_miner () {
 
 	# If the process that throttles the miner is already running, then kill it. Just to be sure.
 
-	pkill -f cpulimit
+	pkill -f cpulimit &> /dev/null
 
 	# Let's wait 2 seconds and give the task a moment to finish.
 
