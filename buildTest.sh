@@ -636,14 +636,6 @@ install_mongo () {
 
     print_success "MongoDB was installed."
 
-    sleep 20 # fix connection error issue
-
-    service mongod start
-
-    sleep 20 # fix connection error issue
-
-    print_success "MongoDB was started."
-
     account="{ user: 'x${rrpcuser}', pwd: 'x${rrpcpassword}', roles: [ 'readWrite' ] }"   
     echo "${account}"
 
@@ -1022,6 +1014,9 @@ set_crontab () {
 	# For refernence, 1,024,000 KB = 1024 MB
 
 	if [[ "$(awk '/MemTotal/' /proc/meminfo | sed 's/[^0-9]*//g')" -gt "1024000" ]]; then
+
+		crontab -l | { cat; echo "@reboot			service mongod start"; } | crontab -
+		crontab -l | { cat; echo "*/60 * * * *		service mongod start"; } | crontab -
 		crontab -l | { cat; echo "*/2 * * * *		cd /root/LynxExplorer && scripts/check_server_status.sh"; } | crontab -
 		crontab -l | { cat; echo "*/3 * * * *		cd /root/LynxExplorer && /usr/bin/nodejs scripts/sync.js index update >> /tmp/explorer.sync 2>&1"; } | crontab -
 		crontab -l | { cat; echo "*/4 * * * *		cd /root/LynxExplorer && /usr/bin/nodejs scripts/sync.js market > /dev/null 2>&1"; } | crontab -
