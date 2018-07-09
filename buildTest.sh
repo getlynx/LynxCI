@@ -215,7 +215,7 @@ disable_bluetooth () {
 
 		echo "dtoverlay=pi3-disable-bt" >> /boot/config.txt
 
-		print_success "Bluetooth antenna was disabled."
+		print_success "Bluetooth antenna was disabled on reboot."
 
 	fi
 
@@ -239,7 +239,6 @@ set_network () {
 	else
 
 		echo $ipaddr $fqdn $hhostname >> /etc/hosts
-		print_success "The IP address of this machine is $ipaddr."
 
 	fi
 
@@ -294,7 +293,6 @@ set_accounts () {
 	adduser $ssuser --disabled-password --gecos "" && echo "$ssuser:$sspassword" | chpasswd
 
 	adduser $ssuser sudo
-	print_success "The new user '$ssuser', has sudo access."
 
 	# We only need to lock the Pi account if this is a Raspberry Pi. Otherwise, ignore this step.
 
@@ -403,8 +401,12 @@ install_iquidusExplorer () {
 
 install_blockcrawler () {
 	
-	apt-get install nginx php7.0-fpm php-curl -y &> /dev/null
-	print_success "Installing Nginx..."
+	apt-get install nginx php-fpm php-curl -y &> /dev/null
+
+	sed -i 's/;cgi.fix_pathinfo=1/cgi.fix_pathinfo=0/' /etc/php/7.2/fpm/php.ini
+
+	print_success "Nginx was installed."
+	print_success "PHP was installed."
 
 	mv /etc/nginx/sites-available/default /etc/nginx/sites-available/default.backup
 
@@ -418,7 +420,7 @@ install_blockcrawler () {
 		location / { try_files \$uri \$uri/ =404; }
 		location ~ \.php$ {
 			include snippets/fastcgi-php.conf;
-			fastcgi_pass unix:/run/php/php7.0-fpm.sock;
+			fastcgi_pass unix:/run/php/php7.2-fpm.sock;
 		}
 	}
 	" > /etc/nginx/sites-available/default
@@ -678,7 +680,7 @@ set_firewall () {
 
 	/sbin/iptables -F
 
-	# We always shold allow loopback traffic.
+	# We should always allow loopback traffic.
 
 	/sbin/iptables -I INPUT 1 -i lo -j ACCEPT
 
@@ -1073,6 +1075,16 @@ else
 	print_error "Starting installation of LynxCI."
 	print_error "This will be a cpu and memory intensive process that could last hours"
 	print_error "...depending on your hardware."
+
+	# Let's print to the screen some intfo about what packages will be installed.
+
+	print_error ""
+	if [[ "$(awk '/MemTotal/' /proc/meminfo | sed 's/[^0-9]*//g')" -gt "1024000" ]]; then
+		print_error "More then 1 GB of RAM is detected. The robust Block Explorer will be installed."
+	else
+		print_error "Less then 1 GB of RAM is detected. The modest Block Crawler will be installed."
+	fi
+	print_error ""
 
 	detect_os
 	detect_vps
