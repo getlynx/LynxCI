@@ -107,6 +107,22 @@ install_extras () {
 
 	apt-get install httpie jq -y &> /dev/null
 	print_success "Httpie was installed."
+
+	# Let's be sure this management script has the right permissions to operate properly.
+
+	chmod 700 /root/disableHDMI.sh
+
+	# Only needed on the Raspberry Pi
+
+	if [ "$OS" = "Raspbian GNU/Linux 9 (stretch)" ]; then
+
+		# Testing has shown that occasionally a poor power supply or lower quality cable can 
+		# generate very annoying 'under-voltage' error messages on the output display. This will
+		# silence those outputs
+
+		echo " loglevel=1" >> /boot/cmdline.txt
+
+	fi
 	
 }
 
@@ -170,6 +186,7 @@ expand_swap () {
 		# initial compile and build process, it does consume a good bit so lets provision this.
 
 		sed -i 's/CONF_SWAPSIZE=100/CONF_SWAPSIZE=1024/' /etc/dphys-swapfile
+
 		print_success "Swap will be increased to 1GB on reboot."
 
 	fi
@@ -206,7 +223,7 @@ disable_bluetooth () {
 
 	if [ "$OS" = "Raspbian GNU/Linux 9 (stretch)" ]; then
 
-		# First, lets not assume that an entry doesn't already exist, so let's purge and preexisting
+		# First, lets not assume that an entry doesn't already exist, so let's purge any preexisting
 		# bluetooth variables from the respective file.
 
 		sed -i '/pi3-disable-bt/d' /boot/config.txt
@@ -216,6 +233,12 @@ disable_bluetooth () {
 		echo "dtoverlay=pi3-disable-bt" >> /boot/config.txt
 
 		print_success "Bluetooth antenna was disabled on reboot."
+
+		# Next, we remove the bluetooth package that was previously installed.
+
+		apt-get remove pi-bluetooth -y
+
+		print_success "Bluetooth was uninstalled."
 
 	fi
 
@@ -965,8 +988,6 @@ set_crontab () {
 	# Some power saving features only for the Raspberry Pi.
 
 	if [ "$OS" = "Raspbian GNU/Linux 9 (stretch)" ]; then
-
-		chmod 700 /root/disableHDMI.sh
 
 		# This line forces the HDMI port to be enabled on boot. In case the device is plugged into a TV.
 
