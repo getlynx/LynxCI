@@ -420,7 +420,7 @@ install_blockcrawler () {
 		location / { try_files \$uri \$uri/ =404; }
 		location ~ \.php$ {
 			include snippets/fastcgi-php.conf;
-			fastcgi_pass unix:/run/php/php7.2-fpm.sock;
+			fastcgi_pass unix:/run/php/php7.0-fpm.sock;
 		}
 	}
 	" > /etc/nginx/sites-available/default
@@ -966,14 +966,16 @@ set_crontab () {
 
 	if [ "$OS" = "Raspbian GNU/Linux 9 (stretch)" ]; then
 
+		chmod 700 /root/disableHDMI.sh
+
 		# This line forces the HDMI port to be enabled on boot. In case the device is plugged into a TV.
 
-		crontab -l | { cat; echo "@reboot			/opt/vc/bin/tvservice -p"; } | crontab -
+		crontab -l | { cat; echo "@reboot			/root/disableHDMI.sh false"; } | crontab -
 
 		# After 15 minutes, the TV HDMI port is turned off, to save power. Disable this crontab
 		# if you leave your Pi plugged into a TV and play with it regularly.
 
-		crontab -l | { cat; echo "*/15 * * * *		/opt/vc/bin/tvservice -o"; } | crontab -
+		crontab -l | { cat; echo "*/30 * * * *		/root/disableHDMI.sh true"; } | crontab -
 
 	fi
 
