@@ -445,7 +445,7 @@ install_blockcrawler () {
 			include snippets/fastcgi-php.conf;
 
 			# Each OS has a unique sock file path. 
-			
+
 			if [ \"\$OS\" = \"Raspbian GNU/Linux 9 (stretch)\" ]; then
 				fastcgi_pass unix:/run/php/php7.0-fpm.sock;
 			else
@@ -649,7 +649,7 @@ install_mongo () {
 
 	if [ "$OS" = "Raspbian GNU/Linux 9 (stretch)" ]; then
 		apt-key adv --keyserver hkp://keyserver.ubuntu.com:80 --recv EA312927
-		echo "deb http://repo.mongodb.org/apt/debian jessie/mongodb-org/3.2 main" | tee /etc/apt/sources.list.d/mongodb-org-3.2.
+		echo "deb http://repo.mongodb.org/apt/debian jessie/mongodb-org/3.2 main" | sudo tee /etc/apt/sources.list.d/mongodb-org-3.2.
 		apt-get update -y &> /dev/null
 		apt-get install -y mongodb-org &> /dev/null
 		account="{ user: 'x${rrpcuser}', pwd: 'x${rrpcpassword}', roles: [ 'readWrite' ] }"   
@@ -660,7 +660,7 @@ install_mongo () {
 		# should evaluate if the installer is running on Ubuntu 18.04 LTS
 
 		apt-key adv --keyserver hkp://keyserver.ubuntu.com:80 --recv EA312927
-		echo "deb http://repo.mongodb.org/apt/ubuntu xenial/mongodb-org/3.2 multiverse" | tee /etc/apt/sources.list.d/mongodb-org-3.2.list
+		echo "deb http://repo.mongodb.org/apt/ubuntu xenial/mongodb-org/3.2 multiverse" | sudo tee /etc/apt/sources.list.d/mongodb-org-3.2.list
 		apt-get update -y &> /dev/null
 		apt-get install -y mongodb-org &> /dev/null
 		account="{ user: 'x${rrpcuser}', pwd: 'x${rrpcpassword}', roles: [ 'readWrite' ] }"   
