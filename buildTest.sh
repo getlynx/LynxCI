@@ -443,7 +443,14 @@ install_blockcrawler () {
 		location / { try_files \$uri \$uri/ =404; }
 		location ~ \.php$ {
 			include snippets/fastcgi-php.conf;
-			fastcgi_pass unix:/run/php/php7.0-fpm.sock;
+
+			# Each OS has a unique sock file path. 
+			
+			if [ \"\$OS\" = \"Raspbian GNU/Linux 9 (stretch)\" ]; then
+				fastcgi_pass unix:/run/php/php7.0-fpm.sock;
+			else
+				fastcgi_pass unix:/run/php/php7.2-fpm.sock;
+			fi
 		}
 	}
 	" > /etc/nginx/sites-available/default
