@@ -94,10 +94,10 @@ detect_vps () {
 install_extras () {
 
 	apt-get install cpulimit htop curl fail2ban -y &> /dev/null
-	print_success "The package 'cpulimit' was installed."
+	print_success "Cpulimit was installed."
 
 	apt-get install automake autoconf pkg-config libcurl4-openssl-dev libjansson-dev libssl-dev libgmp-dev make g++ -y &> /dev/null
-	print_success "Extra packages for CPUminer were installed."
+	print_success "Cpuminer was installed."
 
 	# Let's install 'HTTPie: a CLI, cURL-like tool for humans' so that we can later check if the 
 	# node is a leecher of a seeder. This will allow the device to dynamically sole mine locally or 
@@ -106,7 +106,7 @@ install_extras () {
 	# For more details on this cool package, visit https://github.com/jakubroztocil/httpie
 
 	apt-get install httpie jq -y &> /dev/null
-	print_success "HTTPie package was installed."
+	print_success "Httpie was installed."
 	
 }
 
@@ -622,34 +622,22 @@ install_mongo () {
 		echo "deb http://repo.mongodb.org/apt/debian jessie/mongodb-org/3.2 main" | tee /etc/apt/sources.list.d/mongodb-org-3.2.
 		apt-get update -y &> /dev/null
 		apt-get install -y mongodb-org &> /dev/null
-	elif [ "$OS" = "Ubuntu 18.04 LTS" ]; then
-		apt-key adv --keyserver hkp://keyserver.ubuntu.com:80 --recv EA312927
-		echo "deb http://repo.mongodb.org/apt/ubuntu xenial/mongodb-org/3.2 multiverse" | tee /etc/apt/sources.list.d/mongodb-org-3.2.list
-		apt-get update -y &> /dev/null
-		apt-get install -y mongodb-org &> /dev/null
+		account="{ user: 'x${rrpcuser}', pwd: 'x${rrpcpassword}', roles: [ 'readWrite' ] }"   
+		mongo lynx --eval "db.createUser( ${account} )"
 	else
+
+		# Since this script is designed to be used only with Raspian and Ubuntu, this else statement
+		# should evaluate if the installer is running on Ubuntu 18.04 LTS
+
 		apt-key adv --keyserver hkp://keyserver.ubuntu.com:80 --recv EA312927
 		echo "deb http://repo.mongodb.org/apt/ubuntu xenial/mongodb-org/3.2 multiverse" | tee /etc/apt/sources.list.d/mongodb-org-3.2.list
 		apt-get update -y &> /dev/null
 		apt-get install -y mongodb-org &> /dev/null
+		account="{ user: 'x${rrpcuser}', pwd: 'x${rrpcpassword}', roles: [ 'readWrite' ] }"   
+		mongo lynx --eval "db.createUser( ${account} )"
 	fi
 
     print_success "MongoDB was installed."
-
-    account="{ user: 'x${rrpcuser}', pwd: 'x${rrpcpassword}', roles: [ 'readWrite' ] }"   
-    echo "${account}"
-
-    if [ $(mongo --version | grep -w '2.4' | wc -l) -eq 1 ]; then
-		echo "db.addUser( ${account} )"
-		mongo lynx --eval "db.addUser( ${account} )"
-    elif [ $(mongo --version | grep -w '2.6' | wc -l) -eq 1  ]; then
-		echo "warning"
-		echo "db.addUser( { ${account} )"
-		mongo lynx --eval "db.addUser( ${account} )"
-    else
-		echo "db.addUser( { ${account} )"
-		mongo lynx --eval "db.createUser( ${account} )"
-    fi
 
 }
 
