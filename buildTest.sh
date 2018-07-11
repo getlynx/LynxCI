@@ -114,8 +114,6 @@ install_extras () {
 
 update_os () {
 
-	print_success "The local OS, '$OS', will be updated."
-
 	if [ "$OS" = "Ubuntu 18.04 LTS" ]; then
 
 		# Let's update the OS and then run any needed upgrades. We are also truncating the output
@@ -240,7 +238,6 @@ set_network () {
 	ipaddr=$(ip route get 1 | awk '{print $NF;exit}')
 	hhostname="lynx$(shuf -i 100000000-199999999 -n 1)"
 	fqdn="$hhostname.getlynx.io"
-	print_success "Setting the local fully qualified domain name to '$fqdn.'"
 
 	echo $hhostname > /etc/hostname && hostname -F /etc/hostname
 	print_success "Setting the local host name to '$hhostname.'"
@@ -643,7 +640,8 @@ install_mongo () {
 
 		# Now that Mongo is installed. Let's be sure to start the service.
 
-		service mongod start
+		systemctl start mongod
+		systemctl enable mongod
 
 		# Because it can take a second or two for Mongo to start, let's let it breath for 5 seconds
 		# so we don't try to operate on the service that isn't started yet. 
@@ -664,7 +662,8 @@ install_mongo () {
 
 		# Now that Mongo is installed. Let's be sure to start the service.
 
-		service mongod start
+		systemctl start mongod
+		systemctl enable mongod
 
 		# Because it can take a second or two for Mongo to start, let's let it breath for 5 seconds
 		# so we don't try to operate on the service that isn't started yet. 
@@ -1047,12 +1046,11 @@ set_crontab () {
 
 	if [[ "$(awk '/MemTotal/' /proc/meminfo | sed 's/[^0-9]*//g')" -gt "1024000" ]]; then
 
-		crontab -l | { cat; echo "@reboot			service mongod start"; } | crontab -
-		crontab -l | { cat; echo "*/60 * * * *		service mongod start"; } | crontab -
 		crontab -l | { cat; echo "*/2 * * * *		cd /root/LynxExplorer && scripts/check_server_status.sh"; } | crontab -
 		crontab -l | { cat; echo "*/3 * * * *		cd /root/LynxExplorer && /usr/bin/nodejs scripts/sync.js index update >> /tmp/explorer.sync 2>&1"; } | crontab -
 		crontab -l | { cat; echo "*/4 * * * *		cd /root/LynxExplorer && /usr/bin/nodejs scripts/sync.js market > /dev/null 2>&1"; } | crontab -
 		crontab -l | { cat; echo "*/10 * * * *		cd /root/LynxExplorer && /usr/bin/nodejs scripts/peers.js > /dev/null 2>&1"; } | crontab -
+
 	fi
 
 }
