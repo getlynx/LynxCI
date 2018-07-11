@@ -652,6 +652,16 @@ install_mongo () {
 		echo "deb http://repo.mongodb.org/apt/debian jessie/mongodb-org/3.2 main" | sudo tee /etc/apt/sources.list.d/mongodb-org-3.2.
 		apt-get update -y &> /dev/null
 		apt-get install -y mongodb-org &> /dev/null
+
+		# Now that Mongo is installed. Let's be sure to start the service.
+
+		service mongod start
+
+		# Because it can take a second or two for Mongo to start, let's let it breath for 5 seconds
+		# so we don't try to operate on the service that isn't started yet. 
+
+		sleep 5
+
 		account="{ user: 'x${rrpcuser}', pwd: 'x${rrpcpassword}', roles: [ 'readWrite' ] }"   
 		mongo lynx --eval "db.createUser( ${account} )"
 	else
@@ -663,6 +673,16 @@ install_mongo () {
 		echo "deb http://repo.mongodb.org/apt/ubuntu xenial/mongodb-org/3.2 multiverse" | sudo tee /etc/apt/sources.list.d/mongodb-org-3.2.list
 		apt-get update -y &> /dev/null
 		apt-get install -y mongodb-org &> /dev/null
+
+		# Now that Mongo is installed. Let's be sure to start the service.
+
+		service mongod start
+
+		# Because it can take a second or two for Mongo to start, let's let it breath for 5 seconds
+		# so we don't try to operate on the service that isn't started yet. 
+
+		sleep 5
+		
 		account="{ user: 'x${rrpcuser}', pwd: 'x${rrpcpassword}', roles: [ 'readWrite' ] }"   
 		mongo lynx --eval "db.createUser( ${account} )"
 	fi
