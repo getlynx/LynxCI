@@ -411,16 +411,14 @@ install_blockcrawler () {
 	
 	apt-get install nginx php-fpm php-curl -y &> /dev/null
 
-	sed -i 's/;cgi.fix_pathinfo=1/cgi.fix_pathinfo=0/' /etc/php/7.2/fpm/php.ini
-
 	print_success "Nginx was installed."
 	print_success "PHP was installed."
-
-	mv /etc/nginx/sites-available/default /etc/nginx/sites-available/default.backup
 
 	# Each OS has a unique sock file path.
 
 	if [ "$OS" = "Raspbian GNU/Linux 9 (stretch)" ]; then
+
+		rm -Rf /etc/nginx/sites-available/default
 
 		echo "
 		server {
@@ -437,7 +435,11 @@ install_blockcrawler () {
 		}
 		" > /etc/nginx/sites-available/default
 
+		sed -i 's/;cgi.fix_pathinfo=1/cgi.fix_pathinfo=0/' /etc/php/7.0/fpm/php.ini
+
 	else
+
+		rm -Rf /etc/nginx/sites-available/default
 
 		echo "
 		server {
@@ -453,6 +455,8 @@ install_blockcrawler () {
 			}
 		}
 		" > /etc/nginx/sites-available/default
+
+		sed -i 's/;cgi.fix_pathinfo=1/cgi.fix_pathinfo=0/' /etc/php/7.2/fpm/php.ini
 
 	fi
 
