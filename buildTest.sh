@@ -278,11 +278,6 @@ set_wifi () {
 
 		rm -Rf /boot/wpa_supplicant.conf
 		rm -Rf /etc/wpa_supplicant/wpa_supplicant.conf
-
-		# Let the user know the file they need to edit AFTER the script completes and the
-		# Raspberry Pi reboots for the first time.
-
-		print_error "To set up wifi, edit the /etc/wpa_supplicant/wpa_supplicant.conf file."
 		
 		echo "
 
@@ -297,6 +292,8 @@ set_wifi () {
 		}
 
 		" >> /boot/wpa_supplicant.conf
+
+		print_success "Wifi configuration script was installed."
 
 	fi
 
@@ -682,7 +679,7 @@ install_mongo () {
 		# so we don't try to operate on the service that isn't started yet. 
 
 		sleep 5
-		
+
 		account="{ user: 'x${rrpcuser}', pwd: 'x${rrpcpassword}', roles: [ 'readWrite' ] }"   
 		mongo lynx --eval "db.createUser( ${account} )"
 	fi
