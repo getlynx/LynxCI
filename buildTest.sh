@@ -1,5 +1,7 @@
 #!/bin/bash
 
+
+
 BLUE='\033[94m'
 GREEN='\033[32;1m'
 YELLOW='\033[33;1m'
@@ -107,22 +109,6 @@ install_extras () {
 
 	apt-get install httpie jq -y &> /dev/null
 	print_success "Httpie was installed."
-
-	# Let's be sure this management script has the right permissions to operate properly.
-
-	chmod 700 /root/disableHDMI.sh
-
-	# Only needed on the Raspberry Pi
-
-	if [ "$OS" = "Raspbian GNU/Linux 9 (stretch)" ]; then
-
-		# Testing has shown that occasionally a poor power supply or lower quality cable can 
-		# generate very annoying 'under-voltage' error messages on the output display. This will
-		# silence those outputs
-
-		echo " loglevel=1" >> /boot/cmdline.txt
-
-	fi
 	
 }
 
@@ -135,12 +121,13 @@ update_os () {
 		# Let's update the OS and then run any needed upgrades. We are also truncating the output
 		# to the screen to reduce clutter during the build.
 
-		apt-get update -y &> /dev/null && apt-get upgrade -y &> /dev/null
+		apt-get update -y &> /dev/null 
+		#apt-get upgrade -y &> /dev/null
 
 		# Some tests have shown that completing a dist-upgrade was needed. We are running this just
 		# in case it's needed. It might be removed in the future scripts.
 
-		apt-get dist-upgrade -y &> /dev/null
+		#apt-get dist-upgrade -y &> /dev/null
 
 	elif [ "$OS" = "Ubuntu 16.04.4 LTS" ]; then
 		apt-get -o Acquire::ForceIPv4=true update -y &> /dev/null
@@ -167,6 +154,10 @@ update_os () {
 		# to the screen to reduce clutter during the build.
 
 		apt-get update -y &> /dev/null && apt-get upgrade -y &> /dev/null
+
+		# Let's be sure this management script has the right permissions to operate properly.
+
+		chmod 700 /root/disableHDMI.sh
 
 	else
 		exit 1
