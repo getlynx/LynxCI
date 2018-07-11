@@ -381,7 +381,6 @@ install_iquidusExplorer () {
 	
 	cd /root/LynxExplorer/ && npm install --production
 
-	print_success "Generating Iquidus config file..."
 
 	# We need to update the json file in the LynxExplorer node app with the lynxd RPC access
 	# credentials for this device. Since they are created dynamically each time, we just do
@@ -404,7 +403,6 @@ install_iquidusExplorer () {
 	# helpful to someone when they are having fun but don't know what a part of it does.
 
 	print_success "Iquidus Explorer was installed"
-	print_success "The local Block Explorer can be browsed at http://$hhostname.local/"
 }
 
 install_blockcrawler () {
@@ -470,13 +468,11 @@ install_blockcrawler () {
 	sed -i -e 's/'"8332"'/'"9332"'/g' /var/www/html/Blockcrawler/bc_daemon.php
 	sed -i -e 's/'"username"'/'"$rrpcuser"'/g' /var/www/html/Blockcrawler/bc_daemon.php
 	sed -i -e 's/'"password"'/'"$rrpcpassword"'/g' /var/www/html/Blockcrawler/bc_daemon.php
-	print_success "Block Crawler code is secured for this Lynxd node."
 
 	systemctl restart nginx && systemctl enable nginx && systemctl restart php7.0-fpm
-	print_success "Nginx is set to auto start on boot."
 
 	iptables -I INPUT 3 -p tcp --dport 80 -j ACCEPT
-	print_success "The Block Crawler can be browsed at http://$ipaddr/"
+	print_success "Block Crawler is installed."
 
 }
 
@@ -1105,13 +1101,11 @@ restart () {
 }
 
 # First thing, we check to see if this script already ran in the past. If the file "/boot/lynxci"
-# exists, we know it did. So we assume all went well, remove the build instructions in 
-# "/root/getstarted.sh" and then the script is done running. 
+# exists, we know it did. So we assume all went well and then the script is done running. 
 
 if [ -f /boot/lynxci ]; then
 
 	print_error "Previous LynxCI detected. Install aborted."
-	rm -Rf /root/getstarted.sh
 
 # Since the file "/boot/lynxci", was NOT found, we know this is the first time this script has run
 # so we let it do it's thing.

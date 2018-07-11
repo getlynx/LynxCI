@@ -20,7 +20,7 @@ $ git clone https://github.com/doh9Xiet7weesh9va9th/LynxNodeBuilder.git /root/Ly
 $ chmod 744 -R /root/LynxNodeBuilder/
 ```
 ```
-$ /root/LynxNodeBuilder/build.sh
+$ /root/LynxNodeBuilder/install.sh
 ```
 
 ## [LynxCI](http://cdn.getlynx.io/LynxCI.tar.gz)
