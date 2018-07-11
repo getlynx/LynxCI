@@ -418,27 +418,44 @@ install_blockcrawler () {
 
 	mv /etc/nginx/sites-available/default /etc/nginx/sites-available/default.backup
 
-	echo "
-	server {
-		listen 80 default_server;
-		listen [::]:80 default_server;
-		root /var/www/html/Blockcrawler;
-		index index.php;
-		server_name _;
-		location / { try_files \$uri \$uri/ =404; }
-		location ~ \.php$ {
-			include snippets/fastcgi-php.conf;
+	# Each OS has a unique sock file path.
 
-			# Each OS has a unique sock file path. 
+	if [ "$OS" = "Raspbian GNU/Linux 9 (stretch)" ]; then
 
-			if [ \"\$OS\" = \"Raspbian GNU/Linux 9 (stretch)\" ]; then
+		echo "
+		server {
+			listen 80 default_server;
+			listen [::]:80 default_server;
+			root /var/www/html/Blockcrawler;
+			index index.php;
+			server_name _;
+			location / { try_files \$uri \$uri/ =404; }
+			location ~ \.php$ {
+				include snippets/fastcgi-php.conf;
 				fastcgi_pass unix:/run/php/php7.0-fpm.sock;
-			else
-				fastcgi_pass unix:/run/php/php7.2-fpm.sock;
-			fi
+			}
 		}
-	}
-	" > /etc/nginx/sites-available/default
+		" > /etc/nginx/sites-available/default
+
+	else
+
+		echo "
+		server {
+			listen 80 default_server;
+			listen [::]:80 default_server;
+			root /var/www/html/Blockcrawler;
+			index index.php;
+			server_name _;
+			location / { try_files \$uri \$uri/ =404; }
+			location ~ \.php$ {
+				include snippets/fastcgi-php.conf;
+				fastcgi_pass unix:/run/php/php7.2-fpm.sock;
+			}
+		}
+		" > /etc/nginx/sites-available/default
+
+	fi
+
 	print_success "Nginx is configured."
 
 	cd /var/www/html/ && wget http://cdn.getlynx.io/BlockCrawler.tar.gz
