@@ -279,7 +279,9 @@ set_wifi () {
 
 		" >> /boot/wpa_supplicant.conf
 
+		print_success ""
 		print_success "Wifi configuration script was installed."
+		print_success ""
 
 	fi
 
@@ -288,13 +290,9 @@ set_wifi () {
 set_accounts () {
 
 	sed -i 's/PermitRootLogin yes/PermitRootLogin no/' /etc/ssh/sshd_config
-	print_success "Direct login via the root account has been disabled."
 
 	ssuser="lynx"
-	print_warning "The user account '$ssuser' was created."
-
 	sspassword="lynx"
-	print_warning "The default password is '$sspassword'. Be sure to change after this build is complete."
 
 	adduser $ssuser --disabled-password --gecos "" && echo "$ssuser:$sspassword" | chpasswd
 
@@ -325,32 +323,57 @@ set_accounts () {
 		sleep 20
 
 	fi
+}
 
-	# To prevent possibly adding the next set of lines twice, let's truncate the end of the 
-	# file first. This is done in the event the install script runs twice or to execute an update.
+install_portcheck () {
 
-	sed -i '29, $d' /etc/profile
+	rm -Rf /etc/profile.d/portcheck.sh
 
-	echo "
+	echo "	#!/bin/bash
 
+	GREEN='\033[32;1m'
+	RED='\033[91;1m'
+	RESET='\033[0m'
 
+	print_success () {
 
-	ip_address=\$(http v4.ifconfig.co/port/9332 | jq -r '.ip')
-	reachable=\$(http v4.ifconfig.co/port/9332 | jq -r '.reachable')
+		printf \"\$GREEN\$1\$RESET\n\"
 
-	if \$(http v4.ifconfig.co/port/9332 | jq -r '.reachable') ]; then
+	}
 
-		echo \"Your public IP is\" \$ip_address \"and port 9332 IS reachable.\"
-		echo \"Congratulations, one of your Lynx node's is a seeder.\"
+	print_error () {
+
+		printf \"\$RED\$1\$RESET\n\"
+
+	}
+
+	tmp=\$(http v4.ifconfig.co/port/9332)
+	ip_address=\$(echo \$tmp | jq -r '.ip')
+	reachable=\$(echo \$tmp | jq -r '.reachable')
+
+	if [ \"\$reachable\" = \"true\" ]; then
+
+		print_success \"\"
+		print_success \"Your public IP is \$ip_address and port 9332 is reachable.\"
+		print_success \"Congratulations, one of your Lynx node's is a seeder.\"
+		print_success \"\"
+		print_success \"Lot's of helpful videos about LynxCI are available at\"
+		print_success \"the Lynx FAQ. Visit https://getlynx.io/faq/ for more.\"
+		print_success \"\"
 
 	else
 
-		echo \"Your public IP is\" \$ip_address \"and port 9332 IS NOT open.\"
-		echo \"Visit https://getlynx.io/adjust-my-firewall/ for help!\"
+		print_success \"\"
+		print_error \"Your public IP is \$ip_address and port 9332 is not open.\"
+		print_error \"Visit https://getlynx.io/faq/ for help!\"
+		print_success \"\"
+		print_success \"Lot's of helpful videos about LynxCI are available at\"
+		print_success \"the Lynx FAQ. Visit https://getlynx.io/faq/ for more.\"
+		print_success \"\"
 
-	fi
+	fi" > /etc/profile.d/portcheck.sh
 
-	" >> /etc/profile
+	chmod 744 /etc/profile.d/portcheck.sh
 
 }
 
@@ -493,7 +516,7 @@ install_miniupnpc () {
 	if [ "$OS" = "Raspbian GNU/Linux 9 (stretch)" ]; then
 
 		apt-get install libminiupnpc-dev -y	&> /dev/null
-		print_info "Miniupnpc is installed."
+		print_success "Miniupnpc was installed."
 
 	fi
 
@@ -1138,6 +1161,7 @@ else
 	disable_bluetooth
 	set_wifi
 	set_accounts
+	install_portcheck
 	install_miniupnpc
 	install_lynx
 	
