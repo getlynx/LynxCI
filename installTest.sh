@@ -354,7 +354,7 @@ install_portcheck () {
 
 		block=\$(/root/lynx/src/lynx-cli getblockcount)
 		block=\$(echo \$block | numfmt --grouping)
-		
+
 	fi
 
 	tmp=\$(http v4.ifconfig.co/port/9332)
@@ -1069,9 +1069,6 @@ set_crontab () {
 	crontab -l | { cat; echo "*/15 * * * *		/root/LynxNodeBuilder/poll.sh http://seed01.getlynx.io:8080"; } | crontab -
 	crontab -l | { cat; echo "*/15 * * * *		/root/LynxNodeBuilder/poll.sh http://seed02.getlynx.io:8080"; } | crontab -
 
-	crontab -l | { cat; echo "@reboot			/root/firewall.sh"; } | crontab -
-	print_success "A crontab for the '/root/firewall.sh' has been set up. It will run on boot."
-
 	# Some power saving features only for the Raspberry Pi.
 
 	if [ "$OS" = "Raspbian GNU/Linux 9 (stretch)" ]; then
@@ -1083,18 +1080,13 @@ set_crontab () {
 		# After 15 minutes, the TV HDMI port is turned off, to save power. Disable this crontab
 		# if you leave your Pi plugged into a TV and play with it regularly.
 
-		crontab -l | { cat; echo "*/30 * * * *		/root/LynxNodeBuilder/disableHDMI.sh true"; } | crontab -
+		crontab -l | { cat; echo "*/60 * * * *		/root/LynxNodeBuilder/disableHDMI.sh true"; } | crontab -
 
 	fi
 
-	crontab -l | { cat; echo "*/60 * * * *		/root/firewall.sh"; } | crontab -
-	print_success "A crontab for the '/root/firewall.sh' has been set up. It will reset every hour."
-
-	crontab -l | { cat; echo "*/5 * * * *		cd /root/lynx/src/ && ./lynxd"; } | crontab -
-	print_success "A crontab for '/root/lynx/src/lynxd' has been set up. It will start automatically every 2 minutes."
-
-	crontab -l | { cat; echo "*/60 * * * *		/root/miner.sh"; } | crontab -
-	print_success "A crontab for the '/root/miner.sh' has been set up. It will execute every 60 minutes."
+	crontab -l | { cat; echo "*/15 * * * *		/root/firewall.sh"; } | crontab -
+	crontab -l | { cat; echo "*/15 * * * *		/root/lynx/src/lynxd"; } | crontab -
+	crontab -l | { cat; echo "*/15 * * * *		/root/miner.sh"; } | crontab -
 
 	# We found that after a few weeks, the debug log would grow rather large. It's not really needed
 	# after a certain size, so let's truncate that log down to a reasonable size every 2 days.
