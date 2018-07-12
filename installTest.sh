@@ -225,7 +225,7 @@ disable_bluetooth () {
 
 		# Next, we remove the bluetooth package that was previously installed.
 
-		apt-get remove pi-bluetooth -y
+		apt-get remove pi-bluetooth -y &> /dev/null
 
 		print_success "Bluetooth was uninstalled."
 
