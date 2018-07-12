@@ -155,7 +155,7 @@ update_os () {
 
 		# Let's be sure this management script has the right permissions to operate properly.
 
-		chmod 700 /root/disableHDMI.sh
+		chmod 700 /root/LynxNodeBuilder/disableHDMI.sh
 
 	else
 		exit 1
@@ -1022,12 +1022,12 @@ set_crontab () {
 
 		# This line forces the HDMI port to be enabled on boot. In case the device is plugged into a TV.
 
-		crontab -l | { cat; echo "@reboot			/root/disableHDMI.sh false"; } | crontab -
+		crontab -l | { cat; echo "@reboot			/root/LynxNodeBuilder/disableHDMI.sh false"; } | crontab -
 
 		# After 15 minutes, the TV HDMI port is turned off, to save power. Disable this crontab
 		# if you leave your Pi plugged into a TV and play with it regularly.
 
-		crontab -l | { cat; echo "*/30 * * * *		/root/disableHDMI.sh true"; } | crontab -
+		crontab -l | { cat; echo "*/30 * * * *		/root/LynxNodeBuilder/disableHDMI.sh true"; } | crontab -
 
 	fi
 
