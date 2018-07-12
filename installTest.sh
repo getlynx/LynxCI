@@ -99,15 +99,6 @@ install_extras () {
 	apt-get install automake autoconf pkg-config libcurl4-openssl-dev libjansson-dev libssl-dev libgmp-dev make g++ -y &> /dev/null
 	print_success "Cpuminer was installed."
 
-	# Let's install 'HTTPie: a CLI, cURL-like tool for humans' so that we can later check if the 
-	# node is a leecher of a seeder. This will allow the device to dynamically sole mine locally or 
-	# or to a seed node if it's a leecher. It will also help the home Pi user to tune their wi-fi
-	# router in case it's acting like a leecher to the Lynx network. 
-	# For more details on this cool package, visit https://github.com/jakubroztocil/httpie
-
-	apt-get install httpie jq -y &> /dev/null
-	print_success "Httpie was installed."
-	
 }
 
 update_os () {
@@ -130,15 +121,6 @@ update_os () {
 		DEBIAN_FRONTEND=noninteractive apt-get -y -o DPkg::options::="--force-confdef" -o DPkg::options::="--force-confold"  install grub-pc
 		apt-get -o Acquire::ForceIPv4=true upgrade -y &> /dev/null
 	elif [ "$OS" = "Raspbian GNU/Linux 9 (stretch)" ]; then
-		truncate -s 0 /etc/motd && cat /root/LynxNodeBuilder/logo.txt >> /etc/motd
-
-		echo "
- | To set up wifi, edit the /etc/wpa_supplicant/wpa_supplicant.conf file.      |
- '-----------------------------------------------------------------------------'
- | For local tools to play and learn, type 'sudo /root/lynx/src/lynx-cli help' |
- '-----------------------------------------------------------------------------'
- | LYNX RPC credentials for remote access are located in /root/.lynx/lynx.conf |
- '-----------------------------------------------------------------------------'" >> /etc/motd
 
 		# 'Raspbian GNU/Linux 9 (stretch)' would evaluate here.
 		print_success "Raspbian was detected. You are using a Raspberry Pi. We love you."
@@ -327,10 +309,21 @@ set_accounts () {
 
 install_portcheck () {
 
+	# Let's install 'HTTPie: a CLI, cURL-like tool for humans' so that we can later check if the
+	# node is a leecher of a seeder. It will also help the home Pi user to tune their wi-fi
+	# router in case it's acting like a leecher to the Lynx network. For more details on this 
+	# cool package, visit https://github.com/jakubroztocil/httpie
+
+	apt-get install httpie jq -y &> /dev/null
+
+	print_success "Httpie was installed."
+	print_success "Jq was installed."
+
 	rm -Rf /etc/profile.d/portcheck.sh
 
 	echo "	#!/bin/bash
 
+	BLUE='\033[94m'
 	GREEN='\033[32;1m'
 	RED='\033[91;1m'
 	RESET='\033[0m'
@@ -347,33 +340,71 @@ install_portcheck () {
 
 	}
 
+	print_info () {
+
+		printf \"\$BLUE\$1\$RESET\n\"
+
+	}
+
+	if ! pgrep -x \"lynxd\" > /dev/null; then
+
+		block=\"being updated\"
+
+	else
+
+		block=\$(/root/lynx/src/lynx-cli getblockcount)
+		block=\$(echo \$block | numfmt --grouping)
+		
+	fi
+
 	tmp=\$(http v4.ifconfig.co/port/9332)
 	ip_address=\$(echo \$tmp | jq -r '.ip')
 	reachable=\$(echo \$tmp | jq -r '.reachable')
 
+	print_success \"\"
+	print_success \"\"
+	print_success \"\"
+	cat /root/LynxNodeBuilder/logo.txt
+
+	echo \"
+ | To set up wifi, edit the /etc/wpa_supplicant/wpa_supplicant.conf file.      |
+ '-----------------------------------------------------------------------------'
+ | For local tools to play and learn, type 'sudo /root/lynx/src/lynx-cli help' |
+ '-----------------------------------------------------------------------------'
+ | LYNX RPC credentials for remote access are located in /root/.lynx/lynx.conf |
+ '-----------------------------------------------------------------------------'\"
+
 	if [ \"\$reachable\" = \"true\" ]; then
 
 		print_success \"\"
-		print_success \"Your public IP is \$ip_address and port 9332 is reachable.\"
-		print_success \"Congratulations, one of your Lynx node's is a seeder.\"
+		print_success \" Your public IP is \$ip_address and port 9332 is reachable.\"
+		print_success \" Congratulations, you have a Lynx seeder node.\"
 		print_success \"\"
-		print_success \"Lot's of helpful videos about LynxCI are available at\"
-		print_success \"the Lynx FAQ. Visit https://getlynx.io/faq/ for more.\"
+		print_success \" Lot's of helpful videos about LynxCI are available at\"
+		print_success \" the Lynx FAQ. Visit https://getlynx.io/faq/ for more.\"
+		print_success \"\"
+		print_info \" The current block height on this Lynx node is \$block.\"
 		print_success \"\"
 
 	else
 
 		print_success \"\"
-		print_error \"Your public IP is \$ip_address and port 9332 is not open.\"
-		print_error \"Visit https://getlynx.io/faq/ for help!\"
+		print_error \" Your public IP is \$ip_address and port 9332 is not open.\"
+		print_error \" Visit https://getlynx.io/faq/ for help!\"
 		print_success \"\"
-		print_success \"Lot's of helpful videos about LynxCI are available at\"
-		print_success \"the Lynx FAQ. Visit https://getlynx.io/faq/ for more.\"
+		print_success \" Lot's of helpful videos about LynxCI are available at\"
+		print_success \" the Lynx FAQ. Visit https://getlynx.io/faq/ for more.\"
+		print_success \"\"
+		print_info \" The current block height on this Lynx node is \$block.\"
 		print_success \"\"
 
 	fi" > /etc/profile.d/portcheck.sh
 
 	chmod 744 /etc/profile.d/portcheck.sh
+
+	print_success ""
+	print_success "Port check script was installed."
+	print_success ""
 
 }
 
