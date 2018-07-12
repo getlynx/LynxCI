@@ -1,7 +1,5 @@
 #!/bin/bash
 
-
-
 BLUE='\033[94m'
 GREEN='\033[32;1m'
 YELLOW='\033[33;1m'
@@ -328,7 +326,14 @@ set_accounts () {
 
 	fi
 
+	# To prevent possibly adding the next set of lines twice, let's truncate the end of the 
+	# file first. This is done in the event the install script runs twice or to execute an update.
+
+	sed -i '29, $d' /etc/profile
+
 	echo "
+
+
 
 	ip_address=\$(http v4.ifconfig.co/port/9332 | jq -r '.ip')
 	reachable=\$(http v4.ifconfig.co/port/9332 | jq -r '.reachable')
@@ -487,8 +492,8 @@ install_miniupnpc () {
 
 	if [ "$OS" = "Raspbian GNU/Linux 9 (stretch)" ]; then
 
-		print_info "Installing miniupnpc."
 		apt-get install libminiupnpc-dev -y	&> /dev/null
+		print_info "Miniupnpc is installed."
 
 	fi
 
@@ -615,8 +620,6 @@ install_lynx () {
 	txindex=1
 	" > /root/.lynx/lynx.conf
 
-	print_success "Default '/root/.lynx/lynx.conf' file was created."
-
 	chown -R root:root /root/.lynx/*
 
 }
@@ -643,7 +646,7 @@ install_cpuminer () {
 
 	make
 
-	print_success "CPUminer Multi was compiled."
+	print_success "CPUminer Multi was installed."
 
 }
 
@@ -780,7 +783,6 @@ set_firewall () {
 	print_success "Firewall rules are set in /root/firewall.sh"
 
 	chmod 700 /root/firewall.sh
-	print_success "File permissions on /root/firewall.sh were reset."
 
 }
 
