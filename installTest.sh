@@ -676,6 +676,13 @@ install_lynx () {
 
 	chown -R root:root /root/.lynx/*
 
+	# The following two commands are to allow the motd/profile message that pops up when you log
+	# into the lynx user account via SSH. We have to assign special permissions so the lower level 
+	# lynx account can access files in root.
+
+	usermod -a -G root lynx
+	mkdir -p /home/lynx/.lynx/ && ln -sf /root/.lynx/lynx.conf /home/lynx/.lynx/lynx.conf
+
 }
 
 install_cpuminer () {
