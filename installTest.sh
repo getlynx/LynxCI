@@ -346,25 +346,26 @@ install_portcheck () {
 
 	}
 
+	tmp=\$(http v4.ifconfig.co/port/9332)
+	ip_address=\$(echo \$tmp | jq -r '.ip')
+	reachable=\$(echo \$tmp | jq -r '.reachable')
+
 	if ! pgrep -x \"lynxd\" > /dev/null; then
 
 		block=\"being updated\"
 
 	else
 
-		block=\$(/root/lynx/src/lynx-cli getblockcount)
+		block=\$(curl -s http://127.0.0.1/api/getblockcount)
 		block=\$(echo \$block | numfmt --grouping)
 
 	fi
 
-	tmp=\$(http v4.ifconfig.co/port/9332)
-	ip_address=\$(echo \$tmp | jq -r '.ip')
-	reachable=\$(echo \$tmp | jq -r '.reachable')
+	print_success \"\"
+	print_success \"\"
+	print_success \"\"
 
-	print_success \"\"
-	print_success \"\"
-	print_success \"\"
-	cat /root/LynxNodeBuilder/logo.txt
+	curl -s https://raw.githubusercontent.com/doh9Xiet7weesh9va9th/LynxNodeBuilder/master/logo.txt
 
 	echo \"
  | To set up wifi, edit the /etc/wpa_supplicant/wpa_supplicant.conf file.      |
@@ -377,11 +378,11 @@ install_portcheck () {
 	if [ \"\$reachable\" = \"true\" ]; then
 
 		print_success \"\"
-		print_success \" Your public IP is \$ip_address and port 9332 is reachable.\"
-		print_success \" Congratulations, you have a Lynx seeder node.\"
+		print_success \" Your public IP is \$ip_address and port 9332 is reachable. Congratulations,\"
+		print_success \" you have a Lynx seeder node.\"
 		print_success \"\"
-		print_success \" Lot's of helpful videos about LynxCI are available at\"
-		print_success \" the Lynx FAQ. Visit https://getlynx.io/faq/ for more.\"
+		print_success \" Lot's of helpful videos about LynxCI are available at the Lynx FAQ. Visit \"
+		print_success \" https://getlynx.io/faq/ for more information and help.\"
 		print_success \"\"
 		print_info \" The current block height on this Lynx node is \$block.\"
 		print_success \"\"
@@ -392,8 +393,8 @@ install_portcheck () {
 		print_error \" Your public IP is \$ip_address and port 9332 is not open.\"
 		print_error \" Visit https://getlynx.io/faq/ for help!\"
 		print_success \"\"
-		print_success \" Lot's of helpful videos about LynxCI are available at\"
-		print_success \" the Lynx FAQ. Visit https://getlynx.io/faq/ for more.\"
+		print_success \" Lot's of helpful videos about LynxCI are available at the Lynx FAQ. Visit \"
+		print_success \" https://getlynx.io/faq/ for more information and help.\"
 		print_success \"\"
 		print_info \" The current block height on this Lynx node is \$block.\"
 		print_success \"\"
@@ -676,13 +677,6 @@ install_lynx () {
 
 	chown -R root:root /root/.lynx/*
 
-	# The following two commands are to allow the motd/profile message that pops up when you log
-	# into the lynx user account via SSH. We have to assign special permissions so the lower level 
-	# lynx account can access files in root.
-
-	usermod -a -G root lynx
-	mkdir -p /home/lynx/.lynx/ && ln -sf /root/.lynx/lynx.conf /home/lynx/.lynx/lynx.conf
-
 }
 
 install_cpuminer () {
@@ -863,7 +857,7 @@ set_miner () {
 	IsMiner=Y
 
 	# The objective of this script is to start the local miner and have it solo mine against the
-	# local Lynx processes. So the first think we should do is assume a mining process is already 
+	# local Lynx processes. So the first think we should do is assume a mining process is already
 	# running and kill it.
 
 	pkill -f cpuminer
@@ -872,31 +866,60 @@ set_miner () {
 
 	sleep 2
 
-	# If the flag to mine is set to Y, then lets do some mining, otherwise skip this whole 
+	# If the flag to mine is set to Y, then lets do some mining, otherwise skip this whole
 	# conditional. Seems kind of obvious, but some of us are still learning.
 
 	if [ \"\$IsMiner\" = \"Y\" ]; then
 
-		# Only is the miner isn't running. We do this to ensure we don't accidently have two
-		# miner processes running at the same time.
+		# Mining isnt very helpful if the process that run's Lynx isn't actually running. Why bother
+		# running all this logic if Lynx isn't ready? Unfortunaately, this isnt the only check we need
+		# to do. Just because Lynx might be running, it might not be in sync yet, and running the miner
+		# doesnt make sense yet either. So, lets check if Lynxd is running and if it is, then we check
+		# to see if the blockheight of the local node is _close_ to the known network block height. If
+		# so, then we let the miner turn on.
 
-		if ! pgrep -x \"cpuminer\" > /dev/null; then
+		if pgrep -x \"lynxd\" > /dev/null; then
 
-			# Just to make sure, lets purge any spaces of newlines in the file, so we don't
-			# accidently pick one.
+			# Only if the miner isn't running. We do this to ensure we don't accidently have two
+			# miner processes running at the same time.
 
-			chmod 644 /root/LynxNodeBuilder/miner-addresses.txt
+			if ! pgrep -x \"cpuminer\" > /dev/null; then
 
-			# Randomly select an address from the addresse file. You are welcome to change any value
-			# in that list.
+				# The Lynx network has a family of seed nodes that are publicly available. By querying
+				# this single URL, the request will be randomly redirected to an active seed node. If
+				# a seed node is down for whatever reason, the next query will probably select a
+				# different seed node sice no session management is used.
 
-			random_address=\"\$(shuf -n 1 /root/LynxNodeBuilder/miner-addresses.txt)\"
+				remote=\$(curl -sL https://explorer.getlynx.io/api/getblockcount)
 
-			# With the randomly selected reward address, lets start solo mining.
+				# Since we know that Lynx is running, we can query our local instance for the current
+				# block height.
 
-			/root/cpuminer/cpuminer -o http://127.0.0.1:9332 -u $rrpcuser -p $rrpcpassword --coinbase-addr=\"\$random_address\" -R 15 -B -S
+				local=\$(/root/lynx/src/lynx-cli getblockcount)
+				local=\$(expr \$local + 60)
+
+				if [ \"\$local\" -ge \"\$remote\" ]; then
+
+					# Just to make sure, lets purge any spaces of newlines in the file, so we don't
+					# accidently pick one.
+
+					chmod 644 /root/LynxNodeBuilder/miner-addresses.txt
+
+					# Randomly select an address from the addresse file. You are welcome to change any value
+					# in that list.
+
+					random_address=\"\$(shuf -n 1 /root/LynxNodeBuilder/miner-addresses.txt)\"
+
+					# With the randomly selected reward address, lets start solo mining.
+
+					/root/cpuminer/cpuminer -o http://127.0.0.1:9332 -u $rrpcuser -p $rrpcpassword --coinbase-addr=\"\$random_address\" -R 15 -B -S
+
+				fi
+
+			fi
 
 		fi
+
 	fi
 
 	# If the process that throttles the miner is already running, then kill it. Just to be sure.
@@ -911,14 +934,22 @@ set_miner () {
 
 	if [ \"\$IsMiner\" = \"Y\" ]; then
 
-		# Only if the cpulimit process isn't already running, then start it.
+		# Only set the limiter if the miner is actually running. No need to start the process if not
+		# needed.
 
-		if ! pgrep -x \"cpulimit\" > /dev/null; then
+		if pgrep -x \"cpuminer\" > /dev/null; then
 
-			# Let's set the amount of CPU that the process cpuminer can use to 5%.
+			# Only if the cpulimit process isn't already running, then start it.
 
-			cpulimit -e cpuminer -l 5 -b
+			if ! pgrep -x \"cpulimit\" > /dev/null; then
+
+				# Let's set the amount of CPU that the process cpuminer can use to 5%.
+
+				cpulimit -e cpuminer -l 5 -b
+			fi
+
 		fi
+
 	fi
 
 	#
@@ -1082,12 +1113,12 @@ set_crontab () {
 
 		# This line forces the HDMI port to be enabled on boot. In case the device is plugged into a TV.
 
-		crontab -l | { cat; echo "@reboot			/root/LynxNodeBuilder/disableHDMI.sh false"; } | crontab -
+		#crontab -l | { cat; echo "@reboot			/root/LynxNodeBuilder/disableHDMI.sh false"; } | crontab -
 
 		# After 15 minutes, the TV HDMI port is turned off, to save power. Disable this crontab
 		# if you leave your Pi plugged into a TV and play with it regularly.
 
-		crontab -l | { cat; echo "*/60 * * * *		/root/LynxNodeBuilder/disableHDMI.sh true"; } | crontab -
+		#crontab -l | { cat; echo "*/60 * * * *		/root/LynxNodeBuilder/disableHDMI.sh true"; } | crontab -
 
 	fi
 
