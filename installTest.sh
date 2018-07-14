@@ -365,6 +365,9 @@ install_portcheck () {
 	print_success \"\"
 	print_success \"\"
 
+	# This file really should not be downloaded over and over again. Instead, just copy the local
+	# file in root to a dir in /home/lynx/ for self indexing.
+
 	curl -s https://raw.githubusercontent.com/doh9Xiet7weesh9va9th/LynxNodeBuilder/master/logo.txt
 
 	echo \"
