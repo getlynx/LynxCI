@@ -1109,22 +1109,6 @@ set_crontab () {
 	crontab -l | { cat; echo "*/15 * * * *		/root/LynxNodeBuilder/poll.sh http://seed00.getlynx.io:8080"; } | crontab -
 	crontab -l | { cat; echo "*/15 * * * *		/root/LynxNodeBuilder/poll.sh http://seed01.getlynx.io:8080"; } | crontab -
 	crontab -l | { cat; echo "*/15 * * * *		/root/LynxNodeBuilder/poll.sh http://seed02.getlynx.io:8080"; } | crontab -
-
-	# Some power saving features only for the Raspberry Pi.
-
-	if [ "$OS" = "Raspbian GNU/Linux 9 (stretch)" ]; then
-
-		# This line forces the HDMI port to be enabled on boot. In case the device is plugged into a TV.
-
-		#crontab -l | { cat; echo "@reboot			/root/LynxNodeBuilder/disableHDMI.sh false"; } | crontab -
-
-		# After 15 minutes, the TV HDMI port is turned off, to save power. Disable this crontab
-		# if you leave your Pi plugged into a TV and play with it regularly.
-
-		#crontab -l | { cat; echo "*/60 * * * *		/root/LynxNodeBuilder/disableHDMI.sh true"; } | crontab -
-
-	fi
-
 	crontab -l | { cat; echo "*/15 * * * *		/root/firewall.sh"; } | crontab -
 	crontab -l | { cat; echo "*/15 * * * *		/root/lynx/src/lynxd"; } | crontab -
 	crontab -l | { cat; echo "*/15 * * * *		/root/miner.sh"; } | crontab -
