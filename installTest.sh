@@ -436,7 +436,6 @@ install_iquidusExplorer () {
 
     apt-get install curl software-properties-common gcc g++ make -y &> /dev/null
 
-
     curl -sL https://deb.nodesource.com/setup_10.x | sudo -E bash -
     apt-get install nodejs -y &> /dev/null
     print_success "NodeJS was installed."
@@ -733,6 +732,7 @@ install_mongo () {
 
 		account="{ user: 'x${rrpcuser}', pwd: 'x${rrpcpassword}', roles: [ 'readWrite' ] }"   
 		mongo lynx --eval "db.createUser( ${account} )"
+
 	else
 
 		# Since this script is designed to be used only with Raspian and Ubuntu, this else statement
@@ -755,6 +755,7 @@ install_mongo () {
 
 		account="{ user: 'x${rrpcuser}', pwd: 'x${rrpcpassword}', roles: [ 'readWrite' ] }"   
 		mongo lynx --eval "db.createUser( ${account} )"
+		
 	fi
 
     print_success "MongoDB was installed."
