@@ -661,10 +661,10 @@ install_lynx () {
 	cd ~/ && rm -rf .lynx && mkdir .lynx
 	print_success "Created the '.lynx' directory."
 
-	#wget http://cdn.getlynx.io/node-bootstrap.tar.gz
-	#tar -xvf node-bootstrap.tar.gz .lynx
-	#rm -rf node-bootstrap.tar.gz
-	#print_success "The node-bootstrap file was downloaded and will be used after reboot."
+	wget http://cdn.getlynx.io/node-bootstrap.tar.gz
+	tar -xvf node-bootstrap.tar.gz .lynx
+	rm -rf node-bootstrap.tar.gz
+	print_success "The node-bootstrap file was downloaded and will be used after reboot."
 
 	echo "
 	listen=1
