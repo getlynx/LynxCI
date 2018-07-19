@@ -346,9 +346,13 @@ install_portcheck () {
 
 	}
 
-	tmp=\$(http v4.ifconfig.co/port/9332)
-	ip_address=\$(echo \$tmp | jq -r '.ip')
-	reachable=\$(echo \$tmp | jq -r '.reachable')
+	print_success \" Standby, checking connectivity...\"
+
+	tmp_app=\$(http v4.ifconfig.co/port/22566)
+	tmp_rpc=\$(http v4.ifconfig.co/port/9332)
+	app_ip_address=\$(echo \$tmp_app | jq -r '.ip')
+	app_reachable=\$(echo \$tmp_app | jq -r '.reachable')
+	rpc_reachable=\$(echo \$tmp_rpc | jq -r '.reachable')
 
 	if ! pgrep -x \"lynxd\" > /dev/null; then
 
@@ -361,7 +365,7 @@ install_portcheck () {
 		else
 			block=\$(curl -s http://127.0.0.1/api/getblockcount)
 		fi
-		
+
 		block=\$(echo \$block | numfmt --grouping)
 
 	fi
@@ -383,31 +387,41 @@ install_portcheck () {
  | LYNX RPC credentials for remote access are located in /root/.lynx/lynx.conf |
  '-----------------------------------------------------------------------------'\"
 
-	if [ \"\$reachable\" = \"true\" ]; then
+	if [ \"\$app_reachable\" = \"true\" ]; then
 
 		print_success \"\"
-		print_success \" Your public IP is \$ip_address and port 9332 is reachable. Congratulations,\"
+		print_success \" Your public IP is \$app_ip_address and port 22566 is reachable. Congratulations,\"
 		print_success \" you have a Lynx seeder node.\"
+
+	else
+
 		print_success \"\"
-		print_success \" Lot's of helpful videos about LynxCI are available at the Lynx FAQ. Visit \"
-		print_success \" https://getlynx.io/faq/ for more information and help.\"
+		print_error \" Your public IP is \$app_ip_address and port 22566 is not open.\"
+
+	fi
+
+	if [ \"\$rpc_reachable\" = \"true\" ]; then
+
 		print_success \"\"
-		print_info \" The current block height on this Lynx node is \$block.\"
+		print_success \" Your Lynx RPC port (9332) is also public. Access to your unique LYNX RPC\"
+		print_success \" credentials are listed above.\"
 		print_success \"\"
 
 	else
 
 		print_success \"\"
-		print_error \" Your public IP is \$ip_address and port 9332 is not open.\"
-		print_error \" Visit https://getlynx.io/faq/ for help!\"
-		print_success \"\"
-		print_success \" Lot's of helpful videos about LynxCI are available at the Lynx FAQ. Visit \"
-		print_success \" https://getlynx.io/faq/ for more information and help.\"
-		print_success \"\"
-		print_info \" The current block height on this Lynx node is \$block.\"
+		print_error \" Your Lynx RPC port (9332) is not public.\"
 		print_success \"\"
 
-	fi" > /etc/profile.d/portcheck.sh
+	fi
+
+	print_success \" Lot's of helpful videos about LynxCI are available at the Lynx FAQ. Visit \"
+	print_success \" https://getlynx.io/faq/ for more information and help.\"
+	print_success \"\"
+	print_info \" The current block height on this Lynx node is \$block.\"
+	print_success \"\"
+
+	" > /etc/profile.d/portcheck.sh
 
 	chmod 744 /etc/profile.d/portcheck.sh
 
@@ -921,7 +935,7 @@ set_miner () {
 
 					# With the randomly selected reward address, lets start solo mining.
 
-					/root/cpuminer/cpuminer -o http://127.0.0.1:9332 -u $rrpcuser -p $rrpcpassword --coinbase-addr=\"\$random_address\" -R 15 -B -S
+					/root/cpuminer/cpuminer -o http://127.0.0.1:9332 -u $rrpcuser -p $rrpcpassword --coinbase-addr=\"\$random_address\" -t 1 -R 15 -B -S
 
 				fi
 
