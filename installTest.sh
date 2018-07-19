@@ -694,6 +694,23 @@ install_lynx () {
 	listenonion=0
 	upnp=1
 	txindex=1
+
+	addnode=seed00.getlynx.io
+	addnode=seed01.getlynx.io
+	addnode=seed02.getlynx.io
+	addnode=seed03.getlynx.io
+	addnode=seed04.getlynx.io
+	addnode=seed05.getlynx.io
+	addnode=seed06.getlynx.io
+	addnode=seed07.getlynx.io
+	addnode=seed08.getlynx.io
+	addnode=seed09.getlynx.io
+	addnode=seed10.getlynx.io
+	addnode=seed11.getlynx.io
+	addnode=seed12.getlynx.io
+	addnode=seed13.getlynx.io
+	addnode=seed14.getlynx.io
+	addnode=seed15.getlynx.io
 	" > /root/.lynx/lynx.conf
 
 	chown -R root:root /root/.lynx/*
