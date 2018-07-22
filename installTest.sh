@@ -672,7 +672,7 @@ install_lynx () {
 	# bootstrap file was created by the Lynx developers so it can be trusted. If it is updated, it
 	# will only be created and controlled by the trusted Lynx developers.
 
-	#cd ~/ && rm -rf .lynx && mkdir .lynx
+	cd ~/ && rm -rf .lynx && mkdir .lynx
 	#print_success "Created the '.lynx' directory."
 
 	#wget http://cdn.getlynx.io/node-bootstrap.tar.gz
