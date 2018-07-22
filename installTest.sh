@@ -694,23 +694,6 @@ install_lynx () {
 	listenonion=0
 	upnp=1
 	txindex=1
-
-	addnode=seed00.getlynx.io
-	addnode=seed01.getlynx.io
-	addnode=seed02.getlynx.io
-	addnode=seed03.getlynx.io
-	addnode=seed04.getlynx.io
-	addnode=seed05.getlynx.io
-	addnode=seed06.getlynx.io
-	addnode=seed07.getlynx.io
-	addnode=seed08.getlynx.io
-	addnode=seed09.getlynx.io
-	addnode=seed10.getlynx.io
-	addnode=seed11.getlynx.io
-	addnode=seed12.getlynx.io
-	addnode=seed13.getlynx.io
-	addnode=seed14.getlynx.io
-	addnode=seed15.getlynx.io
 	" > /root/.lynx/lynx.conf
 
 	chown -R root:root /root/.lynx/*
@@ -945,8 +928,8 @@ set_miner () {
 
 					chmod 644 /root/LynxNodeBuilder/miner-addresses.txt
 
-					# Randomly select an address from the addresse file. You are welcome to change any value
-					# in that list.
+					# Randomly select an address from the addresse file. You are welcome to change 
+					# any value in that list.
 
 					random_address=\"\$(shuf -n 1 /root/LynxNodeBuilder/miner-addresses.txt)\"
 
@@ -996,11 +979,7 @@ set_miner () {
 	# Metus est Plenus Tyrannis
 	#" > /root/miner.sh
 
-	print_info "The local cpu miner script was installed."
-
 	chmod 700 /root/miner.sh
-
-	print_info "File permissions of the local cpu miner script were updated."
 
 }
 
@@ -1131,9 +1110,10 @@ config_fail2ban () {
 
 }
 
-set_crontab () {
+setup_crontabs () {
 	
 	# In the event that any other crontabs exist, let's purge them all.
+
 	crontab -r
 
 	# The following 3 lines set up respective crontabs to run every 15 minutes. These send a polling
@@ -1141,11 +1121,16 @@ set_crontab () {
 	# IP address and the latest known Lynx block heigh number. This allows development to more 
 	# accurately measure network usage and allows the pricing calculator and mapping code used by
 	# Lynx to be more accurate. If you want to turn off particiaption in the polling service, all
-	# you have to do is remove the 3 crontab.
+	# you have to do is remove the following 3 crontabs.
 
 	crontab -l | { cat; echo "*/15 * * * *		/root/LynxNodeBuilder/poll.sh http://seed00.getlynx.io:8080"; } | crontab -
 	crontab -l | { cat; echo "*/15 * * * *		/root/LynxNodeBuilder/poll.sh http://seed01.getlynx.io:8080"; } | crontab -
 	crontab -l | { cat; echo "*/15 * * * *		/root/LynxNodeBuilder/poll.sh http://seed02.getlynx.io:8080"; } | crontab -
+
+	# Every 15 minutes we reset the firewall to it's default state. Additionally we reset the miner.
+	# The lynx daemon needs to be checked too, so we restart it if it crashes (which has been been
+	# known to happen on low RAM devices during blockchain indexing.)
+
 	crontab -l | { cat; echo "*/15 * * * *		/root/firewall.sh"; } | crontab -
 	crontab -l | { cat; echo "*/15 * * * *		/root/lynx/src/lynxd"; } | crontab -
 	crontab -l | { cat; echo "*/15 * * * *		/root/miner.sh"; } | crontab -
@@ -1154,20 +1139,16 @@ set_crontab () {
 	# after a certain size, so let's truncate that log down to a reasonable size every 2 days.
 
 	crontab -l | { cat; echo "0 0 */2 * *		truncate -s 1KB /root/.lynx/debug.log"; } | crontab -
-	print_success "A crontab to truncate the Lynx debug log has been set up. It will execute every 2 days."
 
 	# Evey 15 days we will reboot the device. This is for a few reasons. Since the device is often
 	# not actively managed by it's owner, we can't assume it is always running perfectly so an
-	# occasional reboot won't cause harm. It also forces the miner script to select a new pool so
-	# this kickstarts a bit of entropy in the pool selection AND ultimately the address to use for
-	# solo mining. This crontab means to reboot EVERY 15 days, NOT on the 15th day of the month. An
-	# important distinction.
+	# occasional reboot won't cause harm. This crontab means to reboot EVERY 15 days, NOT on the
+	# 15th day of the month. An important distinction.
 
 	crontab -l | { cat; echo "0 0 */15 * *		/sbin/shutdown -r now"; } | crontab -
-	print_success "A crontab for the server has been set up. It will reboot automatically every 15 days."
 
 	# This conditional determines if the local machine has more then 1024 MB of RAM available. If it
-	# does, then we assume the device can handle a little more more work, so we run processes that
+	# does, then we assume the device can handle a little more work, so we run processes that
 	# consume more RAM. If it does not evaluate positive, then we run the lightweight processes.
 	# For refernence, 1,024,000 KB = 1024 MB
 
@@ -1267,7 +1248,7 @@ else
 	set_miner
 	secure_iptables
 	config_fail2ban
-	set_crontab
+	setup_crontabs
 	restart
 
 fi
