@@ -672,13 +672,13 @@ install_lynx () {
 	# bootstrap file was created by the Lynx developers so it can be trusted. If it is updated, it
 	# will only be created and controlled by the trusted Lynx developers.
 
-	cd ~/ && rm -rf .lynx && mkdir .lynx
-	print_success "Created the '.lynx' directory."
+	#cd ~/ && rm -rf .lynx && mkdir .lynx
+	#print_success "Created the '.lynx' directory."
 
-	wget http://cdn.getlynx.io/node-bootstrap.tar.gz
-	tar -xvf node-bootstrap.tar.gz .lynx
-	rm -rf node-bootstrap.tar.gz
-	print_success "The node-bootstrap file was downloaded and will be used after reboot."
+	#wget http://cdn.getlynx.io/node-bootstrap.tar.gz
+	#tar -xvf node-bootstrap.tar.gz .lynx
+	#rm -rf node-bootstrap.tar.gz
+	#print_success "The node-bootstrap file was downloaded and will be used after reboot."
 
 	echo "
 	listen=1
@@ -694,6 +694,7 @@ install_lynx () {
 	listenonion=0
 	upnp=1
 	txindex=1
+	testnet=1
 	" > /root/.lynx/lynx.conf
 
 	chown -R root:root /root/.lynx/*
