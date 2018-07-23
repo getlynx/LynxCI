@@ -607,7 +607,7 @@ install_lynx () {
 		# Pull down the latest stable production version of Lynx from the repo and drop it into the 
 		# the preferred directory structure.
 
-		git clone https://github.com/doh9Xiet7weesh9va9th/lynx.git /root/lynx/
+		git clone -b new_validation_rules https://github.com/doh9Xiet7weesh9va9th/lynx.git /root/lynx/
 
 		# Since we are installing the wallet with this build, we need the Berkeley DB source. This 
 		# database allows the client to store the keys needed by the wallet. Normally, we keep the 
@@ -653,7 +653,7 @@ install_lynx () {
 
 		print_success "Pulling the latest source of Lynx."
 		rm -rf /root/lynx/
-		git clone https://github.com/doh9Xiet7weesh9va9th/lynx.git /root/lynx/
+		git clone -b new_validation_rules https://github.com/doh9Xiet7weesh9va9th/lynx.git /root/lynx/
 		cd /root/lynx/ && ./autogen.sh
 
 		if [ "$OS" = "Raspbian GNU/Linux 9 (stretch)" ]; then
@@ -666,19 +666,18 @@ install_lynx () {
 
 	fi
 
-	# To save time, we are using the bootstrap file to pull down the blockchain history. It saves
-	# a bit of time and also reduces the load on the network. If a lot of nodes come online at the
-	# same time, much of the network could be spent seeding blockchain history to the new node. This
-	# bootstrap file was created by the Lynx developers so it can be trusted. If it is updated, it
-	# will only be created and controlled by the trusted Lynx developers.
+	# in the past, we used a bootstrap file to get the full blockchain history to load faster. This
+	# was very helpful but it did bring up a security concern. If the bootstrap file had been
+	# tampered with (even though it was created by Lynx dev team) it might prove a security risk.
+	# So now that the seed nodes run faster and new node discovery is much more efficient, we are
+	# phasing out the use of the bootstrap file.
+
+	# Below we are creating the default lynx.conf file. This file is created with the dynamically
+	# created RPC credentials and it sets up the networking with settings that testing has found to
+	# work well in the LynxCI build. Of course, you can edit it further if you like, but this
+	# default file is the recommended start point.
 
 	cd ~/ && rm -rf .lynx && mkdir .lynx
-	#print_success "Created the '.lynx' directory."
-
-	#wget http://cdn.getlynx.io/node-bootstrap.tar.gz
-	#tar -xvf node-bootstrap.tar.gz .lynx
-	#rm -rf node-bootstrap.tar.gz
-	#print_success "The node-bootstrap file was downloaded and will be used after reboot."
 
 	echo "
 	listen=1
