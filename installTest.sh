@@ -9,6 +9,7 @@ if [ "$1" = "mainnet" ]; then
 	port="22566"
 	rpcport="9332"
 	lynxbranch="master"
+	lynxconfig=""
 
 else
 
@@ -16,6 +17,7 @@ else
 	port="44566"
 	rpcport="19932"
 	lynxbranch="new_validation_rules"
+	lynxconfig="testnet=1"
 
 fi
 
@@ -369,8 +371,8 @@ install_portcheck () {
 
 	print_success \" Standby, checking connectivity...\"
 
-	tmp_app=\$(http v4.ifconfig.co/port/\$port)
-	tmp_rpc=\$(http v4.ifconfig.co/port/\$rpcport)
+	tmp_app=\$(http v4.ifconfig.co/port/$port)
+	tmp_rpc=\$(http v4.ifconfig.co/port/$rpcport)
 	app_ip_address=\$(echo \$tmp_app | jq -r '.ip')
 	app_reachable=\$(echo \$tmp_app | jq -r '.reachable')
 	rpc_reachable=\$(echo \$tmp_rpc | jq -r '.reachable')
@@ -716,16 +718,7 @@ install_lynx () {
 	listenonion=0
 	upnp=1
 	txindex=1
-
-if [ \"$environment\" = \"mainnet\" ]; then
-
-	testnet=0
-
-else
-
-	testnet=1
-
-fi
+	$lynxconfig
 	" > /root/.lynx/lynx.conf
 
 	chown -R root:root /root/.lynx/*
