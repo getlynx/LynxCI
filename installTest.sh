@@ -866,13 +866,13 @@ set_firewall () {
 	# This Lynx node listens for other Lynx nodes on port $port, so we need to open that port. The
 	# whole Lynx network listens on that port so we always want to make sure this port is available.
 
-	/sbin/iptables -A INPUT -p tcp --dport \$port -j ACCEPT
+	/sbin/iptables -A INPUT -p tcp --dport $port -j ACCEPT
 
 	# By default, the RPC port 9223 is opened to the public. This is so the node can both listen 
 	# for and discover other nodes. It is preferred to have a node that is not just a leecher but
 	# also a seeder.
 
-	/sbin/iptables -A INPUT -p tcp --dport \$rpcport -j ACCEPT
+	/sbin/iptables -A INPUT -p tcp --dport $rpcport -j ACCEPT
 
 	# We add this last line to drop any other traffic that comes to this computer that doesn't
 	# comply with the earlier rules. If previous iptables rules don't match, then drop'em!
