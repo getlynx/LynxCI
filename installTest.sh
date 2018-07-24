@@ -1,5 +1,24 @@
 #!/bin/bash
 
+# Our first required argument to run this script is to specify the environment to run Lynx. The two
+# accepted options are 'mainnet' or 'testnet'.
+
+if [ "$1" = "mainnet" ]; then
+
+	environment="mainnet"
+	port="22566"
+	rpcport="9332"
+	lynxbranch="master"
+
+else
+
+	environment="testnet"
+	port="44566"
+	rpcport="9332"
+	lynxbranch="new_validation_rules"
+
+fi
+
 BLUE='\033[94m'
 GREEN='\033[32;1m'
 YELLOW='\033[33;1m'
@@ -348,8 +367,8 @@ install_portcheck () {
 
 	print_success \" Standby, checking connectivity...\"
 
-	tmp_app=\$(http v4.ifconfig.co/port/22566)
-	tmp_rpc=\$(http v4.ifconfig.co/port/9332)
+	tmp_app=\$(http v4.ifconfig.co/port/\$port)
+	tmp_rpc=\$(http v4.ifconfig.co/port/\$rpcport)
 	app_ip_address=\$(echo \$tmp_app | jq -r '.ip')
 	app_reachable=\$(echo \$tmp_app | jq -r '.reachable')
 	rpc_reachable=\$(echo \$tmp_rpc | jq -r '.reachable')
@@ -390,27 +409,27 @@ install_portcheck () {
 	if [ \"\$app_reachable\" = \"true\" ]; then
 
 		print_success \"\"
-		print_success \" Your public IP is \$app_ip_address and port 22566 is reachable. Congratulations,\"
+		print_success \" Your public IP is \$app_ip_address and port $port is reachable. Congratulations,\"
 		print_success \" you have a Lynx seeder node.\"
 
 	else
 
 		print_success \"\"
-		print_error \" Your public IP is \$app_ip_address and port 22566 is not open.\"
+		print_error \" Your public IP is \$app_ip_address and port $port is not open.\"
 
 	fi
 
 	if [ \"\$rpc_reachable\" = \"true\" ]; then
 
 		print_success \"\"
-		print_success \" Your Lynx RPC port (9332) is also public. Access to your unique LYNX RPC\"
+		print_success \" Your Lynx RPC port ($rpcport) is also public. Access to your unique LYNX RPC\"
 		print_success \" credentials are listed above.\"
 		print_success \"\"
 
 	else
 
 		print_success \"\"
-		print_error \" Your Lynx RPC port (9332) is not public.\"
+		print_error \" Your Lynx RPC port ($rpcport) is not public.\"
 		print_success \"\"
 
 	fi
@@ -546,7 +565,7 @@ install_blockcrawler () {
 	chmod 755 -R /var/www/html/Blockcrawler/
 	chown www-data:www-data -R /var/www/html/Blockcrawler/
 	
-	sed -i -e 's/'"8332"'/'"9332"'/g' /var/www/html/Blockcrawler/bc_daemon.php
+	sed -i -e 's/'"8332"'/'"$rpcport"'/g' /var/www/html/Blockcrawler/bc_daemon.php
 	sed -i -e 's/'"username"'/'"$rrpcuser"'/g' /var/www/html/Blockcrawler/bc_daemon.php
 	sed -i -e 's/'"password"'/'"$rrpcpassword"'/g' /var/www/html/Blockcrawler/bc_daemon.php
 
@@ -607,7 +626,7 @@ install_lynx () {
 		# Pull down the latest stable production version of Lynx from the repo and drop it into the 
 		# the preferred directory structure.
 
-		git clone -b new_validation_rules https://github.com/doh9Xiet7weesh9va9th/lynx.git /root/lynx/
+		git clone -b $lynxbranch https://github.com/doh9Xiet7weesh9va9th/lynx.git /root/lynx/
 
 		# Since we are installing the wallet with this build, we need the Berkeley DB source. This 
 		# database allows the client to store the keys needed by the wallet. Normally, we keep the 
@@ -653,7 +672,9 @@ install_lynx () {
 
 		print_success "Pulling the latest source of Lynx."
 		rm -rf /root/lynx/
-		git clone -b new_validation_rules https://github.com/doh9Xiet7weesh9va9th/lynx.git /root/lynx/
+
+		git clone -b $lynxbranch https://github.com/doh9Xiet7weesh9va9th/lynx.git /root/lynx/
+
 		cd /root/lynx/ && ./autogen.sh
 
 		if [ "$OS" = "Raspbian GNU/Linux 9 (stretch)" ]; then
@@ -684,8 +705,8 @@ install_lynx () {
 	daemon=1
 	rpcuser=$rrpcuser
 	rpcpassword=$rrpcpassword
-	rpcport=9332
-	port=22566
+	rpcport=$rpcport
+	port=$port
 	rpcbind=0.0.0.0
 	rpcbind=::
 	rpcallowip=0.0.0.0/24
@@ -693,7 +714,16 @@ install_lynx () {
 	listenonion=0
 	upnp=1
 	txindex=1
+
+if [ \"$environment\" = \"mainnet\" ]; then
+
+	testnet=0
+
+else
+
 	testnet=1
+
+fi
 	" > /root/.lynx/lynx.conf
 
 	chown -R root:root /root/.lynx/*
@@ -838,16 +868,16 @@ set_firewall () {
 
 	/sbin/iptables -A INPUT -p tcp --dport 80 -j ACCEPT
 
-	# This Lynx node listens for other Lynx nodes on port 22566, so we need to open that port. The
+	# This Lynx node listens for other Lynx nodes on port $port, so we need to open that port. The
 	# whole Lynx network listens on that port so we always want to make sure this port is available.
 
-	/sbin/iptables -A INPUT -p tcp --dport 22566 -j ACCEPT
+	/sbin/iptables -A INPUT -p tcp --dport $port -j ACCEPT
 
 	# By default, the RPC port 9223 is opened to the public. This is so the node can both listen 
 	# for and discover other nodes. It is preferred to have a node that is not just a leecher but
 	# also a seeder.
 
-	/sbin/iptables -A INPUT -p tcp --dport 9332 -j ACCEPT
+	/sbin/iptables -A INPUT -p tcp --dport $rpcport -j ACCEPT
 
 	# We add this last line to drop any other traffic that comes to this computer that doesn't
 	# comply with the earlier rules. If previous iptables rules don't match, then drop'em!
@@ -935,7 +965,30 @@ set_miner () {
 
 					# With the randomly selected reward address, lets start solo mining.
 
-					/root/cpuminer/cpuminer -o http://127.0.0.1:9332 -u $rrpcuser -p $rrpcpassword --coinbase-addr=\"\$random_address\" -t 1 -R 15 -B -S
+					/root/cpuminer/cpuminer -o http://127.0.0.1:$rpcport -u $rrpcuser -p $rrpcpassword --coinbase-addr=\"\$random_address\" -t 1 -R 15 -B -S
+
+				else
+
+					# It is possible that the script is running on testnet. If so, then let the
+					# miner run without this last check.
+
+					if [ "$environment" = "testnet" ]; then
+
+						# Just to make sure, lets purge any spaces of newlines in the file, so we don't
+						# accidently pick one.
+
+						chmod 644 /root/LynxNodeBuilder/miner-addresses.txt
+
+						# Randomly select an address from the addresse file. You are welcome to change 
+						# any value in that list.
+
+						random_address=\"\$(shuf -n 1 /root/LynxNodeBuilder/miner-addresses.txt)\"
+
+						# With the randomly selected reward address, lets start solo mining.
+
+						/root/cpuminer/cpuminer -o http://127.0.0.1:$rpcport -u $rrpcuser -p $rrpcpassword --coinbase-addr=\"\$random_address\" -t 1 -R 15 -B -S
+
+					fi
 
 				fi
 
@@ -1029,7 +1082,7 @@ config_fail2ban () {
 	# The default ban time for abusers on port 22 (SSH) is 10 minutes. Lets make this a full 24 hours
 	# that we will ban the IP address of the attacker. This is the tuning of the fail2ban jail that
 	# was documented earlier in this file. The number 86400 is the number of seconds in a 24 hour term.
-	# Set the bantime for lynxd on port 22566 banned regex matches to 24 hours as well.
+	# Set the bantime for lynxd on port 22566/44566 banned regex matches to 24 hours as well.
 
 	echo "
 
@@ -1063,7 +1116,7 @@ config_fail2ban () {
 	#
 
 	[lynxd]
-	port		= 22566
+	port		= $port
 	logpath		= /root/.lynx/debug.log
 	findtime	= 1200
 	maxretry	= 3
