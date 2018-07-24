@@ -14,7 +14,7 @@ else
 
 	environment="testnet"
 	port="44566"
-	rpcport="9332"
+	rpcport="19932"
 	lynxbranch="new_validation_rules"
 
 fi
@@ -62,6 +62,8 @@ detect_os () {
 	OS=`cat /etc/os-release | egrep '^PRETTY_NAME=' | cut -d= -f2 -d'"'`
 
 	print_success "The local operating system is '$OS'."
+
+	print_success "Build environment is '$environment'."
 
 }
 
