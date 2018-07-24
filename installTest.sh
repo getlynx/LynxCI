@@ -15,7 +15,7 @@ else
 
 	environment="testnet"
 	port="44566"
-	rpcport="19932"
+	rpcport="19335"
 	lynxbranch="new_validation_rules"
 	lynxconfig="testnet=1"
 
