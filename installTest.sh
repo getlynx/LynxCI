@@ -866,13 +866,13 @@ set_firewall () {
 	# This Lynx node listens for other Lynx nodes on port $port, so we need to open that port. The
 	# whole Lynx network listens on that port so we always want to make sure this port is available.
 
-	/sbin/iptables -A INPUT -p tcp --dport $port -j ACCEPT
+	/sbin/iptables -A INPUT -p tcp --dport \$port -j ACCEPT
 
 	# By default, the RPC port 9223 is opened to the public. This is so the node can both listen 
 	# for and discover other nodes. It is preferred to have a node that is not just a leecher but
 	# also a seeder.
 
-	/sbin/iptables -A INPUT -p tcp --dport $rpcport -j ACCEPT
+	/sbin/iptables -A INPUT -p tcp --dport \$rpcport -j ACCEPT
 
 	# We add this last line to drop any other traffic that comes to this computer that doesn't
 	# comply with the earlier rules. If previous iptables rules don't match, then drop'em!
@@ -936,9 +936,13 @@ set_miner () {
 				# The Lynx network has a family of seed nodes that are publicly available. By querying
 				# this single URL, the request will be randomly redirected to an active seed node. If
 				# a seed node is down for whatever reason, the next query will probably select a
-				# different seed node sice no session management is used.
+				# different seed node since no session management is used.
 
+			if [ "$environment" = "mainnet" ]; then
 				remote=\$(curl -sL https://explorer.getlynx.io/api/getblockcount)
+			else
+				remote=1
+			fi
 
 				# Since we know that Lynx is running, we can query our local instance for the current
 				# block height.
@@ -961,30 +965,7 @@ set_miner () {
 					# With the randomly selected reward address, lets start solo mining.
 
 					/root/cpuminer/cpuminer -o http://127.0.0.1:$rpcport -u $rrpcuser -p $rrpcpassword --coinbase-addr=\"\$random_address\" -t 1 -R 15 -B -S
-
-				else
-
-					# It is possible that the script is running on testnet. If so, then let the
-					# miner run without this last check.
-
-					if [ "$environment" = "testnet" ]; then
-
-						# Just to make sure, lets purge any spaces of newlines in the file, so we don't
-						# accidently pick one.
-
-						chmod 644 /root/LynxNodeBuilder/miner-addresses.txt
-
-						# Randomly select an address from the addresse file. You are welcome to change 
-						# any value in that list.
-
-						random_address=\"\$(shuf -n 1 /root/LynxNodeBuilder/miner-addresses.txt)\"
-
-						# With the randomly selected reward address, lets start solo mining.
-
-						/root/cpuminer/cpuminer -o http://127.0.0.1:$rpcport -u $rrpcuser -p $rrpcpassword --coinbase-addr=\"\$random_address\" -t 1 -R 15 -B -S
-
-					fi
-
+	
 				fi
 
 			fi
