@@ -10,6 +10,7 @@ if [ "$1" = "mainnet" ]; then
 	rpcport="9332"
 	lynxbranch="master"
 	lynxconfig=""
+	explorer="https://explorer.getlynx.io/api/getblockcount"
 
 else
 
@@ -18,6 +19,7 @@ else
 	rpcport="19335"
 	lynxbranch="new_validation_rules"
 	lynxconfig="testnet=1"
+	explorer="https://testnet.getlynx.io/api/getblockcount"
 
 fi
 
@@ -423,6 +425,14 @@ install_portcheck () {
 
 	fi
 
+	if [ \"$tmp_app\" = \"44566\" ]; then
+
+		print_success \"\"
+		print_error \" This is a non-production 'testnet' environment of Lynx.\"
+		print_success \"\"
+
+	fi
+
 	if [ \"\$rpc_reachable\" = \"true\" ]; then
 
 		print_success \"\"
@@ -484,7 +494,6 @@ install_iquidusExplorer () {
 	print_success "Block Explorer was installed."
 	
 	cd /root/LynxExplorer/ && npm install --production
-
 
 	# We need to update the json file in the LynxExplorer node app with the lynxd RPC access
 	# credentials for this device. Since they are created dynamically each time, we just do
@@ -938,11 +947,7 @@ set_miner () {
 				# a seed node is down for whatever reason, the next query will probably select a
 				# different seed node since no session management is used.
 
-			if [ "$environment" = "mainnet" ]; then
-				remote=\$(curl -sL https://explorer.getlynx.io/api/getblockcount)
-			else
-				remote=1
-			fi
+				remote=\$(curl -sL $explorer)
 
 				# Since we know that Lynx is running, we can query our local instance for the current
 				# block height.
@@ -964,7 +969,7 @@ set_miner () {
 
 					# With the randomly selected reward address, lets start solo mining.
 
-					/root/cpuminer/cpuminer -o http://127.0.0.1:$rpcport -u $rrpcuser -p $rrpcpassword --coinbase-addr=\"\$random_address\" -t 1 -R 15 -B -S
+					/root/cpuminer/cpuminer -o http://127.0.0.1:$rpcport -u $rrpcuser -p $rrpcpassword --no-longpoll --no-getwork --no-stratum --coinbase-addr=\"\$random_address\" -t 1 -R 15 -B -S
 	
 				fi
 
