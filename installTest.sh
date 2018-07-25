@@ -499,6 +499,7 @@ install_iquidusExplorer () {
 	# credentials for this device. Since they are created dynamically each time, we just do
 	# find and replace in the json file.
 
+	sed -i "s/9332/x${rpcport}/g" /root/LynxExplorer/settings.json
 	sed -i "s/__HOSTNAME__/x${fqdn}/g" /root/LynxExplorer/settings.json
 	sed -i "s/__MONGO_USER__/x${rrpcuser}/g" /root/LynxExplorer/settings.json
 	sed -i "s/__MONGO_PASS__/x${rrpcpassword}/g" /root/LynxExplorer/settings.json
@@ -1238,6 +1239,7 @@ if [ -f /boot/lynxci ]; then
 else
 
 	print_error "Starting installation of LynxCI."
+	print_error ""
 	print_error "This will be a cpu and memory intensive process that could last hours"
 	print_error "...depending on your hardware."
 
