@@ -20,7 +20,7 @@ $ git clone https://github.com/doh9Xiet7weesh9va9th/LynxNodeBuilder.git /root/Ly
 $ chmod 744 -R /root/LynxNodeBuilder/
 ```
 ```
-$ /root/LynxNodeBuilder/install.sh
+$ /root/LynxNodeBuilder/install.sh mainnet
 ```
 
 ## [LynxCI](http://cdn.getlynx.io/LynxCI.tar.gz)
@@ -39,6 +39,12 @@ also, the miner logs to syslog;
 
 ```
 $ sudo tail -F /var/log/syslog
+```
+
+You can also now run a Lynx node on our Testnet. This is the testing environment that all new experimental and test code is developed. It's a great place to practice attacks, try new dev features and it's useful to our development partners during integration. On the last line of the manual build above, specify 'testnet' instead of 'mainnet', like below.
+
+```
+$ /root/LynxNodeBuilder/install.sh testnet
 ```
 
 Once you know the IP address of your Pi, you can enter it in your web browser and directly visit it with your favorite browser. Bookmark it and have fun. It will take about 1.5 hours to sync, so be patient. You are now an active member of the Lynx community. Congratulations!
