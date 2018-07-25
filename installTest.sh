@@ -425,7 +425,7 @@ install_portcheck () {
 
 	fi
 
-	if [ \"$tmp_app\" = \"44566\" ]; then
+	if [ \"$port\" = \"44566\" ]; then
 
 		print_success \"\"
 		print_error \" This is a non-production 'testnet' environment of Lynx.\"
