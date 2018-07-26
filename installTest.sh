@@ -63,9 +63,11 @@ detect_os () {
 	# unique flavor. In the rest of the script we have various changes that are dedicated to
 	# certain operating system versions.
 
-	OS=`cat /etc/os-release | egrep '^PRETTY_NAME=' | cut -d= -f2 -d'"'`
+	pretty_name=`cat /etc/os-release | egrep '^PRETTY_NAME=' | cut -d= -f2 -d'"'`
+	version_id=`cat /etc/os-release | egrep '^VERSION_ID=' | cut -d= -f2 -d'"'`
+	version=`cat /etc/os-release | egrep '^VERSION=' | cut -d= -f2 -d'"'`
 
-	print_success "The local operating system is '$OS'."
+	print_success "The local operating system is '$pretty_name'."
 
 	print_success "Build environment is '$environment'."
 
@@ -128,7 +130,7 @@ install_extras () {
 
 update_os () {
 
-	if [ "$OS" = "Ubuntu 18.04 LTS" ]; then
+	if [ "$version_id" = "18.04" ]; then
 
 		# Let's update the OS and then run any needed upgrades. We are also truncating the output
 		# to the screen to reduce clutter during the build.
@@ -141,11 +143,11 @@ update_os () {
 
 		#apt-get dist-upgrade -y &> /dev/null
 
-	elif [ "$OS" = "Ubuntu 16.04.4 LTS" ]; then
+	elif [ "$version_id" = "16.04" ]; then
 		apt-get -o Acquire::ForceIPv4=true update -y &> /dev/null
 		DEBIAN_FRONTEND=noninteractive apt-get -y -o DPkg::options::="--force-confdef" -o DPkg::options::="--force-confold"  install grub-pc
 		apt-get -o Acquire::ForceIPv4=true upgrade -y &> /dev/null
-	elif [ "$OS" = "Raspbian GNU/Linux 9 (stretch)" ]; then
+	elif [ "$version_id" = "9" ]; then
 
 		# 'Raspbian GNU/Linux 9 (stretch)' would evaluate here.
 		print_success "Raspbian was detected. You are using a Raspberry Pi. We love you."
@@ -173,7 +175,7 @@ expand_swap () {
 	# We are only modifying the swap amount for a Raspberry Pi device. In the future, other
 	# environments will have their own place in the following conditional statement.
 
-	if [ "$OS" = "Raspbian GNU/Linux 9 (stretch)" ]; then
+	if [ "$version_id" = "9" ]; then
 
 		# On a Raspberry Pi 3, the default swap is 100MB. This is a little restrictive, so we are
 		# expanding it to a full 1GB of swap. We don't usually touch too much swap but during the 
@@ -195,7 +197,7 @@ reduce_gpu_mem () {
 	# we only use the CLI. So no need to allocate GPU ram to something that isn't being used. Let's 
 	# assign the param below to the minimum value in the /boot/config.txt file.
 
-	if [ "$OS" = "Raspbian GNU/Linux 9 (stretch)" ]; then
+	if [ "$version_id" = "9" ]; then
 
 		# First, lets not assume that an entry doesn't already exist, so let's purge and preexisting
 		# gpu_mem variables from the respective file.
@@ -215,7 +217,7 @@ reduce_gpu_mem () {
 disable_bluetooth () {
 
 
-	if [ "$OS" = "Raspbian GNU/Linux 9 (stretch)" ]; then
+	if [ "$version_id" = "9" ]; then
 
 		# First, lets not assume that an entry doesn't already exist, so let's purge any preexisting
 		# bluetooth variables from the respective file.
@@ -247,7 +249,7 @@ set_network () {
 	echo $hhostname > /etc/hostname && hostname -F /etc/hostname
 	print_success "Setting the local host name to '$hhostname.'"
 
-	if [ "$OS" = "Raspbian GNU/Linux 9 (stretch)" ]; then
+	if [ "$version_id" = "9" ]; then
 
 		sed -i "/127.0.1.1/c\127.0.1.1       raspberrypi $fqdn $hhostname" /etc/hosts
 		print_success "The IP address of this machine is $ipaddr."
@@ -265,7 +267,7 @@ set_wifi () {
 	# The only time we want to set up the wifi is if the script is running on a Raspberry Pi. The
 	# script should just skip over this step if we are on any OS other then Raspian. 
 
-	if [ "$OS" = "Raspbian GNU/Linux 9 (stretch)" ]; then
+	if [ "$version_id" = "9" ]; then
 
 		# Let's assume the files already exists, so we will delete them and start from scratch.
 
@@ -307,7 +309,7 @@ set_accounts () {
 
 	# We only need to lock the Pi account if this is a Raspberry Pi. Otherwise, ignore this step.
 
-	if [ "$OS" = "Raspbian GNU/Linux 9 (stretch)" ]; then
+	if [ "$version_id" = "9" ]; then
 
 		# Let's lock the pi user account, no need to delete it.
 
@@ -373,7 +375,7 @@ install_portcheck () {
 
 	print_success \" Standby, checking connectivity...\"
 
-	tmp_port=$port
+	port=$port
 	tmp_app=\$(http v4.ifconfig.co/port/$port)
 	tmp_rpc=\$(http v4.ifconfig.co/port/$rpcport)
 	app_ip_address=\$(echo \$tmp_app | jq -r '.ip')
@@ -441,7 +443,7 @@ install_portcheck () {
 
 	fi
 
-	if [ \"$tmp_port\" = \"44566\" ]; then
+	if [ \"$port\" = \"44566\" ]; then
 
 		print_error \" This is a non-production 'testnet' environment of Lynx.\"
 		print_success \"\"
@@ -528,7 +530,7 @@ install_blockcrawler () {
 
 	# Each OS has a unique sock file path.
 
-	if [ "$OS" = "Raspbian GNU/Linux 9 (stretch)" ]; then
+	if [ "$version_id" = "9" ]; then
 
 		rm -Rf /etc/nginx/sites-available/default
 
@@ -599,7 +601,7 @@ install_blockcrawler () {
 
 install_miniupnpc () {
 
-	if [ "$OS" = "Raspbian GNU/Linux 9 (stretch)" ]; then
+	if [ "$version_id" = "9" ]; then
 
 		apt-get install libminiupnpc-dev -y	&> /dev/null
 		print_success "Miniupnpc was installed."
@@ -672,7 +674,7 @@ install_lynx () {
 		
 		cd /root/lynx/ && ./autogen.sh
 
-		if [ "$OS" = "Raspbian GNU/Linux 9 (stretch)" ]; then
+		if [ "$version_id" = "9" ]; then
 			./configure LDFLAGS="-L/root/lynx/db4/lib/" CPPFLAGS="-I/root/lynx/db4/include/ -O2" --enable-cxx --without-gui --disable-shared --with-miniupnpc --enable-upnp-default --disable-tests && make
 		else
 			./configure LDFLAGS="-L/root/lynx/db4/lib/" CPPFLAGS="-I/root/lynx/db4/include/ -O2" --enable-cxx --without-gui --disable-shared --disable-tests && make
@@ -691,7 +693,7 @@ install_lynx () {
 
 		cd /root/lynx/ && ./autogen.sh
 
-		if [ "$OS" = "Raspbian GNU/Linux 9 (stretch)" ]; then
+		if [ "$version_id" = "9" ]; then
 			./configure --enable-cxx --without-gui --disable-wallet --disable-tests --with-miniupnpc --enable-upnp-default && make
 		else
 			./configure --enable-cxx --without-gui --disable-wallet --disable-tests && make
@@ -745,11 +747,11 @@ install_cpuminer () {
 	cd /root/cpuminer
 	./autogen.sh
 
-	if [ "$OS" = "Raspbian GNU/Linux 9 (stretch)" ]; then
+	if [ "$version_id" = "9" ]; then
 		./configure --disable-assembly CFLAGS="-Ofast -march=native" --with-crypto --with-curl
-	elif [ "$OS" = "Ubuntu 18.04 LTS" ]; then
+	elif [ "$version_id" = "18.04" ]; then
 		./configure CFLAGS="-march=native" --with-crypto --with-curl
-	elif [ "$OS" = "Ubuntu 16.04 LTS" ]; then
+	elif [ "$version_id" = "16.04" ]; then
 		./configure CFLAGS="-march=native" --with-crypto --with-curl
 	else
 		./configure --disable-assembly CFLAGS="-Ofast -march=native" --with-crypto --with-curl
@@ -763,7 +765,7 @@ install_cpuminer () {
 
 install_mongo () {
 
-	if [ "$OS" = "Raspbian GNU/Linux 9 (stretch)" ]; then
+	if [ "$version_id" = "9" ]; then
 		apt-key adv --keyserver hkp://keyserver.ubuntu.com:80 --recv EA312927
 		echo "deb http://repo.mongodb.org/apt/debian jessie/mongodb-org/3.2 main" | sudo tee /etc/apt/sources.list.d/mongodb-org-3.2.
 		apt-get update -y &> /dev/null
