@@ -373,6 +373,7 @@ install_portcheck () {
 
 	print_success \" Standby, checking connectivity...\"
 
+	tmp_port=$port
 	tmp_app=\$(http v4.ifconfig.co/port/$port)
 	tmp_rpc=\$(http v4.ifconfig.co/port/$rpcport)
 	app_ip_address=\$(echo \$tmp_app | jq -r '.ip')
@@ -425,14 +426,6 @@ install_portcheck () {
 
 	fi
 
-	if [ \"$port\" = \"44566\" ]; then
-
-		print_success \"\"
-		print_error \" This is a non-production 'testnet' environment of Lynx.\"
-		print_success \"\"
-
-	fi
-
 	if [ \"\$rpc_reachable\" = \"true\" ]; then
 
 		print_success \"\"
@@ -444,6 +437,13 @@ install_portcheck () {
 
 		print_success \"\"
 		print_error \" Your Lynx RPC port ($rpcport) is not public.\"
+		print_success \"\"
+
+	fi
+
+	if [ \"$tmp_port\" = \"44566\" ]; then
+
+		print_error \" This is a non-production 'testnet' environment of Lynx.\"
 		print_success \"\"
 
 	fi
