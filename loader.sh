@@ -34,4 +34,4 @@ chmod 744 -R /root/LynxNodeBuilder/
 # Let's execute the build script. If building a test environment, be sure to use the 'testnet'
 # argument instead of 'mainnet'. The argument is required.
 
-/root/LynxNodeBuilder/install.sh testnet
+/root/LynxNodeBuilder/install.sh mainnet
