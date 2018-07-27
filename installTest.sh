@@ -375,12 +375,23 @@ install_portcheck () {
 
 	print_success \" Standby, checking connectivity...\"
 
-	port=$port
-	tmp_app=\$(http v4.ifconfig.co/port/$port)
-	tmp_rpc=\$(http v4.ifconfig.co/port/$rpcport)
-	app_ip_address=\$(echo \$tmp_app | jq -r '.ip')
-	app_reachable=\$(echo \$tmp_app | jq -r '.reachable')
-	rpc_reachable=\$(echo \$tmp_rpc | jq -r '.reachable')
+	# When the build script runs, we know the lynxd port, but we don't know if after the node is 
+	# built. So we are hardcoding the value here, so it can be checked in the future.
+
+	port=\"$port\"
+	rpcport=\"$rpcport\"
+
+	if [ -z \"\$(netstat -an | grep \$port | grep -i listen)\" ]; then
+	  app_reachable=\"false\"
+	else
+	  app_reachable=\"true\"
+	fi
+
+	if [ -z \"\$(netstat -an | grep \$rpcport | grep -i listen)\" ]; then
+	  rpc_reachable=\"false\"
+	else
+	  rpc_reachable=\"true\"
+	fi
 
 	if ! pgrep -x \"lynxd\" > /dev/null; then
 
@@ -418,32 +429,30 @@ install_portcheck () {
 	if [ \"\$app_reachable\" = \"true\" ]; then
 
 		print_success \"\"
-		print_success \" Your public IP is \$app_ip_address and port $port is reachable. Congratulations,\"
-		print_success \" you have a Lynx seeder node.\"
+		print_success \" Lynx port \$port is open.\"
 
 	else
 
 		print_success \"\"
-		print_error \" Your public IP is \$app_ip_address and port $port is not open.\"
+		print_error \" Lynx port \$port is not open.\"
 
 	fi
 
 	if [ \"\$rpc_reachable\" = \"true\" ]; then
 
 		print_success \"\"
-		print_success \" Your Lynx RPC port ($rpcport) is also public. Access to your unique LYNX RPC\"
-		print_success \" credentials are listed above.\"
+		print_success \" Lynx RPC port \$rpcport is open.\"
 		print_success \"\"
 
 	else
 
 		print_success \"\"
-		print_error \" Your Lynx RPC port ($rpcport) is not public.\"
+		print_error \" Lynx RPC port \$rpcport is not open.\"
 		print_success \"\"
 
 	fi
 
-	if [ \"$port\" = \"44566\" ]; then
+	if [ \"\$port\" = \"44566\" ]; then
 
 		print_error \" This is a non-production 'testnet' environment of Lynx.\"
 		print_success \"\"
