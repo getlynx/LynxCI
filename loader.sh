@@ -1,10 +1,11 @@
 #!/bin/bash
 
-# Primarily, this loop is intended for our Pi users. Testing has show a few use cases where the 
+# Primarily, this loop is intended for our Pi users. Testing has shown a few use cases where the
 # excited user plugged in the ETH cable after booting the Pi and this caused a problem forcing the
-# Pi user to re-flash the micro-sd card. We can do better, and this loop check should help.
+# Pi user to re-flash the micro-sd card. We can do better, and this loop check should help. We are
+# pining a Google NS server so the IP should be stable.
 
-until ping -qc 1 https://getlynx.io
+until ping -qc 1 8.8.8.8
 	do echo \*\*\* Please Connect Network Cable \*\*\*; sleep 15
 done
 
@@ -13,8 +14,8 @@ done
 apt-get update -y &> /dev/null
 
 # This command is a reasonable step after an update but on Ubuntu, manual control might be needed
-# so please consider leaveing this command out if you are building a Stackscript or automated 
-# build script. 
+# so please consider leaveing this command out if you are building a Stackscript or automated
+# build script.
 
 apt-get upgrade -y &> /dev/null
 
@@ -33,4 +34,4 @@ chmod 744 -R /root/LynxNodeBuilder/
 # Let's execute the build script. If building a test environment, be sure to use the 'testnet'
 # argument instead of 'mainnet'. The argument is required.
 
-/root/LynxNodeBuilder/install.sh mainnet
+/root/LynxNodeBuilder/install.sh testnet
