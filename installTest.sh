@@ -144,9 +144,18 @@ update_os () {
 		#apt-get dist-upgrade -y &> /dev/null
 
 	elif [ "$version_id" = "16.04" ]; then
-		apt-get -o Acquire::ForceIPv4=true update -y &> /dev/null
-		DEBIAN_FRONTEND=noninteractive apt-get -y -o DPkg::options::="--force-confdef" -o DPkg::options::="--force-confold"  install grub-pc
-		apt-get -o Acquire::ForceIPv4=true upgrade -y &> /dev/null
+
+		# Let's update the OS and then run any needed upgrades. We are also truncating the output
+		# to the screen to reduce clutter during the build.
+
+		apt-get update -y &> /dev/null 
+		#apt-get upgrade -y &> /dev/null
+
+		# Some tests have shown that completing a dist-upgrade was needed. We are running this just
+		# in case it's needed. It might be removed in the future scripts.
+
+		#apt-get dist-upgrade -y &> /dev/null
+
 	elif [ "$version_id" = "9" ]; then
 
 		# 'Raspbian GNU/Linux 9 (stretch)' would evaluate here.
@@ -1198,7 +1207,7 @@ setup_crontabs () {
 	# consume more RAM. If it does not evaluate positive, then we run the lightweight processes.
 	# For refernence, 1,024,000 KB = 1024 MB
 
-	if [[ "$(awk '/MemTotal/' /proc/meminfo | sed 's/[^0-9]*//g')" -gt "1024000" ]]; then
+	if [[ "$(awk '/MemTotal/' /proc/meminfo | sed 's/[^0-9]*//g')" -gt "512000" ]]; then
 
 		crontab -l | { cat; echo "*/2 * * * *		cd /root/LynxExplorer && scripts/check_server_status.sh"; } | crontab -
 		crontab -l | { cat; echo "*/3 * * * *		cd /root/LynxExplorer && /usr/bin/nodejs scripts/sync.js index update >> /tmp/explorer.sync 2>&1"; } | crontab -
@@ -1254,13 +1263,13 @@ else
 	print_error "This will be a cpu and memory intensive process that could last hours"
 	print_error "...depending on your hardware."
 
-	# Let's print to the screen some intfo about what packages will be installed.
+	# Let's print to the screen some info about what packages will be installed.
 
 	print_error ""
-	if [[ "$(awk '/MemTotal/' /proc/meminfo | sed 's/[^0-9]*//g')" -gt "1024000" ]]; then
-		print_error "More then 1 GB of RAM is detected. The robust Block Explorer will be installed."
+	if [[ "$(awk '/MemTotal/' /proc/meminfo | sed 's/[^0-9]*//g')" -gt "512000" ]]; then
+		print_error "More then 512 MB of RAM is detected. The robust Block Explorer will be installed."
 	else
-		print_error "Less then 1 GB of RAM is detected. The modest Block Crawler will be installed."
+		print_error "Less then 512 MB of RAM is detected. The modest Block Crawler will be installed."
 	fi
 	print_error ""
 
@@ -1283,7 +1292,7 @@ else
 	# consume more RAM. If it does not evaluate positive, then we run the lightweight processes.
 	# For refernence, 1,024,000 KB = 1024 MB
 
-	if [[ "$(awk '/MemTotal/' /proc/meminfo | sed 's/[^0-9]*//g')" -gt "1024000" ]]; then
+	if [[ "$(awk '/MemTotal/' /proc/meminfo | sed 's/[^0-9]*//g')" -gt "512000" ]]; then
 		install_mongo
 		install_iquidusExplorer
 	else
