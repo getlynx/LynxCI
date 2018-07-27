@@ -501,7 +501,7 @@ install_iquidusExplorer () {
 	# credentials for this device. Since they are created dynamically each time, we just do
 	# find and replace in the json file.
 
-	sed -i "s/9332/x${rpcport}/g" /root/LynxExplorer/settings.json
+	sed -i "s/9332/${rpcport}/g" /root/LynxExplorer/settings.json
 	sed -i "s/__HOSTNAME__/x${fqdn}/g" /root/LynxExplorer/settings.json
 	sed -i "s/__MONGO_USER__/x${rrpcuser}/g" /root/LynxExplorer/settings.json
 	sed -i "s/__MONGO_PASS__/x${rrpcpassword}/g" /root/LynxExplorer/settings.json
@@ -723,8 +723,8 @@ install_lynx () {
 	rpcpassword=$rrpcpassword
 	rpcport=$rpcport
 	port=$port
-	rpcbind=0.0.0.0
-	rpcbind=::
+	rpcbind=127.0.0.1
+	rpcbind=::1
 	rpcallowip=0.0.0.0/24
 	rpcallowip=::/0
 	listenonion=0
