@@ -11,6 +11,7 @@ if [ "$1" = "mainnet" ]; then
 	lynxbranch="master"
 	lynxconfig=""
 	explorer="https://explorer.getlynx.io/api/getblockcount"
+	addresses="miner-addresses.txt"
 
 else
 
@@ -20,6 +21,7 @@ else
 	lynxbranch="new_validation_rules"
 	lynxconfig="testnet=1"
 	explorer="https://testnet.getlynx.io/api/getblockcount"
+	addresses="miner-addresses-testnet.txt"
 
 fi
 
@@ -986,7 +988,7 @@ set_miner () {
 					# Randomly select an address from the addresse file. You are welcome to change 
 					# any value in that list.
 
-					random_address=\"\$(shuf -n 1 /root/LynxNodeBuilder/miner-addresses.txt)\"
+					random_address=\"\$(shuf -n 1 /root/LynxNodeBuilder/$addresses)\"
 
 					# With the randomly selected reward address, lets start solo mining.
 
