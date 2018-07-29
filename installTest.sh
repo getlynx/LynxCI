@@ -282,8 +282,8 @@ set_wifi () {
 
 		# Let's assume the files already exists, so we will delete them and start from scratch.
 
-		rm -Rf /boot/wpa_supplicant.conf
-		rm -Rf /etc/wpa_supplicant/wpa_supplicant.conf
+		rm -rf /boot/wpa_supplicant.conf
+		rm -rf /etc/wpa_supplicant/wpa_supplicant.conf
 		
 		echo "
 
@@ -347,17 +347,7 @@ set_accounts () {
 
 install_portcheck () {
 
-	# Let's install 'HTTPie: a CLI, cURL-like tool for humans' so that we can later check if the
-	# node is a leecher of a seeder. It will also help the home Pi user to tune their wi-fi
-	# router in case it's acting like a leecher to the Lynx network. For more details on this 
-	# cool package, visit https://github.com/jakubroztocil/httpie
-
-	apt-get install httpie jq -y &> /dev/null
-
-	print_success "Httpie was installed."
-	print_success "Jq was installed."
-
-	rm -Rf /etc/profile.d/portcheck.sh
+	rm -rf /etc/profile.d/portcheck.sh
 
 	echo "	#!/bin/bash
 
@@ -479,10 +469,7 @@ install_portcheck () {
 	" > /etc/profile.d/portcheck.sh
 
 	chmod 744 /etc/profile.d/portcheck.sh
-
-	print_success ""
-	print_success "Port check script was installed."
-	print_success ""
+	chown root:root /etc/profile.d/portcheck.sh
 
 }
 
@@ -552,7 +539,7 @@ install_blockcrawler () {
 
 	if [ "$version_id" = "9" ]; then
 
-		rm -Rf /etc/nginx/sites-available/default
+		rm -rf /etc/nginx/sites-available/default
 
 		echo "
 		server {
@@ -573,7 +560,7 @@ install_blockcrawler () {
 
 	else
 
-		rm -Rf /etc/nginx/sites-available/default
+		rm -rf /etc/nginx/sites-available/default
 
 		echo "
 		server {
@@ -925,8 +912,6 @@ set_miner () {
 
 	rm -rf /root/miner.sh
 
-	print_info "Initializing the local cpu miner script."
-
 	echo "
 	#!/bin/bash
 
@@ -1037,6 +1022,7 @@ set_miner () {
 	#" > /root/miner.sh
 
 	chmod 700 /root/miner.sh
+	chown root:root /root/miner.sh
 
 }
 
