@@ -9,6 +9,7 @@ if [ "$1" = "mainnet" ]; then
 	port="22566"
 	rpcport="9332"
 	lynxbranch="master"
+	explorerbranch="master"
 	lynxconfig=""
 	explorer="https://explorer.getlynx.io/api/getblockcount"
 	addresses="miner-addresses.txt"
@@ -19,6 +20,7 @@ else
 	port="44566"
 	rpcport="19335"
 	lynxbranch="new_validation_rules"
+	explorerbranch="new-ui"
 	lynxconfig="testnet=1"
 	explorer="https://testnet.getlynx.io/api/getblockcount"
 	addresses="miner-addresses-testnet.txt"
@@ -499,7 +501,7 @@ install_iquidusExplorer () {
 	npm install pm2 -g
 	print_success "PM2 was installed."
 
-	git clone https://github.com/doh9Xiet7weesh9va9th/LynxExplorer.git
+	git clone -b $explorerbranch https://github.com/doh9Xiet7weesh9va9th/LynxExplorer.git
 	print_success "Block Explorer was installed."
 	
 	cd /root/LynxExplorer/ && npm install --production
