@@ -1264,9 +1264,9 @@ else
 	print_error ""
 
 	detect_os
+	install_extras
 	detect_vps
 	set_network
-	install_extras
 	update_os
 	expand_swap
 	reduce_gpu_mem
