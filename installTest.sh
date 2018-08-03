@@ -71,6 +71,16 @@ detect_os () {
 	version_id=`cat /etc/os-release | egrep '^VERSION_ID=' | cut -d= -f2 -d'"'`
 	version=`cat /etc/os-release | egrep '^VERSION=' | cut -d= -f2 -d'"'`
 
+	if [ -z "cat /proc/cpuinfo | grep 'Revision' | awk '{print $3}'" ]; then
+
+		isPi="true"
+
+	else
+
+		isPi="false"
+
+	fi
+
 	print_success "The local operating system is '$pretty_name'."
 
 	print_success "Build environment is '$environment'."
@@ -134,51 +144,22 @@ install_extras () {
 
 update_os () {
 
-	if [ "$version_id" = "18.04" ]; then
+	apt-get update -y &> /dev/null 
 
-		# Let's update the OS and then run any needed upgrades. We are also truncating the output
-		# to the screen to reduce clutter during the build.
-
-		apt-get update -y &> /dev/null 
-		#apt-get upgrade -y &> /dev/null
-
-		# Some tests have shown that completing a dist-upgrade was needed. We are running this just
-		# in case it's needed. It might be removed in the future scripts.
-
-		#apt-get dist-upgrade -y &> /dev/null
-
-	elif [ "$version_id" = "16.04" ]; then
-
-		# Let's update the OS and then run any needed upgrades. We are also truncating the output
-		# to the screen to reduce clutter during the build.
-
-		apt-get update -y &> /dev/null 
-		#apt-get upgrade -y &> /dev/null
-
-		# Some tests have shown that completing a dist-upgrade was needed. We are running this just
-		# in case it's needed. It might be removed in the future scripts.
-
-		#apt-get dist-upgrade -y &> /dev/null
-
-	elif [ "$version_id" = "9" ]; then
+	if [ "$isPi" = "true" ]; then
 
 		# 'Raspbian GNU/Linux 9 (stretch)' would evaluate here.
+
 		print_success "Raspbian was detected. You are using a Raspberry Pi. We love you."
 
 		touch /boot/ssh
+
 		print_success "SSH access was enabled by creating the SSH file in /boot."
-
-		# Let's update the OS and then run any needed upgrades. We are also truncating the output
-		# to the screen to reduce clutter during the build.
-
-		apt-get update -y &> /dev/null && apt-get upgrade -y &> /dev/null
 
 		# Let's be sure this management script has the right permissions to operate properly.
 
 		chmod 700 /root/LynxNodeBuilder/disableHDMI.sh
 
-	else
-		exit 1
 	fi
 
 }
@@ -188,7 +169,7 @@ expand_swap () {
 	# We are only modifying the swap amount for a Raspberry Pi device. In the future, other
 	# environments will have their own place in the following conditional statement.
 
-	if [ "$version_id" = "9" ]; then
+	if [ "$isPi" = "true" ]; then
 
 		# On a Raspberry Pi 3, the default swap is 100MB. This is a little restrictive, so we are
 		# expanding it to a full 1GB of swap. We don't usually touch too much swap but during the 
@@ -210,7 +191,7 @@ reduce_gpu_mem () {
 	# we only use the CLI. So no need to allocate GPU ram to something that isn't being used. Let's 
 	# assign the param below to the minimum value in the /boot/config.txt file.
 
-	if [ "$version_id" = "9" ]; then
+	if [ "$isPi" = "true" ]; then
 
 		# First, lets not assume that an entry doesn't already exist, so let's purge and preexisting
 		# gpu_mem variables from the respective file.
@@ -230,7 +211,7 @@ reduce_gpu_mem () {
 disable_bluetooth () {
 
 
-	if [ "$version_id" = "9" ]; then
+	if [ "$isPi" = "true" ]; then
 
 		# First, lets not assume that an entry doesn't already exist, so let's purge any preexisting
 		# bluetooth variables from the respective file.
@@ -260,18 +241,10 @@ set_network () {
 	fqdn="$hhostname.getlynx.io"
 
 	echo $hhostname > /etc/hostname && hostname -F /etc/hostname
+	
 	print_success "Setting the local host name to '$hhostname.'"
 
-	if [ "$version_id" = "9" ]; then
-
-		sed -i "/127.0.1.1/c\127.0.1.1       raspberrypi $fqdn $hhostname" /etc/hosts
-		print_success "The IP address of this machine is $ipaddr."
-
-	else
-
-		echo $ipaddr $fqdn $hhostname >> /etc/hosts
-
-	fi
+	echo $ipaddr $fqdn $hhostname >> /etc/hosts
 
 }
 
@@ -280,7 +253,7 @@ set_wifi () {
 	# The only time we want to set up the wifi is if the script is running on a Raspberry Pi. The
 	# script should just skip over this step if we are on any OS other then Raspian. 
 
-	if [ "$version_id" = "9" ]; then
+	if [ "$isPi" = "true" ]; then
 
 		# Let's assume the files already exists, so we will delete them and start from scratch.
 
@@ -322,7 +295,7 @@ set_accounts () {
 
 	# We only need to lock the Pi account if this is a Raspberry Pi. Otherwise, ignore this step.
 
-	if [ "$version_id" = "9" ]; then
+	if [ "$isPi" = "true" ]; then
 
 		# Let's lock the pi user account, no need to delete it.
 
@@ -539,7 +512,7 @@ install_blockcrawler () {
 
 	# Each OS has a unique sock file path.
 
-	if [ "$version_id" = "9" ]; then
+	if [ "$version_id" = "9" -o "$version_id" = "8" ]; then
 
 		rm -rf /etc/nginx/sites-available/default
 
@@ -610,7 +583,7 @@ install_blockcrawler () {
 
 install_miniupnpc () {
 
-	if [ "$version_id" = "9" ]; then
+	if [ "$version_id" = "9" -o "$version_id" = "8" ]; then
 
 		apt-get install libminiupnpc-dev -y	&> /dev/null
 		print_success "Miniupnpc was installed."
@@ -683,7 +656,7 @@ install_lynx () {
 		
 		cd /root/lynx/ && ./autogen.sh
 
-		if [ "$version_id" = "9" ]; then
+		if [ "$version_id" = "9" -o "$version_id" = "8" ]; then
 			./configure LDFLAGS="-L/root/lynx/db4/lib/" CPPFLAGS="-I/root/lynx/db4/include/ -O2" --enable-cxx --without-gui --disable-shared --with-miniupnpc --enable-upnp-default --disable-tests && make
 		else
 			./configure LDFLAGS="-L/root/lynx/db4/lib/" CPPFLAGS="-I/root/lynx/db4/include/ -O2" --enable-cxx --without-gui --disable-shared --disable-tests && make
@@ -702,7 +675,7 @@ install_lynx () {
 
 		cd /root/lynx/ && ./autogen.sh
 
-		if [ "$version_id" = "9" ]; then
+		if [ "$version_id" = "9" -o "$version_id" = "8" ]; then
 			./configure --enable-cxx --without-gui --disable-wallet --disable-tests --with-miniupnpc --enable-upnp-default && make
 		else
 			./configure --enable-cxx --without-gui --disable-wallet --disable-tests && make
@@ -756,7 +729,7 @@ install_cpuminer () {
 	cd /root/cpuminer
 	./autogen.sh
 
-	if [ "$version_id" = "9" ]; then
+	if [ "$version_id" = "9" -o "$version_id" = "8" ]; then
 		./configure --disable-assembly CFLAGS="-Ofast -march=native" --with-crypto --with-curl
 	elif [ "$version_id" = "18.04" ]; then
 		./configure CFLAGS="-march=native" --with-crypto --with-curl
@@ -774,7 +747,7 @@ install_cpuminer () {
 
 install_mongo () {
 
-	if [ "$version_id" = "9" ]; then
+	if [ "$version_id" = "9" -o "$version_id" = "8" ]; then
 		apt-key adv --keyserver hkp://keyserver.ubuntu.com:80 --recv EA312927
 		echo "deb http://repo.mongodb.org/apt/debian jessie/mongodb-org/3.2 main" | sudo tee /etc/apt/sources.list.d/mongodb-org-3.2.
 		apt-get update -y &> /dev/null

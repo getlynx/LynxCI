@@ -17,11 +17,11 @@ apt-get update -y &> /dev/null
 # so please consider leaveing this command out if you are building a Stackscript or automated
 # build script.
 
-apt-get upgrade -y &> /dev/null
+# apt-get upgrade -y &> /dev/null
 
 # We need to ensure we have git for the following step. Let's not assume we already ahve it.
 
-apt-get install git -y &> /dev/null
+apt-get install git curl htop nano -y &> /dev/null
 
 # We are downloading the latest package of build instructions from github.
 
