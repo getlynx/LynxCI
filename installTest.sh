@@ -601,89 +601,51 @@ install_lynx () {
 	rrpcpassword="$(shuf -i 1000000000-3999999999 -n 1)$(shuf -i 1000000000-3999999999 -n 1)$(shuf -i 1000000000-3999999999 -n 1)"
 	print_warning "The lynxd RPC user account is '$rrpcpassword'."
 
-	# This option was added by some of the developers who wished to run Lynx WITH the wallet
-	# enabled. Since we don't recommend it, because not all users are savvy enough to keep a Linux
-	# really secure, we normally don't provide this as an iption during setup. BUT, if you really
-	# know what you are doing, you know that you can change the value of this parameter to 'Y'
-	# before compile and it will install the needed dependencies and enable wallet functions in the 
-	# Lynxd build process.
+	print_success "Pulling the latest source of Lynx."
 
-	install_wallet="N"
+	# It isn't a bad idea to assume bad things might have happened before this build. Regardless
+	# of the directory existing or not, delete it and start over again. It's just safer!
 
-	# Okay, Let's install the wallet with this version of Lynx!
+	rm -rf /root/lynx/
 
-	if [ "$install_wallet" = "Y" ]; then
+	# Pull down the latest stable production version of Lynx from the repo and drop it into the 
+	# the preferred directory structure.
 
-		print_success "Pulling the latest source of Lynx."
+	git clone -b $lynxbranch https://github.com/doh9Xiet7weesh9va9th/lynx.git /root/lynx/
 
-		# It isn't a bad idea to assume bad things might have happened before this build. Regardless
-		# of the directory existing or not, delete it and start over again. It's just safer!
+	# Since we are installing the wallet with this build, we need the Berkeley DB source. This 
+	# database allows the client to store the keys needed by the wallet. Normally, we keep the 
+	# build lightweight and don't install this dependency, but this extra package is needed for 
+	# this case. Let's jump to the directory that was just created when we downloaded Lynx from
+	# the repository and install the package there, to keep things nicely organized.
 
-		rm -rf /root/lynx/
+	print_success "Pulling the latest source of Berkeley DB."
 
-		# Pull down the latest stable production version of Lynx from the repo and drop it into the 
-		# the preferred directory structure.
+	# We will need this db4 directory soon so let's delete and create it.
 
-		git clone -b $lynxbranch https://github.com/doh9Xiet7weesh9va9th/lynx.git /root/lynx/
+	rm -rf /root/lynx/db4
+	mkdir -p /root/lynx/db4
 
-		# Since we are installing the wallet with this build, we need the Berkeley DB source. This 
-		# database allows the client to store the keys needed by the wallet. Normally, we keep the 
-		# build lightweight and don't install this dependency, but this extra package is needed for 
-		# this case. Let's jump to the directory that was just created when we downloaded Lynx from
-		# the repository and install the package there, to keep things nicely organized.
+	# We need a very specific version of the Berkeley DB for the wallet to function properly.
 
-		print_success "Pulling the latest source of Berkeley DB."
+	cd /root/lynx/ && wget http://download.oracle.com/berkeley-db/db-4.8.30.NC.tar.gz
 
-		# We will need this db4 directory soon so let's delete and create it.
+	# Now that we have the tarbar file, lets unpack it and jump to a sub directory within it.
 
-		rm -rf /root/lynx/db4
-		mkdir -p /root/lynx/db4
+	tar -xzvf db-4.8.30.NC.tar.gz && cd db-4.8.30.NC/build_unix/
 
-		# We need a very specific version of the Berkeley DB for the wallet to function properly.
+	# Configure and run the make file to compile the Berkeley DB source.
 
-		cd /root/lynx/ && wget http://download.oracle.com/berkeley-db/db-4.8.30.NC.tar.gz
+	../dist/configure --enable-cxx --disable-shared --with-pic --prefix=/root/lynx/db4 && make install
 
-		# Now that we have the tarbar file, lets unpack it and jump to a sub directory within it.
+	# Now that the Berkeley DB is installed, let's jump to the lynx directory and finish the 
+	# configure statement WITH the Berkeley DB parameters included.
+	
+	cd /root/lynx/ && ./autogen.sh
 
-		tar -xzvf db-4.8.30.NC.tar.gz && cd db-4.8.30.NC/build_unix/
+	./configure LDFLAGS="-L/root/lynx/db4/lib/" CPPFLAGS="-I/root/lynx/db4/include/ -O2" --enable-cxx --without-gui --disable-shared --with-miniupnpc --enable-upnp-default --disable-tests && make
 
-		# Configure and run the make file to compile the Berkeley DB source.
-
-		../dist/configure --enable-cxx --disable-shared --with-pic --prefix=/root/lynx/db4 && make install
-
-		# Now that the Berkeley DB is installed, let's jump to the lynx directory and finish the 
-		# configure statement WITH the Berkeley DB parameters included.
-		
-		cd /root/lynx/ && ./autogen.sh
-
-		if [ "$version_id" = "9" -o "$version_id" = "8" ]; then
-			./configure LDFLAGS="-L/root/lynx/db4/lib/" CPPFLAGS="-I/root/lynx/db4/include/ -O2" --enable-cxx --without-gui --disable-shared --with-miniupnpc --enable-upnp-default --disable-tests && make
-		else
-			./configure LDFLAGS="-L/root/lynx/db4/lib/" CPPFLAGS="-I/root/lynx/db4/include/ -O2" --enable-cxx --without-gui --disable-shared --disable-tests && make
-		fi
-
-		print_success "The latest state of Lynx is being compiled, with the wallet enabled."
-
-	# This is the default state - to NOT install the wallet with this version of Lynx!
-
-	else
-
-		print_success "Pulling the latest source of Lynx."
-		rm -rf /root/lynx/
-
-		git clone -b $lynxbranch https://github.com/doh9Xiet7weesh9va9th/lynx.git /root/lynx/
-
-		cd /root/lynx/ && ./autogen.sh
-
-		if [ "$version_id" = "9" -o "$version_id" = "8" ]; then
-			./configure --enable-cxx --without-gui --disable-wallet --disable-tests --with-miniupnpc --enable-upnp-default && make
-		else
-			./configure --enable-cxx --without-gui --disable-wallet --disable-tests && make
-		fi
-
-		print_success "The latest state of Lynx is being compiled, without wallet functions enabled."
-
-	fi
+	print_success "The latest state of Lynx is being compiled, with the wallet enabled."
 
 	# in the past, we used a bootstrap file to get the full blockchain history to load faster. This
 	# was very helpful but it did bring up a security concern. If the bootstrap file had been
@@ -711,6 +673,7 @@ install_lynx () {
 	rpcallowip=::/0
 	listenonion=0
 	upnp=1
+	disablewallet=1
 	txindex=1
 	$lynxconfig
 	" > /root/.lynx/lynx.conf
@@ -729,14 +692,10 @@ install_cpuminer () {
 	cd /root/cpuminer
 	./autogen.sh
 
-	if [ "$version_id" = "9" -o "$version_id" = "8" ]; then
+	if [ "$isPi" = "true" ]; then
 		./configure --disable-assembly CFLAGS="-Ofast -march=native" --with-crypto --with-curl
-	elif [ "$version_id" = "18.04" ]; then
+	else 
 		./configure CFLAGS="-march=native" --with-crypto --with-curl
-	elif [ "$version_id" = "16.04" ]; then
-		./configure CFLAGS="-march=native" --with-crypto --with-curl
-	else
-		./configure --disable-assembly CFLAGS="-Ofast -march=native" --with-crypto --with-curl
 	fi
 
 	make
@@ -747,49 +706,37 @@ install_cpuminer () {
 
 install_mongo () {
 
+	apt-key adv --keyserver hkp://keyserver.ubuntu.com:80 --recv EA312927
+
 	if [ "$version_id" = "9" -o "$version_id" = "8" ]; then
-		apt-key adv --keyserver hkp://keyserver.ubuntu.com:80 --recv EA312927
+
 		echo "deb http://repo.mongodb.org/apt/debian jessie/mongodb-org/3.2 main" | sudo tee /etc/apt/sources.list.d/mongodb-org-3.2.
-		apt-get update -y &> /dev/null
-		apt-get install -y mongodb-org &> /dev/null
-
-		# Now that Mongo is installed. Let's be sure to start the service.
-
-		systemctl start mongod
-		systemctl enable mongod
-
-		# Because it can take a second or two for Mongo to start, let's let it breath for 5 seconds
-		# so we don't try to operate on the service that isn't started yet. 
-
-		sleep 5
-
-		account="{ user: 'x${rrpcuser}', pwd: 'x${rrpcpassword}', roles: [ 'readWrite' ] }"   
-		mongo lynx --eval "db.createUser( ${account} )"
 
 	else
 
-		# Since this script is designed to be used only with Raspian and Ubuntu, this else statement
-		# should evaluate if the installer is running on Ubuntu 18.04 LTS
+		# This else statement should evaluate if the installer is running anything other then Debian
+		# 8 or Debian 9.
 
-		apt-key adv --keyserver hkp://keyserver.ubuntu.com:80 --recv EA312927
 		echo "deb http://repo.mongodb.org/apt/ubuntu xenial/mongodb-org/3.2 multiverse" | sudo tee /etc/apt/sources.list.d/mongodb-org-3.2.list
-		apt-get update -y &> /dev/null
-		apt-get install -y mongodb-org &> /dev/null
 
-		# Now that Mongo is installed. Let's be sure to start the service.
-
-		systemctl start mongod
-		systemctl enable mongod
-
-		# Because it can take a second or two for Mongo to start, let's let it breath for 5 seconds
-		# so we don't try to operate on the service that isn't started yet. 
-
-		sleep 5
-
-		account="{ user: 'x${rrpcuser}', pwd: 'x${rrpcpassword}', roles: [ 'readWrite' ] }"   
-		mongo lynx --eval "db.createUser( ${account} )"
-		
 	fi
+
+	apt-get update -y &> /dev/null
+	apt-get install -y mongodb-org &> /dev/null
+
+	# Now that Mongo is installed. Let's be sure to start the service.
+
+	systemctl start mongod
+	systemctl enable mongod 
+
+	# Because it can take a second or two for Mongo to start, let's let it breath for 5 seconds
+	# so we don't try to operate on the service that isn't started yet.
+
+	sleep 5
+
+	account="{ user: 'x${rrpcuser}', pwd: 'x${rrpcpassword}', roles: [ 'readWrite' ] }" 
+
+	mongo lynx --eval "db.createUser( ${account} )"
 
     print_success "MongoDB was installed."
 
@@ -1216,8 +1163,8 @@ if [ -f /boot/lynxci ]; then
 
 	print_error "Previous LynxCI detected. Install aborted."
 
-# Since the file "/boot/lynxci", was NOT found, we know this is the first time this script has run
-# so we let it do it's thing.
+	# Since the file "/boot/lynxci", was NOT found, we know this is the first time this script has run
+	# so we let it do it's thing.
 
 else
 
