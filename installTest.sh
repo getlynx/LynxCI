@@ -1105,12 +1105,12 @@ setup_crontabs () {
 	# As the update script grows with more self updating features, we will let this script run every 
 	# 24 hours. This way, users don't have to rebuild the LynxCI build as often to get new updates.
 
-	crontab -l | { cat; echo "* * */1 * *		/root/update.sh"; } | crontab -
+	crontab -l | { cat; echo "0 0 * * *		/root/update.sh"; } | crontab -
 
 	# We found that after a few weeks, the debug log would grow rather large. It's not really needed
-	# after a certain size, so let's truncate that log down to a reasonable size every 2 days.
+	# after a certain size, so let's truncate that log down to a reasonable size every day.
 
-	crontab -l | { cat; echo "0 0 */2 * *		truncate -s 1KB /root/.lynx/debug.log"; } | crontab -
+	crontab -l | { cat; echo "0 0 * * *		truncate -s 1KB /root/.lynx/debug.log"; } | crontab -
 
 	# Evey 15 days we will reboot the device. This is for a few reasons. Since the device is often
 	# not actively managed by it's owner, we can't assume it is always running perfectly so an
