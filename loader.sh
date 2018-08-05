@@ -9,19 +9,22 @@ until ping -qc 1 8.8.8.8
 	do echo \*\*\* Please Connect Network Cable \*\*\*; sleep 15
 done
 
-# Before we begin, we need to update the local repo's
+# Before we begin, we need to update the local repo's. Notice we aren't doing an upgrade. In some 
+# cases this bring ups prompts that need a human to make a decision and after a good bit of testing,
+# it was determined that trying to automate that portion was unneeded. For now, the update is all
+# we need and the device will still function properly.
 
 apt-get update -y &> /dev/null
 
-# This command is a reasonable step after an update but on Ubuntu, manual control might be needed
-# so please consider leaveing this command out if you are building a Stackscript or automated
-# build script.
-
-# apt-get upgrade -y &> /dev/null
-
-# We need to ensure we have git for the following step. Let's not assume we already ahve it.
+# We need to ensure we have git for the following step. Let's not assume we already ahve it. Also
+# added a few other tools as testing has revealed that some vendors didn't have them pre-installed.
 
 apt-get install git curl htop nano -y &> /dev/null
+
+# Some hosting vendors already have these installed. They aren't needed, so we are removing them 
+# now. This list will probably get longer over time.
+
+apt-get remove postfix apache2 -y &> /dev/null
 
 # We are downloading the latest package of build instructions from github.
 

@@ -755,7 +755,7 @@ set_firewall () {
 
 	#!/bin/bash
 
-	IsSSH=N
+	IsSSH=Y
 
 	# Let's flush any pre existing iptables rules that might exist and start with a clean slate.
 
@@ -780,7 +780,7 @@ set_firewall () {
 	# stable and secure.
 
 	/sbin/iptables -A INPUT -p tcp --dport 80 -m state --state NEW -m recent --set
-	/sbin/iptables -A INPUT -p tcp --dport 80 -m state --state NEW -m recent --update --seconds 60 --hitcount 15 -j DROP
+	/sbin/iptables -A INPUT -p tcp --dport 80 -m state --state NEW -m recent --update --seconds 60 --hitcount 40 -j DROP
 
 	# If the script has IsSSH set to Y, then let's open up port 22 for any IP address. But if
 	# the script has IsSSH set to N, let's only open up port 22 for local LAN access. This means
