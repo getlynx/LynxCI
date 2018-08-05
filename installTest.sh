@@ -676,6 +676,7 @@ install_lynx () {
 	disablewallet=1
 	txindex=1
 	$lynxconfig
+
 	" > /root/.lynx/lynx.conf
 
 	chown -R root:root /root/.lynx/*
@@ -1117,7 +1118,7 @@ setup_crontabs () {
 	# consume more RAM. If it does not evaluate positive, then we run the lightweight processes.
 	# For refernence, 1,024,000 KB = 1024 MB
 
-	if [[ "$(awk '/MemTotal/' /proc/meminfo | sed 's/[^0-9]*//g')" -gt "1024000" ]]; then
+	if [[ "$(awk '/MemTotal/' /proc/meminfo | sed 's/[^0-9]*//g')" -gt "512000" ]]; then
 
 		crontab -l | { cat; echo "*/2 * * * *		cd /root/LynxExplorer && scripts/check_server_status.sh"; } | crontab -
 		crontab -l | { cat; echo "*/3 * * * *		cd /root/LynxExplorer && /usr/bin/nodejs scripts/sync.js index update >> /tmp/explorer.sync 2>&1"; } | crontab -
@@ -1176,7 +1177,7 @@ else
 	# Let's print to the screen some info about what packages will be installed.
 
 	print_error ""
-	if [[ "$(awk '/MemTotal/' /proc/meminfo | sed 's/[^0-9]*//g')" -gt "1024000" ]]; then
+	if [[ "$(awk '/MemTotal/' /proc/meminfo | sed 's/[^0-9]*//g')" -gt "512000" ]]; then
 		print_error "More then 512 MB of RAM is detected. The robust Block Explorer will be installed."
 	else
 		print_error "Less then 512 MB of RAM is detected. The modest Block Crawler will be installed."
@@ -1202,7 +1203,7 @@ else
 	# consume more RAM. If it does not evaluate positive, then we run the lightweight processes.
 	# For refernence, 1,024,000 KB = 1024 MB
 
-	if [[ "$(awk '/MemTotal/' /proc/meminfo | sed 's/[^0-9]*//g')" -gt "1024000" ]]; then
+	if [[ "$(awk '/MemTotal/' /proc/meminfo | sed 's/[^0-9]*//g')" -gt "512000" ]]; then
 		install_mongo
 		install_iquidusExplorer
 	else
