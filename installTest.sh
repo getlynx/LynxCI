@@ -71,16 +71,6 @@ detect_os () {
 	version_id=`cat /etc/os-release | egrep '^VERSION_ID=' | cut -d= -f2 -d'"'`
 	version=`cat /etc/os-release | egrep '^VERSION=' | cut -d= -f2 -d'"'`
 
-	if [ -z "cat /proc/cpuinfo | grep 'Revision' | awk '{print $3}'" ]; then
-
-		isPi="true"
-
-	else
-
-		isPi="false"
-
-	fi
-
 	print_success "The local operating system is '$pretty_name'."
 
 	print_success "Build environment is '$environment'."
@@ -146,7 +136,7 @@ update_os () {
 
 	apt-get update -y &> /dev/null 
 
-	if [ "$isPi" = "true" ]; then
+	if [ -z "cat /proc/cpuinfo | grep 'Revision' | awk '{print $3}'" ]; then
 
 		# 'Raspbian GNU/Linux 9 (stretch)' would evaluate here.
 
@@ -169,7 +159,7 @@ expand_swap () {
 	# We are only modifying the swap amount for a Raspberry Pi device. In the future, other
 	# environments will have their own place in the following conditional statement.
 
-	if [ "$isPi" = "true" ]; then
+	if [ -z "cat /proc/cpuinfo | grep 'Revision' | awk '{print $3}'" ]; then
 
 		# On a Raspberry Pi 3, the default swap is 100MB. This is a little restrictive, so we are
 		# expanding it to a full 1GB of swap. We don't usually touch too much swap but during the 
@@ -191,7 +181,7 @@ reduce_gpu_mem () {
 	# we only use the CLI. So no need to allocate GPU ram to something that isn't being used. Let's 
 	# assign the param below to the minimum value in the /boot/config.txt file.
 
-	if [ "$isPi" = "true" ]; then
+	if [ -z "cat /proc/cpuinfo | grep 'Revision' | awk '{print $3}'" ]; then
 
 		# First, lets not assume that an entry doesn't already exist, so let's purge and preexisting
 		# gpu_mem variables from the respective file.
@@ -211,7 +201,7 @@ reduce_gpu_mem () {
 disable_bluetooth () {
 
 
-	if [ "$isPi" = "true" ]; then
+	if [ -z "cat /proc/cpuinfo | grep 'Revision' | awk '{print $3}'" ]; then
 
 		# First, lets not assume that an entry doesn't already exist, so let's purge any preexisting
 		# bluetooth variables from the respective file.
@@ -253,7 +243,7 @@ set_wifi () {
 	# The only time we want to set up the wifi is if the script is running on a Raspberry Pi. The
 	# script should just skip over this step if we are on any OS other then Raspian. 
 
-	if [ "$isPi" = "true" ]; then
+	if [ -z "cat /proc/cpuinfo | grep 'Revision' | awk '{print $3}'" ]; then
 
 		# Let's assume the files already exists, so we will delete them and start from scratch.
 
@@ -295,7 +285,7 @@ set_accounts () {
 
 	# We only need to lock the Pi account if this is a Raspberry Pi. Otherwise, ignore this step.
 
-	if [ "$isPi" = "true" ]; then
+	if [ -z "cat /proc/cpuinfo | grep 'Revision' | awk '{print $3}'" ]; then
 
 		# Let's lock the pi user account, no need to delete it.
 
@@ -711,10 +701,14 @@ install_cpuminer () {
 	cd /root/cpuminer
 	./autogen.sh
 
-	if [ "$isPi" = "true" ]; then
+	if [ -z "cat /proc/cpuinfo | grep 'Revision' | awk '{print $3}'" ]; then
+
 		./configure --disable-assembly CFLAGS="-Ofast -march=native" --with-crypto --with-curl
+
 	else 
+
 		./configure CFLAGS="-march=native" --with-crypto --with-curl
+
 	fi
 
 	make
