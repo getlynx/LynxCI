@@ -638,14 +638,14 @@ install_lynx () {
 
 	# Configure and run the make file to compile the Berkeley DB source.
 
-	../dist/configure --enable-cxx --disable-shared --with-pic --prefix=/root/lynx/db4 && make install
+	../dist/configure --enable-cxx --disable-shared --with-pic --prefix=/root/lynx/db4 && make -j1 -l1 install
 
 	# Now that the Berkeley DB is installed, let's jump to the lynx directory and finish the 
 	# configure statement WITH the Berkeley DB parameters included.
 	
 	cd /root/lynx/ && ./autogen.sh
 
-	./configure LDFLAGS="-L/root/lynx/db4/lib/" CPPFLAGS="-I/root/lynx/db4/include/ -O2" --enable-cxx --without-gui --disable-shared --with-miniupnpc --enable-upnp-default --disable-tests && make
+	./configure LDFLAGS="-L/root/lynx/db4/lib/" CPPFLAGS="-I/root/lynx/db4/include/ -O2" --enable-cxx --without-gui --disable-shared --with-miniupnpc --enable-upnp-default --disable-tests && make -j1 -l1
 
 	print_success "The latest state of Lynx is being compiled, with the wallet enabled."
 
