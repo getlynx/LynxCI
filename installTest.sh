@@ -357,13 +357,13 @@ install_portcheck () {
 	port=\"$port\"
 	rpcport=\"$rpcport\"
 
-	if [ -z \"\$(netstat -an | grep \$port | grep -i listen)\" ]; then
+	if [ -z \"\$(ss -lntu | grep \$port | grep -i listen)\" ]; then
 	  app_reachable=\"false\"
 	else
 	  app_reachable=\"true\"
 	fi
 
-	if [ -z \"\$(netstat -an | grep \$rpcport | grep -i listen)\" ]; then
+	if [ -z \"\$(ss -lntu | grep \$rpcport | grep -i listen)\" ]; then
 	  rpc_reachable=\"false\"
 	else
 	  rpc_reachable=\"true\"
@@ -381,7 +381,15 @@ install_portcheck () {
 			block=\$(curl -s http://127.0.0.1/api/getblockcount)
 		fi
 
-		block=\$(echo \$block | numfmt --grouping)
+		if [ -z \"\$block\" ]; then
+
+			block=\"being updated\"
+
+		else
+
+			block=\$(echo \$block | numfmt --grouping)
+
+		fi
 
 	fi
 
