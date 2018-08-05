@@ -376,9 +376,13 @@ install_portcheck () {
 	else
 
 		if pgrep -x \"nginx\" > /dev/null; then
+
 			block=\$(curl -s http://127.0.0.1/bc_api.php?request=getblockcount)
+
 		else
+
 			block=\$(curl -s http://127.0.0.1/api/getblockcount)
+			
 		fi
 
 		if [ -z \"\$block\" ]; then
