@@ -790,17 +790,6 @@ set_firewall () {
 
 	/sbin/iptables -I INPUT 2 -m conntrack --ctstate ESTABLISHED,RELATED -j ACCEPT
 
-	# The following 2 line are a very simple iptables access throttle technique. We assume anyone
-	# who visits the local website on port 80 will behave, but if they are accessing the site too
-	# often, then they might be a bad guy or a bot. So, these rules enforce that any IP address
-	# that accesses the site in a 60 second period can not get more then 15 clicks completed. If the
-	# bad guy submits a 16th page view in a 60 second period, the request is simply dropped and
-	# and ignored. Its not super advanced but its one extra layer of security to keep this device 
-	# stable and secure.
-
-	/sbin/iptables -A INPUT -p tcp --dport 80 -m state --state NEW -m recent --set
-	/sbin/iptables -A INPUT -p tcp --dport 80 -m state --state NEW -m recent --update --seconds 60 --hitcount 40 -j DROP
-
 	# If the script has IsSSH set to Y, then let's open up port 22 for any IP address. But if
 	# the script has IsSSH set to N, let's only open up port 22 for local LAN access. This means
 	# you have to be physically connected (or via Wifi) to SSH to this computer. It isn't perfectly
