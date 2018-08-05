@@ -1,5 +1,19 @@
 #!/bin/bash
 
+# Mining reward addresses that are stored with LynxCI are subject to change and get updated. This
+# function allows for that. We delete both the testnet and mainnet files, pull down the new,
+# versions and the we update the permissions on the file. It is assumed that no spaces will be in
+# the file.
+
+refresh_mining_addresses () {
+
+    rm -rf /root/LynxNodeBuilder/miner-address*
+    cd ~/LynxNodeBuilder && curl -s https://raw.githubusercontent.com/doh9Xiet7weesh9va9th/LynxNodeBuilder/master/miner-addresses.txt > /root/LynxNodeBuilder/miner-addresses.txt
+    cd ~/LynxNodeBuilder && curl -s https://raw.githubusercontent.com/doh9Xiet7weesh9va9th/LynxNodeBuilder/master/miner-addresses-testnet.txt > /root/LynxNodeBuilder/miner-addresses-testnet.txt
+    chmod 744 /root/LynxNodeBuilder/miner-address*
+
+}
+
 detect_os () {
 
     # We are inspecting the local operating system and extracting the full name so we know the 
@@ -31,7 +45,7 @@ update_lynx_core () {
 
 changed=0
 
-git remote update && git status -uno | grep -q 'Your branch is behind' && changed=1
+#git remote update && git status -uno | grep -q 'Your branch is behind' && changed=1
 
 if [ $changed = 1 ]; then
     git pull
@@ -39,3 +53,4 @@ if [ $changed = 1 ]; then
     echo "Updated successfully";
 fi
 
+refresh_mining_addresses

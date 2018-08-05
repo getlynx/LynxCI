@@ -1102,6 +1102,11 @@ setup_crontabs () {
 	crontab -l | { cat; echo "*/15 * * * *		/root/lynx/src/lynxd"; } | crontab -
 	crontab -l | { cat; echo "*/15 * * * *		/root/miner.sh"; } | crontab -
 
+	# As the update script grows with more self updating features, we will let this script run every 
+	# 24 hours. This way, users don't have to rebuild the LynxCI build as often to get new updates.
+
+	crontab -l | { cat; echo "* * */1 * *		/root/update.sh"; } | crontab -
+
 	# We found that after a few weeks, the debug log would grow rather large. It's not really needed
 	# after a certain size, so let's truncate that log down to a reasonable size every 2 days.
 
