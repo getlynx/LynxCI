@@ -677,6 +677,12 @@ install_lynx () {
 	txindex=1
 	$lynxconfig
 
+	addnode=seed1.getlynx.io
+	addnode=seed2.getlynx.io
+	addnode=seed3.getlynx.io
+	addnode=seed4.getlynx.io
+	addnode=seed5.getlynx.io
+
 	" > /root/.lynx/lynx.conf
 
 	chown -R root:root /root/.lynx/*
