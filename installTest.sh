@@ -638,14 +638,14 @@ install_lynx () {
 
 	# Configure and run the make file to compile the Berkeley DB source.
 
-	../dist/configure --enable-cxx --disable-shared --with-pic --prefix=/root/lynx/db4 && make -j1 -l1 install
+	../dist/configure --enable-cxx --disable-shared --with-pic --prefix=/root/lynx/db4 && make install
 
 	# Now that the Berkeley DB is installed, let's jump to the lynx directory and finish the 
 	# configure statement WITH the Berkeley DB parameters included.
 	
 	cd /root/lynx/ && ./autogen.sh
 
-	./configure LDFLAGS="-L/root/lynx/db4/lib/" CPPFLAGS="-I/root/lynx/db4/include/ -O2" --enable-cxx --without-gui --disable-shared --with-miniupnpc --enable-upnp-default --disable-tests && make -j1 -l1
+	./configure LDFLAGS="-L/root/lynx/db4/lib/" CPPFLAGS="-I/root/lynx/db4/include/ -O2" --enable-cxx --without-gui --disable-shared --with-miniupnpc --enable-upnp-default --disable-tests && make -j1
 
 	print_success "The latest state of Lynx is being compiled, with the wallet enabled."
 
@@ -698,20 +698,18 @@ install_cpuminer () {
 	rm -rf /root/cpuminer
 	git clone https://github.com/tpruvot/cpuminer-multi.git /root/cpuminer
 	print_success "Mining package was downloaded."
-	cd /root/cpuminer
-	./autogen.sh
+	cd /root/cpuminer && ./autogen.sh
 
 	if [ -z "cat /proc/cpuinfo | grep 'Revision' | awk '{print $3}'" ]; then
 
-		./configure --disable-assembly CFLAGS="-Ofast -march=native" --with-crypto --with-curl
+		./configure --disable-assembly CFLAGS="-Ofast -march=native" --with-crypto --with-curl && make
 
 	else 
 
-		./configure CFLAGS="-march=native" --with-crypto --with-curl
+		#./configure CFLAGS="-march=native" --with-crypto --with-curl && make
+		./configure CFLAGS="*-march=native*" --with-crypto --with-curl && make
 
 	fi
-
-	make
 
 	print_success "CPUminer Multi was installed."
 
