@@ -717,37 +717,113 @@ install_cpuminer () {
 
 install_mongo () {
 
-	apt-key adv --keyserver hkp://keyserver.ubuntu.com:80 --recv EA312927
+	# If the target OS is Debian 9 (Stretch).
 
-	if [ "$version_id" = "9" -o "$version_id" = "8" ]; then
+	if [ "$version_id" = "9" ]; then
 
-		echo "deb http://repo.mongodb.org/apt/debian jessie/mongodb-org/3.2 main" | sudo tee /etc/apt/sources.list.d/mongodb-org-3.2.list
+		# If Debian 9 is on a Pi, ARM support doesn't exist yet, so go with the default package 
+		# managers version for now. 
 
-	else
+		if [ -z "cat /proc/cpuinfo | grep 'Revision' | awk '{print $3}'" ]; then
 
-		# This else statement should evaluate if the installer is running anything other then Debian
-		# 8 or Debian 9.
+			apt-get install mongodb-server -y &> /dev/null
 
-		echo "deb http://repo.mongodb.org/apt/ubuntu xenial/mongodb-org/3.2 multiverse" | sudo tee /etc/apt/sources.list.d/mongodb-org-3.2.list
+			sleep 10
 
+			service mongodb start
+
+			# We need to wait a few seconds so mongo has time to start, otherwise the addUser
+			# commands will fail
+
+			sleep 10 
+
+		    account="{ user: 'x${rrpcuser}', pwd: 'x${rrpcpassword}', roles: [ 'readWrite' ] }"   
+	
+			mongo lynx --eval "db.addUser( ${account} )"
+	
+		# The following logic is for a Debian 9 install that IS NOT on a Pi.
+
+		else
+
+ 			apt-key adv --keyserver hkp://keyserver.ubuntu.com:80 --recv 9DA31620334BD75D9DCB49F368818C72E52529D4
+
+ 			echo "deb http://repo.mongodb.org/apt/debian stretch/mongodb-org/4.0 main" | tee /etc/apt/sources.list.d/mongodb-org-4.0.list
+
+ 			apt-get update -y &> /dev/null && apt-get install -y mongodb-org &> /dev/null
+
+			service mongod start
+
+			# Because it can take a second or two for Mongo to start, let's let it breath for 5 seconds
+			# so we don't try to operate on the service that isn't started yet.
+
+			sleep 10
+
+			account="{ user: 'x${rrpcuser}', pwd: 'x${rrpcpassword}', roles: [ 'readWrite' ] }" 
+
+			mongo lynx --eval "db.createUser( ${account} )"
+
+		fi
+
+	# The following logic is for Debian 8 that IS NOT on a Pi.
+
+	elif [ "$version_id" = "8" ]; then
+
+		apt-key adv --keyserver hkp://keyserver.ubuntu.com:80 --recv 9DA31620334BD75D9DCB49F368818C72E52529D4
+
+		echo "deb http://repo.mongodb.org/apt/debian jessie/mongodb-org/4.0 main" | tee /etc/apt/sources.list.d/mongodb-org-4.0.list
+
+		apt-get update -y &> /dev/null && apt-get install -y mongodb-org &> /dev/null
+
+		service mongod start
+
+		# Because it can take a second or two for Mongo to start, let's let it breath for 5 seconds
+		# so we don't try to operate on the service that isn't started yet.
+
+		sleep 10
+
+		account="{ user: 'x${rrpcuser}', pwd: 'x${rrpcpassword}', roles: [ 'readWrite' ] }" 
+
+		mongo lynx --eval "db.createUser( ${account} )"
+
+	elif [ "$version_id" = "16.04" ]; then
+
+		apt-key adv --keyserver hkp://keyserver.ubuntu.com:80 --recv 9DA31620334BD75D9DCB49F368818C72E52529D4
+
+		echo "deb [ arch=amd64,arm64 ] https://repo.mongodb.org/apt/ubuntu xenial/mongodb-org/4.0 multiverse" | tee /etc/apt/sources.list.d/mongodb-org-4.0.list
+
+		apt-get update -y &> /dev/null && apt-get install -y mongodb-org &> /dev/null
+
+		service mongod start
+
+		# Because it can take a second or two for Mongo to start, let's let it breath for 5 seconds
+		# so we don't try to operate on the service that isn't started yet.
+
+		sleep 10
+
+		account="{ user: 'x${rrpcuser}', pwd: 'x${rrpcpassword}', roles: [ 'readWrite' ] }" 
+
+		mongo lynx --eval "db.createUser( ${account} )"
+
+	elif [ "$version_id" = "18.04" ]; then
+
+		apt-key adv --keyserver hkp://keyserver.ubuntu.com:80 --recv 9DA31620334BD75D9DCB49F368818C72E52529D4
+
+		echo "deb [ arch=amd64 ] https://repo.mongodb.org/apt/ubuntu bionic/mongodb-org/4.0 multiverse" | tee /etc/apt/sources.list.d/mongodb-org-4.0.list
+
+		apt-get update -y &> /dev/null && apt-get install -y mongodb-org &> /dev/null
+
+		service mongod start
+
+		# Because it can take a second or two for Mongo to start, let's let it breath for 5 seconds
+		# so we don't try to operate on the service that isn't started yet.
+
+		sleep 10
+
+		account="{ user: 'x${rrpcuser}', pwd: 'x${rrpcpassword}', roles: [ 'readWrite' ] }" 
+
+		mongo lynx --eval "db.createUser( ${account} )"
+	
 	fi
-
-	apt-get update -y &> /dev/null
-	apt-get install -y mongodb-org &> /dev/null
-
-	# Now that Mongo is installed. Let's be sure to start the service.
-
-	systemctl start mongod
-	systemctl enable mongod 
-
-	# Because it can take a second or two for Mongo to start, let's let it breath for 5 seconds
-	# so we don't try to operate on the service that isn't started yet.
-
-	sleep 5
-
-	account="{ user: 'x${rrpcuser}', pwd: 'x${rrpcpassword}', roles: [ 'readWrite' ] }" 
-
-	mongo lynx --eval "db.createUser( ${account} )"
 
     print_success "MongoDB was installed."
 
