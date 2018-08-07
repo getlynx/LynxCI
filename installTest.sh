@@ -603,53 +603,21 @@ install_lynx () {
 	rrpcpassword="$(shuf -i 1000000000-3999999999 -n 1)$(shuf -i 1000000000-3999999999 -n 1)$(shuf -i 1000000000-3999999999 -n 1)"
 	print_warning "The lynxd RPC user account is '$rrpcpassword'."
 
-	print_success "Pulling the latest source of Lynx."
-
-	# It isn't a bad idea to assume bad things might have happened before this build. Regardless
-	# of the directory existing or not, delete it and start over again. It's just safer!
-
 	rm -rf /root/lynx/
-
-	# Pull down the latest stable production version of Lynx from the repo and drop it into the 
-	# the preferred directory structure.
-
-	git clone -b $lynxbranch https://github.com/doh9Xiet7weesh9va9th/lynx.git /root/lynx/
-
-	# Since we are installing the wallet with this build, we need the Berkeley DB source. This 
-	# database allows the client to store the keys needed by the wallet. Normally, we keep the 
-	# build lightweight and don't install this dependency, but this extra package is needed for 
-	# this case. Let's jump to the directory that was just created when we downloaded Lynx from
-	# the repository and install the package there, to keep things nicely organized.
-
-	print_success "Pulling the latest source of Berkeley DB."
-
-	# We will need this db4 directory soon so let's delete and create it.
-
-	rm -rf /root/lynx/db4
-	mkdir -p /root/lynx/db4
-
-	# We need a very specific version of the Berkeley DB for the wallet to function properly.
-
-	cd /root/lynx/ && wget http://download.oracle.com/berkeley-db/db-4.8.30.NC.tar.gz
-
-	# Now that we have the tarbar file, lets unpack it and jump to a sub directory within it.
-
-	tar -xzvf db-4.8.30.NC.tar.gz && cd db-4.8.30.NC/build_unix/
-
-	# Configure and run the make file to compile the Berkeley DB source.
-
-	../dist/configure --enable-cxx --disable-shared --with-pic --prefix=/root/lynx/db4 && make install
-
-	# Now that the Berkeley DB is installed, let's jump to the lynx directory and finish the 
-	# configure statement WITH the Berkeley DB parameters included.
-	
+	git clone https://github.com/doh9Xiet7weesh9va9th/lynx.git /root/lynx/
 	cd /root/lynx/ && ./autogen.sh
 
-	./configure LDFLAGS="-L/root/lynx/db4/lib/" CPPFLAGS="-I/root/lynx/db4/include/ -O2" --enable-cxx --without-gui --disable-shared --with-miniupnpc --enable-upnp-default --disable-tests && make -j1
+	# If it's a Pi device then set up the uPNP arguments.
 
-	print_success "The latest state of Lynx is being compiled, with the wallet enabled."
+	if [ -z "cat /proc/cpuinfo | grep 'Revision' | awk '{print $3}'" ]; then
+		./configure --enable-cxx --without-gui --disable-wallet --disable-tests --with-miniupnpc --enable-upnp-default && make
+	else
+		./configure --enable-cxx --without-gui --disable-wallet --disable-tests && make
+	fi
 
-	# in the past, we used a bootstrap file to get the full blockchain history to load faster. This
+	print_warning "Lynx was installed without wallet functions."
+
+	# In the past, we used a bootstrap file to get the full blockchain history to load faster. This
 	# was very helpful but it did bring up a security concern. If the bootstrap file had been
 	# tampered with (even though it was created by Lynx dev team) it might prove a security risk.
 	# So now that the seed nodes run faster and new node discovery is much more efficient, we are
@@ -675,7 +643,6 @@ install_lynx () {
 	rpcallowip=::/0
 	listenonion=0
 	upnp=1
-	disablewallet=1
 	txindex=1
 	$lynxconfig
 
