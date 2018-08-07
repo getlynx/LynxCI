@@ -492,17 +492,17 @@ install_iquidusExplorer () {
 	sed -i "s/__LYNXRPCUSER__/${rrpcuser}/g" /root/LynxExplorer/settings.json
 	sed -i "s/__LYNXRPCPASS__/${rrpcpassword}/g" /root/LynxExplorer/settings.json
 
-	# start IquidusExplorer process using pm2
-	pm2 stop IquidusExplorer
-	pm2 delete IquidusExplorer
-	pm2 start npm --name IquidusExplorer -- start
+	# start LynxBlockExplorer process using pm2
+	pm2 stop LynxBlockExplorer
+	pm2 delete LynxBlockExplorer
+	pm2 start npm --name LynxBlockExplorer -- start
 	pm2 save
 	pm2 startup ubuntu
 
 	# Yeah, we are probably putting to many comments in this script, but I hope it proves
 	# helpful to someone when they are having fun but don't know what a part of it does.
 
-	print_success "Iquidus Explorer was installed"
+	print_success "Lynx Block Explorer was installed"
 }
 
 install_blockcrawler () {
