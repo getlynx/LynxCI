@@ -68,8 +68,12 @@ detect_os () {
 	# certain operating system versions.
 
 	pretty_name=`cat /etc/os-release | egrep '^PRETTY_NAME=' | cut -d= -f2 -d'"'`
+
 	version_id=`cat /etc/os-release | egrep '^VERSION_ID=' | cut -d= -f2 -d'"'`
+	
 	version=`cat /etc/os-release | egrep '^VERSION=' | cut -d= -f2 -d'"'`
+
+	checkForRaspbian=$(cat /proc/cpuinfo | grep 'Revision')
 
 	print_success "The local operating system is '$pretty_name'."
 
@@ -124,6 +128,8 @@ detect_vps () {
 
 install_extras () {
 
+	apt-get update -y &> /dev/null
+
 	apt-get install cpulimit htop curl fail2ban -y &> /dev/null
 	print_success "Cpulimit was installed."
 
@@ -132,34 +138,12 @@ install_extras () {
 
 }
 
-update_os () {
-
-	apt-get update -y &> /dev/null 
-
-	if [ -z "cat /proc/cpuinfo | grep 'Revision' | awk '{print $3}'" ]; then
-
-		# 'Raspbian GNU/Linux 9 (stretch)' would evaluate here.
-
-		print_success "Raspbian was detected. You are using a Raspberry Pi. We love you."
-
-		touch /boot/ssh
-
-		print_success "SSH access was enabled by creating the SSH file in /boot."
-
-		# Let's be sure this management script has the right permissions to operate properly.
-
-		chmod 700 /root/LynxNodeBuilder/disableHDMI.sh
-
-	fi
-
-}
-
 expand_swap () {
 
 	# We are only modifying the swap amount for a Raspberry Pi device. In the future, other
 	# environments will have their own place in the following conditional statement.
 
-	if [ -z "cat /proc/cpuinfo | grep 'Revision' | awk '{print $3}'" ]; then
+	if [ ! -z "$checkForRaspbian" ]; then
 
 		# On a Raspberry Pi 3, the default swap is 100MB. This is a little restrictive, so we are
 		# expanding it to a full 1GB of swap. We don't usually touch too much swap but during the 
@@ -181,7 +165,7 @@ reduce_gpu_mem () {
 	# we only use the CLI. So no need to allocate GPU ram to something that isn't being used. Let's 
 	# assign the param below to the minimum value in the /boot/config.txt file.
 
-	if [ -z "cat /proc/cpuinfo | grep 'Revision' | awk '{print $3}'" ]; then
+	if [ ! -z "$checkForRaspbian" ]; then
 
 		# First, lets not assume that an entry doesn't already exist, so let's purge and preexisting
 		# gpu_mem variables from the respective file.
@@ -200,8 +184,7 @@ reduce_gpu_mem () {
 
 disable_bluetooth () {
 
-
-	if [ -z "cat /proc/cpuinfo | grep 'Revision' | awk '{print $3}'" ]; then
+	if [ ! -z "$checkForRaspbian" ]; then
 
 		# First, lets not assume that an entry doesn't already exist, so let's purge any preexisting
 		# bluetooth variables from the respective file.
@@ -243,7 +226,7 @@ set_wifi () {
 	# The only time we want to set up the wifi is if the script is running on a Raspberry Pi. The
 	# script should just skip over this step if we are on any OS other then Raspian. 
 
-	if [ -z "cat /proc/cpuinfo | grep 'Revision' | awk '{print $3}'" ]; then
+	if [ ! -z "$checkForRaspbian" ]; then
 
 		# Let's assume the files already exists, so we will delete them and start from scratch.
 
@@ -285,27 +268,15 @@ set_accounts () {
 
 	# We only need to lock the Pi account if this is a Raspberry Pi. Otherwise, ignore this step.
 
-	if [ -z "cat /proc/cpuinfo | grep 'Revision' | awk '{print $3}'" ]; then
+	if [ ! -z "$checkForRaspbian" ]; then
 
 		# Let's lock the pi user account, no need to delete it.
 
 		usermod -L -e 1 pi
 
-		# Let's print to the screen some helpful information for the user that might be watching
-		# the install take place. This might prove insightful.
+		print_success "The 'pi' account was locked. Please log in with the $ssuser account."
 
-		print_success ""
-		print_success "On a Raspberry Pi, the default user account is 'pi'. But this script has"
-		print_success "locked that user account. Don't try to use it, it won't work. Yes, you"
-		print_success "could reset it, but for simplicity, we recommend you use the newly created"
-		print_success "user account for this LynxCI device. The new username is '$ssuser' and the"
-		print_success "respective password is '$sspassword'. Be sure to change the password after"
-		print_success "you log in for the first time."
-		print_success ""
-
-		# Display the message on the screen for 20 seconds.
-
-		sleep 20
+		sleep 5
 
 	fi
 }
@@ -585,7 +556,7 @@ install_blockcrawler () {
 
 install_miniupnpc () {
 
-	if [ "$version_id" = "9" -o "$version_id" = "8" ]; then
+	if [ ! -z "$checkForRaspbian" ]; then
 
 		apt-get install libminiupnpc-dev -y	&> /dev/null
 		print_success "Miniupnpc was installed."
@@ -609,7 +580,7 @@ install_lynx () {
 
 	# If it's a Pi device then set up the uPNP arguments.
 
-	if [ -z "cat /proc/cpuinfo | grep 'Revision' | awk '{print $3}'" ]; then
+	if [ ! -z "$checkForRaspbian" ]; then
 		./configure --enable-cxx --without-gui --disable-wallet --disable-tests --with-miniupnpc --enable-upnp-default && make
 	else
 		./configure --enable-cxx --without-gui --disable-wallet --disable-tests && make
@@ -667,7 +638,7 @@ install_cpuminer () {
 	print_success "Mining package was downloaded."
 	cd /root/cpuminer && ./autogen.sh
 
-	if [ -z "cat /proc/cpuinfo | grep 'Revision' | awk '{print $3}'" ]; then
+	if [ ! -z "$checkForRaspbian" ]; then
 
 		./configure --disable-assembly CFLAGS="-Ofast -march=native" --with-crypto --with-curl && make
 
@@ -686,11 +657,9 @@ install_mongo () {
 
 	if [ "$version_id" = "9" ]; then
 
-		checkForRaspbian=$(cat /proc/cpuinfo | grep 'Revision')
-
 		if [ -z "$checkForRaspbian" ]; then
 
-			echo "$pretty_name detected. Installing Mongo 4.0."
+			print_success "$pretty_name detected. Installing Mongo 4.0."
 
 			apt-get install dirmngr -y &> /dev/null
 
@@ -708,11 +677,11 @@ install_mongo () {
 
 			mongo lynx --eval "db.createUser( ${account} )" &> /dev/null
 
-			echo "Mongo 4.0 was installed."
+			print_success "Mongo 4.0 was installed."
 
 		else
 
-			echo "$pretty_name detected. Installing Mongo."
+			print_success "$pretty_name detected. Installing Mongo."
 
 			apt-get install mongodb-server -y &> /dev/null
 
@@ -724,13 +693,13 @@ install_mongo () {
 
 			mongo lynx --eval "db.addUser( ${account} )" &> /dev/null
 
-			echo "Mongo 2.4 was installed."
+			print_success "Mongo 2.4 was installed."
 
 		fi
 
 	elif [ "$version_id" = "8" ]; then
 
-		echo "$pretty_name detected. Installing Mongo 4.0."
+		print_success "$pretty_name detected. Installing Mongo 4.0."
 
 		apt-key adv --keyserver hkp://keyserver.ubuntu.com:80 --recv 9DA31620334BD75D9DCB49F368818C72E52529D4 &> /dev/null
 
@@ -746,11 +715,11 @@ install_mongo () {
 
 		mongo lynx --eval "db.createUser( ${account} )" &> /dev/null
 
-		echo "Mongo 4.0 was installed."
+		print_success "Mongo 4.0 was installed."
 
 	elif [ "$version_id" = "16.04" ]; then
 
-		echo "$pretty_name detected. Installing Mongo 4.0."
+		print_success "$pretty_name detected. Installing Mongo 4.0."
 
 		apt-get update -y &> /dev/null
 
@@ -789,11 +758,11 @@ install_mongo () {
 
 		mongo lynx --eval "db.createUser( ${account} )" &> /dev/null
 
-		echo "Mongo 4.0 was installed."
+		print_success "Mongo 4.0 was installed."
 
 	elif [ "$version_id" = "18.04" ]; then
 
-		echo "$pretty_name detected. Installing Mongo 4.0."
+		print_success "$pretty_name detected. Installing Mongo 4.0."
 
 		apt-key adv --keyserver hkp://keyserver.ubuntu.com:80 --recv 9DA31620334BD75D9DCB49F368818C72E52529D4 &> /dev/null
 
@@ -809,7 +778,7 @@ install_mongo () {
 
 		mongo lynx --eval "db.createUser( ${account} )" &> /dev/null
 
-		echo "Mongo 4.0 was installed."
+		print_success "Mongo 4.0 was installed."
 
 	fi
 
@@ -1203,7 +1172,7 @@ restart () {
 	# process. At least it will fail and the machine won't be looping a reboot/install over and 
 	# over. This helps if we have ot debug a problem in the future.
 
-	touch /boot/lynxci
+	touch /boot/ssh
 
 	print_success "This Lynx node is built. A reboot and autostart will occur 30 seconds."
 
@@ -1213,7 +1182,7 @@ restart () {
 
 	sleep 5
 
-	print_success "After boot, it will take 5 minutes for all services to start. Be patient."
+	print_success "After boot, it will take 15 minutes for all services to start. Be patient."
 
 	sleep 5
 
@@ -1226,7 +1195,7 @@ restart () {
 # First thing, we check to see if this script already ran in the past. If the file "/boot/lynxci"
 # exists, we know it did. So we assume all went well and then the script is done running. 
 
-if [ -f /boot/lynxci ]; then
+if [ -f /boot/ssh ]; then
 
 	print_error "Previous LynxCI detected. Install aborted."
 
@@ -1254,7 +1223,6 @@ else
 	install_extras
 	detect_vps
 	set_network
-	update_os
 	expand_swap
 	reduce_gpu_mem
 	disable_bluetooth
