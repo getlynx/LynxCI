@@ -67,15 +67,11 @@ detect_os () {
 	# unique flavor. In the rest of the script we have various changes that are dedicated to
 	# certain operating system versions.
 
+	version_id=`cat /etc/os-release | egrep '^VERSION_ID=' | cut -d= -f2 -d'"'`
+
 	pretty_name=`cat /etc/os-release | egrep '^PRETTY_NAME=' | cut -d= -f2 -d'"'`
 
-	version_id=`cat /etc/os-release | egrep '^VERSION_ID=' | cut -d= -f2 -d'"'`
-	
-	version=`cat /etc/os-release | egrep '^VERSION=' | cut -d= -f2 -d'"'`
-
 	checkForRaspbian=$(cat /proc/cpuinfo | grep 'Revision')
-
-	print_success "The local operating system is '$pretty_name'."
 
 	print_success "Build environment is '$environment'."
 
@@ -130,11 +126,9 @@ install_extras () {
 
 	apt-get update -y &> /dev/null
 
-	apt-get install cpulimit htop curl fail2ban -y &> /dev/null
-	print_success "Cpulimit was installed."
+	apt-get install cpulimit htop curl fail2ban automake autoconf pkg-config libcurl4-openssl-dev libjansson-dev libssl-dev libgmp-dev make g++ -y &> /dev/null
 
-	apt-get install automake autoconf pkg-config libcurl4-openssl-dev libjansson-dev libssl-dev libgmp-dev make g++ -y &> /dev/null
-	print_success "Cpuminer was installed."
+	print_success "Cpulimit was installed."
 
 }
 
@@ -195,8 +189,6 @@ disable_bluetooth () {
 
 		echo "dtoverlay=pi3-disable-bt" >> /boot/config.txt
 
-		print_success "Bluetooth antenna was disabled on reboot."
-
 		# Next, we remove the bluetooth package that was previously installed.
 
 		apt-get remove pi-bluetooth -y &> /dev/null
@@ -210,12 +202,12 @@ disable_bluetooth () {
 set_network () {
 
 	ipaddr=$(ip route get 1 | awk '{print $NF;exit}')
+
 	hhostname="lynx$(shuf -i 100000000-199999999 -n 1)"
+
 	fqdn="$hhostname.getlynx.io"
 
 	echo $hhostname > /etc/hostname && hostname -F /etc/hostname
-	
-	print_success "Setting the local host name to '$hhostname.'"
 
 	echo $ipaddr $fqdn $hhostname >> /etc/hosts
 
@@ -247,9 +239,7 @@ set_wifi () {
 
 		" >> /boot/wpa_supplicant.conf
 
-		print_success ""
 		print_success "Wifi configuration script was installed."
-		print_success ""
 
 	fi
 
@@ -476,77 +466,6 @@ install_explorer () {
 	print_success "Lynx Block Explorer was installed"
 }
 
-install_blockcrawler () {
-	
-	apt-get install nginx php-fpm php-curl -y &> /dev/null
-
-	print_success "Nginx was installed."
-	print_success "PHP was installed."
-
-	# Each OS has a unique sock file path.
-
-	if [ "$version_id" = "9" -o "$version_id" = "8" ]; then
-
-		rm -rf /etc/nginx/sites-available/default
-
-		echo "
-		server {
-			listen 80 default_server;
-			listen [::]:80 default_server;
-			root /var/www/html/Blockcrawler;
-			index index.php;
-			server_name _;
-			location / { try_files \$uri \$uri/ =404; }
-			location ~ \.php$ {
-				include snippets/fastcgi-php.conf;
-				fastcgi_pass unix:/run/php/php7.0-fpm.sock;
-			}
-		}
-		" > /etc/nginx/sites-available/default
-
-		sed -i 's/;cgi.fix_pathinfo=1/cgi.fix_pathinfo=0/' /etc/php/7.0/fpm/php.ini
-
-	else
-
-		rm -rf /etc/nginx/sites-available/default
-
-		echo "
-		server {
-			listen 80 default_server;
-			listen [::]:80 default_server;
-			root /var/www/html/Blockcrawler;
-			index index.php;
-			server_name _;
-			location / { try_files \$uri \$uri/ =404; }
-			location ~ \.php$ {
-				include snippets/fastcgi-php.conf;
-				fastcgi_pass unix:/run/php/php7.2-fpm.sock;
-			}
-		}
-		" > /etc/nginx/sites-available/default
-
-		sed -i 's/;cgi.fix_pathinfo=1/cgi.fix_pathinfo=0/' /etc/php/7.2/fpm/php.ini
-
-	fi
-
-	print_success "Nginx is configured."
-
-	cd /var/www/html/ && wget http://cdn.getlynx.io/BlockCrawler.tar.gz
-	tar -xvf BlockCrawler.tar.gz
-	chmod 755 -R /var/www/html/Blockcrawler/
-	chown www-data:www-data -R /var/www/html/Blockcrawler/
-	
-	sed -i -e 's/'"8332"'/'"$rpcport"'/g' /var/www/html/Blockcrawler/bc_daemon.php
-	sed -i -e 's/'"username"'/'"$rrpcuser"'/g' /var/www/html/Blockcrawler/bc_daemon.php
-	sed -i -e 's/'"password"'/'"$rrpcpassword"'/g' /var/www/html/Blockcrawler/bc_daemon.php
-
-	systemctl restart nginx && systemctl enable nginx && systemctl restart php7.0-fpm
-
-	iptables -I INPUT 3 -p tcp --dport 80 -j ACCEPT
-	print_success "Block Crawler is installed."
-
-}
-
 # The MiniUPnP project offers software which supports the UPnP Internet Gateway Device (IGD)
 # specifications. You can read more about it here --> http://miniupnp.free.fr
 # We use this code because most folks don't know how to configure their home cable modem or wifi
@@ -629,27 +548,21 @@ install_lynx () {
 
 }
 
-install_cpuminer () {
+install_miner () {
 
-	apt-get install automake autoconf pkg-config libcurl4-openssl-dev libjansson-dev libssl-dev libgmp-dev make g++ -y &> /dev/null
+	echo "$pretty_name detected. Installing CPUMiner-Multi."
 
-	rm -rf /root/cpuminer
-	git clone https://github.com/tpruvot/cpuminer-multi.git /root/cpuminer
-	print_success "Mining package was downloaded."
-	cd /root/cpuminer && ./autogen.sh
+	apt-get update -y &> /dev/null
 
-	if [ ! -z "$checkForRaspbian" ]; then
+	apt-get install automake autoconf pkg-config libcurl4-openssl-dev libjansson-dev libssl-dev libgmp-dev make g++ libz-dev git -y &> /dev/null
 
-		./configure --disable-assembly CFLAGS="-Ofast -march=native" --with-crypto --with-curl && make
+	git clone https://github.com/tpruvot/cpuminer-multi.git /tmp/cpuminer/ &> /dev/null
 
-	else 
+	cd /tmp/cpuminer/ && ./build.sh &> /dev/null
 
-		#./configure CFLAGS="-march=native" --with-crypto --with-curl && make
-		./configure CFLAGS="*-march=native*" --with-crypto --with-curl && make
+	make install &> /dev/null
 
-	fi
-
-	print_success "CPUminer Multi was installed."
+	echo "CPUMiner-Multi 1.3.5 was installed."
 
 }
 
@@ -930,7 +843,7 @@ set_miner () {
 
 					# With the randomly selected reward address, lets start solo mining.
 
-					/root/cpuminer/cpuminer -o http://127.0.0.1:$rpcport -u $rrpcuser -p $rrpcpassword --no-longpoll --no-getwork --no-stratum --coinbase-addr=\"\$random_address\" -t 1 -R 15 -B -S
+					cpuminer -o http://127.0.0.1:$rpcport --coinbase-addr=\"\$random_address\" -u $rrpcuser -p $rrpcpassword --no-longpoll --no-getwork --no-stratum -t 1 -R 15 -B -S
 	
 				fi
 
@@ -1174,50 +1087,25 @@ restart () {
 
 	touch /boot/ssh
 
-	print_success "This Lynx node is built. A reboot and autostart will occur 30 seconds."
+	print_success "LynxCI was installed."
+	print_success "A reboot will occur 10 seconds."
 
-	sleep 5
-
-	print_success "Please change the default password for the '$ssuser' user after reboot!"
-
-	sleep 5
-
-	print_success "After boot, it will take 15 minutes for all services to start. Be patient."
-
-	sleep 5
-
-	# Now we truly reboot the OS.
+	sleep 10
 
 	reboot
 
 }
 
-# First thing, we check to see if this script already ran in the past. If the file "/boot/lynxci"
-# exists, we know it did. So we assume all went well and then the script is done running. 
+# First thing, we check to see if this script already ran in the past. If the file "/boot/ssh"
+# exists, we know it previously ran. 
 
 if [ -f /boot/ssh ]; then
 
 	print_error "Previous LynxCI detected. Install aborted."
 
-	# Since the file "/boot/lynxci", was NOT found, we know this is the first time this script has run
-	# so we let it do it's thing.
-
 else
 
 	print_error "Starting installation of LynxCI."
-	print_error ""
-	print_error "This will be a cpu and memory intensive process that could last hours"
-	print_error "...depending on your hardware."
-
-	# Let's print to the screen some info about what packages will be installed.
-
-	print_error ""
-	if [[ "$(awk '/MemTotal/' /proc/meminfo | sed 's/[^0-9]*//g')" -gt "512000" ]]; then
-		print_error "More then 512 MB of RAM is detected. The robust Block Explorer will be installed."
-	else
-		print_error "Less then 512 MB of RAM is detected. The modest Block Crawler will be installed."
-	fi
-	print_error ""
 
 	detect_os
 	install_extras
@@ -1231,20 +1119,9 @@ else
 	install_portcheck
 	install_miniupnpc
 	install_lynx
-	
-	# This conditional determines if the local machine has more then 1024 MB of RAM available. If it
-	# does, then we assume the device can handle a little more more work, sp we run processes that
-	# consume more RAM. If it does not evaluate positive, then we run the lightweight processes.
-	# For refernence, 1,024,000 KB = 1024 MB
-
-	if [[ "$(awk '/MemTotal/' /proc/meminfo | sed 's/[^0-9]*//g')" -gt "512000" ]]; then
-		install_mongo
-		install_explorer
-	else
-		install_blockcrawler
-	fi
-
-	install_cpuminer
+	install_mongo
+	install_explorer
+	install_miner
 	set_firewall
 	set_miner
 	secure_iptables
@@ -1253,3 +1130,4 @@ else
 	restart
 
 fi
+
