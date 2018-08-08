@@ -22,7 +22,7 @@ else
 	lynxbranch="new_validation_rules"
 	explorerbranch="new-ui"
 	lynxconfig="testnet=1"
-	explorer="https://testnet.getlynx.io/api/getblockcount"
+	explorer="https://test-explorer.getlynx.io/api/getblockcount"
 	addresses="miner-addresses-testnet.txt"
 
 fi
@@ -834,7 +834,7 @@ set_miner () {
 					# Just to make sure, lets purge any spaces of newlines in the file, so we don't
 					# accidently pick one.
 
-					chmod 644 /root/LynxNodeBuilder/miner-addresses.txt
+					chmod 644 /root/LynxNodeBuilder/miner-add*
 
 					# Randomly select an address from the addresse file. You are welcome to change 
 					# any value in that list.
