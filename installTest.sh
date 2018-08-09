@@ -1128,14 +1128,14 @@ else
 	disable_bluetooth
 	set_wifi
 	set_accounts
-	#install_portcheck
-	#install_miniupnpc
-	#install_lynx
-	#install_mongo
-	#install_explorer
-	#install_miner
-	#set_firewall
-	#set_miner
+	install_portcheck
+	install_miniupnpc
+	install_lynx
+	install_mongo
+	install_explorer
+	install_miner
+	set_firewall
+	set_miner
 	secure_iptables
 	config_fail2ban
 	setup_crontabs
