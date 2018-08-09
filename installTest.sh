@@ -252,9 +252,9 @@ set_accounts () {
 	ssuser="lynx"
 	sspassword="lynx"
 
-	adduser $ssuser --disabled-password --gecos "" && echo "$ssuser:$sspassword" | chpasswd
+	adduser $ssuser --disabled-password --gecos "" && echo "$ssuser:$sspassword" | chpasswd &> /dev/null
 
-	adduser $ssuser sudo
+	adduser $ssuser sudo &> /dev/null
 
 	# We only need to lock the Pi account if this is a Raspberry Pi. Otherwise, ignore this step.
 
@@ -262,7 +262,7 @@ set_accounts () {
 
 		# Let's lock the pi user account, no need to delete it.
 
-		usermod -L -e 1 pi
+		usermod -L -e 1 pi &> /dev/null
 
 		print_success "The 'pi' account was locked. Please log in with the $ssuser account."
 
@@ -437,10 +437,10 @@ install_explorer () {
 	npm install pm2 -g
 	print_success "PM2 was installed."
 
-	git clone -b $explorerbranch https://github.com/doh9Xiet7weesh9va9th/LynxExplorer.git
+	git clone -b $explorerbranch https://github.com/doh9Xiet7weesh9va9th/LynxExplorer.git &> /dev/null
 	print_success "Block Explorer was installed."
 	
-	cd /root/LynxExplorer/ && npm install --production
+	cd /root/LynxExplorer/ && npm install --production &> /dev/null
 
 	# We need to update the json file in the LynxExplorer node app with the lynxd RPC access
 	# credentials for this device. Since they are created dynamically each time, we just do
@@ -477,7 +477,10 @@ install_miniupnpc () {
 
 	if [ ! -z "$checkForRaspbian" ]; then
 
+		echo "$pretty_name detected. Installing Miniupnpc."
+
 		apt-get install libminiupnpc-dev -y	&> /dev/null
+
 		print_success "Miniupnpc was installed."
 
 	fi
@@ -486,26 +489,27 @@ install_miniupnpc () {
 
 install_lynx () {
 
+	echo "$pretty_name detected. Installing Lynx."
+
 	apt-get install git-core build-essential autoconf libtool libssl-dev libboost-all-dev libminiupnpc-dev libevent-dev libncurses5-dev pkg-config -y &> /dev/null
 
 	rrpcuser="$(shuf -i 1000000000-3999999999 -n 1)$(shuf -i 1000000000-3999999999 -n 1)$(shuf -i 1000000000-3999999999 -n 1)"
-	print_warning "The lynxd RPC user account is '$rrpcuser'."
+
 	rrpcpassword="$(shuf -i 1000000000-3999999999 -n 1)$(shuf -i 1000000000-3999999999 -n 1)$(shuf -i 1000000000-3999999999 -n 1)"
-	print_warning "The lynxd RPC user account is '$rrpcpassword'."
 
 	rm -rf /root/lynx/
-	git clone https://github.com/doh9Xiet7weesh9va9th/lynx.git /root/lynx/
-	cd /root/lynx/ && ./autogen.sh
+
+	git clone https://github.com/doh9Xiet7weesh9va9th/lynx.git /root/lynx/ &> /dev/null
+
+	cd /root/lynx/ && ./autogen.sh &> /dev/null
 
 	# If it's a Pi device then set up the uPNP arguments.
 
 	if [ ! -z "$checkForRaspbian" ]; then
-		./configure --enable-cxx --without-gui --disable-wallet --disable-tests --with-miniupnpc --enable-upnp-default && make
+		./configure --enable-cxx --without-gui --disable-wallet --disable-tests --with-miniupnpc --enable-upnp-default &> /dev/null && make &> /dev/null
 	else
-		./configure --enable-cxx --without-gui --disable-wallet --disable-tests && make
+		./configure --enable-cxx --without-gui --disable-wallet --disable-tests &> /dev/null && make &> /dev/null
 	fi
-
-	print_warning "Lynx was installed without wallet functions."
 
 	# In the past, we used a bootstrap file to get the full blockchain history to load faster. This
 	# was very helpful but it did bring up a security concern. If the bootstrap file had been
@@ -545,6 +549,8 @@ install_lynx () {
 	" > /root/.lynx/lynx.conf
 
 	chown -R root:root /root/.lynx/*
+
+	print_warning "Lynx was installed without wallet functions."
 
 }
 
@@ -1085,9 +1091,10 @@ restart () {
 	# process. At least it will fail and the machine won't be looping a reboot/install over and 
 	# over. This helps if we have ot debug a problem in the future.
 
-	touch /boot/ssh
+	/usr/bin/touch /boot/ssh
 
 	print_success "LynxCI was installed."
+	
 	print_success "A reboot will occur 10 seconds."
 
 	sleep 10
@@ -1118,7 +1125,7 @@ else
 	set_accounts
 	install_portcheck
 	install_miniupnpc
-	install_lynx
+	#install_lynx
 	install_mongo
 	install_explorer
 	install_miner
