@@ -20,7 +20,7 @@ else
 	port="44566"
 	rpcport="19335"
 	lynxbranch="new_validation_rules"
-	explorerbranch="new-ui"
+	explorerbranch="master"
 	lynxconfig="testnet=1"
 	explorer="https://test-explorer.getlynx.io/api/getblockcount"
 	addresses="miner-addresses-testnet.txt"
