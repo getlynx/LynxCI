@@ -252,7 +252,7 @@ set_accounts () {
 	ssuser="lynx"
 	sspassword="lynx"
 
-	adduser $ssuser --disabled-password --gecos "" && echo "$ssuser:$sspassword" | chpasswd &> /dev/null
+	adduser $ssuser --disabled-password --gecos "" &> /dev/null && echo "$ssuser:$sspassword" | chpasswd &> /dev/null
 
 	adduser $ssuser sudo &> /dev/null
 
@@ -264,7 +264,7 @@ set_accounts () {
 
 		usermod -L -e 1 pi &> /dev/null
 
-		print_success "The 'pi' account was locked. Please log in with the $ssuser account."
+		print_success "The 'pi' login was locked. Please log in with '$ssuser'. The default password is '$sspassword'."
 
 		sleep 5
 
@@ -430,14 +430,18 @@ install_explorer () {
 
     apt-get install curl software-properties-common gcc g++ make -y &> /dev/null
 
-    curl -sL https://deb.nodesource.com/setup_10.x | sudo -E bash -
+    curl -sL https://deb.nodesource.com/setup_10.x | sudo -E bash - &> /dev/null
+    
     apt-get install nodejs -y &> /dev/null
+    
     print_success "NodeJS was installed."
 
 	npm install pm2 -g
+
 	print_success "PM2 was installed."
 
 	git clone -b $explorerbranch https://github.com/doh9Xiet7weesh9va9th/LynxExplorer.git &> /dev/null
+
 	print_success "Block Explorer was installed."
 	
 	cd /root/LynxExplorer/ && npm install --production &> /dev/null
@@ -477,7 +481,7 @@ install_miniupnpc () {
 
 	if [ ! -z "$checkForRaspbian" ]; then
 
-		echo "$pretty_name detected. Installing Miniupnpc."
+		print_success "$pretty_name detected. Installing Miniupnpc."
 
 		apt-get install libminiupnpc-dev -y	&> /dev/null
 
@@ -489,7 +493,7 @@ install_miniupnpc () {
 
 install_lynx () {
 
-	echo "$pretty_name detected. Installing Lynx."
+	print_success "$pretty_name detected. Installing Lynx."
 
 	apt-get install git-core build-essential autoconf libtool libssl-dev libboost-all-dev libminiupnpc-dev libevent-dev libncurses5-dev pkg-config -y &> /dev/null
 
@@ -556,7 +560,7 @@ install_lynx () {
 
 install_miner () {
 
-	echo "$pretty_name detected. Installing CPUMiner-Multi."
+	print_success "$pretty_name detected. Installing CPUMiner-Multi."
 
 	apt-get update -y &> /dev/null
 
@@ -568,7 +572,7 @@ install_miner () {
 
 	make install &> /dev/null
 
-	echo "CPUMiner-Multi 1.3.5 was installed."
+	print_success "CPUMiner-Multi 1.3.5 was installed."
 
 }
 
@@ -1092,9 +1096,10 @@ restart () {
 	# over. This helps if we have ot debug a problem in the future.
 
 	/usr/bin/touch /boot/ssh
+	/usr/bin/touch /boot/lynxci
 
 	print_success "LynxCI was installed."
-	
+
 	print_success "A reboot will occur 10 seconds."
 
 	sleep 10
@@ -1106,7 +1111,7 @@ restart () {
 # First thing, we check to see if this script already ran in the past. If the file "/boot/ssh"
 # exists, we know it previously ran. 
 
-if [ -f /boot/ssh ]; then
+if [ -f /boot/lynxci ]; then
 
 	print_error "Previous LynxCI detected. Install aborted."
 
@@ -1123,14 +1128,14 @@ else
 	disable_bluetooth
 	set_wifi
 	set_accounts
-	install_portcheck
-	install_miniupnpc
+	#install_portcheck
+	#install_miniupnpc
 	#install_lynx
-	install_mongo
-	install_explorer
-	install_miner
-	set_firewall
-	set_miner
+	#install_mongo
+	#install_explorer
+	#install_miner
+	#set_firewall
+	#set_miner
 	secure_iptables
 	config_fail2ban
 	setup_crontabs
