@@ -1071,18 +1071,9 @@ setup_crontabs () {
 
 	crontab -l | { cat; echo "0 0 */15 * *		/sbin/shutdown -r now"; } | crontab -
 
-	# This conditional determines if the local machine has more then 1024 MB of RAM available. If it
-	# does, then we assume the device can handle a little more work, so we run processes that
-	# consume more RAM. If it does not evaluate positive, then we run the lightweight processes.
-	# For refernence, 1,024,000 KB = 1024 MB
-
-	if [[ "$(awk '/MemTotal/' /proc/meminfo | sed 's/[^0-9]*//g')" -gt "512000" ]]; then
-
-		crontab -l | { cat; echo "*/2 * * * *		cd /root/LynxExplorer && scripts/check_server_status.sh"; } | crontab -
-		crontab -l | { cat; echo "*/3 * * * *		cd /root/LynxExplorer && /usr/bin/nodejs scripts/sync.js index update >> /tmp/explorer.sync 2>&1"; } | crontab -
-		crontab -l | { cat; echo "*/10 * * * *		cd /root/LynxExplorer && /usr/bin/nodejs scripts/peers.js > /dev/null 2>&1"; } | crontab -
-
-	fi
+	crontab -l | { cat; echo "*/2 * * * *		cd /root/LynxExplorer && scripts/check_server_status.sh"; } | crontab -
+	crontab -l | { cat; echo "*/3 * * * *		cd /root/LynxExplorer && /usr/bin/nodejs scripts/sync.js index update >> /tmp/explorer.sync 2>&1"; } | crontab -
+	crontab -l | { cat; echo "*/10 * * * *		cd /root/LynxExplorer && /usr/bin/nodejs scripts/peers.js > /dev/null 2>&1"; } | crontab -
 
 }
 
