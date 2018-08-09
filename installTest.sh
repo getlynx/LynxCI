@@ -843,7 +843,7 @@ set_miner () {
 
 					# With the randomly selected reward address, lets start solo mining.
 
-					cpuminer -o http://127.0.0.1:$rpcport --coinbase-addr=\"\$random_address\" -u $rrpcuser -p $rrpcpassword --no-longpoll --no-getwork --no-stratum -t 1 -R 15 -B -S
+					cpuminer -o http://127.0.0.1:$rpcport -u $rrpcuser -p $rrpcpassword --no-longpoll --no-getwork --no-stratum --coinbase-addr=\"\$random_address\" -t 1 -R 15 -B -S
 	
 				fi
 
