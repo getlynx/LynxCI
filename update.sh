@@ -14,6 +14,31 @@ refresh_mining_addresses () {
 
 }
 
+update_block_explorer () {
+
+    cd ~/LynxExplorer
+
+    if [ -r ".commit.txt" ]; then
+
+            remotehash=`git ls-remote origin -h refs/heads/master | awk '{print $1;exit}'`
+
+            localhash=$(cat .commit.txt)
+
+            if [ "$remotehash" != "$localhash" ]; then
+
+                git pull https://github.com/doh9Xiet7weesh9va9th/LynxExplorer.git
+
+            fi
+
+            git ls-remote origin -h refs/heads/master | awk '{print $1;exit}' > .commit.txt
+
+    else
+            git ls-remote origin -h refs/heads/master | awk '{print $1;exit}' > .commit.txt
+    fi
+
+}
+
+
 detect_os () {
 
     # We are inspecting the local operating system and extracting the full name so we know the 
@@ -54,3 +79,4 @@ if [ $changed = 1 ]; then
 fi
 
 refresh_mining_addresses
+update_block_explorer

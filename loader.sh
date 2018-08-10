@@ -28,7 +28,7 @@ apt-get remove postfix apache2 -y &> /dev/null
 
 # We are downloading the latest package of build instructions from github.
 
-git clone https://github.com/doh9Xiet7weesh9va9th/LynxNodeBuilder.git /root/LynxNodeBuilder/
+git clone https://github.com/doh9Xiet7weesh9va9th/LynxNodeBuilder.git /root/LynxNodeBuilder/ &> /dev/null
 
 # We can't assume the file permissions will be right, so let's reset them.
 

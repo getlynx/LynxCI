@@ -77,56 +77,19 @@ detect_os () {
 
 }
 
-detect_ec2() {
-
-	IsEC2="N"
-
-    # This first, simple check will work for many older instance types.
-
-    if [ -f /sys/hypervisor/uuid ]; then
-
-		# File should be readable by non-root users.
-
-		if [ `head -c 3 /sys/hypervisor/uuid` == "ec2" ]; then
-			IsEC2="Y"
-		fi
-
-    # This check will work on newer m5/c5 instances, but only if you have root!
-
-    elif [ -r /sys/devices/virtual/dmi/id/product_uuid ]; then
-
-		# If the file exists AND is readable by us, we can rely on it.
-
-		if [ `head -c 3 /sys/devices/virtual/dmi/id/product_uuid` == "EC2" ]; then
-			IsEC2="Y"
-		fi
-
-    else
-
-		# Fallback check of http://169.254.169.254/. If we wanted to be REALLY
-		# authoritative, we could follow Amazon's suggestions for cryptographically
-		# verifying their signature, see here:
-		# https://docs.aws.amazon.com/AWSEC2/latest/UserGuide/instance-identity-documents.html
-		# but this is almost certainly overkill for this purpose (and the above
-		# checks of "EC2" prefixes have a higher false positive potential, anyway).
-
-		if $(curl -s -m 5 http://169.254.169.254/latest/dynamic/instance-identity/document | grep -q availabilityZone) ; then
-			IsEC2="Y"
-		fi
-    fi
-
-}
-
-detect_vps () {
-
-	detect_ec2
-}
-
-install_extras () {
+install_packages () {
 
 	apt-get update -y &> /dev/null
 
-	apt-get install cpulimit htop curl fail2ban automake autoconf pkg-config libcurl4-openssl-dev libjansson-dev libssl-dev libgmp-dev make g++ -y &> /dev/null
+	apt-get install htop curl fail2ban automake autoconf pkg-config libcurl4-openssl-dev libjansson-dev libssl-dev libgmp-dev make g++ -y &> /dev/null
+
+}
+
+install_throttle () {
+
+	apt-get update -y &> /dev/null
+
+	apt-get install cpulimit -y &> /dev/null
 
 	print_success "Cpulimit was installed."
 
@@ -436,7 +399,7 @@ install_explorer () {
     
     print_success "NodeJS was installed."
 
-	npm install pm2 -g
+	npm install pm2 -g &> /dev/null
 
 	print_success "PM2 was installed."
 
@@ -458,7 +421,7 @@ install_explorer () {
 	sed -i "s/__LYNXRPCPASS__/${rrpcpassword}/g" /root/LynxExplorer/settings.json
 
 	# start LynxBlockExplorer process using pm2
-	pm2 stop LynxBlockExplorer
+	pm2 stop LynxBlockExplorer &> /dev/null
 	pm2 delete LynxBlockExplorer
 	pm2 start npm --name LynxBlockExplorer -- start
 	pm2 save
@@ -1110,8 +1073,8 @@ else
 	print_error "Starting installation of LynxCI."
 
 	detect_os
-	install_extras
-	detect_vps
+	install_packages
+	install_throttle
 	set_network
 	expand_swap
 	reduce_gpu_mem
