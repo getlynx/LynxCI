@@ -28,6 +28,10 @@ update_block_explorer () {
 
                 git pull https://github.com/doh9Xiet7weesh9va9th/LynxExplorer.git
 
+                npm install
+
+                pm2 restart 0
+
             fi
 
             git ls-remote origin -h refs/heads/master | awk '{print $1;exit}' > .commit.txt
