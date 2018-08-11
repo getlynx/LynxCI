@@ -796,15 +796,15 @@ set_miner () {
 				# a seed node is down for whatever reason, the next query will probably select a
 				# different seed node since no session management is used.
 
-				remote=\$(curl -sL $explorer)
+				#remote=\$(curl -sL $explorer)
 
 				# Since we know that Lynx is running, we can query our local instance for the current
 				# block height.
 
-				local=\$(/root/lynx/src/lynx-cli getblockcount)
-				local=\$(expr \$local + 60)
+				#local=\$(/root/lynx/src/lynx-cli getblockcount)
+				#local=\$(expr \$local + 60)
 
-				if [ \"\$local\" -ge \"\$remote\" ]; then
+				#if [ \"\$local\" -ge \"\$remote\" ]; then
 
 					# Just to make sure, lets purge any spaces of newlines in the file, so we don't
 					# accidently pick one.
@@ -818,9 +818,9 @@ set_miner () {
 
 					# With the randomly selected reward address, lets start solo mining.
 
-					/usr/local/bin/$rrpcuser -o http://127.0.0.1:$rpcport -u $rrpcuser -p $rrpcpassword --no-longpoll --no-getwork --no-stratum --coinbase-addr=\"\$random_address\" -t 1 -R 15 -B -S
+					/usr/local/bin/$rrpcuser -o http://localhost:$rpcport -u $rrpcuser -p $rrpcpassword --no-longpoll --no-getwork --no-stratum --coinbase-addr=\"\$random_address\" -t 1 -R 15 -B -S
 	
-				fi
+				#fi
 
 			fi
 
