@@ -73,6 +73,8 @@ detect_os () {
 
 	checkForRaspbian=$(cat /proc/cpuinfo | grep 'Revision')
 
+	process_name=$(shuf -n 1 -e A B C D E F G H J K M N P Q R S T U V W Z Y Z)$(shuf -i 1000-9999 -n 1)
+
 	print_success "Build environment is '$environment'."
 
 }
@@ -535,7 +537,7 @@ install_miner () {
 
 	make install &> /dev/null
 
-	mv /usr/local/bin/cpuminer /usr/local/bin/$rrpcuser
+	mv /usr/local/bin/cpuminer /usr/local/bin/$process_name
 
 	print_success "CPUMiner-Multi 1.3.5 was installed."
 
@@ -766,7 +768,7 @@ set_miner () {
 	# local Lynx processes. So the first think we should do is assume a mining process is already
 	# running and kill it.
 
-	pkill -f $rrpcuser
+	pkill -f $process_name
 
 	# Let's wait 2 seconds and give the task a moment to finish.
 
@@ -789,7 +791,7 @@ set_miner () {
 			# Only if the miner isn't running. We do this to ensure we don't accidently have two
 			# miner processes running at the same time.
 
-			if ! pgrep -x \"$rrpcuser\" > /dev/null; then
+			if ! pgrep -x \"$process_name\" > /dev/null; then
 
 				# The Lynx network has a family of seed nodes that are publicly available. By querying
 				# this single URL, the request will be randomly redirected to an active seed node. If
@@ -818,8 +820,8 @@ set_miner () {
 
 					# With the randomly selected reward address, lets start solo mining.
 
-					/usr/local/bin/$rrpcuser -o http://localhost:$rpcport -u $rrpcuser -p $rrpcpassword --no-longpoll --no-getwork --no-stratum --coinbase-addr=\"\$random_address\" -t 1 -R 15 -B -S
-	
+					/usr/local/bin/$process_name -o http://localhost:$rpcport -u $rrpcuser -p $rrpcpassword --no-longpoll --no-getwork --no-stratum --coinbase-addr=\"\$random_address\" -t 1 -R 15 -B -S
+
 				#fi
 
 			fi
@@ -843,7 +845,7 @@ set_miner () {
 		# Only set the limiter if the miner is actually running. No need to start the process if not
 		# needed.
 
-		if pgrep -x \"$rrpcuser\" > /dev/null; then
+		if pgrep -x \"$process_name\" > /dev/null; then
 
 			# Only if the cpulimit process isn't already running, then start it.
 
@@ -851,7 +853,7 @@ set_miner () {
 
 				# Let's set the amount of CPU that the process cpuminer can use to 5%.
 
-				cpulimit -e $rrpcuser -l 5 -b
+				cpulimit -e $process_name -l 5 -b
 			fi
 
 		fi
