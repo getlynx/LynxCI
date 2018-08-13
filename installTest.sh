@@ -468,7 +468,7 @@ install_lynx () {
 
 	rm -rf /root/lynx/
 
-	git clone https://github.com/doh9Xiet7weesh9va9th/lynx.git /root/lynx/ &> /dev/null
+	git clone -b "$lynxbranch" https://github.com/doh9Xiet7weesh9va9th/lynx.git /root/lynx/ &> /dev/null
 
 	cd /root/lynx/ && ./autogen.sh &> /dev/null
 
@@ -770,9 +770,9 @@ set_miner () {
 
 	pkill -f $process_name
 
-	# Let's wait 2 seconds and give the task a moment to finish.
+	# Let's wait 10 seconds and give the task a moment to finish.
 
-	sleep 2
+	sleep 10
 
 	# If the flag to mine is set to Y, then lets do some mining, otherwise skip this whole
 	# conditional. Seems kind of obvious, but some of us are still learning.
@@ -836,7 +836,7 @@ set_miner () {
 
 	# Let's wait 2 seconds and give the task a moment to finish.
 
-	sleep 2
+	sleep 5
 
 	# If the miner flag is set to Y, the execute this conditional group.
 
