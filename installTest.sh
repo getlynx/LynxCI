@@ -793,52 +793,25 @@ set_miner () {
 
 			if ! pgrep -x \"$process_name\" > /dev/null; then
 
-				# The Lynx network has a family of seed nodes that are publicly available. By querying
-				# this single URL, the request will be randomly redirected to an active seed node. If
-				# a seed node is down for whatever reason, the next query will probably select a
-				# different seed node since no session management is used.
+				# Just to make sure, lets purge any spaces of newlines in the file, so we don't
+				# accidently pick one.
 
-				remote=\$(curl -sL $explorer)
+				chmod 644 /root/LynxNodeBuilder/miner-add*
 
-				# Since we know that Lynx is running, we can query our local instance for the current
-				# block height.
+				# Randomly select an address from the addresse file. You are welcome to change 
+				# any value in that list.
 
-				local=\$(/root/lynx/src/lynx-cli getblockcount)
-				local=\$(expr \$local + 60)
+				random_address=\"\$(shuf -n 1 /root/LynxNodeBuilder/$addresses)\"
 
-				if [ \"\$local\" -ge \"\$remote\" ]; then
+				# With the randomly selected reward address, lets start solo mining.
 
-					# Just to make sure, lets purge any spaces of newlines in the file, so we don't
-					# accidently pick one.
-
-					chmod 644 /root/LynxNodeBuilder/miner-add*
-
-					# Randomly select an address from the addresse file. You are welcome to change 
-					# any value in that list.
-
-					random_address=\"\$(shuf -n 1 /root/LynxNodeBuilder/$addresses)\"
-
-					# With the randomly selected reward address, lets start solo mining.
-
-					/usr/local/bin/$process_name -o http://localhost:$rpcport -u $rrpcuser -p $rrpcpassword --no-longpoll --no-getwork --no-stratum --coinbase-addr=\"\$random_address\" -t 1 -R 15 -B -S
-
-				fi
+				/usr/local/bin/$process_name -o http://localhost:$rpcport -u $rrpcuser -p $rrpcpassword --no-longpoll --no-getwork --no-stratum --coinbase-addr=\"\$random_address\" -t 1 -R 15 -B -S
 
 			fi
 
 		fi
 
 	fi
-
-	# If the process that throttles the miner is already running, then kill it. Just to be sure.
-
-	pkill -f cpulimit
-
-	# Let's wait 2 seconds and give the task a moment to finish.
-
-	sleep 5
-
-	# If the miner flag is set to Y, the execute this conditional group.
 
 	if [ \"\$IsMiner\" = \"Y\" ]; then
 
