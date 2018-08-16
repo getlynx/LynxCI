@@ -970,7 +970,7 @@ config_fail2ban () {
 }
 
 setup_crontabs () {
-	
+
 	# In the event that any other crontabs exist, let's purge them all.
 
 	crontab -r
@@ -982,17 +982,27 @@ setup_crontabs () {
 	# Lynx to be more accurate. If you want to turn off particiaption in the polling service, all
 	# you have to do is remove the following 3 crontabs.
 
-	crontab -l | { cat; echo "*/15 * * * *		/root/LynxNodeBuilder/poll.sh http://seed00.getlynx.io:8080"; } | crontab -
-	crontab -l | { cat; echo "*/15 * * * *		/root/LynxNodeBuilder/poll.sh http://seed01.getlynx.io:8080"; } | crontab -
-	crontab -l | { cat; echo "*/15 * * * *		/root/LynxNodeBuilder/poll.sh http://seed02.getlynx.io:8080"; } | crontab -
+	crontab_spacing="$(shuf -i 15-30 -n 1)"
+	crontab -l | { cat; echo "*/$crontab_spacing * * * *		/root/LynxNodeBuilder/poll.sh http://seed00.getlynx.io:8080"; } | crontab -
+
+	crontab_spacing="$(shuf -i 15-30 -n 1)"
+	crontab -l | { cat; echo "*/$crontab_spacing * * * *		/root/LynxNodeBuilder/poll.sh http://seed01.getlynx.io:8080"; } | crontab -
+
+	crontab_spacing="$(shuf -i 15-30 -n 1)"
+	crontab -l | { cat; echo "*/$crontab_spacing * * * *		/root/LynxNodeBuilder/poll.sh http://seed02.getlynx.io:8080"; } | crontab -
 
 	# Every 15 minutes we reset the firewall to it's default state. Additionally we reset the miner.
 	# The lynx daemon needs to be checked too, so we restart it if it crashes (which has been been
 	# known to happen on low RAM devices during blockchain indexing.)
 
-	crontab -l | { cat; echo "*/15 * * * *		/root/firewall.sh"; } | crontab -
-	crontab -l | { cat; echo "*/15 * * * *		/root/lynx/src/lynxd"; } | crontab -
-	crontab -l | { cat; echo "*/15 * * * *		/root/miner.sh"; } | crontab -
+	crontab_spacing="$(shuf -i 15-30 -n 1)"
+	crontab -l | { cat; echo "*/$crontab_spacing * * * *		/root/firewall.sh"; } | crontab -
+
+	crontab_spacing="$(shuf -i 15-30 -n 1)"
+	crontab -l | { cat; echo "*/$crontab_spacing * * * *		/root/lynx/src/lynxd"; } | crontab -
+
+	crontab_spacing="$(shuf -i 15-30 -n 1)"
+	crontab -l | { cat; echo "*/$crontab_spacing * * * *		/root/miner.sh"; } | crontab -
 
 	# As the update script grows with more self updating features, we will let this script run every 
 	# 24 hours. This way, users don't have to rebuild the LynxCI build as often to get new updates.
