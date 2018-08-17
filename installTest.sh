@@ -112,6 +112,8 @@ expand_swap () {
 
 		print_success "Swap will be increased to 1GB on reboot."
 
+		echo "LynxCI running on Raspbian GNU/Linux 9. Visit https://getlynx.io to learn more!" > /etc/issue
+
 	fi
 
 }
@@ -406,8 +408,6 @@ install_explorer () {
 	print_success "PM2 was installed."
 
 	git clone -b $explorerbranch https://github.com/doh9Xiet7weesh9va9th/LynxExplorer.git &> /dev/null
-
-	print_success "Block Explorer was installed."
 	
 	cd /root/LynxExplorer/ && npm install --production &> /dev/null
 
@@ -428,6 +428,12 @@ install_explorer () {
 	pm2 start npm --name LynxBlockExplorer -- start
 	pm2 save
 	pm2 startup ubuntu
+
+
+	# On Raspian, sometimes the pm2 service shows a benign warning during boot, prior to the first 
+	# command prompt. This changes fixes the issue, avoiding the unneeded warning.
+
+	sed -i 's/User=undefined/User=root/' /etc/systemd/system/pm2-undefined.service
 
 	# Yeah, we are probably putting to many comments in this script, but I hope it proves
 	# helpful to someone when they are having fun but don't know what a part of it does.
