@@ -112,8 +112,6 @@ expand_swap () {
 
 		print_success "Swap will be increased to 1GB on reboot."
 
-		echo "LynxCI running on Raspbian GNU/Linux 9. Visit https://getlynx.io to learn more!" > /etc/issue
-
 	fi
 
 }
@@ -555,6 +553,8 @@ install_mongo () {
 
 		if [ -z "$checkForRaspbian" ]; then
 
+			echo "LynxCI running on Raspbian GNU/Linux 9. Visit https://getlynx.io to learn more!" > /etc/issue
+
 			print_success "$pretty_name detected. Installing Mongo 4.0."
 
 			apt-get install dirmngr -y &> /dev/null
@@ -577,6 +577,8 @@ install_mongo () {
 
 		else
 
+			echo "LynxCI running on Raspbian GNU/Linux 9. Visit https://getlynx.io to learn more!" > /etc/issue
+
 			print_success "$pretty_name detected. Installing Mongo."
 
 			apt-get install mongodb-server -y &> /dev/null
@@ -594,6 +596,8 @@ install_mongo () {
 		fi
 
 	elif [ "$version_id" = "8" ]; then
+
+		echo "LynxCI running on Raspbian GNU/Linux 8. Visit https://getlynx.io to learn more!" > /etc/issue
 
 		print_success "$pretty_name detected. Installing Mongo 4.0."
 
