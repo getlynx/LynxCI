@@ -265,6 +265,12 @@ install_portcheck () {
 
 	}
 
+	print_warning () {
+
+		printf \"\$YELLOW\$1\$RESET\n\"
+
+	}
+
 	print_success \" Standby, checking connectivity...\"
 
 	# When the build script runs, we know the lynxd port, but we don't know if after the node is 
@@ -532,6 +538,7 @@ install_lynx () {
 	listenonion=0
 	upnp=1
 	txindex=1
+	disablewallet=1
 	$lynxconfig
 
 	addnode=seed1.getlynx.io
@@ -544,7 +551,7 @@ install_lynx () {
 
 	chown -R root:root /root/.lynx/*
 
-	print_warning "Lynx was installed without wallet functions."
+	print_warning "Lynx was installed."
 
 }
 
