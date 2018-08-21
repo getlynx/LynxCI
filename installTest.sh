@@ -366,7 +366,8 @@ install_portcheck () {
 	print_success \" Lot's of helpful videos about LynxCI are available at the Lynx FAQ. Visit \"
 	print_success \" https://getlynx.io/faq/ for more information and help.\"
 	print_success \"\"
-	print_info \" The current block height on this Lynx node is \$block.\"
+	print_warning \" The current block height on this Lynx node is \$block.\"
+	print_warning \" The unique identifier for this LynxCI is '\$hhostname'.\"
 	print_success \"\"
 
 	" > /etc/profile.d/portcheck.sh
