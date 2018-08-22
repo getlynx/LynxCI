@@ -539,7 +539,16 @@ install_lynx () {
 	listenonion=0
 	upnp=1
 	txindex=1
+
+	# By default, wallet functions in LynxCI are disabled. This is for security reasons. If you
+	# would like to enable your wallet functions, change the value from '1' to '0' in the
+	# 'disablewallet' parameter. Then restart lynxd to enact the change. Of course, you can do the
+	# reverse action to disable wallet functions on this node. You can always check to see if
+	# wallet functions are enabled with '$ /root/lynx/src/lynx-cli help', looking for the
+	# '== Wallet ==' section at the bottom of the help file.
+
 	disablewallet=1
+
 	$lynxconfig
 
 	addnode=seed1.getlynx.io
