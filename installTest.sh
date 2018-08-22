@@ -168,7 +168,7 @@ set_network () {
 
 	ipaddr=$(ip route get 1 | awk '{print $NF;exit}')
 
-	hhostname="lynx$(shuf -i 100000000-199999999 -n 1)"
+	hhostname="lynx$(shuf -i 100000000-999999999 -n 1)"
 
 	fqdn="$hhostname.getlynx.io"
 
@@ -277,18 +277,27 @@ install_portcheck () {
 	# built. So we are hardcoding the value here, so it can be checked in the future.
 
 	port=\"$port\"
+
 	rpcport=\"$rpcport\"
 
 	if [ -z \"\$(ss -lntu | grep \$port | grep -i listen)\" ]; then
-	  app_reachable=\"false\"
+
+		app_reachable=\"false\"
+
 	else
-	  app_reachable=\"true\"
+
+		app_reachable=\"true\"
+
 	fi
 
 	if [ -z \"\$(ss -lntu | grep \$rpcport | grep -i listen)\" ]; then
-	  rpc_reachable=\"false\"
+
+		rpc_reachable=\"false\"
+
 	else
-	  rpc_reachable=\"true\"
+
+		rpc_reachable=\"true\"
+
 	fi
 
 	if ! pgrep -x \"lynxd\" > /dev/null; then
@@ -297,15 +306,7 @@ install_portcheck () {
 
 	else
 
-		if pgrep -x \"nginx\" > /dev/null; then
-
-			block=\$(curl -s http://127.0.0.1/bc_api.php?request=getblockcount)
-
-		else
-
-			block=\$(curl -s http://127.0.0.1/api/getblockcount)
-			
-		fi
+		block=\$(curl -s http://127.0.0.1/api/getblockcount)
 
 		if [ -z \"\$block\" ]; then
 
@@ -372,13 +373,14 @@ install_portcheck () {
 	print_success \" Lot's of helpful videos about LynxCI are available at the Lynx FAQ. Visit \"
 	print_success \" https://getlynx.io/faq/ for more information and help.\"
 	print_success \"\"
-	print_warning \" The current block height on this Lynx node is \$block.\"
-	print_warning \" The unique identifier for this LynxCI is '\$hhostname'.\"
+	print_warning \" The current block height on this LynxCI node is \$block.\"
+	print_warning \" The unique identifier for this LynxCI node is $hhostname.\"
 	print_success \"\"
 
 	" > /etc/profile.d/portcheck.sh
 
-	chmod 744 /etc/profile.d/portcheck.sh
+	chmod 755 /etc/profile.d/portcheck.sh
+
 	chown root:root /etc/profile.d/portcheck.sh
 
 }
@@ -434,11 +436,10 @@ install_explorer () {
 	pm2 save
 	pm2 startup ubuntu
 
-
 	# On Raspian, sometimes the pm2 service shows a benign warning during boot, prior to the first 
 	# command prompt. This changes fixes the issue, avoiding the unneeded warning.
 
-	sed -i 's/User=undefined/User=root/' /etc/systemd/system/pm2-undefined.service
+	sed -i 's/User=undefined/User=root/' /etc/systemd/system/pm2-undefined.service &> /dev/null
 
 	# Yeah, we are probably putting to many comments in this script, but I hope it proves
 	# helpful to someone when they are having fun but don't know what a part of it does.
@@ -918,31 +919,22 @@ secure_iptables () {
 }
 
 config_fail2ban () {
-	#
-	# Configure fail2ban defaults function
-	#
 
 	#
-	# The default ban time for abusers on port 22 (SSH) is 10 minutes. Lets make this a full 24 hours
-	# that we will ban the IP address of the attacker. This is the tuning of the fail2ban jail that
-	# was documented earlier in this file. The number 86400 is the number of seconds in a 24 hour term.
-	# Set the bantime for lynxd on port 22566/44566 banned regex matches to 24 hours as well.
+	# The default ban time for abusers on port 22 (SSH) is 10 minutes. Lets make this a full 24
+	# hours that we will ban the IP address of the attacker. This is the tuning of the fail2ban
+	# jail that was documented earlier in this file. The number 86400 is the number of seconds in
+	# a 24 hour term. Set the bantime for lynxd on port 22566/44566 banned regex matches to 24
+	# hours as well.
 
 	echo "
 
 	[sshd]
-	enabled = true
-	bantime = 86400
-
-
-	[lynxd]
-	enabled = false
+	enabled	= true
 	bantime = 86400
 
 	" > /etc/fail2ban/jail.d/defaults-debian.conf
 
-	#
-	#
 	# Configure the fail2ban jail for lynxd and set the frequency to 20 min and 3 polls.
 
 	echo "
@@ -955,53 +947,7 @@ config_fail2ban () {
 	port		= ssh
 	logpath		= %(sshd_log)s
 
-	#
-	# LYNX
-	#
-
-	[lynxd]
-	port		= $port
-	logpath		= /root/.lynx/debug.log
-	findtime	= 1200
-	maxretry	= 3
-
 	" > /etc/fail2ban/jail.local
-
-	# Define the regex pattern for lynxd failed connections
-
-	echo "
-
-	#
-	# Fail2Ban lynxd regex filter for at attempted exploit or inappropriate connection
-	#
-	# The regex matches banned and dropped connections
-	# Processes the following logfile /root/.lynx/debug.log
-	#
-
-	[INCLUDES]
-
-	# Read common prefixes. If any customizations available -- read them from
-	# common.local
-	before = common.conf
-
-	[Definition]
-
-	#_daemon = lynxd
-
-	failregex = ^.* connection from <HOST>.*dropped \(banned\)$
-
-	ignoreregex =
-
-	# Author: The Lynx Core Development Team
-
-	" > /etc/fail2ban/filter.d/lynxd.conf
-
-	#
-	#
-	# With the extra jails added for monitoring lynxd, we need to touch the debug.log file for fail2ban to start without error.
-	mkdir /root/.lynx/
-	chmod 755 /root/.lynx/
-	touch /root/.lynx/debug.log
 
 	service fail2ban start
 
@@ -1021,12 +967,15 @@ setup_crontabs () {
 	# you have to do is remove the following 3 crontabs.
 
 	crontab_spacing="$(shuf -i 15-30 -n 1)"
+
 	crontab -l | { cat; echo "*/$crontab_spacing * * * *		/root/LynxNodeBuilder/poll.sh http://seed00.getlynx.io:8080"; } | crontab -
 
 	crontab_spacing="$(shuf -i 15-30 -n 1)"
+
 	crontab -l | { cat; echo "*/$crontab_spacing * * * *		/root/LynxNodeBuilder/poll.sh http://seed01.getlynx.io:8080"; } | crontab -
 
 	crontab_spacing="$(shuf -i 15-30 -n 1)"
+
 	crontab -l | { cat; echo "*/$crontab_spacing * * * *		/root/LynxNodeBuilder/poll.sh http://seed02.getlynx.io:8080"; } | crontab -
 
 	# Every 15 minutes we reset the firewall to it's default state. Additionally we reset the miner.
@@ -1034,12 +983,15 @@ setup_crontabs () {
 	# known to happen on low RAM devices during blockchain indexing.)
 
 	crontab_spacing="$(shuf -i 15-30 -n 1)"
+
 	crontab -l | { cat; echo "*/$crontab_spacing * * * *		/root/firewall.sh"; } | crontab -
 
 	crontab_spacing="$(shuf -i 15-30 -n 1)"
+
 	crontab -l | { cat; echo "*/$crontab_spacing * * * *		/root/lynx/src/lynxd"; } | crontab -
 
 	crontab_spacing="$(shuf -i 15-30 -n 1)"
+
 	crontab -l | { cat; echo "*/$crontab_spacing * * * *		/root/miner.sh"; } | crontab -
 
 	# As the update script grows with more self updating features, we will let this script run every 
