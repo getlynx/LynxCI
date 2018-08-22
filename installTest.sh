@@ -330,11 +330,15 @@ install_portcheck () {
 	curl -s https://raw.githubusercontent.com/doh9Xiet7weesh9va9th/LynxNodeBuilder/master/logo.txt
 
 	echo \"
- | To set up wifi, edit the /etc/wpa_supplicant/wpa_supplicant.conf file.      |
+ | To set up wifi, edit the '/etc/wpa_supplicant/wpa_supplicant.conf' file.    |
  '-----------------------------------------------------------------------------'
- | For local tools to play and learn, type 'sudo /root/lynx/src/lynx-cli help' |
+ | For local tools to play and learn, type 'sudo /root/lynx/src/lynx-cli help'.|
  '-----------------------------------------------------------------------------'
- | LYNX RPC credentials for remote access are located in /root/.lynx/lynx.conf |
+ | LYNX RPC credentials are located in '/root/.lynx/lynx.conf'.                |
+ '-----------------------------------------------------------------------------'
+ | The current block height on this LynxCI node is \$block.                    |
+ '-----------------------------------------------------------------------------'
+ | The unique identifier for this LynxCI node is $hhostname.                   |
  '-----------------------------------------------------------------------------'\"
 
 	if [ \"\$app_reachable\" = \"true\" ]; then
@@ -370,12 +374,8 @@ install_portcheck () {
 
 	fi
 
-	print_success \" Lot's of helpful videos about LynxCI are available at the Lynx FAQ. Visit \"
+	print_success \" Lots of helpful videos about LynxCI are available at the Lynx FAQ. Visit \"
 	print_success \" https://getlynx.io/faq/ for more information and help.\"
-	print_success \"\"
-	print_warning \" The current block height on this LynxCI node is \$block.\"
-	print_warning \" The unique identifier for this LynxCI node is $hhostname.\"
-	print_success \"\"
 
 	" > /etc/profile.d/portcheck.sh
 

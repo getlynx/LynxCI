@@ -38,3 +38,4 @@ chmod 744 -R /root/LynxNodeBuilder/
 # argument instead of 'mainnet'. The argument is required.
 
 /root/LynxNodeBuilder/install.sh mainnet
+
