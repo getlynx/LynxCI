@@ -16,13 +16,11 @@ refresh_mining_addresses () {
 
 update_block_explorer () {
 
-    cd ~/LynxExplorer
-
-    if [ -r ".commit.txt" ]; then
+    if [ -r "/root/LynxExplorer/.commit.txt" ]; then
 
             remotehash=`git ls-remote origin -h refs/heads/master | awk '{print $1;exit}'`
 
-            localhash=$(cat .commit.txt)
+            localhash=$(cat /root/LynxExplorer/.commit.txt)
 
             if [ "$remotehash" != "$localhash" ]; then
 
@@ -34,10 +32,10 @@ update_block_explorer () {
 
             fi
 
-            git ls-remote origin -h refs/heads/master | awk '{print $1;exit}' > .commit.txt
+            git ls-remote origin -h refs/heads/master | awk '{print $1;exit}' > /root/LynxExplorer/.commit.txt
 
     else
-            git ls-remote origin -h refs/heads/master | awk '{print $1;exit}' > .commit.txt
+            git ls-remote origin -h refs/heads/master | awk '{print $1;exit}' > /root/LynxExplorer/.commit.txt
     fi
 
 }
@@ -45,7 +43,7 @@ update_block_explorer () {
 
 detect_os () {
 
-    # We are inspecting the local operating system and extracting the full name so we know the 
+    # We are inspecting the local operating system and extracting the full name so we know the
     # unique flavor. In the rest of the script we have various changes that are dedicated to
     # certain operating system versions.
 
@@ -83,4 +81,5 @@ if [ $changed = 1 ]; then
 fi
 
 refresh_mining_addresses
+
 update_block_explorer

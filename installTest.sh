@@ -336,9 +336,9 @@ install_portcheck () {
  '-----------------------------------------------------------------------------'
  | LYNX RPC credentials are located in '/root/.lynx/lynx.conf'.                |
  '-----------------------------------------------------------------------------'
- | The current block height on this LynxCI node is \$block.                    |
+   The current block height on this LynxCI node is \$block.                     
  '-----------------------------------------------------------------------------'
- | The unique identifier for this LynxCI node is $hhostname.                   |
+   The unique identifier for this LynxCI node is $hhostname.                    
  '-----------------------------------------------------------------------------'\"
 
 	if [ \"\$app_reachable\" = \"true\" ]; then
