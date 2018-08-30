@@ -16,6 +16,8 @@ refresh_mining_addresses () {
 
 update_block_explorer () {
 
+    cd /root/LynxExplorer/
+
     if [ -r "/root/LynxExplorer/.commit.txt" ]; then
 
             remotehash=`git ls-remote origin -h refs/heads/master | awk '{print $1;exit}'`
