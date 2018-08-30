@@ -735,7 +735,7 @@ set_firewall () {
 
 	#!/bin/bash
 
-	IsSSH=Y
+	IsRestricted=N
 
 	# Let's flush any pre existing iptables rules that might exist and start with a clean slate.
 
@@ -751,8 +751,8 @@ set_firewall () {
 
 	/sbin/iptables -I INPUT 2 -m conntrack --ctstate ESTABLISHED,RELATED -j ACCEPT
 
-	# If the script has IsSSH set to Y, then let's open up port 22 for any IP address. But if
-	# the script has IsSSH set to N, let's only open up port 22 for local LAN access. This means
+	# If the script has IsRestricted set to Y, then let's open up port 22 for any IP address. But if
+	# the script has IsRestricted set to N, let's only open up port 22 for local LAN access. This means
 	# you have to be physically connected (or via Wifi) to SSH to this computer. It isn't perfectly
 	# secure, but it removes the possibility for an SSH attack from a public IP address. If you
 	# wanted to completely remove the possibility of an SSH attack and will only ever work on this
@@ -761,11 +761,52 @@ set_firewall () {
 	# lock yourself from being able to access this computer. If so, just go through the build
 	# process again and start over.
 
-	if [ \"\$IsSSH\" = \"Y\" ]; then
+	if [ \"\$IsRestricted\" = \"N\" ]; then
+
 		/sbin/iptables -A INPUT -p tcp --dport 22 -j ACCEPT
+
 	else
+
 		/sbin/iptables -A INPUT -p tcp -s 10.0.0.0/8 --dport 22 -j ACCEPT
+
 		/sbin/iptables -A INPUT -p tcp -s 192.168.0.0/16 --dport 22 -j ACCEPT
+
+		# VPN service https://www.vpnsecure.me [Germany]
+
+		/sbin/iptables -A INPUT -p tcp -s 185.216.33.82 --dport 22 -j ACCEPT
+
+		# VPN service https://www.vpnsecure.me [Austria]
+
+		/sbin/iptables -A INPUT -p tcp -s 146.255.57.28 --dport 22 -j ACCEPT
+
+		# VPN service https://www.vpnsecure.me [Canada TCP]
+
+		/sbin/iptables -A INPUT -p tcp -s 67.215.7.186 --dport 22 -j ACCEPT
+
+		# VPN service https://www.vpnsecure.me [Australia 2 TCP]
+
+		/sbin/iptables -A INPUT -p tcp -s 168.1.53.196 --dport 22 -j ACCEPT
+
+		# VPN service https://www.vpnsecure.me [Belgium 1 TCP]
+
+		/sbin/iptables -A INPUT -p tcp -s 82.102.19.178 --dport 22 -j ACCEPT
+
+		# VPN service https://www.vpnsecure.me [United States 10 - N-West]
+
+		/sbin/iptables -A INPUT -p tcp -s 162.210.250.170 --dport 22 -j ACCEPT
+
+		# VPN service https://www.vpnsecure.me [United States 3 - East]
+
+		/sbin/iptables -A INPUT -p tcp -s 64.20.43.202 --dport 22 -j ACCEPT
+
+		# VPN service https://www.vpnsecure.me [Vietnam TCP]
+
+		/sbin/iptables -A INPUT -p tcp -s 125.212.251.87 --dport 22 -j ACCEPT
+
+		# VPN service https://www.vpnsecure.me [Netherlands TCP]
+
+		/sbin/iptables -A INPUT -p tcp -s 89.39.105.120 --dport 22 -j ACCEPT
+
 	fi
 
 	# Becuase the Block Explorer or Block Crawler are available via port 80 (standard website port)
@@ -1006,7 +1047,7 @@ setup_crontabs () {
 	# As the update script grows with more self updating features, we will let this script run every 
 	# 24 hours. This way, users don't have to rebuild the LynxCI build as often to get new updates.
 
-	crontab -l | { cat; echo "0 0 * * *		/root/update.sh"; } | crontab -
+	crontab -l | { cat; echo "0 0 * * *		/root/LynxNodeBuilder/update.sh"; } | crontab -
 
 	# We found that after a few weeks, the debug log would grow rather large. It's not really needed
 	# after a certain size, so let's truncate that log down to a reasonable size every day.
