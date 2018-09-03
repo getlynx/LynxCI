@@ -37,19 +37,19 @@ if [ -f /boot/loader ]; then
 	# it was determined that trying to automate that portion was unneeded. For now, the update is all
 	# we need and the device will still function properly.
 
-	/usr/bin/apt-get update -y &> /dev/null
+	/usr/bin/apt-get update -y
 
 	#/usr/bin/apt-get upgrade -y
 
 	# We need to ensure we have git for the following step. Let's not assume we already ahve it. Also
 	# added a few other tools as testing has revealed that some vendors didn't have them pre-installed.
 
-	/usr/bin/apt-get install git curl htop nano -y &> /dev/null
+	/usr/bin/apt-get install git curl htop nano -y
 
 	# Some hosting vendors already have these installed. They aren't needed, so we are removing them
 	# now. This list will probably get longer over time.
 
-	/usr/bin/apt-get remove postfix apache2 -y &> /dev/null
+	/usr/bin/apt-get remove postfix apache2 -y
 
 	# We are downloading the latest package of build instructions from github.
 

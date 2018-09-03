@@ -1,5 +1,5 @@
-# LynxNodeBuilder
-Creates a Lynxd node that confirms and relays network transactions, runs an eco-friendly micro-miner and also creates a local Block Crawler website with network news and information.
+# LynxCI
+Creates a Lynx cryptocurrency node that confirms and relays network transactions, runs an eco-friendly built-in miner and also creates a local robust Block Explorer website with network news and information.
 
 [Lynx FAQ](https://getlynx.io/faq/)
 
@@ -7,20 +7,16 @@ Creates a Lynxd node that confirms and relays network transactions, runs an eco-
 
 [Lynx Twitter](https://twitter.com/GetlynxIo)
 
-## For [Raspian Lite](https://www.raspberrypi.org/downloads/raspbian/) & Ubuntu 18.04 LTS
+## For [Raspian Lite](https://www.raspberrypi.org/downloads/raspbian/) & Ubuntu 18.04 LTS & Ubuntu 16.04 LTS & Debian 8 & Debian 9
 
-You can manually enter these four lines, as root, after your OS is installed.
+For production (mainnet), you can manually enter this single line, as root, after your OS is installed.
 ```
-$ apt-get update -y && apt-get install git -y
+$ wget -qO - https://explorer.getlynx.io/setup.sh | bash
 ```
+
+For development (testnet), you can manually enter this single line, as root, after your OS is installed.
 ```
-$ git clone https://github.com/doh9Xiet7weesh9va9th/LynxNodeBuilder.git /root/LynxNodeBuilder/
-```
-```
-$ chmod 744 -R /root/LynxNodeBuilder/
-```
-```
-$ /root/LynxNodeBuilder/install.sh mainnet
+$ wget -qO - https://test-explorer.getlynx.io/setup.sh | bash
 ```
 
 ## [LynxCI](http://cdn.getlynx.io/LynxCI.tar.gz)
@@ -39,12 +35,6 @@ also, the miner logs to syslog;
 
 ```
 $ sudo tail -F /var/log/syslog
-```
-
-You can also now run a Lynx node on our Testnet. This is the testing environment that all new experimental and test code is developed. It's a great place to practice attacks, try new dev features and it's useful to our development partners during integration. On the last line of the manual build above, specify 'testnet' instead of 'mainnet', like below.
-
-```
-$ /root/LynxNodeBuilder/install.sh testnet
 ```
 
 Once you know the IP address of your Pi, you can enter it in your web browser and directly visit it with your favorite browser. Bookmark it and have fun. It will take about 1.5 hours to sync, so be patient. You are now an active member of the Lynx community. Congratulations!
