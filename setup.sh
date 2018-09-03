@@ -6,7 +6,7 @@
 
 # To get started, log into your VPS or Pi, and as root copy and paste the following line.
 
-# wget -O - https://test-explorer.getlynx.io/setup.sh | bash
+# wget -qO - https://test-explorer.getlynx.io/setup.sh | bash
 
 # This will start the intallation. You can now close the session window in your termial or putty
 # window. The script will run in the background without need for human interaction. Depending on the
@@ -89,11 +89,11 @@ else
 
 	if [ "$IsProduction" = "Y" ]; then
 
-		wget -O /root/setup.sh https://explorer.getlynx.io/setup.sh
+		wget -qO /root/setup.sh https://explorer.getlynx.io/setup.sh
 
 	else
 
-		wget -O /root/setup.sh https://test-explorer.getlynx.io/setup.sh
+		wget -qO /root/setup.sh https://test-explorer.getlynx.io/setup.sh
 
 	fi
 
