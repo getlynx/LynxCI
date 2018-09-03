@@ -488,7 +488,7 @@ install_lynx () {
 
 	# We need a very specific version of the Berkeley DB for the wallet to function properly.
 
-	cd /root/lynx/ &> /dev/null && wget http://download.oracle.com/berkeley-db/db-4.8.30.NC.tar.gz &> /dev/null
+	cd /root/lynx/ && wget http://download.oracle.com/berkeley-db/db-4.8.30.NC.tar.gz &> /dev/null
 
 	# Now that we have the tarbar file, lets unpack it and jump to a sub directory within it.
 
@@ -496,7 +496,7 @@ install_lynx () {
 
 	# Configure and run the make file to compile the Berkeley DB source.
 
-	../dist/configure --enable-cxx --disable-shared --with-pic --prefix=/root/lynx/db4 &> /dev/null&& make install &> /dev/null
+	../dist/configure --enable-cxx --disable-shared --with-pic --prefix=/root/lynx/db4 &> /dev/null && make install &> /dev/null
 
 	# Now that the Berkeley DB is installed, let's jump to the lynx directory and finish the 
 	# configure statement WITH the Berkeley DB parameters included.
