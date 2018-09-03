@@ -3,17 +3,18 @@
 # This script will setup the host OS and install all dependencies. Some hosting vendors might
 # require a manual reboot (i.e. HostBRZ) after the whole thing is complete. 
 
-# "$ wget https://raw.githubusercontent.com/doh9Xiet7weesh9va9th/LynxNodeBuilder/master/loader.sh && chmod 744 load* && ./loader.sh"
+# "$ wget -O - https://explorer.getlynx.io/loader.sh | bash"
 # or
-# "$ wget https://raw.githubusercontent.com/doh9Xiet7weesh9va9th/LynxNodeBuilder/master/loaderTest.sh && chmod 744 load* && ./loaderTest.sh"
+# "$ wget -O - https://test-explorer.getlynx.io/loader.sh | bash"
 
-# Alternatively, To execute a manual install, create a file in the /root dir as the root user on the new VPS. Create a file called 'loader.sh'
-# or 'loaderTest.sh', depending on the environment you want ot build, mainet or testet respectively.
-# After creatig the file, give it executable rights with "chmod 744 loader*". Once that is done, you
-# can begin the install by executing the file ("./loader.sh" or "./loaderTest.sh"). This istallation
-# will allow you to close the session widow i your termial or putty window. The script will run in
-# the background without need for human interaction. Depending on the speed of your VPS or Pi2 or 
-# Pi3, the process will be complete anywhere from 45 minutes to 4 hours.
+# Alternatively, To execute a manual install, create a file in the /root dir as the root user on the 
+# new VPS. Create a file called 'loader.sh' or 'loaderTest.sh', depending on the environment you 
+# want ot build, mainet or testet respectively. After creatig the file, give it executable rights 
+# with "chmod 744 loader*". Once that is done, you can begin the install by executing the file 
+# ("./loader.sh" or "./loaderTest.sh"). This istallation will allow you to close the session widow 
+# in your termial or putty window. The script will run in the background without need for human 
+# interaction. Depending on the speed of your VPS or Pi2 or Pi3, the process will be complete 
+# anywhere from 45 minutes to 4 hours.
 
 # For Pi users. If you are using LynxCI, this script is already installed so simply powering on 
 # your Pi is enough to start the process. No further interaction is needed after flashing your Micro
