@@ -79,4 +79,6 @@ else
 
 	/usr/bin/touch /boot/loader
 
+	echo "The installer will start itself in 15 minutes. You can log out now or watch the installation by tailing the syslog."
+
 fi
