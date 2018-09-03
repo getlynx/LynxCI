@@ -484,20 +484,19 @@ install_lynx () {
 
 	# We will need this db4 directory soon so let's delete and create it.
 
-	rm -rf /root/lynx/db4
-	mkdir -p /root/lynx/db4
+	rm -rf /root/lynx/db4 && mkdir -p /root/lynx/db4
 
 	# We need a very specific version of the Berkeley DB for the wallet to function properly.
 
-	cd /root/lynx/ && wget http://download.oracle.com/berkeley-db/db-4.8.30.NC.tar.gz
+	cd /root/lynx/ &> /dev/null && wget http://download.oracle.com/berkeley-db/db-4.8.30.NC.tar.gz &> /dev/null
 
 	# Now that we have the tarbar file, lets unpack it and jump to a sub directory within it.
 
-	tar -xzvf db-4.8.30.NC.tar.gz && cd db-4.8.30.NC/build_unix/
+	tar -xzvf db-4.8.30.NC.tar.gz &> /dev/null && cd db-4.8.30.NC/build_unix/ &> /dev/null
 
 	# Configure and run the make file to compile the Berkeley DB source.
 
-	../dist/configure --enable-cxx --disable-shared --with-pic --prefix=/root/lynx/db4 && make install
+	../dist/configure --enable-cxx --disable-shared --with-pic --prefix=/root/lynx/db4 &> /dev/null&& make install &> /dev/null
 
 	# Now that the Berkeley DB is installed, let's jump to the lynx directory and finish the 
 	# configure statement WITH the Berkeley DB parameters included.
@@ -507,9 +506,9 @@ install_lynx () {
 	# If it's a Pi device then set up the uPNP arguments.
 
 	if [ ! -z "$checkForRaspbian" ]; then
-		./configure LDFLAGS="-L/root/lynx/db4/lib/" CPPFLAGS="-I/root/lynx/db4/include/ -O2" --enable-cxx --without-gui --disable-shared --with-miniupnpc --enable-upnp-default --disable-tests && make
+		./configure LDFLAGS="-L/root/lynx/db4/lib/" CPPFLAGS="-I/root/lynx/db4/include/ -O2" --enable-cxx --without-gui --disable-shared --with-miniupnpc --enable-upnp-default --disable-tests &> /dev/null && make &> /dev/null
 	else
-		./configure LDFLAGS="-L/root/lynx/db4/lib/" CPPFLAGS="-I/root/lynx/db4/include/ -O2" --enable-cxx --without-gui --disable-shared --disable-tests && make
+		./configure LDFLAGS="-L/root/lynx/db4/lib/" CPPFLAGS="-I/root/lynx/db4/include/ -O2" --enable-cxx --without-gui --disable-shared --disable-tests &> /dev/null && make &> /dev/null
 	fi
 
 	# In the past, we used a bootstrap file to get the full blockchain history to load faster. This
