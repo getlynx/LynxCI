@@ -7,26 +7,26 @@
 
 refresh_mining_addresses () {
 
-    rm -rf /root/LynxNodeBuilder/miner-address*
-    cd ~/LynxNodeBuilder && curl -s https://raw.githubusercontent.com/doh9Xiet7weesh9va9th/LynxNodeBuilder/master/miner-addresses.txt > /root/LynxNodeBuilder/miner-addresses.txt
-    cd ~/LynxNodeBuilder && curl -s https://raw.githubusercontent.com/doh9Xiet7weesh9va9th/LynxNodeBuilder/master/miner-addresses-testnet.txt > /root/LynxNodeBuilder/miner-addresses-testnet.txt
-    chmod 744 /root/LynxNodeBuilder/miner-address*
+    rm -rf /root/LynxCI/miner-address*
+    cd ~/LynxCI && curl -s https://raw.githubusercontent.com/doh9Xiet7weesh9va9th/LynxCI/master/miner-addresses.txt > /root/LynxCI/miner-addresses.txt
+    cd ~/LynxCI && curl -s https://raw.githubusercontent.com/doh9Xiet7weesh9va9th/LynxCI/master/miner-addresses-testnet.txt > /root/LynxCI/miner-addresses-testnet.txt
+    chmod 744 /root/LynxCI/miner-address*
 
 }
 
 update_block_explorer () {
 
-    cd /root/LynxExplorer/
+    cd /root/LynxBlockExplorer/
 
-    if [ -r "/root/LynxExplorer/.commit.txt" ]; then
+    if [ -r "/root/LynxBlockExplorer/.commit.txt" ]; then
 
             remotehash=`git ls-remote origin -h refs/heads/master | awk '{print $1;exit}'`
 
-            localhash=$(cat /root/LynxExplorer/.commit.txt)
+            localhash=$(cat /root/LynxBlockExplorer/.commit.txt)
 
             if [ "$remotehash" != "$localhash" ]; then
 
-                git pull https://github.com/doh9Xiet7weesh9va9th/LynxExplorer.git
+                git pull https://github.com/doh9Xiet7weesh9va9th/LynxBlockExplorer.git
 
                 npm install
 
@@ -34,10 +34,10 @@ update_block_explorer () {
 
             fi
 
-            git ls-remote origin -h refs/heads/master | awk '{print $1;exit}' > /root/LynxExplorer/.commit.txt
+            git ls-remote origin -h refs/heads/master | awk '{print $1;exit}' > /root/LynxBlockExplorer/.commit.txt
 
     else
-            git ls-remote origin -h refs/heads/master | awk '{print $1;exit}' > /root/LynxExplorer/.commit.txt
+            git ls-remote origin -h refs/heads/master | awk '{print $1;exit}' > /root/LynxBlockExplorer/.commit.txt
     fi
 
 }
