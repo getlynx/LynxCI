@@ -10,7 +10,7 @@ For production (mainnet), you can manually enter this single line, as root, afte
 $ wget -qO - https://explorer.getlynx.io/setup.sh | bash
 ```
 
-For development (testnet)...
+For development (testnet)
 ```
 $ wget -qO - https://test-explorer.getlynx.io/setup.sh | bash
 ```
@@ -32,6 +32,8 @@ Lynx is a secure cryptocurrency with fast transaction speeds and low-transaction
 [Lynx News](https://getlynx.io/news/)
 
 [Lynx Twitter](https://twitter.com/GetlynxIo)
+
+[Lynx Discord](https://discord.gg/5cM3NTF)
 
 ## How is Lynx an "eco-friendly cryptocurrency"?
 
