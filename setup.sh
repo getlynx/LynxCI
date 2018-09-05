@@ -26,7 +26,7 @@ if [ -f /boot/loader ]; then
 
 	# In the event that any other crontabs exist, let's purge them all.
 
-	crontab -r 
+	crontab -r &> /dev/null
 
 	# Since the /boot/loader file existed, let's purge it to keep things cleaned up.
 
