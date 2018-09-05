@@ -3,7 +3,7 @@ Creates a Lynx cryptocurrency node that confirms and relays transactions, runs a
 
 ## One line install script
 
-This script supports the following Linux operating systems. [Raspbian for Raspberry Pi](https://www.raspberrypi.org/downloads/raspbian/), Ubuntu 18.04 LTS, Ubuntu 16.04 LTS, Debian 8 and Debian 9
+This script supports the following Linux operating systems. [Raspbian for Raspberry Pi](https://www.raspberrypi.org/downloads/raspbian/), Ubuntu 18.04 LTS, Ubuntu 16.04 LTS, Debian 8 and Debian 9. The script is only recommended for a VPS or local server that has a freshly installed OS with no previously written data. This precaution is for your own security.
 
 For production (mainnet), you can manually enter this single line, as root, after your OS is installed. It will run in the background, so no need to stay logged in or keep the terminal window open. You can watch it build if you like. The full installation log is saved to /var/log/syslog.
 ```
@@ -14,6 +14,8 @@ For development (testnet)
 ```
 $ wget -qO - https://test-explorer.getlynx.io/setup.sh | bash
 ```
+
+After the LynxCI node is built, the default login is 'lynx' for both the username and password. Please change the password immediately.
 
 ## [LynxCI for Pi](http://cdn.getlynx.io/LynxCI.tar.gz)
 
