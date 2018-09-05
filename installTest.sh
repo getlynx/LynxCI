@@ -428,7 +428,7 @@ install_explorer () {
 	# it already exists. This way if the power goes out during install, the build process can
 	# gracefully restart.
 
-	rm -rf ~/LynxExplorer && rm -rf ~/.npm-global
+	rm -rf ~/LynxBlockExplorer && rm -rf ~/.npm-global
 
 	# We might need curl and some other dependencies so let's grab those now. It is also possible
 	# these packages might be used elsewhere in this script so installing them now is no problem.
@@ -447,20 +447,20 @@ install_explorer () {
 
 	print_success "PM2 was installed."
 
-	git clone -b $explorerbranch https://github.com/doh9Xiet7weesh9va9th/LynxExplorer.git &> /dev/null
+	git clone -b $explorerbranch https://github.com/doh9Xiet7weesh9va9th/LynxBlockExplorer.git &> /dev/null
 	
-	cd /root/LynxExplorer/ && npm install --production &> /dev/null
+	cd /root/LynxBlockExplorer/ && npm install --production &> /dev/null
 
-	# We need to update the json file in the LynxExplorer node app with the lynxd RPC access
+	# We need to update the json file in the LynxBlockExplorer node app with the lynxd RPC access
 	# credentials for this device. Since they are created dynamically each time, we just do
 	# find and replace in the json file.
 
-	sed -i "s/9332/${rpcport}/g" /root/LynxExplorer/settings.json
-	sed -i "s/__HOSTNAME__/x${fqdn}/g" /root/LynxExplorer/settings.json
-	sed -i "s/__MONGO_USER__/x${rrpcuser}/g" /root/LynxExplorer/settings.json
-	sed -i "s/__MONGO_PASS__/x${rrpcpassword}/g" /root/LynxExplorer/settings.json
-	sed -i "s/__LYNXRPCUSER__/${rrpcuser}/g" /root/LynxExplorer/settings.json
-	sed -i "s/__LYNXRPCPASS__/${rrpcpassword}/g" /root/LynxExplorer/settings.json
+	sed -i "s/9332/${rpcport}/g" /root/LynxBlockExplorer/settings.json
+	sed -i "s/__HOSTNAME__/x${fqdn}/g" /root/LynxBlockExplorer/settings.json
+	sed -i "s/__MONGO_USER__/x${rrpcuser}/g" /root/LynxBlockExplorer/settings.json
+	sed -i "s/__MONGO_PASS__/x${rrpcpassword}/g" /root/LynxBlockExplorer/settings.json
+	sed -i "s/__LYNXRPCUSER__/${rrpcuser}/g" /root/LynxBlockExplorer/settings.json
+	sed -i "s/__LYNXRPCPASS__/${rrpcpassword}/g" /root/LynxBlockExplorer/settings.json
 
 	# start LynxBlockExplorer process using pm2
 	pm2 stop LynxBlockExplorer &> /dev/null
@@ -1093,9 +1093,9 @@ setup_crontabs () {
 
 	crontab -l | { cat; echo "0 0 */15 * *		/sbin/shutdown -r now"; } | crontab -
 
-	crontab -l | { cat; echo "*/2 * * * *		cd /root/LynxExplorer && scripts/check_server_status.sh"; } | crontab -
-	crontab -l | { cat; echo "*/3 * * * *		cd /root/LynxExplorer && /usr/bin/nodejs scripts/sync.js index update >> /tmp/explorer.sync 2>&1"; } | crontab -
-	crontab -l | { cat; echo "*/10 * * * *		cd /root/LynxExplorer && /usr/bin/nodejs scripts/peers.js > /dev/null 2>&1"; } | crontab -
+	crontab -l | { cat; echo "*/2 * * * *		cd /root/LynxBlockExplorer && scripts/check_server_status.sh"; } | crontab -
+	crontab -l | { cat; echo "*/3 * * * *		cd /root/LynxBlockExplorer && /usr/bin/nodejs scripts/sync.js index update >> /tmp/explorer.sync 2>&1"; } | crontab -
+	crontab -l | { cat; echo "*/10 * * * *		cd /root/LynxBlockExplorer && /usr/bin/nodejs scripts/peers.js > /dev/null 2>&1"; } | crontab -
 
 }
 
