@@ -97,10 +97,9 @@ install_throttle () {
 
 }
 
-expand_swap () {
+manage_swap () {
 
-	# We are only modifying the swap amount for a Raspberry Pi device. In the future, other
-	# environments will have their own place in the following conditional statement.
+	# We are only modifying the swap amount for a Raspberry Pi device. 
 
 	if [ ! -z "$checkForRaspbian" ]; then
 
@@ -111,6 +110,32 @@ expand_swap () {
 		sed -i 's/CONF_SWAPSIZE=100/CONF_SWAPSIZE=1024/' /etc/dphys-swapfile
 
 		print_success "Swap will be increased to 1GB on reboot."
+
+	# The following condition checks if swaps exists and set it up if it doesn't.
+
+	else
+
+		# https://www.2daygeek.com/shell-script-create-add-extend-swap-space-linux/#
+
+		newswapsize=2048
+
+		grep -q "swapfile" /etc/fstab
+
+		if [ $? -ne 0 ]; then
+
+			fallocate -l ${newswapsize}M /swapfile
+
+			chmod 600 /swapfile
+
+			mkswap /swapfile
+
+			swapon /swapfile
+			
+			echo '/swapfile none swap defaults 0 0' >> /etc/fstab
+
+		fi
+
+		swapon --show
 
 	fi
 
@@ -1102,7 +1127,7 @@ else
 	install_packages
 	install_throttle
 	set_network
-	expand_swap
+	manage_swap
 	reduce_gpu_mem
 	disable_bluetooth
 	set_wifi
