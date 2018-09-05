@@ -17,7 +17,7 @@
 # SD card with the latest version of LynxCI, plugging it into your Pi and powering it one. This
 # script will support Pi 2 and 3 only please.
 
-IsProduction=N
+IsProduction=Y
 
 # Since this is the first time this loader.sh file has been executed, the /boot/loader file won't
 # exist yet, so skip to the else portion of this conditional.
@@ -103,6 +103,13 @@ else
 
 	/usr/bin/touch /boot/loader
 
-	echo "The installer will start itself in 15 minutes. You can log out now or watch the installation by tailing the syslog."
+	curl -s https://raw.githubusercontent.com/doh9Xiet7weesh9va9th/LynxCI/master/logo.txt
+
+	echo "
+
+   The installer will start itself in 15 minutes.
+   You can log out now or watch the installation by tailing the syslog.
+
+   "
 
 fi
