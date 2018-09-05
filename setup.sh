@@ -26,7 +26,7 @@ if [ -f /boot/loader ]; then
 
 	# In the event that any other crontabs exist, let's purge them all.
 
-	crontab -r
+	crontab -r 
 
 	# Since the /boot/loader file existed, let's purge it to keep things cleaned up.
 
@@ -77,12 +77,12 @@ else
 
 	# In the event that any other crontabs exist, let's purge them all.
 
-	crontab -r
+	crontab -r &> /dev/null
 
 	# Since this is the first time the script is run, we will create a crontab to run it again
 	# in a few minute, when a quarter of the hour rolls around.
 
-	crontab -l | { cat; echo "*/15 * * * *		PATH='/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin' /bin/sh /root/setup.sh >> /var/log/syslog"; } | crontab -
+	crontab -l &> /dev/null | { cat; echo "*/15 * * * *		PATH='/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin' /bin/sh /root/setup.sh >> /var/log/syslog"; } | crontab -
 
 	# The setup script is then downloaded to the root dir and permissions are set. So when the
 	# crontab runs, the script is there and has the correct execute permissions.
