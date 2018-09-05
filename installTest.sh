@@ -462,15 +462,18 @@ install_explorer () {
 	sed -i "s/__LYNXRPCUSER__/${rrpcuser}/g" /root/LynxBlockExplorer/settings.json
 	sed -i "s/__LYNXRPCPASS__/${rrpcpassword}/g" /root/LynxBlockExplorer/settings.json
 
-	# start LynxBlockExplorer process using pm2
+	# Start the Block Explorer nodejs app and set it up in PM2
+
 	pm2 stop LynxBlockExplorer &> /dev/null
-	pm2 delete LynxBlockExplorer
-	pm2 start npm --name LynxBlockExplorer -- start
-	pm2 save
-	pm2 startup ubuntu
+
+	pm2 delete LynxBlockExplorer &> /dev/null
+
+	pm2 start &> /dev/null
+
+	pm2 save &> /dev/null
 
 	# On Raspian, sometimes the pm2 service shows a benign warning during boot, prior to the first
-	# command prompt. This changes fixes the issue, avoiding the unneeded warning.
+	# command prompt. This replacement fixes the issue, avoiding the unneeded warning.
 
 	sed -i 's/User=undefined/User=root/' /etc/systemd/system/pm2-undefined.service &> /dev/null
 
