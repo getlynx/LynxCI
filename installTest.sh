@@ -237,10 +237,17 @@ set_wifi () {
 
 set_accounts () {
 
+	# We don't always know the condition of the host OS, so let's look for several possibilities. 
+	# This will disable the ability to log in directly as root.
+
 	sed -i 's/PermitRootLogin yes/PermitRootLogin no/' /etc/ssh/sshd_config
+
 	sed -i 's/PermitRootLogin without-password/PermitRootLogin no/' /etc/ssh/sshd_config
 
+	# The new LynxCI username and default password.
+
 	ssuser="lynx"
+
 	sspassword="lynx"
 
 	adduser $ssuser --disabled-password --gecos "" &> /dev/null && echo "$ssuser:$sspassword" | chpasswd &> /dev/null
@@ -1101,7 +1108,7 @@ restart () {
 	# over. This helps if we have ot debug a problem in the future.
 
 	/usr/bin/touch /boot/ssh
-	
+
 	/usr/bin/touch /boot/lynxci
 
 	/bin/rm -rf /root/setup.sh
