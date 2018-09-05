@@ -1093,7 +1093,6 @@ setup_crontabs () {
 
 	crontab -l | { cat; echo "0 0 */15 * *		/sbin/shutdown -r now"; } | crontab -
 
-	crontab -l | { cat; echo "*/2 * * * *		cd /root/LynxBlockExplorer && scripts/check_server_status.sh"; } | crontab -
 	crontab -l | { cat; echo "*/3 * * * *		cd /root/LynxBlockExplorer && /usr/bin/nodejs scripts/sync.js index update >> /tmp/explorer.sync 2>&1"; } | crontab -
 	crontab -l | { cat; echo "*/10 * * * *		cd /root/LynxBlockExplorer && /usr/bin/nodejs scripts/peers.js > /dev/null 2>&1"; } | crontab -
 
