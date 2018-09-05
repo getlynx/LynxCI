@@ -63,7 +63,7 @@ print_error () {
 
 detect_os () {
 
-	# We are inspecting the local operating system and extracting the full name so we know the 
+	# We are inspecting the local operating system and extracting the full name so we know the
 	# unique flavor. In the rest of the script we have various changes that are dedicated to
 	# certain operating system versions.
 
@@ -99,12 +99,12 @@ install_throttle () {
 
 manage_swap () {
 
-	# We are only modifying the swap amount for a Raspberry Pi device. 
+	# We are only modifying the swap amount for a Raspberry Pi device.
 
 	if [ ! -z "$checkForRaspbian" ]; then
 
 		# On a Raspberry Pi 3, the default swap is 100MB. This is a little restrictive, so we are
-		# expanding it to a full 1GB of swap. We don't usually touch too much swap but during the 
+		# expanding it to a full 1GB of swap. We don't usually touch too much swap but during the
 		# initial compile and build process, it does consume a good bit so lets provision this.
 
 		sed -i 's/CONF_SWAPSIZE=100/CONF_SWAPSIZE=1024/' /etc/dphys-swapfile
@@ -130,7 +130,7 @@ manage_swap () {
 			mkswap /swapfile
 
 			swapon /swapfile
-			
+
 			echo '/swapfile none swap defaults 0 0' >> /etc/fstab
 
 		fi
@@ -143,10 +143,10 @@ manage_swap () {
 
 reduce_gpu_mem () {
 
-	# On the Pi, the default amount of gpu memory is set to be used with the GUI build. Instead 
+	# On the Pi, the default amount of gpu memory is set to be used with the GUI build. Instead
 	# we are going to set the amount of gpu memmory to a minimum due to the use of the Command
 	# Line Interface (CLI) that we are using in this build. This means we don't have a GUI here,
-	# we only use the CLI. So no need to allocate GPU ram to something that isn't being used. Let's 
+	# we only use the CLI. So no need to allocate GPU ram to something that isn't being used. Let's
 	# assign the param below to the minimum value in the /boot/config.txt file.
 
 	if [ ! -z "$checkForRaspbian" ]; then
@@ -206,7 +206,7 @@ set_network () {
 set_wifi () {
 
 	# The only time we want to set up the wifi is if the script is running on a Raspberry Pi. The
-	# script should just skip over this step if we are on any OS other then Raspian. 
+	# script should just skip over this step if we are on any OS other then Raspian.
 
 	if [ ! -z "$checkForRaspbian" ]; then
 
@@ -238,6 +238,7 @@ set_wifi () {
 set_accounts () {
 
 	sed -i 's/PermitRootLogin yes/PermitRootLogin no/' /etc/ssh/sshd_config
+	sed -i 's/PermitRootLogin without-password/PermitRootLogin no/' /etc/ssh/sshd_config
 
 	ssuser="lynx"
 	sspassword="lynx"
@@ -298,7 +299,7 @@ install_portcheck () {
 
 	print_success \" Standby, checking connectivity...\"
 
-	# When the build script runs, we know the lynxd port, but we don't know if after the node is 
+	# When the build script runs, we know the lynxd port, but we don't know if after the node is
 	# built. So we are hardcoding the value here, so it can be checked in the future.
 
 	port=\"$port\"
@@ -361,9 +362,9 @@ install_portcheck () {
  '-----------------------------------------------------------------------------'
  | LYNX RPC credentials are located in '/root/.lynx/lynx.conf'.                |
  '-----------------------------------------------------------------------------'
-   The current block height on this LynxCI node is \$block.                     
+   The current block height on this LynxCI node is \$block.
  '-----------------------------------------------------------------------------'
-   The unique identifier for this LynxCI node is $hhostname.                    
+   The unique identifier for this LynxCI node is $hhostname.
  '-----------------------------------------------------------------------------'\"
 
 	if [ \"\$app_reachable\" = \"true\" ]; then
@@ -417,22 +418,22 @@ install_explorer () {
 	cd ~/
 
 	# Let's not assume this is the first time this function is run, so let's purge the directory if
-	# it already exists. This way if the power goes out during install, the build process can 
+	# it already exists. This way if the power goes out during install, the build process can
 	# gracefully restart.
 
 	rm -rf ~/LynxExplorer && rm -rf ~/.npm-global
 
-	# We might need curl and some other dependencies so let's grab those now. It is also possible 
+	# We might need curl and some other dependencies so let's grab those now. It is also possible
 	# these packages might be used elsewhere in this script so installing them now is no problem.
-	# The apt installed is smart, if the package is already installed, it will either attempt to 
+	# The apt installed is smart, if the package is already installed, it will either attempt to
 	# upgrade the package or skip over the step. No harm done.
 
     apt-get install curl software-properties-common gcc g++ make -y &> /dev/null
 
     curl -sL https://deb.nodesource.com/setup_10.x | sudo -E bash - &> /dev/null
-    
+
     apt-get install nodejs -y &> /dev/null
-    
+
     print_success "NodeJS was installed."
 
 	npm install pm2 -g &> /dev/null
@@ -461,7 +462,7 @@ install_explorer () {
 	pm2 save
 	pm2 startup ubuntu
 
-	# On Raspian, sometimes the pm2 service shows a benign warning during boot, prior to the first 
+	# On Raspian, sometimes the pm2 service shows a benign warning during boot, prior to the first
 	# command prompt. This changes fixes the issue, avoiding the unneeded warning.
 
 	sed -i 's/User=undefined/User=root/' /etc/systemd/system/pm2-undefined.service &> /dev/null
@@ -475,8 +476,8 @@ install_explorer () {
 # The MiniUPnP project offers software which supports the UPnP Internet Gateway Device (IGD)
 # specifications. You can read more about it here --> http://miniupnp.free.fr
 # We use this code because most folks don't know how to configure their home cable modem or wifi
-# router to allow outside access to the Lynx node. While this Lynx node can talk to others, the 
-# others on the network can't always talk to this device, especially if it's behind a router at 
+# router to allow outside access to the Lynx node. While this Lynx node can talk to others, the
+# others on the network can't always talk to this device, especially if it's behind a router at
 # home. Currently, this library is only installed if the device is a Raspberry Pi.
 
 install_miniupnpc () {
@@ -523,7 +524,7 @@ install_lynx () {
 
 	../dist/configure --enable-cxx --disable-shared --with-pic --prefix=/root/lynx/db4 && make install
 
-	# Now that the Berkeley DB is installed, let's jump to the lynx directory and finish the 
+	# Now that the Berkeley DB is installed, let's jump to the lynx directory and finish the
 	# configure statement WITH the Berkeley DB parameters included.
 	
 	cd /root/lynx/ && ./autogen.sh
@@ -750,7 +751,7 @@ set_firewall () {
 
 	# To make sure we don't create any problems, let's truly make sure the firewall instructions
 	# we are about to create haven't already been created. So we delete the file we are going to
-	# create in the next step. This is just a step to insure stability and reduce risk in the 
+	# create in the next step. This is just a step to insure stability and reduce risk in the
 	# execution of this build script.
 
 	rm -rf /root/firewall.sh
@@ -843,7 +844,7 @@ set_firewall () {
 
 	/sbin/iptables -A INPUT -p tcp --dport $port -j ACCEPT
 
-	# By default, the RPC port 9223 is opened to the public. This is so the node can both listen 
+	# By default, the RPC port 9223 is opened to the public. This is so the node can both listen
 	# for and discover other nodes. It is preferred to have a node that is not just a leecher but
 	# also a seeder.
 
@@ -911,7 +912,7 @@ set_miner () {
 
 				chmod 644 /root/LynxNodeBuilder/miner-add*
 
-				# Randomly select an address from the addresse file. You are welcome to change 
+				# Randomly select an address from the addresse file. You are welcome to change
 				# any value in that list.
 
 				random_address=\"\$(shuf -n 1 /root/LynxNodeBuilder/$addresses)\"
@@ -1035,7 +1036,7 @@ setup_crontabs () {
 
 	# The following 3 lines set up respective crontabs to run every 15 minutes. These send a polling
 	# signal to the listed URL's. The ONLY data we collect is the MAC address, public and private
-	# IP address and the latest known Lynx block heigh number. This allows development to more 
+	# IP address and the latest known Lynx block heigh number. This allows development to more
 	# accurately measure network usage and allows the pricing calculator and mapping code used by
 	# Lynx to be more accurate. If you want to turn off particiaption in the polling service, all
 	# you have to do is remove the following 3 crontabs.
@@ -1068,7 +1069,7 @@ setup_crontabs () {
 
 	crontab -l | { cat; echo "*/$crontab_spacing * * * *		/root/miner.sh"; } | crontab -
 
-	# As the update script grows with more self updating features, we will let this script run every 
+	# As the update script grows with more self updating features, we will let this script run every
 	# 24 hours. This way, users don't have to rebuild the LynxCI build as often to get new updates.
 
 	crontab -l | { cat; echo "0 0 * * *		/root/LynxNodeBuilder/update.sh"; } | crontab -
@@ -1096,11 +1097,14 @@ restart () {
 	# We now write this empty file to the /boot dir. This file will persist after reboot so if
 	# this script were to run again, it would abort because it would know it already ran sometime
 	# in the past. This is another way to prevent a loop if something bad happens during the install
-	# process. At least it will fail and the machine won't be looping a reboot/install over and 
+	# process. At least it will fail and the machine won't be looping a reboot/install over and
 	# over. This helps if we have ot debug a problem in the future.
 
 	/usr/bin/touch /boot/ssh
+	
 	/usr/bin/touch /boot/lynxci
+
+	/bin/rm -rf /root/setup.sh
 
 	print_success "LynxCI was installed."
 
@@ -1113,7 +1117,7 @@ restart () {
 }
 
 # First thing, we check to see if this script already ran in the past. If the file "/boot/ssh"
-# exists, we know it previously ran. 
+# exists, we know it previously ran.
 
 if [ -f /boot/lynxci ]; then
 
