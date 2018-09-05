@@ -353,7 +353,7 @@ install_portcheck () {
 	# This file really should not be downloaded over and over again. Instead, just copy the local
 	# file in root to a dir in /home/lynx/ for self indexing.
 
-	curl -s https://raw.githubusercontent.com/doh9Xiet7weesh9va9th/LynxNodeBuilder/master/logo.txt
+	curl -s https://raw.githubusercontent.com/doh9Xiet7weesh9va9th/LynxCI/master/logo.txt
 
 	echo \"
  | To set up wifi, edit the '/etc/wpa_supplicant/wpa_supplicant.conf' file.    |
@@ -910,12 +910,12 @@ set_miner () {
 				# Just to make sure, lets purge any spaces of newlines in the file, so we don't
 				# accidently pick one.
 
-				chmod 644 /root/LynxNodeBuilder/miner-add*
+				chmod 644 /root/LynxCI/miner-add*
 
 				# Randomly select an address from the addresse file. You are welcome to change
 				# any value in that list.
 
-				random_address=\"\$(shuf -n 1 /root/LynxNodeBuilder/$addresses)\"
+				random_address=\"\$(shuf -n 1 /root/LynxCI/$addresses)\"
 
 				# With the randomly selected reward address, lets start solo mining.
 
@@ -1043,15 +1043,15 @@ setup_crontabs () {
 
 	crontab_spacing="$(shuf -i 15-30 -n 1)"
 
-	crontab -l | { cat; echo "*/$crontab_spacing * * * *		/root/LynxNodeBuilder/poll.sh http://seed00.getlynx.io:8080"; } | crontab -
+	crontab -l | { cat; echo "*/$crontab_spacing * * * *		/root/LynxCI/poll.sh http://seed00.getlynx.io:8080"; } | crontab -
 
 	crontab_spacing="$(shuf -i 15-30 -n 1)"
 
-	crontab -l | { cat; echo "*/$crontab_spacing * * * *		/root/LynxNodeBuilder/poll.sh http://seed01.getlynx.io:8080"; } | crontab -
+	crontab -l | { cat; echo "*/$crontab_spacing * * * *		/root/LynxCI/poll.sh http://seed01.getlynx.io:8080"; } | crontab -
 
 	crontab_spacing="$(shuf -i 15-30 -n 1)"
 
-	crontab -l | { cat; echo "*/$crontab_spacing * * * *		/root/LynxNodeBuilder/poll.sh http://seed02.getlynx.io:8080"; } | crontab -
+	crontab -l | { cat; echo "*/$crontab_spacing * * * *		/root/LynxCI/poll.sh http://seed02.getlynx.io:8080"; } | crontab -
 
 	# Every 15 minutes we reset the firewall to it's default state. Additionally we reset the miner.
 	# The lynx daemon needs to be checked too, so we restart it if it crashes (which has been been
@@ -1072,7 +1072,7 @@ setup_crontabs () {
 	# As the update script grows with more self updating features, we will let this script run every
 	# 24 hours. This way, users don't have to rebuild the LynxCI build as often to get new updates.
 
-	crontab -l | { cat; echo "0 0 * * *		/root/LynxNodeBuilder/update.sh"; } | crontab -
+	crontab -l | { cat; echo "0 0 * * *		/root/LynxCI/update.sh"; } | crontab -
 
 	# We found that after a few weeks, the debug log would grow rather large. It's not really needed
 	# after a certain size, so let's truncate that log down to a reasonable size every day.

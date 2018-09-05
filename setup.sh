@@ -53,21 +53,21 @@ if [ -f /boot/loader ]; then
 
 	# We are downloading the latest package of build instructions from github.
 
-	/usr/bin/git clone https://github.com/doh9Xiet7weesh9va9th/LynxNodeBuilder.git /root/LynxNodeBuilder/
+	/usr/bin/git clone https://github.com/doh9Xiet7weesh9va9th/LynxCI.git /root/LynxCI/
 
 	# We can't assume the file permissions will be right, so let's reset them.
 
-	/bin/chmod 744 -R /root/LynxNodeBuilder/
+	/bin/chmod 744 -R /root/LynxCI/
 
 	# Let's execute the build script.
 
 	if [ "$IsProduction" = "Y" ]; then
 
-		/root/LynxNodeBuilder/install.sh mainnet
+		/root/LynxCI/install.sh mainnet
 
 	else
 
-		/root/LynxNodeBuilder/installTest.sh testnet
+		/root/LynxCI/installTest.sh testnet
 
 	fi
 
