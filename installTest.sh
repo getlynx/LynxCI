@@ -540,11 +540,11 @@ install_lynx () {
 
 	# We need a very specific version of the Berkeley DB for the wallet to function properly.
 
-	cd /root/lynx/ && wget http://download.oracle.com/berkeley-db/db-4.8.30.NC.tar.gz
+	cd /root/lynx/ && wget http://download.oracle.com/berkeley-db/db-4.8.30.NC.tar.gz &> /dev/null
 
 	# Now that we have the tarbar file, lets unpack it and jump to a sub directory within it.
 
-	tar -xzvf db-4.8.30.NC.tar.gz && cd db-4.8.30.NC/build_unix/
+	tar -xzvf db-4.8.30.NC.tar.gz &> /dev/null && cd db-4.8.30.NC/build_unix/
 
 	# Configure and run the make file to compile the Berkeley DB source.
 
