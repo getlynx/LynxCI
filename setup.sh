@@ -17,7 +17,7 @@
 # SD card with the latest version of LynxCI, plugging it into your Pi and powering it one. This
 # script will support Pi 2 and 3 only please.
 
-IsProduction=Y
+IsProduction=N
 
 # Since this is the first time this loader.sh file has been executed, the /boot/loader file won't
 # exist yet, so skip to the else portion of this conditional.
