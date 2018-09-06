@@ -13,6 +13,7 @@ if [ "$1" = "mainnet" ]; then
 	lynxconfig=""
 	explorer="https://explorer.getlynx.io/api/getblockcount"
 	addresses="miner-addresses.txt"
+	setupscript="IsProduction=Y"
 
 else
 
@@ -24,6 +25,7 @@ else
 	lynxconfig="testnet=1"
 	explorer="https://test-explorer.getlynx.io/api/getblockcount"
 	addresses="miner-addresses-testnet.txt"
+	setupscript="IsProduction=N"
 
 fi
 
@@ -486,6 +488,10 @@ install_explorer () {
 	# command prompt. This replacement fixes the issue, avoiding the unneeded warning.
 
 	sed -i 's/User=undefined/User=root/' /etc/systemd/system/pm2-undefined.service &> /dev/null
+
+	# Since we provide a download file for the setup of other nodes, set the flag for the env.
+
+	sed -i "s/IsProduction=N/${setupscript}/g" /root/LynxBlockExplorer/public/setup.sh
 
 	# Yeah, we are probably putting to many comments in this script, but I hope it proves
 	# helpful to someone when they are having fun but don't know what a part of it does.
