@@ -134,12 +134,12 @@ else
 
   .------------------------------------------------------.dCCCCCb.  IIIIIIIIII-.
  | LLLLL    YYYYYY   YYYY NNNNN      NNN XXXXXXX  XXXXX dCCCCCCCCCC IIIIIIIIII |
- | `LLL'     `YYY.   .Y'  `NNNN.     `N'  `XXXX    XX'  CCC"   "CCC    IIII    |
- |  LLL       `YYY. .Y'    N `NNN.    N     XXXX..XX    CCC            IIII    |
- |  LLL        `YYY.Y'     N   `NNN.  N      `XXXX'     CCC            IIII    |
- |  LLL         `YYY'      N     `NNN.N     .XXXXXX.    CCb.   .dCC    IIII    |
- |  LLL      ,L  YYY      ,N.      `NNN    XX'  `XXXX   CCCCCCCCCCC IIIIIIIIII |
- | LLLLLLLLLLLL YYYYY     NNN        `N  XXXXX  XXXXXXX  "CCCCCCC"  IIIIIIIIII |
+ | \`LLL'     \`YYY.   .Y'  \`NNNN.     \`N'  \`XXXX    XX'  CCC'   'CCC    IIII    |
+ |  LLL       \`YYY. .Y'    N \`NNN.    N     XXXX..XX    CCC            IIII    |
+ |  LLL        \`YYY.Y'     N   \`NNN.  N      \`XXXX'     CCC            IIII    |
+ |  LLL         \`YYY'      N     \`NNN.N     .XXXXXX.    CCb.   .dCC    IIII    |
+ |  LLL      ,L  YYY      ,N.      \`NNN    XX'  \`XXXX   CCCCCCCCCCC IIIIIIIIII |
+ | LLLLLLLLLLLL YYYYY     NNN        \`N  XXXXX  XXXXXXX  'CCCCCCC'  IIIIIIIIII |
  '-----------------------------------------------------------------------------'
  | https://getlynx.io                            Lynx Cryptocurrency Installer |
  '-----------------------------------------------------------------------------'
