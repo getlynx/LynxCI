@@ -117,7 +117,7 @@ manage_swap () {
 
 		# https://www.2daygeek.com/shell-script-create-add-extend-swap-space-linux/#
 
-		newswapsize=2048
+		newswapsize=1024
 
 		grep -q "swapfile" /etc/fstab
 
