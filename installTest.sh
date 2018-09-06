@@ -472,7 +472,7 @@ install_explorer () {
 
 	pm2 save &> /dev/null
 
-	pm2 startup ubuntu
+	pm2 startup ubuntu &> /dev/null
 
 	# On Raspian, sometimes the pm2 service shows a benign warning during boot, prior to the first
 	# command prompt. This replacement fixes the issue, avoiding the unneeded warning.
