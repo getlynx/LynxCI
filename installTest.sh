@@ -786,7 +786,7 @@ set_firewall () {
 
 	#!/bin/bash
 
-	IsRestricted=Y
+	IsRestricted=N
 
 	# Let's flush any pre existing iptables rules that might exist and start with a clean slate.
 
