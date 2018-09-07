@@ -607,6 +607,9 @@ install_lynx () {
 	addnode=seed3.getlynx.io
 	addnode=seed4.getlynx.io
 	addnode=seed5.getlynx.io
+	addnode=seed6.getlynx.io
+	addnode=seed7.getlynx.io
+	addnode=seed8.getlynx.io
 
 	" > /root/.lynx/lynx.conf
 
