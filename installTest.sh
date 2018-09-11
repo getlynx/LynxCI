@@ -548,12 +548,12 @@ install_lynx () {
 
 	# Configure and run the make file to compile the Berkeley DB source.
 
-	../dist/configure --enable-cxx --disable-shared --with-pic --prefix=/root/lynx/db4 && make install
+	../dist/configure --enable-cxx --disable-shared --with-pic --prefix=/root/lynx/db4 &> /dev/null && make install &> /dev/null
 
 	# Now that the Berkeley DB is installed, let's jump to the lynx directory and finish the
 	# configure statement WITH the Berkeley DB parameters included.
 	
-	cd /root/lynx/ && ./autogen.sh
+	cd /root/lynx/ && ./autogen.sh &> /dev/null
 
 	# If it's a Pi device then set up the uPNP arguments.
 
