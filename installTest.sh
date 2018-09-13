@@ -540,30 +540,46 @@ install_lynx () {
 
 	# We need a very specific version of the Berkeley DB for the wallet to function properly.
 
-	cd /root/lynx/ && wget http://download.oracle.com/berkeley-db/db-4.8.30.NC.tar.gz &> /dev/null
+	cd /root/lynx/
+
+	wget http://download.oracle.com/berkeley-db/db-4.8.30.NC.tar.gz &> /dev/null
 
 	# Now that we have the tarbar file, lets unpack it and jump to a sub directory within it.
 
-	tar -xzvf db-4.8.30.NC.tar.gz &> /dev/null && cd db-4.8.30.NC/build_unix/
+	tar -xzvf db-4.8.30.NC.tar.gz &> /dev/null
+
+	cd db-4.8.30.NC/build_unix/
 
 	# Configure and run the make file to compile the Berkeley DB source.
 
-	../dist/configure --enable-cxx --disable-shared --with-pic --prefix=/root/lynx/db4 &> /dev/null && make install &> /dev/null
+	../dist/configure --enable-cxx --disable-shared --with-pic --prefix=/root/lynx/db4 &> /dev/null
+
+	make install &> /dev/null
 
 	# Now that the Berkeley DB is installed, let's jump to the lynx directory and finish the
 	# configure statement WITH the Berkeley DB parameters included.
 	
-	cd /root/lynx/ && ./autogen.sh &> /dev/null
+	cd /root/lynx/
+
+	./autogen.sh &> /dev/null
 
 	# If it's a Pi device then set up the uPNP arguments.
 
 	if [ ! -z "$checkForRaspbian" ]; then
 
-		cd /root/lynx/ && ./configure LDFLAGS="-L/root/lynx/db4/lib/" CPPFLAGS="-I/root/lynx/db4/include/ -O2" --enable-cxx --without-gui --disable-shared --with-miniupnpc --enable-upnp-default --disable-tests && make
-		
+		cd /root/lynx/
+
+		./configure LDFLAGS="-L/root/lynx/db4/lib/" CPPFLAGS="-I/root/lynx/db4/include/ -O2" --enable-cxx --without-gui --disable-shared --with-miniupnpc --enable-upnp-default --disable-tests
+
+		make
+
 	else
 
-		cd /root/lynx/ && ./configure LDFLAGS="-L/root/lynx/db4/lib/" CPPFLAGS="-I/root/lynx/db4/include/ -O2" --enable-cxx --without-gui --disable-shared --disable-tests && make
+		cd /root/lynx/
+
+		./configure LDFLAGS="-L/root/lynx/db4/lib/" CPPFLAGS="-I/root/lynx/db4/include/ -O2" --enable-cxx --without-gui --disable-shared --disable-tests
+
+		make
 
 	fi
 
@@ -1065,7 +1081,7 @@ setup_crontabs () {
 
 	# In the event that any other crontabs exist, let's purge them all.
 
-	crontab -r
+	crontab -r &> /dev/null
 
 	# The following 3 lines set up respective crontabs to run every 15 minutes. These send a polling
 	# signal to the listed URL's. The ONLY data we collect is the MAC address, public and private
@@ -1076,15 +1092,15 @@ setup_crontabs () {
 
 	crontab_spacing="$(shuf -i 15-30 -n 1)"
 
-	crontab -l | { cat; echo "*/$crontab_spacing * * * *		/root/LynxCI/poll.sh http://seed00.getlynx.io:8080"; } | crontab -
+	crontab -l &> /dev/null | { cat; echo "*/$crontab_spacing * * * *		/root/LynxCI/poll.sh http://seed00.getlynx.io:8080"; } | crontab -
 
 	crontab_spacing="$(shuf -i 15-30 -n 1)"
 
-	crontab -l | { cat; echo "*/$crontab_spacing * * * *		/root/LynxCI/poll.sh http://seed01.getlynx.io:8080"; } | crontab -
+	crontab -l &> /dev/null | { cat; echo "*/$crontab_spacing * * * *		/root/LynxCI/poll.sh http://seed01.getlynx.io:8080"; } | crontab -
 
 	crontab_spacing="$(shuf -i 15-30 -n 1)"
 
-	crontab -l | { cat; echo "*/$crontab_spacing * * * *		/root/LynxCI/poll.sh http://seed02.getlynx.io:8080"; } | crontab -
+	crontab -l &> /dev/null | { cat; echo "*/$crontab_spacing * * * *		/root/LynxCI/poll.sh http://seed02.getlynx.io:8080"; } | crontab -
 
 	# Every 15 minutes we reset the firewall to it's default state. Additionally we reset the miner.
 	# The lynx daemon needs to be checked too, so we restart it if it crashes (which has been been
@@ -1092,35 +1108,36 @@ setup_crontabs () {
 
 	crontab_spacing="$(shuf -i 15-30 -n 1)"
 
-	crontab -l | { cat; echo "*/$crontab_spacing * * * *		/root/firewall.sh"; } | crontab -
+	crontab -l &> /dev/null | { cat; echo "*/$crontab_spacing * * * *		/root/firewall.sh"; } | crontab -
 
 	crontab_spacing="$(shuf -i 15-30 -n 1)"
 
-	crontab -l | { cat; echo "*/$crontab_spacing * * * *		/root/lynx/src/lynxd"; } | crontab -
+	crontab -l &> /dev/null | { cat; echo "*/$crontab_spacing * * * *		/root/lynx/src/lynxd"; } | crontab -
 
 	crontab_spacing="$(shuf -i 15-30 -n 1)"
 
-	crontab -l | { cat; echo "*/$crontab_spacing * * * *		/root/miner.sh"; } | crontab -
+	crontab -l &> /dev/null | { cat; echo "*/$crontab_spacing * * * *		/root/miner.sh"; } | crontab -
 
 	# As the update script grows with more self updating features, we will let this script run every
 	# 24 hours. This way, users don't have to rebuild the LynxCI build as often to get new updates.
 
-	crontab -l | { cat; echo "0 0 * * *		/root/LynxCI/update.sh"; } | crontab -
+	crontab -l &> /dev/null | { cat; echo "0 0 * * *		/root/LynxCI/update.sh"; } | crontab -
 
 	# We found that after a few weeks, the debug log would grow rather large. It's not really needed
 	# after a certain size, so let's truncate that log down to a reasonable size every day.
 
-	crontab -l | { cat; echo "0 0 * * *		truncate -s 1KB /root/.lynx/debug.log"; } | crontab -
+	crontab -l &> /dev/null | { cat; echo "0 0 * * *		truncate -s 1KB /root/.lynx/debug.log"; } | crontab -
 
 	# Evey 15 days we will reboot the device. This is for a few reasons. Since the device is often
 	# not actively managed by it's owner, we can't assume it is always running perfectly so an
 	# occasional reboot won't cause harm. This crontab means to reboot EVERY 15 days, NOT on the
 	# 15th day of the month. An important distinction.
 
-	crontab -l | { cat; echo "0 0 */15 * *		/sbin/shutdown -r now"; } | crontab -
+	crontab -l &> /dev/null | { cat; echo "0 0 */15 * *		/sbin/shutdown -r now"; } | crontab -
 
-	crontab -l | { cat; echo "*/3 * * * *		cd /root/LynxBlockExplorer && /usr/bin/nodejs scripts/sync.js index update >> /tmp/explorer.sync 2>&1"; } | crontab -
-	crontab -l | { cat; echo "*/10 * * * *		cd /root/LynxBlockExplorer && /usr/bin/nodejs scripts/peers.js > /dev/null 2>&1"; } | crontab -
+	crontab -l &> /dev/null | { cat; echo "*/3 * * * *		cd /root/LynxBlockExplorer && /usr/bin/nodejs scripts/sync.js index update >> /tmp/explorer.sync 2>&1"; } | crontab -
+	
+	crontab -l &> /dev/null | { cat; echo "*/10 * * * *		cd /root/LynxBlockExplorer && /usr/bin/nodejs scripts/peers.js > /dev/null 2>&1"; } | crontab -
 
 }
 
