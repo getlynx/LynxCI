@@ -1083,7 +1083,7 @@ setup_crontabs () {
 
 	# In the event that any other crontabs exist, let's purge them all.
 
-	crontab -r &> /dev/null
+	crontab -r
 
 	# The following 3 lines set up respective crontabs to run every 15 minutes. These send a polling
 	# signal to the listed URL's. The ONLY data we collect is the MAC address, public and private
@@ -1094,7 +1094,7 @@ setup_crontabs () {
 
 	crontab_spacing="$(shuf -i 15-30 -n 1)"
 
-	crontab -l &> /dev/null | { cat; echo "*/$crontab_spacing * * * *		/root/LynxCI/poll.sh http://seed00.getlynx.io:8080"; } | crontab -
+	crontab -l | { cat; echo "*/$crontab_spacing * * * *		/root/LynxCI/poll.sh http://seed00.getlynx.io:8080"; } | crontab -
 
 	crontab_spacing="$(shuf -i 15-30 -n 1)"
 
