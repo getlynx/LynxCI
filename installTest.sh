@@ -553,14 +553,18 @@ install_lynx () {
 	# Now that the Berkeley DB is installed, let's jump to the lynx directory and finish the
 	# configure statement WITH the Berkeley DB parameters included.
 	
-	cd /root/lynx/ && ./autogen.sh
+	cd /root/lynx/ && ./autogen.sh &> /dev/null
 
 	# If it's a Pi device then set up the uPNP arguments.
 
 	if [ ! -z "$checkForRaspbian" ]; then
-		./configure LDFLAGS="-L/root/lynx/db4/lib/" CPPFLAGS="-I/root/lynx/db4/include/ -O2" --enable-cxx --without-gui --disable-shared --with-miniupnpc --enable-upnp-default --disable-tests && make
+
+		cd /root/lynx/ && ./configure LDFLAGS="-L/root/lynx/db4/lib/" CPPFLAGS="-I/root/lynx/db4/include/ -O2" --enable-cxx --without-gui --disable-shared --with-miniupnpc --enable-upnp-default --disable-tests && make
+		
 	else
-		./configure LDFLAGS="-L/root/lynx/db4/lib/" CPPFLAGS="-I/root/lynx/db4/include/ -O2" --enable-cxx --without-gui --disable-shared --disable-tests && make
+
+		cd /root/lynx/ && ./configure LDFLAGS="-L/root/lynx/db4/lib/" CPPFLAGS="-I/root/lynx/db4/include/ -O2" --enable-cxx --without-gui --disable-shared --disable-tests && make
+
 	fi
 
 	# In the past, we used a bootstrap file to get the full blockchain history to load faster. This
