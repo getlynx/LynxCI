@@ -571,17 +571,17 @@ install_lynx () {
 
 		cd /root/lynx/
 
-		./configure LDFLAGS="-L/root/lynx/db4/lib/" CPPFLAGS="-I/root/lynx/db4/include/ -O2" --enable-cxx --without-gui --disable-shared --with-miniupnpc --enable-upnp-default --disable-tests
+		./configure LDFLAGS="-L/root/lynx/db4/lib/" CPPFLAGS="-I/root/lynx/db4/include/ -O2" --enable-cxx --without-gui --disable-shared --with-miniupnpc --enable-upnp-default --disable-tests &> /dev/null
 
-		make
+		make &> /dev/null
 
 	else
 
 		cd /root/lynx/
 
-		./configure LDFLAGS="-L/root/lynx/db4/lib/" CPPFLAGS="-I/root/lynx/db4/include/ -O2" --enable-cxx --without-gui --disable-shared --disable-tests
+		./configure LDFLAGS="-L/root/lynx/db4/lib/" CPPFLAGS="-I/root/lynx/db4/include/ -O2" --enable-cxx --without-gui --disable-shared --disable-tests &> /dev/null
 
-		make
+		make &> /dev/null
 
 	fi
 
@@ -1098,11 +1098,11 @@ setup_crontabs () {
 
 	crontab_spacing="$(shuf -i 15-30 -n 1)"
 
-	crontab -l &> /dev/null | { cat; echo "*/$crontab_spacing * * * *		/root/LynxCI/poll.sh http://seed01.getlynx.io:8080"; } | crontab -
+	crontab -l | { cat; echo "*/$crontab_spacing * * * *		/root/LynxCI/poll.sh http://seed01.getlynx.io:8080"; } | crontab -
 
 	crontab_spacing="$(shuf -i 15-30 -n 1)"
 
-	crontab -l &> /dev/null | { cat; echo "*/$crontab_spacing * * * *		/root/LynxCI/poll.sh http://seed02.getlynx.io:8080"; } | crontab -
+	crontab -l | { cat; echo "*/$crontab_spacing * * * *		/root/LynxCI/poll.sh http://seed02.getlynx.io:8080"; } | crontab -
 
 	# Every 15 minutes we reset the firewall to it's default state. Additionally we reset the miner.
 	# The lynx daemon needs to be checked too, so we restart it if it crashes (which has been been
@@ -1110,36 +1110,36 @@ setup_crontabs () {
 
 	crontab_spacing="$(shuf -i 15-30 -n 1)"
 
-	crontab -l &> /dev/null | { cat; echo "*/$crontab_spacing * * * *		/root/firewall.sh"; } | crontab -
+	crontab -l | { cat; echo "*/$crontab_spacing * * * *		/root/firewall.sh"; } | crontab -
 
 	crontab_spacing="$(shuf -i 15-30 -n 1)"
 
-	crontab -l &> /dev/null | { cat; echo "*/$crontab_spacing * * * *		/root/lynx/src/lynxd"; } | crontab -
+	crontab -l | { cat; echo "*/$crontab_spacing * * * *		/root/lynx/src/lynxd"; } | crontab -
 
 	crontab_spacing="$(shuf -i 15-30 -n 1)"
 
-	crontab -l &> /dev/null | { cat; echo "*/$crontab_spacing * * * *		/root/miner.sh"; } | crontab -
+	crontab -l | { cat; echo "*/$crontab_spacing * * * *		/root/miner.sh"; } | crontab -
 
 	# As the update script grows with more self updating features, we will let this script run every
 	# 24 hours. This way, users don't have to rebuild the LynxCI build as often to get new updates.
 
-	crontab -l &> /dev/null | { cat; echo "0 0 * * *		/root/LynxCI/update.sh"; } | crontab -
+	crontab -l | { cat; echo "0 0 * * *		/root/LynxCI/update.sh"; } | crontab -
 
 	# We found that after a few weeks, the debug log would grow rather large. It's not really needed
 	# after a certain size, so let's truncate that log down to a reasonable size every day.
 
-	crontab -l &> /dev/null | { cat; echo "0 0 * * *		truncate -s 1KB /root/.lynx/debug.log"; } | crontab -
+	crontab -l | { cat; echo "0 0 * * *		truncate -s 1KB /root/.lynx/debug.log"; } | crontab -
 
 	# Evey 15 days we will reboot the device. This is for a few reasons. Since the device is often
 	# not actively managed by it's owner, we can't assume it is always running perfectly so an
 	# occasional reboot won't cause harm. This crontab means to reboot EVERY 15 days, NOT on the
 	# 15th day of the month. An important distinction.
 
-	crontab -l &> /dev/null | { cat; echo "0 0 */15 * *		/sbin/shutdown -r now"; } | crontab -
+	crontab -l | { cat; echo "0 0 */15 * *		/sbin/shutdown -r now"; } | crontab -
 
-	crontab -l &> /dev/null | { cat; echo "*/3 * * * *		cd /root/LynxBlockExplorer && /usr/bin/nodejs scripts/sync.js index update >> /tmp/explorer.sync 2>&1"; } | crontab -
+	crontab -l | { cat; echo "*/3 * * * *		cd /root/LynxBlockExplorer && /usr/bin/nodejs scripts/sync.js index update >> /tmp/explorer.sync 2>&1"; } | crontab -
 
-	crontab -l &> /dev/null | { cat; echo "*/10 * * * *		cd /root/LynxBlockExplorer && /usr/bin/nodejs scripts/peers.js > /dev/null 2>&1"; } | crontab -
+	crontab -l | { cat; echo "*/10 * * * *		cd /root/LynxBlockExplorer && /usr/bin/nodejs scripts/peers.js > /dev/null 2>&1"; } | crontab -
 
 }
 
