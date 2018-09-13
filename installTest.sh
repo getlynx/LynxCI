@@ -125,19 +125,19 @@ manage_swap () {
 
 		if [ $? -ne 0 ]; then
 
-			fallocate -l ${newswapsize}M /swapfile
+			fallocate -l ${newswapsize}M /swapfile &> /dev/null
 
 			chmod 600 /swapfile
 
-			mkswap /swapfile
+			mkswap /swapfile &> /dev/null
 
-			swapon /swapfile
+			swapon /swapfile &> /dev/null
 
 			echo '/swapfile none swap defaults 0 0' >> /etc/fstab
 
 		fi
 
-		swapon --show
+		# swapon --show
 
 	fi
 
@@ -532,7 +532,7 @@ install_lynx () {
 
 	rm -rf /root/lynx/
 
-	git clone -b "$lynxbranch" https://github.com/doh9Xiet7weesh9va9th/lynx.git /root/lynx/
+	git clone -b "$lynxbranch" https://github.com/doh9Xiet7weesh9va9th/lynx.git /root/lynx/ &> /dev/null
 
 	# We will need this db4 directory soon so let's delete and create it.
 
@@ -553,7 +553,7 @@ install_lynx () {
 	# Now that the Berkeley DB is installed, let's jump to the lynx directory and finish the
 	# configure statement WITH the Berkeley DB parameters included.
 	
-	cd /root/lynx/ && ./autogen.sh &> /dev/null
+	cd /root/lynx/ && ./autogen.sh
 
 	# If it's a Pi device then set up the uPNP arguments.
 
@@ -615,7 +615,7 @@ install_lynx () {
 
 	chown -R root:root /root/.lynx/*
 
-	print_warning "Lynx was installed."
+	print_success "Lynx was installed."
 
 }
 
