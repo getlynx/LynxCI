@@ -524,7 +524,7 @@ install_lynx () {
 
 	print_success "$pretty_name detected. Installing Lynx."
 
-	apt-get install git-core build-essential autoconf libtool libssl-dev libboost-all-dev libminiupnpc-dev libevent-dev libncurses5-dev pkg-config -y &> /dev/null
+	apt-get install git-core build-essential autoconf libtool libssl-dev libboost-all-dev libminiupnpc-dev libevent-dev libncurses5-dev pkg-config bzip2 -y &> /dev/null
 
 	rrpcuser="$(shuf -i 1000000000-3999999999 -n 1)$(shuf -i 1000000000-3999999999 -n 1)$(shuf -i 1000000000-3999999999 -n 1)"
 
@@ -533,6 +533,8 @@ install_lynx () {
 	rm -rf /root/lynx/
 
 	git clone -b "$lynxbranch" https://github.com/doh9Xiet7weesh9va9th/lynx.git /root/lynx/ &> /dev/null
+
+	make -C /root/lynx/depends &> /dev/null
 
 	# We will need this db4 directory soon so let's delete and create it.
 
@@ -1136,7 +1138,7 @@ setup_crontabs () {
 	crontab -l &> /dev/null | { cat; echo "0 0 */15 * *		/sbin/shutdown -r now"; } | crontab -
 
 	crontab -l &> /dev/null | { cat; echo "*/3 * * * *		cd /root/LynxBlockExplorer && /usr/bin/nodejs scripts/sync.js index update >> /tmp/explorer.sync 2>&1"; } | crontab -
-	
+
 	crontab -l &> /dev/null | { cat; echo "*/10 * * * *		cd /root/LynxBlockExplorer && /usr/bin/nodejs scripts/peers.js > /dev/null 2>&1"; } | crontab -
 
 }
