@@ -1180,7 +1180,7 @@ else
 
 	detect_os
 	install_packages
-	install_throttle
+	#install_throttle
 	set_network
 	manage_swap
 	reduce_gpu_mem
@@ -1192,9 +1192,9 @@ else
 	install_lynx
 	install_mongo
 	install_explorer
-	install_miner
+	#install_miner
 	set_firewall
-	set_miner
+	#set_miner
 	secure_iptables
 	config_fail2ban
 	setup_crontabs
