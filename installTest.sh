@@ -254,7 +254,9 @@ set_accounts () {
 
 	sspassword="lynx"
 
-	adduser $ssuser --disabled-password --gecos "" && echo "$ssuser:$sspassword" | chpasswd
+	adduser $ssuser --disabled-password --gecos ""
+
+	echo "$ssuser:$sspassword" | chpasswd
 
 	adduser $ssuser sudo
 
