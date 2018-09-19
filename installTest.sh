@@ -524,7 +524,7 @@ install_lynx () {
 
 	print_success "$pretty_name detected. Installing Lynx."
 
-	apt-get install git-core build-essential autoconf libtool libssl-dev libboost-all-dev libminiupnpc-dev libevent-dev libncurses5-dev pkg-config bzip2 -y &> /dev/null
+	apt-get install git-core build-essential autoconf libtool libssl-dev libboost-all-dev libminiupnpc-dev libevent-dev libncurses5-dev pkg-config bzip2 -y
 
 	rrpcuser="$(shuf -i 1000000000-3999999999 -n 1)$(shuf -i 1000000000-3999999999 -n 1)$(shuf -i 1000000000-3999999999 -n 1)"
 
@@ -548,7 +548,7 @@ install_lynx () {
 
 	# Now that we have the tarbar file, lets unpack it and jump to a sub directory within it.
 
-	tar -xzvf db-4.8.30.NC.tar.gz &> /dev/null
+	tar -xzvf db-4.8.30.NC.tar.gz
 
 	cd db-4.8.30.NC/build_unix/
 
@@ -927,7 +927,7 @@ set_miner () {
 	# override it by changing the value. Acceptable options are Y and N. If you set the value to
 	# N, this node will not mine blocks, but it will still confirm and relay transactions.
 
-	IsMiner=Y
+	IsMiner=N
 
 	# The objective of this script is to start the local miner and have it solo mine against the
 	# local Lynx processes. So the first think we should do is assume a mining process is already
@@ -1180,7 +1180,7 @@ else
 
 	detect_os
 	install_packages
-	#install_throttle
+	install_throttle
 	set_network
 	manage_swap
 	reduce_gpu_mem
@@ -1192,9 +1192,9 @@ else
 	install_lynx
 	install_mongo
 	install_explorer
-	#install_miner
+	install_miner
 	set_firewall
-	#set_miner
+	set_miner
 	secure_iptables
 	config_fail2ban
 	setup_crontabs
