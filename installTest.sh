@@ -79,13 +79,15 @@ detect_os () {
 
 	print_success "Build environment is '$environment'."
 
+	crontab -r &> /dev/null
+
 }
 
 install_packages () {
 
 	apt-get update -y &> /dev/null
 
-	apt-get install htop curl fail2ban automake autoconf pkg-config libcurl4-openssl-dev libjansson-dev libssl-dev libgmp-dev make g++ -y &> /dev/null
+	apt-get install htop curl fail2ban automake autoconf pkg-config libcurl4-openssl-dev libjansson-dev libssl-dev libgmp-dev make g++ -y
 
 }
 
