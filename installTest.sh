@@ -524,7 +524,7 @@ install_lynx () {
 
 	print_success "$pretty_name detected. Installing Lynx."
 
-	apt-get install git-core build-essential autoconf libtool libssl-dev libboost-all-dev libminiupnpc-dev libevent-dev libncurses5-dev pkg-config bzip2 -y
+	apt-get install git-core build-essential autoconf libtool libssl-dev libboost-all-dev libminiupnpc-dev libevent-dev libncurses5-dev pkg-config bzip2 -y &> /dev/null
 
 	rrpcuser="$(shuf -i 1000000000-3999999999 -n 1)$(shuf -i 1000000000-3999999999 -n 1)$(shuf -i 1000000000-3999999999 -n 1)"
 
@@ -534,7 +534,7 @@ install_lynx () {
 
 	git clone -b "$lynxbranch" https://github.com/doh9Xiet7weesh9va9th/lynx.git /root/lynx/
 
-	make -C /root/lynx/depends
+	#make -C /root/lynx/depends
 
 	# We will need this db4 directory soon so let's delete and create it.
 
@@ -548,7 +548,7 @@ install_lynx () {
 
 	# Now that we have the tarbar file, lets unpack it and jump to a sub directory within it.
 
-	tar -xzvf db-4.8.30.NC.tar.gz
+	tar -xzvf db-4.8.30.NC.tar.gz &> /dev/null
 
 	cd db-4.8.30.NC/build_unix/
 
