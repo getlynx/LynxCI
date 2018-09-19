@@ -524,7 +524,7 @@ install_lynx () {
 
 	print_success "$pretty_name detected. Installing Lynx."
 
-	apt-get install git-core build-essential autoconf libtool libssl-dev libboost-all-dev libminiupnpc-dev libevent-dev libncurses5-dev pkg-config bzip2 -y &> /dev/null
+	apt-get install git-core build-essential autoconf libtool libssl-dev libboost-all-dev libminiupnpc-dev libevent-dev libncurses5-dev pkg-config bzip2 -y
 
 	rrpcuser="$(shuf -i 1000000000-3999999999 -n 1)$(shuf -i 1000000000-3999999999 -n 1)$(shuf -i 1000000000-3999999999 -n 1)"
 
@@ -532,9 +532,9 @@ install_lynx () {
 
 	rm -rf /root/lynx/
 
-	git clone -b "$lynxbranch" https://github.com/doh9Xiet7weesh9va9th/lynx.git /root/lynx/ &> /dev/null
+	git clone -b "$lynxbranch" https://github.com/doh9Xiet7weesh9va9th/lynx.git /root/lynx/
 
-	make -C /root/lynx/depends &> /dev/null
+	make -C /root/lynx/depends
 
 	# We will need this db4 directory soon so let's delete and create it.
 
@@ -544,26 +544,26 @@ install_lynx () {
 
 	cd /root/lynx/
 
-	wget http://download.oracle.com/berkeley-db/db-4.8.30.NC.tar.gz &> /dev/null
+	wget http://download.oracle.com/berkeley-db/db-4.8.30.NC.tar.gz
 
 	# Now that we have the tarbar file, lets unpack it and jump to a sub directory within it.
 
-	tar -xzvf db-4.8.30.NC.tar.gz &> /dev/null
+	tar -xzvf db-4.8.30.NC.tar.gz
 
 	cd db-4.8.30.NC/build_unix/
 
 	# Configure and run the make file to compile the Berkeley DB source.
 
-	../dist/configure --enable-cxx --disable-shared --with-pic --prefix=/root/lynx/db4 &> /dev/null
+	../dist/configure --enable-cxx --disable-shared --with-pic --prefix=/root/lynx/db4
 
-	make install &> /dev/null
+	make install
 
 	# Now that the Berkeley DB is installed, let's jump to the lynx directory and finish the
 	# configure statement WITH the Berkeley DB parameters included.
 	
 	cd /root/lynx/
 
-	./autogen.sh &> /dev/null
+	./autogen.sh
 
 	# If it's a Pi device then set up the uPNP arguments.
 
@@ -571,17 +571,17 @@ install_lynx () {
 
 		cd /root/lynx/
 
-		./configure LDFLAGS="-L/root/lynx/db4/lib/" CPPFLAGS="-I/root/lynx/db4/include/ -O2" --enable-cxx --without-gui --disable-shared --with-miniupnpc --enable-upnp-default --disable-tests &> /dev/null
+		./configure LDFLAGS="-L/root/lynx/db4/lib/" CPPFLAGS="-I/root/lynx/db4/include/ -O2" --enable-cxx --without-gui --disable-shared --with-miniupnpc --enable-upnp-default --disable-tests
 
-		make &> /dev/null
+		make
 
 	else
 
 		cd /root/lynx/
 
-		./configure LDFLAGS="-L/root/lynx/db4/lib/" CPPFLAGS="-I/root/lynx/db4/include/ -O2" --enable-cxx --without-gui --disable-shared --disable-tests &> /dev/null
+		./configure LDFLAGS="-L/root/lynx/db4/lib/" CPPFLAGS="-I/root/lynx/db4/include/ -O2" --enable-cxx --without-gui --disable-shared --disable-tests
 
-		make &> /dev/null
+		make
 
 	fi
 
