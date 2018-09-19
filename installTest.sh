@@ -79,13 +79,13 @@ detect_os () {
 
 	print_success "Build environment is '$environment'."
 
-	crontab -r &> /dev/null
+	crontab -r
 
 }
 
 install_packages () {
 
-	apt-get update -y &> /dev/null
+	apt-get update -y
 
 	apt-get install htop curl fail2ban automake autoconf pkg-config libcurl4-openssl-dev libjansson-dev libssl-dev libgmp-dev make g++ -y
 
@@ -93,9 +93,9 @@ install_packages () {
 
 install_throttle () {
 
-	apt-get update -y &> /dev/null
+	apt-get update -y
 
-	apt-get install cpulimit -y &> /dev/null
+	apt-get install cpulimit -y
 
 	print_success "Cpulimit was installed."
 
@@ -127,13 +127,13 @@ manage_swap () {
 
 		if [ $? -ne 0 ]; then
 
-			fallocate -l ${newswapsize}M /swapfile &> /dev/null
+			fallocate -l ${newswapsize}M /swapfile
 
 			chmod 600 /swapfile
 
-			mkswap /swapfile &> /dev/null
+			mkswap /swapfile
 
-			swapon /swapfile &> /dev/null
+			swapon /swapfile
 
 			echo '/swapfile none swap defaults 0 0' >> /etc/fstab
 
@@ -185,7 +185,7 @@ disable_bluetooth () {
 
 		# Next, we remove the bluetooth package that was previously installed.
 
-		apt-get remove pi-bluetooth -y &> /dev/null
+		apt-get remove pi-bluetooth -y
 
 		print_success "Bluetooth was uninstalled."
 
@@ -254,9 +254,9 @@ set_accounts () {
 
 	sspassword="lynx"
 
-	adduser $ssuser --disabled-password --gecos "" &> /dev/null && echo "$ssuser:$sspassword" | chpasswd &> /dev/null
+	adduser $ssuser --disabled-password --gecos "" && echo "$ssuser:$sspassword" | chpasswd
 
-	adduser $ssuser sudo &> /dev/null
+	adduser $ssuser sudo
 
 	# We only need to lock the Pi account if this is a Raspberry Pi. Otherwise, ignore this step.
 
@@ -264,7 +264,7 @@ set_accounts () {
 
 		# Let's lock the pi user account, no need to delete it.
 
-		usermod -L -e 1 pi &> /dev/null
+		usermod -L -e 1 pi
 
 		print_success "The 'pi' login was locked. Please log in with '$ssuser'. The default password is '$sspassword'."
 
@@ -447,21 +447,21 @@ install_explorer () {
 	# The apt installed is smart, if the package is already installed, it will either attempt to
 	# upgrade the package or skip over the step. No harm done.
 
-    apt-get install curl software-properties-common gcc g++ make -y &> /dev/null
+    apt-get install curl software-properties-common gcc g++ make -y
 
-    curl -sL https://deb.nodesource.com/setup_10.x | sudo -E bash - &> /dev/null
+    curl -sL https://deb.nodesource.com/setup_10.x | sudo -E bash -
 
-    apt-get install nodejs -y &> /dev/null
+    apt-get install nodejs -y
 
     print_success "NodeJS was installed."
 
-	npm install pm2 -g &> /dev/null
+	npm install pm2 -g
 
 	print_success "PM2 was installed."
 
-	git clone -b $explorerbranch https://github.com/doh9Xiet7weesh9va9th/LynxBlockExplorer.git &> /dev/null
+	git clone -b $explorerbranch https://github.com/doh9Xiet7weesh9va9th/LynxBlockExplorer.git
 	
-	cd /root/LynxBlockExplorer/ && npm install --production &> /dev/null
+	cd /root/LynxBlockExplorer/ && npm install --production
 
 	# We need to update the json file in the LynxBlockExplorer node app with the lynxd RPC access
 	# credentials for this device. Since they are created dynamically each time, we just do
@@ -476,20 +476,20 @@ install_explorer () {
 
 	# Start the Block Explorer nodejs app and set it up in PM2
 
-	pm2 stop LynxBlockExplorer &> /dev/null
+	pm2 stop LynxBlockExplorer
 
-	pm2 delete LynxBlockExplorer &> /dev/null
+	pm2 delete LynxBlockExplorer
 
-	pm2 start &> /dev/null
+	pm2 start
 
-	pm2 save &> /dev/null
+	pm2 save
 
-	pm2 startup ubuntu &> /dev/null
+	pm2 startup ubuntu
 
 	# On Raspian, sometimes the pm2 service shows a benign warning during boot, prior to the first
 	# command prompt. This replacement fixes the issue, avoiding the unneeded warning.
 
-	sed -i 's/User=undefined/User=root/' /etc/systemd/system/pm2-undefined.service &> /dev/null
+	sed -i 's/User=undefined/User=root/' /etc/systemd/system/pm2-undefined.service
 
 	# Since we provide a download file for the setup of other nodes, set the flag for the env.
 
@@ -514,7 +514,7 @@ install_miniupnpc () {
 
 		print_success "$pretty_name detected. Installing Miniupnpc."
 
-		apt-get install libminiupnpc-dev -y	&> /dev/null
+		apt-get install libminiupnpc-dev -y
 
 		print_success "Miniupnpc was installed."
 
@@ -647,15 +647,15 @@ install_miner () {
 
 	print_success "$pretty_name detected. Installing CPUMiner-Multi."
 
-	apt-get update -y &> /dev/null
+	apt-get update -y
 
-	apt-get install automake autoconf pkg-config libcurl4-openssl-dev libjansson-dev libssl-dev libgmp-dev make g++ libz-dev git -y &> /dev/null
+	apt-get install automake autoconf pkg-config libcurl4-openssl-dev libjansson-dev libssl-dev libgmp-dev make g++ libz-dev git -y
 
-	git clone https://github.com/tpruvot/cpuminer-multi.git /tmp/cpuminer/ &> /dev/null
+	git clone https://github.com/tpruvot/cpuminer-multi.git /tmp/cpuminer/
 
-	cd /tmp/cpuminer/ && ./build.sh &> /dev/null
+	cd /tmp/cpuminer/ && ./build.sh
 
-	make install &> /dev/null
+	make install
 
 	mv /usr/local/bin/cpuminer /usr/local/bin/$process_name
 
@@ -673,21 +673,21 @@ install_mongo () {
 
 			print_success "$pretty_name detected. Installing Mongo 4.0."
 
-			apt-get install dirmngr -y &> /dev/null
+			apt-get install dirmngr -y
 
- 			apt-key adv --keyserver hkp://keyserver.ubuntu.com:80 --recv 9DA31620334BD75D9DCB49F368818C72E52529D4 &> /dev/null
+ 			apt-key adv --keyserver hkp://keyserver.ubuntu.com:80 --recv 9DA31620334BD75D9DCB49F368818C72E52529D4
 
- 			echo "deb http://repo.mongodb.org/apt/debian stretch/mongodb-org/4.0 main" | tee /etc/apt/sources.list.d/mongodb-org-4.0.list &> /dev/null
+ 			echo "deb http://repo.mongodb.org/apt/debian stretch/mongodb-org/4.0 main" | tee /etc/apt/sources.list.d/mongodb-org-4.0.list
 
- 			apt-get update -y &> /dev/null && apt-get install -y mongodb-org &> /dev/null
+ 			apt-get update -y && apt-get install -y mongodb-org
 
-			systemctl start mongod &> /dev/null && systemctl enable mongod &> /dev/null
+			systemctl start mongod && systemctl enable mongod
 
 			sleep 5
 
 			account="{ user: 'x${rrpcuser}', pwd: 'x${rrpcpassword}', roles: [ 'readWrite' ] }"
 
-			mongo lynx --eval "db.createUser( ${account} )" &> /dev/null
+			mongo lynx --eval "db.createUser( ${account} )"
 
 			print_success "Mongo 4.0 was installed."
 
@@ -697,15 +697,15 @@ install_mongo () {
 
 			print_success "$pretty_name detected. Installing Mongo."
 
-			apt-get install mongodb-server -y &> /dev/null
+			apt-get install mongodb-server -y
 
-			service mongodb start &> /dev/null
+			service mongodb start
 
 			sleep 5
 
 			account="{ user: 'x${rrpcuser}', pwd: 'x${rrpcpassword}', roles: [ 'readWrite' ] }"
 
-			mongo lynx --eval "db.addUser( ${account} )" &> /dev/null
+			mongo lynx --eval "db.addUser( ${account} )"
 
 			print_success "Mongo 2.4 was installed."
 
@@ -717,19 +717,19 @@ install_mongo () {
 
 		print_success "$pretty_name detected. Installing Mongo 4.0."
 
-		apt-key adv --keyserver hkp://keyserver.ubuntu.com:80 --recv 9DA31620334BD75D9DCB49F368818C72E52529D4 &> /dev/null
+		apt-key adv --keyserver hkp://keyserver.ubuntu.com:80 --recv 9DA31620334BD75D9DCB49F368818C72E52529D4
 
-		echo "deb http://repo.mongodb.org/apt/debian jessie/mongodb-org/4.0 main" | tee /etc/apt/sources.list.d/mongodb-org-4.0.list &> /dev/null
+		echo "deb http://repo.mongodb.org/apt/debian jessie/mongodb-org/4.0 main" | tee /etc/apt/sources.list.d/mongodb-org-4.0.list
 
-		apt-get update -y &> /dev/null && apt-get install -y mongodb-org &> /dev/null &> /dev/null
+		apt-get update -y && apt-get install -y mongodb-org
 
-		systemctl start mongod &> /dev/null && systemctl enable mongod &> /dev/null
+		systemctl start mongod && systemctl enable mongod
 
 		sleep 5
 
 		account="{ user: 'x${rrpcuser}', pwd: 'x${rrpcpassword}', roles: [ 'readWrite' ] }"
 
-		mongo lynx --eval "db.createUser( ${account} )" &> /dev/null
+		mongo lynx --eval "db.createUser( ${account} )"
 
 		print_success "Mongo 4.0 was installed."
 
@@ -737,17 +737,17 @@ install_mongo () {
 
 		print_success "$pretty_name detected. Installing Mongo 4.0."
 
-		apt-get update -y &> /dev/null
+		apt-get update -y
 
 		sleep 5
 
-		apt-get install apt-transport-https -y &> /dev/null
+		apt-get install apt-transport-https -y
 
-		apt-key adv --keyserver hkp://keyserver.ubuntu.com:80 --recv 9DA31620334BD75D9DCB49F368818C72E52529D4 &> /dev/null
+		apt-key adv --keyserver hkp://keyserver.ubuntu.com:80 --recv 9DA31620334BD75D9DCB49F368818C72E52529D4
 
-		echo "deb [ arch=amd64,arm64 ] https://repo.mongodb.org/apt/ubuntu xenial/mongodb-org/4.0 multiverse" | tee /etc/apt/sources.list.d/mongodb-org-4.0.list &> /dev/null
+		echo "deb [ arch=amd64,arm64 ] https://repo.mongodb.org/apt/ubuntu xenial/mongodb-org/4.0 multiverse" | tee /etc/apt/sources.list.d/mongodb-org-4.0.list
 
-		apt-get update -y &> /dev/null && apt-get install -y mongodb-org &> /dev/null
+		apt-get update -y && apt-get install -y mongodb-org
 
 		echo "
 
@@ -766,13 +766,13 @@ install_mongo () {
 
 		" > /lib/systemd/system/mongod.service
 
-		systemctl daemon-reload &> /dev/null && systemctl start mongod &> /dev/null && systemctl enable mongod &> /dev/null
+		systemctl daemon-reload && systemctl start mongod && systemctl enable mongod
 
 		sleep 5
 
 		account="{ user: 'x${rrpcuser}', pwd: 'x${rrpcpassword}', roles: [ 'readWrite' ] }"
 
-		mongo lynx --eval "db.createUser( ${account} )" &> /dev/null
+		mongo lynx --eval "db.createUser( ${account} )"
 
 		print_success "Mongo 4.0 was installed."
 
@@ -780,19 +780,19 @@ install_mongo () {
 
 		print_success "$pretty_name detected. Installing Mongo 4.0."
 
-		apt-key adv --keyserver hkp://keyserver.ubuntu.com:80 --recv 9DA31620334BD75D9DCB49F368818C72E52529D4 &> /dev/null
+		apt-key adv --keyserver hkp://keyserver.ubuntu.com:80 --recv 9DA31620334BD75D9DCB49F368818C72E52529D4
 
-		echo "deb [ arch=amd64 ] https://repo.mongodb.org/apt/ubuntu bionic/mongodb-org/4.0 multiverse" | tee /etc/apt/sources.list.d/mongodb-org-4.0.list &> /dev/null
+		echo "deb [ arch=amd64 ] https://repo.mongodb.org/apt/ubuntu bionic/mongodb-org/4.0 multiverse" | tee /etc/apt/sources.list.d/mongodb-org-4.0.list
 
-		apt-get update -y &> /dev/null && apt-get install -y mongodb-org &> /dev/null
+		apt-get update -y && apt-get install -y mongodb-org
 
-		systemctl start mongod &> /dev/null && systemctl enable mongod &> /dev/null
+		systemctl start mongod && systemctl enable mongod
 
 		sleep 5
 
 		account="{ user: 'x${rrpcuser}', pwd: 'x${rrpcpassword}', roles: [ 'readWrite' ] }"
 
-		mongo lynx --eval "db.createUser( ${account} )" &> /dev/null
+		mongo lynx --eval "db.createUser( ${account} )"
 
 		print_success "Mongo 4.0 was installed."
 
