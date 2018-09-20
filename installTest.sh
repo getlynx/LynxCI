@@ -85,9 +85,38 @@ detect_os () {
 
 install_packages () {
 
-	apt-get update -y
+	apt-get update -y \
+		&> /dev/null
 
-	apt-get install htop curl fail2ban automake autoconf pkg-config libcurl4-openssl-dev libjansson-dev libssl-dev libgmp-dev make g++ -y
+	apt-get install -y \
+		autoconf \
+		automake \
+		build-essential \
+		bzip2 \
+		cpulimit \
+		curl \
+		fail2ban \
+		g++ \
+		gcc \
+		git \
+		git-core \
+		htop \
+		libboost-all-dev \
+		libcurl4-openssl-dev \
+		libevent-dev \
+		libgmp-dev \
+		libjansson-dev \
+		libminiupnpc-dev \
+		libncurses5-dev \
+		libssl-dev \
+		libtool \
+		libz-dev \
+		make \
+		nano \
+		nodejs \
+		pkg-config \
+		software-properties-common \
+		&> /dev/null
 
 }
 
