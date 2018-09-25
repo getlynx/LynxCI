@@ -321,25 +321,25 @@ install_portcheck () {
 
 	print_success () {
 
-		printf \"\$GREEN\$1\$RESET\n\"
+		printf \"\$GREEN\$1\$RESET\\n\"
 
 	}
 
 	print_error () {
 
-		printf \"\$RED\$1\$RESET\n\"
+		printf \"\$RED\$1\$RESET\\n\"
 
 	}
 
 	print_info () {
 
-		printf \"\$BLUE\$1\$RESET\n\"
+		printf \"\$BLUE\$1\$RESET\\n\"
 
 	}
 
 	print_warning () {
 
-		printf \"\$YELLOW\$1\$RESET\n\"
+		printf \"\$YELLOW\$1\$RESET\\n\"
 
 	}
 
@@ -378,7 +378,7 @@ install_portcheck () {
 
 	else
 
-		block=\$(curl -s http://127.0.0.1/api/getblockcount)
+		block=$(/root/lynx/src/lynx-cli getblockcount)
 
 		if [ -z \"\$block\" ]; then
 
@@ -449,7 +449,8 @@ install_portcheck () {
 	print_success \" Lots of helpful videos about LynxCI are available at the Lynx FAQ. Visit \"
 	print_success \" https://getlynx.io/faq/ for more information and help.\"
 
-	" > /etc/profile.d/portcheck.sh
+
+" > /etc/profile.d/portcheck.sh
 
 	chmod 755 /etc/profile.d/portcheck.sh
 
