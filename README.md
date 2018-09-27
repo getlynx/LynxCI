@@ -1,4 +1,5 @@
-# Lynx Cryptocurrency Installer (LynxCI)
+# [Lynx](https://getlynx.io) Cryptocurrency Installer (LynxCI)
+
 Creates a Lynx cryptocurrency node that confirms and relays transactions, runs an eco-friendly built-in miner and also creates a local robust Block Explorer website including Lynx development news, real-time miner cost reporting, public API & RPC access points, and Lynx information.
 
 ## One line install script
