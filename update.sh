@@ -26,6 +26,8 @@ update_block_explorer () {
 
             if [ "$remotehash" != "$localhash" ]; then
 
+                git stash save --keep-index
+
                 git pull https://github.com/doh9Xiet7weesh9va9th/LynxBlockExplorer.git
 
                 npm install
