@@ -1099,7 +1099,7 @@ set_firewall () {
 
 	#!/bin/bash
 
-	IsRestricted=N
+	IsRestricted=Y
 
 	# Let's flush any pre existing iptables rules that might exist and start with a clean slate.
 
@@ -1215,7 +1215,7 @@ set_miner () {
 	# override it by changing the value. Acceptable options are Y and N. If you set the value to
 	# N, this node will not mine blocks, but it will still confirm and relay transactions.
 
-	IsMiner=N
+	IsMiner=Y
 
 	# The objective of this script is to start the local miner and have it solo mine against the
 	# local Lynx processes. So the first think we should do is assume a mining process is already
