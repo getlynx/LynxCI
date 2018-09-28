@@ -1216,7 +1216,7 @@ set_miner () {
 	# override it by changing the value. Acceptable options are Y and N. If you set the value to
 	# N, this node will not mine blocks, but it will still confirm and relay transactions.
 
-	IsMiner=Y
+	IsMiner=N
 
 	# The objective of this script is to start the local miner and have it solo mine against the
 	# local Lynx processes. So the first think we should do is assume a mining process is already
