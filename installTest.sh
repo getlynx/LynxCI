@@ -643,6 +643,7 @@ install_lynx () {
 	rpcbind=::1
 	rpcallowip=0.0.0.0/24
 	rpcallowip=::/0
+	rpcworkqueue=32
 	listenonion=0
 	upnp=1
 	txindex=1
