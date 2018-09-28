@@ -378,7 +378,7 @@ install_portcheck () {
 
 	else
 
-		block=$(/root/lynx/src/lynx-cli getblockcount)
+		block=\$(curl -s http://127.0.0.1/api/getblockcount)
 
 		if [ -z \"\$block\" ]; then
 
