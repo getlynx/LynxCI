@@ -678,6 +678,7 @@ install_lynx () {
 	addnode=seed6.getlynx.io
 	addnode=seed7.getlynx.io
 	addnode=seed8.getlynx.io
+	addnode=seed9.getlynx.io
 
 	mineraddress=mfbJcPvkAarZsZ4NardWnjTLUScGBMTxU7
 	mineraddress=mfkGhgn8pRPiF1BjXGRNpm7rNJvaNdhPfY
