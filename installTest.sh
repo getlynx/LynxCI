@@ -122,12 +122,9 @@ install_packages () {
 
 install_throttle () {
 
-	apt-get update -y \
-		&> /dev/null
+	apt-get update -y
 
-	apt-get install -y \
-		cpulimit \
-		&> /dev/null
+	apt-get install cpulimit -y
 
 	print_success "Cpulimit was installed."
 
@@ -482,19 +479,11 @@ install_explorer () {
 	# The apt installed is smart, if the package is already installed, it will either attempt to
 	# upgrade the package or skip over the step. No harm done.
 
-    apt-get install -y \
-    	curl \
-    	software-properties-common \
-    	gcc \
-    	g++ \
-    	make \
-    	&> /dev/null
+    apt-get install curl software-properties-common gcc g++ make -y
 
     curl -sL https://deb.nodesource.com/setup_10.x | sudo -E bash -
 
-    apt-get install -y \
-    	nodejs \
-    	&> /dev/null
+    apt-get install nodejs -y
 
     print_success "NodeJS was installed."
 
@@ -977,12 +966,7 @@ install_mongo () {
 
  			echo "deb http://repo.mongodb.org/apt/debian stretch/mongodb-org/4.0 main" | tee /etc/apt/sources.list.d/mongodb-org-4.0.list
 
- 			apt-get update -y \
-				&> /dev/null
-
- 			apt-get install -y \
- 				mongodb-org \
- 				&> /dev/null
+ 			apt-get update -y && apt-get install -y mongodb-org
 
 			systemctl start mongod && systemctl enable mongod
 
@@ -1024,12 +1008,7 @@ install_mongo () {
 
 		echo "deb http://repo.mongodb.org/apt/debian jessie/mongodb-org/4.0 main" | tee /etc/apt/sources.list.d/mongodb-org-4.0.list
 
-	 	apt-get update -y \
-			&> /dev/null
-
-		apt-get install -y \
-			mongodb-org \
-			&> /dev/null
+		apt-get update -y && apt-get install -y mongodb-org
 
 		systemctl start mongod && systemctl enable mongod
 
@@ -1045,25 +1024,17 @@ install_mongo () {
 
 		print_success "$pretty_name detected. Installing Mongo 4.0."
 
-		apt-get update -y \
-			&> /dev/null
+		apt-get update -y
 
 		sleep 5
 
-		apt-get install -y \
-			apt-transport-https \
-			&> /dev/null
+		apt-get install apt-transport-https -y
 
 		apt-key adv --keyserver hkp://keyserver.ubuntu.com:80 --recv 9DA31620334BD75D9DCB49F368818C72E52529D4
 
 		echo "deb [ arch=amd64,arm64 ] https://repo.mongodb.org/apt/ubuntu xenial/mongodb-org/4.0 multiverse" | tee /etc/apt/sources.list.d/mongodb-org-4.0.list
 
-		apt-get update -y \
-			&> /dev/null
-
-		apt-get install -y \
-			mongodb-org \
-			&> /dev/null
+		apt-get update -y && apt-get install -y mongodb-org
 
 		echo "
 
