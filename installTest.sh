@@ -1409,10 +1409,11 @@ setup_crontabs () {
 
 	crontab -l | { cat; echo "*/$crontab_spacing * * * *		/root/miner.sh"; } | crontab -
 
-	# As the update script grows with more self updating features, we will let this script run every
-	# 24 hours. This way, users don't have to rebuild the LynxCI build as often to get new updates.
+	# The update script totally reinstalls the Block Explorer code. It's pretty intensive for the
+	# host device. So instead of running it daily like we used to, we only run it once a month. This
+	# day of the month is randomly selected on build.
 
-	crontab -l | { cat; echo "0 0 * * *		/root/LynxCI/update.sh"; } | crontab -
+	crontab -l | { cat; echo "* * $(shuf -i 1-28 -n 1) * *		/root/LynxCI/update.sh"; } | crontab -
 
 	# We found that after a few weeks, the debug log would grow rather large. It's not really needed
 	# after a certain size, so let's truncate that log down to a reasonable size every day.

@@ -30,6 +30,22 @@ update_block_explorer () {
 
                 git pull https://github.com/doh9Xiet7weesh9va9th/LynxBlockExplorer.git
 
+                user=$(cat /root/.lynx/lynx.conf | egrep 'rpcuser=' | cut -d= -f2)
+                #echo "RPC username is $user."
+                pass=$(cat /root/.lynx/lynx.conf | egrep 'rpcpassword=' | cut -d= -f2)
+                #echo "RPC password is $pass."
+                port=$(cat /root/.lynx/lynx.conf | egrep 'rpcport=' | cut -d= -f2)
+                #echo "RPC port is $port."
+                host=$(cat /etc/hostname)
+                #echo "Host is $host."
+
+                sed -i "s/9332/${port}/g" /root/LynxBlockExplorer/settings.json
+                sed -i "s/__HOSTNAME__/x${host}/g" /root/LynxBlockExplorer/settings.json
+                sed -i "s/__MONGO_USER__/x${user}/g" /root/LynxBlockExplorer/settings.json
+                sed -i "s/__MONGO_PASS__/x${pass}/g" /root/LynxBlockExplorer/settings.json
+                sed -i "s/__LYNXRPCUSER__/${user}/g" /root/LynxBlockExplorer/settings.json
+                sed -i "s/__LYNXRPCPASS__/${pass}/g" /root/LynxBlockExplorer/settings.json
+
                 npm install
 
                 pm2 restart 0
