@@ -489,6 +489,8 @@ install_explorer () {
 
 	npm install pm2 -g
 
+	sleep 3
+
 	print_success "PM2 was installed."
 
 	git clone -b $explorerbranch https://github.com/doh9Xiet7weesh9va9th/LynxBlockExplorer.git
@@ -506,17 +508,29 @@ install_explorer () {
 	sed -i "s/__LYNXRPCUSER__/${rrpcuser}/g" /root/LynxBlockExplorer/settings.json
 	sed -i "s/__LYNXRPCPASS__/${rrpcpassword}/g" /root/LynxBlockExplorer/settings.json
 
+	sleep 3
+	
 	# Start the Block Explorer nodejs app and set it up in PM2
 
 	pm2 stop LynxBlockExplorer
 
+	sleep 3
+
 	pm2 delete LynxBlockExplorer
 
-	pm2 start npm -- start
+	sleep 3
+
+	pm2 start
+
+	sleep 3
+
+	pm2 startup ubuntu
+
+	sleep 3
 
 	pm2 save
 
-	pm2 startup ubuntu
+	sleep 3
 
 	# On Raspian, sometimes the pm2 service shows a benign warning during boot, prior to the first
 	# command prompt. This replacement fixes the issue, avoiding the unneeded warning.
@@ -1413,7 +1427,7 @@ setup_crontabs () {
 	# host device. So instead of running it daily like we used to, we only run it once a month. This
 	# day of the month is randomly selected on build.
 
-	crontab -l | { cat; echo "0 0 $(shuf -i 1-28 -n 1) * *		/root/LynxCI/update.sh"; } | crontab -
+	crontab -l | { cat; echo "0 0 $(shuf -i 1-15 -n 1) * *		/root/LynxCI/update.sh"; } | crontab -
 
 	# We found that after a few weeks, the debug log would grow rather large. It's not really needed
 	# after a certain size, so let's truncate that log down to a reasonable size every day.
@@ -1425,7 +1439,7 @@ setup_crontabs () {
 	# occasional reboot won't cause harm. This crontab means to reboot EVERY 15 days, NOT on the
 	# 15th day of the month. An important distinction.
 
-	crontab -l | { cat; echo "0 0 15 * *		/sbin/shutdown -r now"; } | crontab -
+	crontab -l | { cat; echo "0 0 $(shuf -i 16-28 -n 1) * *		/sbin/shutdown -r now"; } | crontab -
 
 	crontab -l | { cat; echo "*/3 * * * *		cd /root/LynxBlockExplorer && /usr/bin/nodejs scripts/sync.js index update >> /tmp/explorer.sync 2>&1"; } | crontab -
 
