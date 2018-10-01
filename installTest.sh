@@ -512,7 +512,8 @@ install_explorer () {
 
 	pm2 delete LynxBlockExplorer
 
-	pm2 start
+	#pm2 start
+	pm2 start npm -- start
 
 	pm2 save
 
