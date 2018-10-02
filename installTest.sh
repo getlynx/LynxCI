@@ -479,11 +479,13 @@ install_explorer () {
 	# The apt installed is smart, if the package is already installed, it will either attempt to
 	# upgrade the package or skip over the step. No harm done.
 
-    apt-get install curl software-properties-common gcc g++ make -y
+	apt-get update -y
+
+    apt-get install -y curl software-properties-common git gcc g++ make
 
     curl -sL https://deb.nodesource.com/setup_10.x | sudo -E bash -
 
-    apt-get install nodejs -y
+    apt-get install -y nodejs
 
     print_success "NodeJS was installed."
 
@@ -494,9 +496,9 @@ install_explorer () {
 	print_success "PM2 was installed."
 
 	git clone -b $explorerbranch https://github.com/doh9Xiet7weesh9va9th/LynxBlockExplorer.git
-	
-	cd /root/LynxBlockExplorer/ && npm install --production
 
+	sleep 3
+	
 	# We need to update the json file in the LynxBlockExplorer node app with the lynxd RPC access
 	# credentials for this device. Since they are created dynamically each time, we just do
 	# find and replace in the json file.
@@ -507,6 +509,10 @@ install_explorer () {
 	sed -i "s/__MONGO_PASS__/x${rrpcpassword}/g" /root/LynxBlockExplorer/settings.json
 	sed -i "s/__LYNXRPCUSER__/${rrpcuser}/g" /root/LynxBlockExplorer/settings.json
 	sed -i "s/__LYNXRPCPASS__/${rrpcpassword}/g" /root/LynxBlockExplorer/settings.json
+
+	cd /root/LynxBlockExplorer/
+
+	npm install
 
 	sleep 3
 	
