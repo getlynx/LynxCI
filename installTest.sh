@@ -89,9 +89,7 @@ install_packages () {
 		&> /dev/null
 
 	apt-get install -y \
-		autoconf \
 		automake \
-		build-essential \
 		bzip2 \
 		curl \
 		fail2ban \
@@ -103,13 +101,10 @@ install_packages () {
 		libgmp-dev \
 		libjansson-dev \
 		libminiupnpc-dev \
-		libncurses5-dev \
 		libssl-dev \
-		libtool \
 		libz-dev \
 		make \
 		nodejs \
-		pkg-config \
 		software-properties-common \
 		&> /dev/null
 
@@ -573,7 +568,7 @@ install_lynx () {
 
 	print_success "$pretty_name detected. Installing Lynx."
 
-	apt-get install build-essential autoconf libtool libssl-dev libboost-all-dev libminiupnpc-dev libevent-dev libncurses5-dev pkg-config bzip2 -y
+	apt-get install libssl-dev libboost-all-dev libminiupnpc-dev libevent-dev bzip2 -y
 
 	rrpcuser="$(shuf -i 1000000000-3999999999 -n 1)$(shuf -i 1000000000-3999999999 -n 1)$(shuf -i 1000000000-3999999999 -n 1)"
 
@@ -941,8 +936,6 @@ install_miner () {
 
 	apt-get install -y \
 		automake \
-		autoconf \
-		pkg-config \
 		libcurl4-openssl-dev \
 		libjansson-dev \
 		libssl-dev \
