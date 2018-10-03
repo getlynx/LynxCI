@@ -89,9 +89,6 @@ install_packages () {
 		&> /dev/null
 
 	apt-get install -y \
-		automake \
-		bzip2 \
-		curl \
 		fail2ban \
 		g++ \
 		gcc \
@@ -471,7 +468,7 @@ install_explorer () {
 
 	apt-get update -y
 
-	apt-get install -y curl software-properties-common gcc g++ make
+	apt-get install -y software-properties-common gcc g++ make
 
 	curl -sL https://deb.nodesource.com/setup_10.x | sudo -E bash -
 
@@ -568,7 +565,7 @@ install_lynx () {
 
 	print_success "$pretty_name detected. Installing Lynx."
 
-	apt-get install libssl-dev libboost-all-dev libminiupnpc-dev libevent-dev bzip2 -y
+	apt-get install libssl-dev libboost-all-dev libminiupnpc-dev libevent-dev -y
 
 	rrpcuser="$(shuf -i 1000000000-3999999999 -n 1)$(shuf -i 1000000000-3999999999 -n 1)$(shuf -i 1000000000-3999999999 -n 1)"
 
@@ -935,7 +932,6 @@ install_miner () {
 		&> /dev/null
 
 	apt-get install -y \
-		automake \
 		libcurl4-openssl-dev \
 		libjansson-dev \
 		libssl-dev \
