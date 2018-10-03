@@ -93,14 +93,10 @@ install_packages () {
 		automake \
 		build-essential \
 		bzip2 \
-		cpulimit \
 		curl \
 		fail2ban \
 		g++ \
 		gcc \
-		git \
-		git-core \
-		htop \
 		libboost-all-dev \
 		libcurl4-openssl-dev \
 		libevent-dev \
@@ -112,7 +108,6 @@ install_packages () {
 		libtool \
 		libz-dev \
 		make \
-		nano \
 		nodejs \
 		pkg-config \
 		software-properties-common \
@@ -481,13 +476,13 @@ install_explorer () {
 
 	apt-get update -y
 
-    apt-get install -y curl software-properties-common git gcc g++ make
+	apt-get install -y curl software-properties-common gcc g++ make
 
-    curl -sL https://deb.nodesource.com/setup_10.x | sudo -E bash -
+	curl -sL https://deb.nodesource.com/setup_10.x | sudo -E bash -
 
-    apt-get install -y nodejs
+	apt-get install -y nodejs
 
-    print_success "NodeJS was installed."
+	print_success "NodeJS was installed."
 
 	npm install pm2 -g
 
@@ -578,7 +573,7 @@ install_lynx () {
 
 	print_success "$pretty_name detected. Installing Lynx."
 
-	apt-get install git-core build-essential autoconf libtool libssl-dev libboost-all-dev libminiupnpc-dev libevent-dev libncurses5-dev pkg-config bzip2 -y
+	apt-get install build-essential autoconf libtool libssl-dev libboost-all-dev libminiupnpc-dev libevent-dev libncurses5-dev pkg-config bzip2 -y
 
 	rrpcuser="$(shuf -i 1000000000-3999999999 -n 1)$(shuf -i 1000000000-3999999999 -n 1)$(shuf -i 1000000000-3999999999 -n 1)"
 
@@ -955,7 +950,6 @@ install_miner () {
 		make \
 		g++ \
 		libz-dev \
-		git \
 		&> /dev/null
 
 	git clone https://github.com/tpruvot/cpuminer-multi.git /tmp/cpuminer/
