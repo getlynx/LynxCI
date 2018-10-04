@@ -484,7 +484,7 @@ install_explorer () {
 
 	git clone -b $explorerbranch https://github.com/doh9Xiet7weesh9va9th/LynxBlockExplorer.git
 
-	sleep 3
+	sleep 5
 	
 	# We need to update the json file in the LynxBlockExplorer node app with the lynxd RPC access
 	# credentials for this device. Since they are created dynamically each time, we just do
@@ -499,9 +499,9 @@ install_explorer () {
 
 	cd /root/LynxBlockExplorer/
 
-	npm install
+	npm start
 
-	sleep 3
+	sleep 5
 	
 	# Start the Block Explorer nodejs app and set it up in PM2
 
