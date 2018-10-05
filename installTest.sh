@@ -459,7 +459,11 @@ install_explorer () {
 	# it already exists. This way if the power goes out during install, the build process can
 	# gracefully restart.
 
-	rm -rf ~/LynxBlockExplorer && rm -rf ~/.npm-global
+	rm -rf ~/LynxBlockExplorer
+
+	echo "Any previous install of LynxBlockExplorer was removed."
+
+	rm -rf ~/.npm-global
 
 	# We might need curl and some other dependencies so let's grab those now. It is also possible
 	# these packages might be used elsewhere in this script so installing them now is no problem.
@@ -468,17 +472,19 @@ install_explorer () {
 
 	curl -sL https://deb.nodesource.com/setup_10.x | sudo -E bash -
 
-    apt-get install -y nodejs &> /dev/null
+    apt-get install -y nodejs
 
-    print_success "NodeJS was installed."
+    echo "NodeJS was installed."
 
 	npm install pm2 -g
 
-	print_success "PM2 was installed."
+	echo "PM2 was installed."
 
 	git clone -b $explorerbranch https://github.com/doh9Xiet7weesh9va9th/LynxBlockExplorer.git
 	
-	cd /root/LynxBlockExplorer/ && npm install --production
+	cd /root/LynxBlockExplorer/
+
+	npm install
 
 	# We need to update the json file in the LynxBlockExplorer node app with the lynxd RPC access
 	# credentials for this device. Since they are created dynamically each time, we just do
@@ -501,6 +507,8 @@ install_explorer () {
 
 	pm2 save
 
+	echo "'pm2 save' command completed."
+
 	pm2 startup ubuntu
 
 	# On Raspian, sometimes the pm2 service shows a benign warning during boot, prior to the first
@@ -515,7 +523,7 @@ install_explorer () {
 	# Yeah, we are probably putting to many comments in this script, but I hope it proves
 	# helpful to someone when they are having fun but don't know what a part of it does.
 
-	print_success "Lynx Block Explorer was installed"
+	echo "Lynx Block Explorer was installed."
 }
 
 # The MiniUPnP project offers software which supports the UPnP Internet Gateway Device (IGD)
