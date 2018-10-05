@@ -466,26 +466,20 @@ install_explorer () {
 	# The apt installed is smart, if the package is already installed, it will either attempt to
 	# upgrade the package or skip over the step. No harm done.
 
-	apt-get update -y
-
-	apt-get install -y software-properties-common gcc g++ make
-
 	curl -sL https://deb.nodesource.com/setup_10.x | sudo -E bash -
 
-	apt-get install -y nodejs
+    apt-get install -y nodejs &> /dev/null
 
-	print_success "NodeJS was installed."
+    print_success "NodeJS was installed."
 
 	npm install pm2 -g
-
-	sleep 3
 
 	print_success "PM2 was installed."
 
 	git clone -b $explorerbranch https://github.com/doh9Xiet7weesh9va9th/LynxBlockExplorer.git
-
-	sleep 5
 	
+	cd /root/LynxBlockExplorer/ && npm install --production
+
 	# We need to update the json file in the LynxBlockExplorer node app with the lynxd RPC access
 	# credentials for this device. Since they are created dynamically each time, we just do
 	# find and replace in the json file.
@@ -497,37 +491,17 @@ install_explorer () {
 	sed -i "s/__LYNXRPCUSER__/${rrpcuser}/g" /root/LynxBlockExplorer/settings.json
 	sed -i "s/__LYNXRPCPASS__/${rrpcpassword}/g" /root/LynxBlockExplorer/settings.json
 
-	cd /root/LynxBlockExplorer/
-
-	npm install
-
-	sleep 5
-
-	npm start
-
-	sleep 5
-	
 	# Start the Block Explorer nodejs app and set it up in PM2
 
 	pm2 stop LynxBlockExplorer
 
-	sleep 3
-
 	pm2 delete LynxBlockExplorer
-
-	sleep 3
 
 	pm2 start
 
-	sleep 3
-
-	pm2 startup ubuntu
-
-	sleep 3
-
 	pm2 save
 
-	sleep 3
+	pm2 startup ubuntu
 
 	# On Raspian, sometimes the pm2 service shows a benign warning during boot, prior to the first
 	# command prompt. This replacement fixes the issue, avoiding the unneeded warning.
