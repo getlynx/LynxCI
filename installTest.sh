@@ -121,27 +121,33 @@ manage_swap () {
 
 	else
 
-		# https://www.2daygeek.com/shell-script-create-add-extend-swap-space-linux/#
+		# Some vendors already have swap set up, so only create it if it's not already there.
 
-		newswapsize=1024
+		exists="$(swapon --show | grep 'partition')"
 
-		grep -q "swapfile" /etc/fstab
+		if [ -z "$exists" ]; then
 
-		if [ $? -ne 0 ]; then
+			# https://www.2daygeek.com/shell-script-create-add-extend-swap-space-linux/#
 
-			fallocate -l ${newswapsize}M /swapfile
+			newswapsize=1024
 
-			chmod 600 /swapfile
+			grep -q "swapfile" /etc/fstab
 
-			mkswap /swapfile
+			if [ $? -ne 0 ]; then
 
-			swapon /swapfile
+				fallocate -l ${newswapsize}M /swapfile
 
-			echo '/swapfile none swap defaults 0 0' >> /etc/fstab
+				chmod 600 /swapfile
+
+				mkswap /swapfile
+
+				swapon /swapfile
+
+				echo '/swapfile none swap defaults 0 0' >> /etc/fstab
+
+			fi
 
 		fi
-
-		# swapon --show
 
 	fi
 
