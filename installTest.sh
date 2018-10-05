@@ -499,6 +499,10 @@ install_explorer () {
 
 	cd /root/LynxBlockExplorer/
 
+	npm install
+
+	sleep 5
+
 	npm start
 
 	sleep 5
