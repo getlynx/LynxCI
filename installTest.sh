@@ -35,20 +35,6 @@ YELLOW='\033[33;1m'
 RED='\033[91;1m'
 RESET='\033[0m'
 
-print_info () {
-
-	printf "$BLUE$1$RESET\n"
-	sleep 1
-
-}
-
-print_success () {
-
-	printf "$GREEN$1$RESET\n"
-	sleep 1
-
-}
-
 print_warning () {
 
 	printf "$YELLOW$1$RESET\n"
@@ -77,7 +63,7 @@ detect_os () {
 
 	process_name=$(shuf -n 1 -e A B C D E F G H J K M N P Q R S T U V W Z Y Z)$(shuf -i 1000-9999 -n 1)
 
-	print_success "Build environment is '$environment'."
+	echo "Build environment is '$environment'."
 
 	crontab -r
 
@@ -113,7 +99,7 @@ install_throttle () {
 
 	apt-get install cpulimit -y
 
-	print_success "Cpulimit was installed."
+	echo "Cpulimit was installed."
 
 }
 
@@ -129,7 +115,7 @@ manage_swap () {
 
 		sed -i 's/CONF_SWAPSIZE=100/CONF_SWAPSIZE=1024/' /etc/dphys-swapfile
 
-		print_success "Swap will be increased to 1GB on reboot."
+		echo "Swap will be increased to 1GB on reboot."
 
 	# The following condition checks if swaps exists and set it up if it doesn't.
 
@@ -180,7 +166,7 @@ reduce_gpu_mem () {
 
 		echo "gpu_mem=16" >> /boot/config.txt
 
-		print_success "GPU memory was reduced to 16MB on reboot."
+		echo "GPU memory was reduced to 16MB on reboot."
 
 	fi
 
@@ -203,7 +189,7 @@ disable_bluetooth () {
 
 		apt-get remove pi-bluetooth -y
 
-		print_success "Bluetooth was uninstalled."
+		echo "Bluetooth was uninstalled."
 
 	fi
 
@@ -249,7 +235,7 @@ set_wifi () {
 
 		" >> /boot/wpa_supplicant.conf
 
-		print_success "Wifi configuration script was installed."
+		echo "Wifi configuration script was installed."
 
 	fi
 
@@ -284,7 +270,7 @@ set_accounts () {
 
 		usermod -L -e 1 pi
 
-		print_success "The 'pi' login was locked. Please log in with '$ssuser'. The default password is '$sspassword'."
+		echo "The 'pi' login was locked. Please log in with '$ssuser'. The default password is '$sspassword'."
 
 		sleep 5
 
@@ -306,7 +292,7 @@ install_portcheck () {
 	RED='\033[91;1m'
 	RESET='\033[0m'
 
-	print_success () {
+	echo () {
 
 		printf \"\$GREEN\$1\$RESET\\n\"
 
@@ -318,19 +304,13 @@ install_portcheck () {
 
 	}
 
-	print_info () {
-
-		printf \"\$BLUE\$1\$RESET\\n\"
-
-	}
-
 	print_warning () {
 
 		printf \"\$YELLOW\$1\$RESET\\n\"
 
 	}
 
-	print_success \" Standby, checking connectivity...\"
+	echo \" Standby, checking connectivity...\"
 
 	# When the build script runs, we know the lynxd port, but we don't know if after the node is
 	# built. So we are hardcoding the value here, so it can be checked in the future.
@@ -379,9 +359,9 @@ install_portcheck () {
 
 	fi
 
-	print_success \"\"
-	print_success \"\"
-	print_success \"\"
+	echo \"\"
+	echo \"\"
+	echo \"\"
 
 	# This file really should not be downloaded over and over again. Instead, just copy the local
 	# file in root to a dir in /home/lynx/ for self indexing.
@@ -402,39 +382,39 @@ install_portcheck () {
 
 	if [ \"\$app_reachable\" = \"true\" ]; then
 
-		print_success \"\"
-		print_success \" Lynx port \$port is open.\"
+		echo \"\"
+		echo \" Lynx port \$port is open.\"
 
 	else
 
-		print_success \"\"
+		echo \"\"
 		print_error \" Lynx port \$port is not open.\"
 
 	fi
 
 	if [ \"\$rpc_reachable\" = \"true\" ]; then
 
-		print_success \"\"
-		print_success \" Lynx RPC port \$rpcport is open.\"
-		print_success \"\"
+		echo \"\"
+		echo \" Lynx RPC port \$rpcport is open.\"
+		echo \"\"
 
 	else
 
-		print_success \"\"
+		echo \"\"
 		print_error \" Lynx RPC port \$rpcport is not open.\"
-		print_success \"\"
+		echo \"\"
 
 	fi
 
 	if [ \"\$port\" = \"44566\" ]; then
 
 		print_error \" This is a non-production 'testnet' environment of Lynx.\"
-		print_success \"\"
+		echo \"\"
 
 	fi
 
-	print_success \" Lots of helpful videos about LynxCI are available at the Lynx FAQ. Visit \"
-	print_success \" https://getlynx.io/faq/ for more information and help.\"
+	echo \" Lots of helpful videos about LynxCI are available at the Lynx FAQ. Visit \"
+	echo \" https://getlynx.io/faq/ for more information and help.\"
 
 
 " > /etc/profile.d/portcheck.sh
@@ -491,7 +471,7 @@ install_explorer () {
 	# find and replace in the json file.
 
 	sed -i "s/9332/${rpcport}/g" /root/LynxBlockExplorer/settings.json
-	sed -i "s/__HOSTNAME__/x${fqdn}/g" /root/LynxBlockExplorer/settings.json
+	sed -i "s/__HOSTNAME__/x$(cat /etc/hostname)/g" /root/LynxBlockExplorer/settings.json
 	sed -i "s/__MONGO_USER__/x${rrpcuser}/g" /root/LynxBlockExplorer/settings.json
 	sed -i "s/__MONGO_PASS__/x${rrpcpassword}/g" /root/LynxBlockExplorer/settings.json
 	sed -i "s/__LYNXRPCUSER__/${rrpcuser}/g" /root/LynxBlockExplorer/settings.json
@@ -510,6 +490,8 @@ install_explorer () {
 	echo "'pm2 save' command completed."
 
 	pm2 startup ubuntu
+
+	echo "'pm2 startup ubuntu' command completed."
 
 	# On Raspian, sometimes the pm2 service shows a benign warning during boot, prior to the first
 	# command prompt. This replacement fixes the issue, avoiding the unneeded warning.
@@ -537,11 +519,11 @@ install_miniupnpc () {
 
 	if [ ! -z "$checkForRaspbian" ]; then
 
-		print_success "$pretty_name detected. Installing Miniupnpc."
+		echo "$pretty_name detected. Installing Miniupnpc."
 
 		apt-get install libminiupnpc-dev -y
 
-		print_success "Miniupnpc was installed."
+		echo "Miniupnpc was installed."
 
 	fi
 
@@ -549,7 +531,7 @@ install_miniupnpc () {
 
 install_lynx () {
 
-	print_success "$pretty_name detected. Installing Lynx."
+	echo "$pretty_name detected. Installing Lynx."
 
 	apt-get install libssl-dev libboost-all-dev libminiupnpc-dev libevent-dev -y
 
@@ -906,13 +888,13 @@ install_lynx () {
 
 	chown -R root:root /root/.lynx/*
 
-	print_success "Lynx was installed."
+	echo "Lynx was installed."
 
 }
 
 install_miner () {
 
-	print_success "$pretty_name detected. Installing CPUMiner-Multi."
+	echo "$pretty_name detected. Installing CPUMiner-Multi."
 
 	apt-get update -y \
 		&> /dev/null
@@ -935,7 +917,7 @@ install_miner () {
 
 	mv /usr/local/bin/cpuminer /usr/local/bin/$process_name
 
-	print_success "CPUMiner-Multi 1.3.5 was installed."
+	echo "CPUMiner-Multi 1.3.5 was installed."
 
 }
 
@@ -947,7 +929,7 @@ install_mongo () {
 
 			echo "LynxCI running on Raspbian GNU/Linux 9. Visit https://getlynx.io to learn more!" > /etc/issue
 
-			print_success "$pretty_name detected. Installing Mongo 4.0."
+			echo "$pretty_name detected. Installing Mongo 4.0."
 
 			apt-get install dirmngr -y
 
@@ -965,13 +947,13 @@ install_mongo () {
 
 			mongo lynx --eval "db.createUser( ${account} )"
 
-			print_success "Mongo 4.0 was installed."
+			echo "Mongo 4.0 was installed."
 
 		else
 
 			echo "LynxCI running on Raspbian GNU/Linux 9. Visit https://getlynx.io to learn more!" > /etc/issue
 
-			print_success "$pretty_name detected. Installing Mongo."
+			echo "$pretty_name detected. Installing Mongo."
 
 			apt-get install mongodb-server -y
 
@@ -983,7 +965,7 @@ install_mongo () {
 
 			mongo lynx --eval "db.addUser( ${account} )"
 
-			print_success "Mongo 2.4 was installed."
+			echo "Mongo 2.4 was installed."
 
 		fi
 
@@ -991,7 +973,7 @@ install_mongo () {
 
 		echo "LynxCI running on Raspbian GNU/Linux 8. Visit https://getlynx.io to learn more!" > /etc/issue
 
-		print_success "$pretty_name detected. Installing Mongo 4.0."
+		echo "$pretty_name detected. Installing Mongo 4.0."
 
 		apt-key adv --keyserver hkp://keyserver.ubuntu.com:80 --recv 9DA31620334BD75D9DCB49F368818C72E52529D4
 
@@ -1007,11 +989,11 @@ install_mongo () {
 
 		mongo lynx --eval "db.createUser( ${account} )"
 
-		print_success "Mongo 4.0 was installed."
+		echo "Mongo 4.0 was installed."
 
 	elif [ "$version_id" = "16.04" ]; then
 
-		print_success "$pretty_name detected. Installing Mongo 4.0."
+		echo "$pretty_name detected. Installing Mongo 4.0."
 
 		apt-get update -y
 
@@ -1050,11 +1032,11 @@ install_mongo () {
 
 		mongo lynx --eval "db.createUser( ${account} )"
 
-		print_success "Mongo 4.0 was installed."
+		echo "Mongo 4.0 was installed."
 
 	elif [ "$version_id" = "18.04" ]; then
 
-		print_success "$pretty_name detected. Installing Mongo 4.0."
+		echo "$pretty_name detected. Installing Mongo 4.0."
 
 		apt-key adv --keyserver hkp://keyserver.ubuntu.com:80 --recv 9DA31620334BD75D9DCB49F368818C72E52529D4
 
@@ -1070,7 +1052,7 @@ install_mongo () {
 
 		mongo lynx --eval "db.createUser( ${account} )"
 
-		print_success "Mongo 4.0 was installed."
+		echo "Mongo 4.0 was installed."
 
 	fi
 
@@ -1188,7 +1170,7 @@ set_firewall () {
 	# Metus est Plenus Tyrannis
 	#" > /root/firewall.sh
 
-	print_success "Firewall rules are set in /root/firewall.sh"
+	echo "Firewall rules are set in /root/firewall.sh"
 
 	chmod 700 /root/firewall.sh
 
@@ -1290,7 +1272,7 @@ set_miner () {
 install_ssl () {
 
 	#https://calomel.org/lets_encrypt_client.html
-	print_success "SSL creation scripts are still in process."
+	echo "SSL creation scripts are still in process."
 
 }
 
@@ -1436,9 +1418,9 @@ restart () {
 
 	/bin/rm -rf /root/setup.sh
 
-	print_success "LynxCI was installed."
+	echo "LynxCI was installed."
 
-	print_success "A reboot will occur 10 seconds."
+	echo "A reboot will occur 10 seconds."
 
 	sleep 10
 
