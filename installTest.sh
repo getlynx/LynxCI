@@ -51,35 +51,9 @@ detect_os () {
 
 install_packages () {
 
-	apt-get update -y \
-		&> /dev/null
+	apt-get update -y 
 
-	apt-get install -y \
-		fail2ban \
-		g++ \
-		gcc \
-		libboost-all-dev \
-		libcurl4-openssl-dev \
-		libevent-dev \
-		libgmp-dev \
-		libjansson-dev \
-		libminiupnpc-dev \
-		libssl-dev \
-		libz-dev \
-		make \
-		nodejs \
-		software-properties-common \
-		&> /dev/null
-
-}
-
-install_throttle () {
-
-	apt-get update -y
-
-	apt-get install cpulimit -y
-
-	echo "Cpulimit was installed."
+	apt-get install -y autoconf automake build-essential bzip2 curl fail2ban g++ gcc git git-core htop libboost-all-dev libcurl4-openssl-dev libevent-dev libgmp-dev libjansson-dev libminiupnpc-dev libncurses5-dev libssl-dev libtool libz-dev make nano nodejs pkg-config software-properties-common
 
 }
 
@@ -855,34 +829,6 @@ install_lynx () {
 
 }
 
-install_miner () {
-
-	echo "$pretty_name detected. Installing CPUMiner-Multi."
-
-	apt-get update -y \
-		&> /dev/null
-
-	apt-get install -y \
-		libcurl4-openssl-dev \
-		libjansson-dev \
-		libssl-dev \
-		libgmp-dev \
-		make \
-		g++ \
-		libz-dev \
-		&> /dev/null
-
-	git clone https://github.com/tpruvot/cpuminer-multi.git /tmp/cpuminer/
-
-	cd /tmp/cpuminer/ && ./build.sh
-
-	make install
-
-	mv /usr/local/bin/cpuminer /usr/local/bin/$process_name
-
-	echo "CPUMiner-Multi 1.3.5 was installed."
-
-}
 
 install_mongo () {
 
@@ -1139,97 +1085,6 @@ set_firewall () {
 
 }
 
-set_miner () {
-
-	rm -rf /root/miner.sh
-
-	echo "
-	#!/bin/bash
-
-	# This valus is set during the initial build of this node by the LynxCI installer. You can
-	# override it by changing the value. Acceptable options are Y and N. If you set the value to
-	# N, this node will not mine blocks, but it will still confirm and relay transactions.
-
-	IsMiner=N
-
-	# The objective of this script is to start the local miner and have it solo mine against the
-	# local Lynx processes. So the first think we should do is assume a mining process is already
-	# running and kill it.
-
-	pkill -f $process_name
-
-	# Let's wait 10 seconds and give the task a moment to finish.
-
-	sleep 10
-
-	# If the flag to mine is set to Y, then lets do some mining, otherwise skip this whole
-	# conditional. Seems kind of obvious, but some of us are still learning.
-
-	if [ \"\$IsMiner\" = \"Y\" ]; then
-
-		# Mining isnt very helpful if the process that run's Lynx isn't actually running. Why bother
-		# running all this logic if Lynx isn't ready? Unfortunaately, this isnt the only check we need
-		# to do. Just because Lynx might be running, it might not be in sync yet, and running the miner
-		# doesnt make sense yet either. So, lets check if Lynxd is running and if it is, then we check
-		# to see if the blockheight of the local node is _close_ to the known network block height. If
-		# so, then we let the miner turn on.
-
-		if pgrep -x \"lynxd\" > /dev/null; then
-
-			# Only if the miner isn't running. We do this to ensure we don't accidently have two
-			# miner processes running at the same time.
-
-			if ! pgrep -x \"$process_name\" > /dev/null; then
-
-				# Just to make sure, lets purge any spaces of newlines in the file, so we don't
-				# accidently pick one.
-
-				chmod 644 /root/LynxCI/miner-add*
-
-				# Randomly select an address from the addresse file. You are welcome to change
-				# any value in that list.
-
-				random_address=\"\$(shuf -n 1 /root/LynxCI/$addresses)\"
-
-				# With the randomly selected reward address, lets start solo mining.
-
-				/usr/local/bin/$process_name -o http://localhost:$rpcport -u $rrpcuser -p $rrpcpassword --no-longpoll --no-getwork --no-stratum --coinbase-addr=\"\$random_address\" -t 1 -R 15 -B -S
-
-			fi
-
-		fi
-
-	fi
-
-	if [ \"\$IsMiner\" = \"Y\" ]; then
-
-		# Only set the limiter if the miner is actually running. No need to start the process if not
-		# needed.
-
-		if pgrep -x \"$process_name\" > /dev/null; then
-
-			# Only if the cpulimit process isn't already running, then start it.
-
-			if ! pgrep -x \"cpulimit\" > /dev/null; then
-
-				# Let's set the amount of CPU that the process cpuminer can use to 5%.
-
-				cpulimit -e $process_name -l 5 -b
-			fi
-
-		fi
-
-	fi
-
-	#
-	# Metus est Plenus Tyrannis
-	#" > /root/miner.sh
-
-	chmod 700 /root/miner.sh
-	chown root:root /root/miner.sh
-
-}
-
 # This function is still under development.
 
 install_ssl () {
@@ -1327,7 +1182,7 @@ setup_crontabs () {
 
 	crontab -l | { cat; echo "*/$crontab_spacing * * * *		/root/LynxCI/poll.sh http://seed02.getlynx.io:8080"; } | crontab -
 
-	# Every 15 minutes we reset the firewall to it's default state. Additionally we reset the miner.
+	# Every 15 minutes we reset the firewall to it's default state.
 	# The lynx daemon needs to be checked too, so we restart it if it crashes (which has been been
 	# known to happen on low RAM devices during blockchain indexing.)
 
@@ -1339,9 +1194,6 @@ setup_crontabs () {
 
 	crontab -l | { cat; echo "*/$crontab_spacing * * * *		/root/lynx/src/lynxd"; } | crontab -
 
-	crontab_spacing="$(shuf -i 15-30 -n 1)"
-
-	crontab -l | { cat; echo "*/$crontab_spacing * * * *		/root/miner.sh"; } | crontab -
 
 	# The update script totally reinstalls the Block Explorer code. It's pretty intensive for the
 	# host device. So instead of running it daily like we used to, we only run it once a month. This
@@ -1404,7 +1256,6 @@ else
 
 	detect_os
 	install_packages
-	install_throttle
 	set_network
 	manage_swap
 	reduce_gpu_mem
@@ -1416,9 +1267,7 @@ else
 	install_lynx
 	install_mongo
 	install_explorer
-	#install_miner
 	set_firewall
-	#set_miner
 	secure_iptables
 	config_fail2ban
 	setup_crontabs
