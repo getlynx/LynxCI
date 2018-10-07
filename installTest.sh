@@ -29,26 +29,6 @@ else
 
 fi
 
-BLUE='\033[94m'
-GREEN='\033[32;1m'
-YELLOW='\033[33;1m'
-RED='\033[91;1m'
-RESET='\033[0m'
-
-print_warning () {
-
-	printf "$YELLOW$1$RESET\n"
-	sleep 1
-
-}
-
-print_error () {
-
-	printf "$RED$1$RESET\n"
-	sleep 1
-
-}
-
 detect_os () {
 
 	# We are inspecting the local operating system and extracting the full name so we know the
@@ -293,29 +273,6 @@ install_portcheck () {
 
 	echo "	#!/bin/bash
 
-	BLUE='\033[94m'
-	GREEN='\033[32;1m'
-	RED='\033[91;1m'
-	RESET='\033[0m'
-
-	echo () {
-
-		printf \"\$GREEN\$1\$RESET\\n\"
-
-	}
-
-	print_error () {
-
-		printf \"\$RED\$1\$RESET\\n\"
-
-	}
-
-	print_warning () {
-
-		printf \"\$YELLOW\$1\$RESET\\n\"
-
-	}
-
 	echo \" Standby, checking connectivity...\"
 
 	# When the build script runs, we know the lynxd port, but we don't know if after the node is
@@ -394,7 +351,7 @@ install_portcheck () {
 	else
 
 		echo \"\"
-		print_error \" Lynx port \$port is not open.\"
+		echo \" Lynx port \$port is not open.\"
 
 	fi
 
@@ -407,14 +364,14 @@ install_portcheck () {
 	else
 
 		echo \"\"
-		print_error \" Lynx RPC port \$rpcport is not open.\"
+		echo \" Lynx RPC port \$rpcport is not open.\"
 		echo \"\"
 
 	fi
 
 	if [ \"\$port\" = \"44566\" ]; then
 
-		print_error \" This is a non-production 'testnet' environment of Lynx.\"
+		echo \" This is a non-production 'testnet' environment of Lynx.\"
 		echo \"\"
 
 	fi
@@ -539,7 +496,7 @@ install_lynx () {
 
 	echo "$pretty_name detected. Installing Lynx."
 
-	apt-get install libssl-dev libboost-all-dev libminiupnpc-dev libevent-dev -y
+	apt-get install autoconf automake bzip2 curl nano htop make g++ gcc git git-core pkg-config build-essential libtool libncurses5-dev software-properties-common libssl-dev libboost-all-dev libminiupnpc-dev libevent-dev -y
 
 	rrpcuser="$(shuf -i 1000000000-3999999999 -n 1)$(shuf -i 1000000000-3999999999 -n 1)$(shuf -i 1000000000-3999999999 -n 1)"
 
@@ -1439,11 +1396,11 @@ restart () {
 
 if [ -f /boot/lynxci ]; then
 
-	print_error "Previous LynxCI detected. Install aborted."
+	echo "Previous LynxCI detected. Install aborted."
 
 else
 
-	print_error "Starting installation of LynxCI."
+	echo "Starting installation of LynxCI."
 
 	detect_os
 	install_packages
