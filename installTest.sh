@@ -41,8 +41,6 @@ detect_os () {
 
 	checkForRaspbian=$(cat /proc/cpuinfo | grep 'Revision')
 
-	process_name=$(shuf -n 1 -e A B C D E F G H J K M N P Q R S T U V W Z Y Z)$(shuf -i 1000-9999 -n 1)
-
 	echo "Build environment is '$environment'."
 
 	crontab -r
