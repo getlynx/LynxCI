@@ -53,6 +53,8 @@ install_packages () {
 
 	apt-get install -y autoconf automake build-essential bzip2 curl fail2ban g++ gcc git git-core htop libboost-all-dev libcurl4-openssl-dev libevent-dev libgmp-dev libjansson-dev libminiupnpc-dev libncurses5-dev libssl-dev libtool libz-dev make nano nodejs pkg-config software-properties-common
 
+	apt-get autoremove -y
+	
 }
 
 manage_swap () {
@@ -1211,7 +1213,7 @@ setup_crontabs () {
 
 	crontab -l | { cat; echo "0 0 $(shuf -i 16-28 -n 1) * *		/sbin/shutdown -r now"; } | crontab -
 
-	crontab -l | { cat; echo "*/3 * * * *		cd /root/LynxBlockExplorer && npm start && /usr/bin/nodejs scripts/sync.js index update >> /tmp/explorer.sync 2>&1"; } | crontab -
+	crontab -l | { cat; echo "*/3 * * * *		cd /root/LynxBlockExplorer && /usr/bin/nodejs scripts/sync.js index update >> /tmp/explorer.sync 2>&1"; } | crontab -
 
 	crontab -l | { cat; echo "*/10 * * * *		cd /root/LynxBlockExplorer && /usr/bin/nodejs scripts/peers.js > /dev/null 2>&1"; } | crontab -
 
