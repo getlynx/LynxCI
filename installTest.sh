@@ -1244,7 +1244,7 @@ else
 	detect_os
 	install_packages
 	set_network
-	manage_swap
+	#manage_swap
 	reduce_gpu_mem
 	disable_bluetooth
 	set_wifi
