@@ -59,51 +59,39 @@ install_packages () {
 
 manage_swap () {
 
-	# The following condition checks if swaps exists and set it up if it doesn't.
+	# Some vendors already have swap set up, so only create it if it's not already there.
 
-	if [ -z "$checkForRaspbian" ]; then
+	exists="$(swapon --show | grep 'partition')"
 
-		# Some vendors already have swap set up, so only create it if it's not already there.
+	if [ -z "$exists" ]; then
 
-		exists="$(swapon --show | grep 'partition')"
+		# https://www.2daygeek.com/shell-script-create-add-extend-swap-space-linux/#
 
-		if [ -z "$exists" ]; then
+		newswapsize=1024
 
-			# https://www.2daygeek.com/shell-script-create-add-extend-swap-space-linux/#
+		grep -q "swapfile" /etc/fstab
 
-			newswapsize=1024
+		if [ $? -ne 0 ]; then
 
-			grep -q "swapfile" /etc/fstab
+			fallocate -l ${newswapsize}M /swapfile
 
-			if [ $? -ne 0 ]; then
+			chmod 600 /swapfile
 
-				fallocate -l ${newswapsize}M /swapfile
+			mkswap /swapfile
 
-				chmod 600 /swapfile
+			swapon /swapfile
 
-				mkswap /swapfile
-
-				swapon /swapfile
-
-				echo '/swapfile none swap defaults 0 0' >> /etc/fstab
-
-			fi
+			echo '/swapfile none swap defaults 0 0' >> /etc/fstab
 
 		fi
 
-	# We are only modifying the swap amount for a Raspberry Pi device.
-	
-	else
-
-		# On a Raspberry Pi 3, the default swap is 100MB. This is a little restrictive, so we are
-		# expanding it to a full 1GB of swap. We don't usually touch too much swap but during the
-		# initial compile and build process, it does consume a good bit so lets provision this.
-
-		sed -i 's/CONF_SWAPSIZE=100/CONF_SWAPSIZE=1024/' /etc/dphys-swapfile
-
-		echo "Swap will be increased to 1GB on reboot."
-
 	fi
+
+	# On a Raspberry Pi 3, the default swap is 100MB. This is a little restrictive, so we are
+	# expanding it to a full 1GB of swap. We don't usually touch too much swap but during the
+	# initial compile and build process, it does consume a good bit so lets provision this.
+
+	sed -i 's/CONF_SWAPSIZE=100/CONF_SWAPSIZE=1024/' /etc/dphys-swapfile
 
 }
 
