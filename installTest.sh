@@ -88,8 +88,7 @@ manage_swap () {
 	fi
 
 	# On a Raspberry Pi 3, the default swap is 100MB. This is a little restrictive, so we are
-	# expanding it to a full 1GB of swap. We don't usually touch too much swap but during the
-	# initial compile and build process, it does consume a good bit so lets provision this.
+	# expanding it to a full 1GB of swap.
 
 	sed -i 's/CONF_SWAPSIZE=100/CONF_SWAPSIZE=1024/' /etc/dphys-swapfile
 
