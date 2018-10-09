@@ -59,21 +59,9 @@ install_packages () {
 
 manage_swap () {
 
-	# We are only modifying the swap amount for a Raspberry Pi device.
-
-	if [ ! -z "$checkForRaspbian" ]; then
-
-		# On a Raspberry Pi 3, the default swap is 100MB. This is a little restrictive, so we are
-		# expanding it to a full 1GB of swap. We don't usually touch too much swap but during the
-		# initial compile and build process, it does consume a good bit so lets provision this.
-
-		sed -i 's/CONF_SWAPSIZE=100/CONF_SWAPSIZE=1024/' /etc/dphys-swapfile
-
-		echo "Swap will be increased to 1GB on reboot."
-
 	# The following condition checks if swaps exists and set it up if it doesn't.
 
-	else
+	if [ -z "$checkForRaspbian" ]; then
 
 		# Some vendors already have swap set up, so only create it if it's not already there.
 
@@ -102,6 +90,18 @@ manage_swap () {
 			fi
 
 		fi
+
+	# We are only modifying the swap amount for a Raspberry Pi device.
+	
+	else
+
+		# On a Raspberry Pi 3, the default swap is 100MB. This is a little restrictive, so we are
+		# expanding it to a full 1GB of swap. We don't usually touch too much swap but during the
+		# initial compile and build process, it does consume a good bit so lets provision this.
+
+		sed -i 's/CONF_SWAPSIZE=100/CONF_SWAPSIZE=1024/' /etc/dphys-swapfile
+
+		echo "Swap will be increased to 1GB on reboot."
 
 	fi
 
