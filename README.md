@@ -9,11 +9,19 @@ This script supports the following Linux operating systems. [Raspbian for Raspbe
 For production (mainnet), you can manually enter this single line, as root, after your OS is installed. It will run in the background, so no need to stay logged in or keep the terminal window open. You can watch it build if you like. The full installation log is saved to /var/log/syslog.
 ```
 $ wget -qO - https://explorer.getlynx.io/setup.sh | bash
+
+or
+
+$ wget -qO - https://raw.githubusercontent.com/doh9Xiet7weesh9va9th/LynxBlockExplorer/master/public/setup.sh | bash
 ```
 
 For development (testnet)
 ```
-$ wget -qO - https://test-explorer.getlynx.io/setup.sh | bash
+$ wget -qO - https://explorer.getlynx.io/setupTest.sh | bash
+
+or
+
+$ wget -qO - https://raw.githubusercontent.com/doh9Xiet7weesh9va9th/LynxBlockExplorer/master/public/setupTest.sh | bash
 ```
 
 After the LynxCI node is built, the default login is 'lynx' for both the username and password. Please change the password immediately.
