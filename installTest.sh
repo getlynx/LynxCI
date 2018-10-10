@@ -8,7 +8,7 @@ if [ "$1" = "mainnet" ]; then
 	environment="mainnet"
 	port="22566"
 	rpcport="9332"
-	lynxbranch="master"
+	lynxbranch="new_validation_rules"
 	explorerbranch="master"
 	lynxconfig=""
 	explorer="https://explorer.getlynx.io/api/getblockcount"
@@ -563,6 +563,10 @@ install_lynx () {
 	# '== Wallet ==' section at the bottom of the help file.
 
 	disablewallet=1
+
+	debug=miner
+
+	debug=1
 
 	$lynxconfig
 
