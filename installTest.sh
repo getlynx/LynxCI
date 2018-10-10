@@ -566,8 +566,6 @@ install_lynx () {
 
 	debug=miner
 
-	debug=1
-
 	$lynxconfig
 
 	if [ "$environment" = "testnet" ]; then
