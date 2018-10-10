@@ -1,33 +1,14 @@
 #!/bin/bash
 
-# Our first required argument to run this script is to specify the environment to run Lynx. The two
-# accepted options are 'mainnet' or 'testnet'.
-
-if [ "$1" = "mainnet" ]; then
-
-	environment="mainnet"
-	port="22566"
-	rpcport="9332"
-	lynxbranch="new_validation_rules"
-	explorerbranch="master"
-	lynxconfig=""
-	explorer="https://explorer.getlynx.io/api/getblockcount"
-	addresses="miner-addresses.txt"
-	setupscript="IsProduction=Y"
-
-else
-
-	environment="testnet"
-	port="44566"
-	rpcport="19335"
-	lynxbranch="new_validation_rules"
-	explorerbranch="master"
-	lynxconfig="testnet=1"
-	explorer="https://test-explorer.getlynx.io/api/getblockcount"
-	addresses="miner-addresses-testnet.txt"
-	setupscript="IsProduction=N"
-
-fi
+environment="testnet"
+port="44566"
+rpcport="19335"
+lynxbranch="new_validation_rules"
+explorerbranch="master"
+lynxconfig="testnet=1"
+explorer="https://test-explorer.getlynx.io/api/getblockcount"
+addresses="miner-addresses-testnet.txt"
+setupscript="IsProduction=N"
 
 detect_os () {
 
@@ -568,8 +549,6 @@ install_lynx () {
 
 	$lynxconfig
 
-	if [ "$environment" = "testnet" ]; then
-
 	addnode=seed1.getlynx.io
 	addnode=seed2.getlynx.io
 	addnode=seed3.getlynx.io
@@ -819,70 +798,6 @@ install_lynx () {
 	mineraddress=n4qmQMFn4tb2kz2dLiG3wLer9LJhsXfvvw
 	mineraddress=n4T1XPNQ1owhEBpdKtBvYZj7QQF4ue3dyJ
 	mineraddress=n4Yr4XqvKQT4rLaSqL37a6kEaLEkHrVyvW
-
-	else
-
-	addnode=seed01.getlynx.io
-	addnode=seed02.getlynx.io
-	addnode=seed03.getlynx.io
-	addnode=seed04.getlynx.io
-	addnode=seed05.getlynx.io
-	addnode=seed06.getlynx.io
-	addnode=seed07.getlynx.io
-	addnode=seed08.getlynx.io
-	addnode=seed09.getlynx.io
-
-	mineraddress=KKMeTYLM6LrhFc8Gq1uYSua4BLgmFPaZrX
-	mineraddress=KVKrkxGcUo9wii59ashrbqKub5CpggiFQz
-	mineraddress=KMPxdPMwJb3rn1dLx9L2xxxUgiZiGRC8Um
-	mineraddress=KERgGnd5vCMkdFbGynrGeqhBnitz1zrg22
-	mineraddress=KWJfZ9qQ4aAiieB9jh8iJk5ttxhWV566RU
-	mineraddress=KVaeY15ikttZM2rwBh694LPC1qZHgKvTsg
-	mineraddress=KA8VJVzqy7xo6AEYRxAa8WHLqqScwGHmGx
-	mineraddress=KJhTW2s2q1gvpaWLWSdmwLa9dvvqmAcnzj
-	mineraddress=KTT3d4obtRGdkyLeUQQk75VKkBavXcXcFn
-	mineraddress=KH5Lkvw511qAgUeoqxNa9BSGdZuok7q6ow
-	mineraddress=KJErWXjc4ycq436Tonf5dy8RFhF1SiuSM2
-	mineraddress=KRJf4FQB6GAk2E6dXeJ5osbd1GsHjW6mWf
-	mineraddress=KDjfv9bUfyfFfuVgyhTazreESRfHpYnMi3
-	mineraddress=KBywa5qcAZTB3CC7vCzxVeU8eYW6PBdSfJ
-	mineraddress=KU7tLLoa1geou57GWoEY7MXUpQNetRbuNy
-	mineraddress=K7XNmz2h2PgyGC8aYhXHJ8W58WnjZgrU85
-	mineraddress=KT4nWz8PEAyAiBQTXu6T9z7TZCe5h2pUep
-	mineraddress=KG5unFERmH6Qsvt3muci4ZeKgtmUaw7TdQ
-	mineraddress=KRgVAxFgfjkYKovizRG1DfkLKd59rpEHxe
-	mineraddress=KMoRtp69iMVVSWUPVwdota6HSCkP2yChFH
-	mineraddress=KNcAXmZY9CKUesky2dRbKWJM5PZwQmUNYk
-	mineraddress=KSX55i4ef1y1kYtHu6E7EUt7Fx4GAg9yzm
-	mineraddress=K8QGUNxc86Ahr9CSW1NyT2LGDC8BAUk6iM
-	mineraddress=KRgVAxFgfjkYKovizRG1DfkLKd59rpEHxe
-	mineraddress=KMoRtp69iMVVSWUPVwdota6HSCkP2yChFH
-	mineraddress=KNcAXmZY9CKUesky2dRbKWJM5PZwQmUNYk
-	mineraddress=KR9QTmep2LYt53oS9Ypn7Qo6mjd9jNMvw5
-	mineraddress=KKpNgtMs8kjpxB9EHmLVyhsdfcA6tyZ2g8
-	mineraddress=K7GMcJ4idxwhbusn8sTBotJbsRZ8FU22cu
-	mineraddress=KFgo4RmUiFX8FAg3sk8ZRptqmTD9Nk8u2w
-	mineraddress=KV3fxxtbb1gwY69tAsqkq8rBHzMczia7To
-	mineraddress=KHHHfhcethqahpN7aAeJ9JiBDGtjsW89oM
-	mineraddress=KVgBWE4xibFrRzN1X7Cv3nVymTg3EcnePm
-	mineraddress=KPhTE61wshvyiDHFLLLvZ3rBhrGjWruWdh
-	mineraddress=KLpTz6JbUEkrxNTs24gftPxsgyGG53qKsD
-	mineraddress=KBw3LHq6TNDLTL35QFTfwyGvDA1YA4xwq7
-	mineraddress=KDWbrVGdb9M5MuH3q8XP9SuNQweX4g1w7C
-	mineraddress=KGDFGZuwCnT9kcBNWPtQVuZdZ1AoiaGYUy
-	mineraddress=KFaLZ37WgSXeUUpQZAXamMDfDkS96Fpp6W
-	mineraddress=KSbtHFRoaj8Vb5EespmCEbtNJGG7UtM2U2
-	mineraddress=KUn12PLFXUaVwneQMNp6kiZ2c9rUVPkDjp
-	mineraddress=KHXGt1Pn1yVXvYQmLTuG8pYqYH29t6p8pL
-	mineraddress=K85WRcMbcuWi9T3JsH7NhZp8Tb3nNmcYVS
-	mineraddress=KMzbPq5YvdCpNiVtECk9VVVGbnxhP6V7ch
-	mineraddress=K8fQpFnHWw2iBHycR1B1NWJBCGSojEhjst
-	mineraddress=K8yBpqfkP2gg7buhNhWM7s3PqBsCA7PW9r
-	mineraddress=KSGe8xZbM9NfeQnjX9fyMbqLaGQTRUS5Jh
-	mineraddress=KBw2p51RrrbcceRoSbvb6ZkX437kuQM99F
-	mineraddress=KDv7VKpixza5u51L5gmPNtUyRWpkaJBYg3
-
-	fi
 
 	" > /root/.lynx/lynx.conf
 
