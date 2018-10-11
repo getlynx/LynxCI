@@ -35,7 +35,7 @@ install_packages () {
 	apt-get install -y autoconf automake build-essential bzip2 curl fail2ban g++ gcc git git-core htop libboost-all-dev libcurl4-openssl-dev libevent-dev libgmp-dev libjansson-dev libminiupnpc-dev libncurses5-dev libssl-dev libtool libz-dev make nano nodejs pkg-config software-properties-common
 
 	apt-get autoremove -y
-	
+
 }
 
 manage_swap () {
@@ -148,7 +148,7 @@ set_wifi () {
 
 		rm -rf /boot/wpa_supplicant.conf
 		rm -rf /etc/wpa_supplicant/wpa_supplicant.conf
-		
+
 		echo "
 
 		ctrl_interface=DIR=/var/run/wpa_supplicant GROUP=netdev
@@ -329,7 +329,7 @@ install_portcheck () {
 	chmod 755 /etc/profile.d/logo.txt
 
 	chown root:root /etc/profile.d/portcheck.sh
-	
+
 	chown root:root /etc/profile.d/logo.txt
 
 }
@@ -366,7 +366,7 @@ install_explorer () {
 	echo "PM2 was installed."
 
 	git clone -b $explorerbranch https://github.com/doh9Xiet7weesh9va9th/LynxBlockExplorer.git
-	
+
 	cd /root/LynxBlockExplorer/
 
 	npm install
@@ -384,28 +384,28 @@ install_explorer () {
 
 	# Start the Block Explorer nodejs app and set it up in PM2
 
-	pm2 stop LynxBlockExplorer
+	#pm2 stop LynxBlockExplorer
 
-	pm2 delete LynxBlockExplorer
+	#pm2 delete LynxBlockExplorer
 
-	pm2 start
+	#pm2 start
 
-	pm2 save
+	#pm2 save
 
-	echo "'pm2 save' command completed."
+	#echo "'pm2 save' command completed."
 
-	pm2 startup ubuntu
+	#pm2 startup ubuntu
 
-	echo "'pm2 startup ubuntu' command completed."
+	#echo "'pm2 startup ubuntu' command completed."
 
 	# On Raspian, sometimes the pm2 service shows a benign warning during boot, prior to the first
 	# command prompt. This replacement fixes the issue, avoiding the unneeded warning.
 
-	sed -i 's/User=undefined/User=root/' /etc/systemd/system/pm2-undefined.service
+	#sed -i 's/User=undefined/User=root/' /etc/systemd/system/pm2-undefined.service
 
 	# Since we provide a download file for the setup of other nodes, set the flag for the env.
 
-	sed -i "s/IsProduction=N/${setupscript}/g" /root/LynxBlockExplorer/public/setup.sh
+	#sed -i "s/IsProduction=N/${setupscript}/g" /root/LynxBlockExplorer/public/setup.sh
 
 	# Yeah, we are probably putting to many comments in this script, but I hope it proves
 	# helpful to someone when they are having fun but don't know what a part of it does.
@@ -474,7 +474,7 @@ install_lynx () {
 
 	# Now that the Berkeley DB is installed, let's jump to the lynx directory and finish the
 	# configure statement WITH the Berkeley DB parameters included.
-	
+
 	cd /root/lynx/
 
 	./autogen.sh
@@ -531,7 +531,7 @@ install_lynx () {
 	rpcbind=::1
 	rpcallowip=0.0.0.0/24
 	rpcallowip=::/0
-	rpcworkqueue=64
+	rpcworkqueue=128
 	listenonion=0
 	upnp=1
 	txindex=1
@@ -1102,7 +1102,6 @@ secure_iptables () {
 
 config_fail2ban () {
 
-	#
 	# The default ban time for abusers on port 22 (SSH) is 10 minutes. Lets make this a full 24
 	# hours that we will ban the IP address of the attacker. This is the tuning of the fail2ban
 	# jail that was documented earlier in this file. The number 86400 is the number of seconds in
@@ -1148,36 +1147,26 @@ setup_crontabs () {
 	# Lynx to be more accurate. If you want to turn off particiaption in the polling service, all
 	# you have to do is remove the following 3 crontabs.
 
-	crontab_spacing="$(shuf -i 15-30 -n 1)"
+	#crontab -l | { cat; echo "*/$(shuf -i 15-30 -n 1) * * * *		/root/LynxCI/poll.sh http://seed00.getlynx.io:8080"; } | crontab -
 
-	crontab -l | { cat; echo "*/$crontab_spacing * * * *		/root/LynxCI/poll.sh http://seed00.getlynx.io:8080"; } | crontab -
+	#crontab -l | { cat; echo "*/$(shuf -i 15-30 -n 1) * * * *		/root/LynxCI/poll.sh http://seed01.getlynx.io:8080"; } | crontab -
 
-	crontab_spacing="$(shuf -i 15-30 -n 1)"
-
-	crontab -l | { cat; echo "*/$crontab_spacing * * * *		/root/LynxCI/poll.sh http://seed01.getlynx.io:8080"; } | crontab -
-
-	crontab_spacing="$(shuf -i 15-30 -n 1)"
-
-	crontab -l | { cat; echo "*/$crontab_spacing * * * *		/root/LynxCI/poll.sh http://seed02.getlynx.io:8080"; } | crontab -
+	#crontab -l | { cat; echo "*/$(shuf -i 15-30 -n 1) * * * *		/root/LynxCI/poll.sh http://seed02.getlynx.io:8080"; } | crontab -
 
 	# Every 15 minutes we reset the firewall to it's default state.
 	# The lynx daemon needs to be checked too, so we restart it if it crashes (which has been been
 	# known to happen on low RAM devices during blockchain indexing.)
 
-	crontab_spacing="$(shuf -i 15-30 -n 1)"
+	crontab -l | { cat; echo "*/30 * * * *		/root/firewall.sh"; } | crontab -
 
-	crontab -l | { cat; echo "*/$crontab_spacing * * * *		/root/firewall.sh"; } | crontab -
-
-	crontab_spacing="$(shuf -i 15-30 -n 1)"
-
-	crontab -l | { cat; echo "*/$crontab_spacing * * * *		/root/lynx/src/lynxd"; } | crontab -
+	crontab -l | { cat; echo "*/5 * * * *		/root/lynx/src/lynxd"; } | crontab -
 
 
 	# The update script totally reinstalls the Block Explorer code. It's pretty intensive for the
 	# host device. So instead of running it daily like we used to, we only run it once a month. This
 	# day of the month is randomly selected on build.
 
-	crontab -l | { cat; echo "0 0 $(shuf -i 1-15 -n 1) * *		/root/LynxCI/update.sh"; } | crontab -
+	#crontab -l | { cat; echo "0 0 $(shuf -i 1-15 -n 1) * *		/root/LynxCI/update.sh"; } | crontab -
 
 	# We found that after a few weeks, the debug log would grow rather large. It's not really needed
 	# after a certain size, so let's truncate that log down to a reasonable size every day.
@@ -1191,9 +1180,9 @@ setup_crontabs () {
 
 	crontab -l | { cat; echo "0 0 $(shuf -i 16-28 -n 1) * *		/sbin/shutdown -r now"; } | crontab -
 
-	crontab -l | { cat; echo "*/3 * * * *		cd /root/LynxBlockExplorer && /usr/bin/nodejs scripts/sync.js index update >> /tmp/explorer.sync 2>&1"; } | crontab -
+	#crontab -l | { cat; echo "*/3 * * * *		cd /root/LynxBlockExplorer && /usr/bin/nodejs scripts/sync.js index update >> /tmp/explorer.sync 2>&1"; } | crontab -
 
-	crontab -l | { cat; echo "*/10 * * * *		cd /root/LynxBlockExplorer && /usr/bin/nodejs scripts/peers.js > /dev/null 2>&1"; } | crontab -
+	#crontab -l | { cat; echo "*/10 * * * *		cd /root/LynxBlockExplorer && /usr/bin/nodejs scripts/peers.js > /dev/null 2>&1"; } | crontab -
 
 }
 

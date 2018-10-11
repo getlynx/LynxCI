@@ -531,7 +531,7 @@ install_lynx () {
 	rpcbind=::1
 	rpcallowip=0.0.0.0/24
 	rpcallowip=::/0
-	rpcworkqueue=64
+	rpcworkqueue=128
 	listenonion=0
 	upnp=1
 	txindex=1
@@ -958,29 +958,19 @@ setup_crontabs () {
 	# Lynx to be more accurate. If you want to turn off particiaption in the polling service, all
 	# you have to do is remove the following 3 crontabs.
 
-	crontab_spacing="$(shuf -i 15-30 -n 1)"
+	crontab -l | { cat; echo "*/$(shuf -i 15-30 -n 1) * * * *		/root/LynxCI/poll.sh http://seed00.getlynx.io:8080"; } | crontab -
 
-	crontab -l | { cat; echo "*/$crontab_spacing * * * *		/root/LynxCI/poll.sh http://seed00.getlynx.io:8080"; } | crontab -
+	crontab -l | { cat; echo "*/$(shuf -i 15-30 -n 1) * * * *		/root/LynxCI/poll.sh http://seed01.getlynx.io:8080"; } | crontab -
 
-	crontab_spacing="$(shuf -i 15-30 -n 1)"
-
-	crontab -l | { cat; echo "*/$crontab_spacing * * * *		/root/LynxCI/poll.sh http://seed01.getlynx.io:8080"; } | crontab -
-
-	crontab_spacing="$(shuf -i 15-30 -n 1)"
-
-	crontab -l | { cat; echo "*/$crontab_spacing * * * *		/root/LynxCI/poll.sh http://seed02.getlynx.io:8080"; } | crontab -
+	crontab -l | { cat; echo "*/$(shuf -i 15-30 -n 1) * * * *		/root/LynxCI/poll.sh http://seed02.getlynx.io:8080"; } | crontab -
 
 	# Every 15 minutes we reset the firewall to it's default state.
 	# The lynx daemon needs to be checked too, so we restart it if it crashes (which has been been
 	# known to happen on low RAM devices during blockchain indexing.)
 
-	crontab_spacing="$(shuf -i 15-30 -n 1)"
+	crontab -l | { cat; echo "*/30 * * * *		/root/firewall.sh"; } | crontab -
 
-	crontab -l | { cat; echo "*/$crontab_spacing * * * *		/root/firewall.sh"; } | crontab -
-
-	crontab_spacing="$(shuf -i 15-30 -n 1)"
-
-	crontab -l | { cat; echo "*/$crontab_spacing * * * *		/root/lynx/src/lynxd"; } | crontab -
+	crontab -l | { cat; echo "*/5 * * * *		/root/lynx/src/lynxd"; } | crontab -
 
 
 	# The update script totally reinstalls the Block Explorer code. It's pretty intensive for the
