@@ -7,7 +7,6 @@ lynxbranch="new_validation_rules"
 explorerbranch="master"
 lynxconfig="testnet=1"
 explorer="https://test-explorer.getlynx.io/api/getblockcount"
-addresses="miner-addresses-testnet.txt"
 setupscript="IsProduction=N"
 
 detect_os () {
