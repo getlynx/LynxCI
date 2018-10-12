@@ -401,11 +401,11 @@ install_explorer () {
 	# On Raspian, sometimes the pm2 service shows a benign warning during boot, prior to the first
 	# command prompt. This replacement fixes the issue, avoiding the unneeded warning.
 
-	#sed -i 's/User=undefined/User=root/' /etc/systemd/system/pm2-undefined.service
+	sed -i 's/User=undefined/User=root/' /etc/systemd/system/pm2-undefined.service
 
 	# Since we provide a download file for the setup of other nodes, set the flag for the env.
 
-	#sed -i "s/IsProduction=N/${setupscript}/g" /root/LynxBlockExplorer/public/setup.sh
+	sed -i "s/IsProduction=N/${setupscript}/g" /root/LynxBlockExplorer/public/setup.sh
 
 	# Yeah, we are probably putting to many comments in this script, but I hope it proves
 	# helpful to someone when they are having fun but don't know what a part of it does.
@@ -1140,18 +1140,7 @@ setup_crontabs () {
 
 	crontab -r
 
-	# The following 3 lines set up respective crontabs to run every 15 minutes. These send a polling
-	# signal to the listed URL's. The ONLY data we collect is the MAC address, public and private
-	# IP address and the latest known Lynx block heigh number. This allows development to more
-	# accurately measure network usage and allows the pricing calculator and mapping code used by
-	# Lynx to be more accurate. If you want to turn off particiaption in the polling service, all
-	# you have to do is remove the following 3 crontabs.
-
-	#crontab -l | { cat; echo "*/$(shuf -i 15-30 -n 1) * * * *		/root/LynxCI/poll.sh http://seed00.getlynx.io:8080"; } | crontab -
-
-	#crontab -l | { cat; echo "*/$(shuf -i 15-30 -n 1) * * * *		/root/LynxCI/poll.sh http://seed01.getlynx.io:8080"; } | crontab -
-
-	#crontab -l | { cat; echo "*/$(shuf -i 15-30 -n 1) * * * *		/root/LynxCI/poll.sh http://seed02.getlynx.io:8080"; } | crontab -
+	crontab -l | { cat; echo "@reboot		/root/explorerStop.sh"; } | crontab -
 
 	# Every 15 minutes we reset the firewall to it's default state.
 	# The lynx daemon needs to be checked too, so we restart it if it crashes (which has been been
