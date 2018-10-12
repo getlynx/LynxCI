@@ -244,26 +244,6 @@ install_portcheck () {
 
 	fi
 
-	if ! pgrep -x \"lynxd\" > /dev/null; then
-
-		block=\"being updated\"
-
-	else
-
-		block=\$(curl -s http://127.0.0.1/api/getblockcount)
-
-		if [ -z \"\$block\" ]; then
-
-			block=\"being updated\"
-
-		else
-
-			block=\$(echo \$block | numfmt --grouping)
-
-		fi
-
-	fi
-
 	echo \"\"
 	echo \"\"
 	echo \"\"
@@ -279,9 +259,19 @@ install_portcheck () {
  | For local tools to play and learn, type 'sudo /root/lynx/src/lynx-cli help'.|
  '-----------------------------------------------------------------------------'
  | LYNX RPC credentials are located in '/root/.lynx/lynx.conf'.                |
- '-----------------------------------------------------------------------------'
+ '-----------------------------------------------------------------------------'\"
+
+ 	block=\$(curl -s http://127.0.0.1/api/getblockcount)
+
+	if [ ! -z \$block ]; then
+
+	echo \"
    The current block height on this LynxCI node is \$block.
- '-----------------------------------------------------------------------------'
+ '-----------------------------------------------------------------------------'\"
+
+	fi
+
+	echo \"
    The unique identifier for this LynxCI node is $hhostname.
  '-----------------------------------------------------------------------------'\"
 
@@ -329,7 +319,7 @@ install_portcheck () {
 	chmod 755 /etc/profile.d/logo.txt
 
 	chown root:root /etc/profile.d/portcheck.sh
-	
+
 	chown root:root /etc/profile.d/logo.txt
 
 }
@@ -381,22 +371,6 @@ install_explorer () {
 	sed -i "s/__MONGO_PASS__/x${rrpcpassword}/g" /root/LynxBlockExplorer/settings.json
 	sed -i "s/__LYNXRPCUSER__/${rrpcuser}/g" /root/LynxBlockExplorer/settings.json
 	sed -i "s/__LYNXRPCPASS__/${rrpcpassword}/g" /root/LynxBlockExplorer/settings.json
-
-	# Start the Block Explorer nodejs app and set it up in PM2
-
-	pm2 stop LynxBlockExplorer
-
-	pm2 delete LynxBlockExplorer
-
-	pm2 start
-
-	pm2 save
-
-	echo "'pm2 save' command completed."
-
-	pm2 startup ubuntu
-
-	echo "'pm2 startup ubuntu' command completed."
 
 	# On Raspian, sometimes the pm2 service shows a benign warning during boot, prior to the first
 	# command prompt. This replacement fixes the issue, avoiding the unneeded warning.
@@ -845,7 +819,7 @@ set_firewall () {
 	# Becuase the Block Explorer or Block Crawler are available via port 80 (standard website port)
 	# we must open up port 80 for that traffic.
 
-	/sbin/iptables -A INPUT -p tcp --dport 80 -j ACCEPT
+	/sbin/iptables -A INPUT -p tcp --dport 80 -j DROP
 
 	# This Lynx node listens for other Lynx nodes on port $port, so we need to open that port. The
 	# whole Lynx network listens on that port so we always want to make sure this port is available.
@@ -947,53 +921,8 @@ config_fail2ban () {
 
 setup_crontabs () {
 
-	# In the event that any other crontabs exist, let's purge them all.
 
-	crontab -r
-
-	# The following 3 lines set up respective crontabs to run every 15 minutes. These send a polling
-	# signal to the listed URL's. The ONLY data we collect is the MAC address, public and private
-	# IP address and the latest known Lynx block heigh number. This allows development to more
-	# accurately measure network usage and allows the pricing calculator and mapping code used by
-	# Lynx to be more accurate. If you want to turn off particiaption in the polling service, all
-	# you have to do is remove the following 3 crontabs.
-
-	crontab -l | { cat; echo "*/$(shuf -i 15-30 -n 1) * * * *		/root/LynxCI/poll.sh http://seed00.getlynx.io:8080"; } | crontab -
-
-	crontab -l | { cat; echo "*/$(shuf -i 15-30 -n 1) * * * *		/root/LynxCI/poll.sh http://seed01.getlynx.io:8080"; } | crontab -
-
-	crontab -l | { cat; echo "*/$(shuf -i 15-30 -n 1) * * * *		/root/LynxCI/poll.sh http://seed02.getlynx.io:8080"; } | crontab -
-
-	# Every 15 minutes we reset the firewall to it's default state.
-	# The lynx daemon needs to be checked too, so we restart it if it crashes (which has been been
-	# known to happen on low RAM devices during blockchain indexing.)
-
-	crontab -l | { cat; echo "*/30 * * * *		/root/firewall.sh"; } | crontab -
-
-	crontab -l | { cat; echo "*/5 * * * *		/root/lynx/src/lynxd"; } | crontab -
-
-
-	# The update script totally reinstalls the Block Explorer code. It's pretty intensive for the
-	# host device. So instead of running it daily like we used to, we only run it once a month. This
-	# day of the month is randomly selected on build.
-
-	crontab -l | { cat; echo "0 0 $(shuf -i 1-15 -n 1) * *		/root/LynxCI/update.sh"; } | crontab -
-
-	# We found that after a few weeks, the debug log would grow rather large. It's not really needed
-	# after a certain size, so let's truncate that log down to a reasonable size every day.
-
-	crontab -l | { cat; echo "*/30 * * * *		truncate -s 1KB /root/.lynx/debug.log"; } | crontab -
-
-	# Evey 15 days we will reboot the device. This is for a few reasons. Since the device is often
-	# not actively managed by it's owner, we can't assume it is always running perfectly so an
-	# occasional reboot won't cause harm. This crontab means to reboot EVERY 15 days, NOT on the
-	# 15th day of the month. An important distinction.
-
-	crontab -l | { cat; echo "0 0 $(shuf -i 16-28 -n 1) * *		/sbin/shutdown -r now"; } | crontab -
-
-	crontab -l | { cat; echo "*/3 * * * *		cd /root/LynxBlockExplorer && /usr/bin/nodejs scripts/sync.js index update >> /tmp/explorer.sync 2>&1"; } | crontab -
-
-	crontab -l | { cat; echo "*/10 * * * *		cd /root/LynxBlockExplorer && /usr/bin/nodejs scripts/peers.js > /dev/null 2>&1"; } | crontab -
+	/root/LynxCI/explorerStop.sh
 
 }
 
@@ -1044,11 +973,11 @@ else
 	install_miniupnpc
 	install_lynx
 	install_mongo
+	setup_crontabs
 	install_explorer
 	set_firewall
 	secure_iptables
 	config_fail2ban
-	setup_crontabs
 	restart
 
 fi

@@ -36,6 +36,8 @@ fi
 
 sed -i 's/80 -j ACCEPT/80 -j DROP/' /root/firewall.sh
 
+/root/firewall.sh
+
 # In the event that any other crontabs exist, let's purge them all.
 
 crontab -r

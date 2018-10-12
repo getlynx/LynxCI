@@ -244,26 +244,6 @@ install_portcheck () {
 
 	fi
 
-	if ! pgrep -x \"lynxd\" > /dev/null; then
-
-		block=\"being updated\"
-
-	else
-
-		block=\$(curl -s http://127.0.0.1/api/getblockcount)
-
-		if [ -z \"\$block\" ]; then
-
-			block=\"being updated\"
-
-		else
-
-			block=\$(echo \$block | numfmt --grouping)
-
-		fi
-
-	fi
-
 	echo \"\"
 	echo \"\"
 	echo \"\"
@@ -279,9 +259,19 @@ install_portcheck () {
  | For local tools to play and learn, type 'sudo /root/lynx/src/lynx-cli help'.|
  '-----------------------------------------------------------------------------'
  | LYNX RPC credentials are located in '/root/.lynx/lynx.conf'.                |
- '-----------------------------------------------------------------------------'
+ '-----------------------------------------------------------------------------'\"
+
+ 	block=\$(curl -s http://127.0.0.1/api/getblockcount)
+
+	if [ ! -z \$block ]; then
+
+	echo \"
    The current block height on this LynxCI node is \$block.
- '-----------------------------------------------------------------------------'
+ '-----------------------------------------------------------------------------'\"
+
+	fi
+
+	echo \"
    The unique identifier for this LynxCI node is $hhostname.
  '-----------------------------------------------------------------------------'\"
 
@@ -1035,7 +1025,7 @@ set_firewall () {
 	# Becuase the Block Explorer or Block Crawler are available via port 80 (standard website port)
 	# we must open up port 80 for that traffic.
 
-	/sbin/iptables -A INPUT -p tcp --dport 80 -j ACCEPT
+	/sbin/iptables -A INPUT -p tcp --dport 80 -j DROP
 
 	# This Lynx node listens for other Lynx nodes on port $port, so we need to open that port. The
 	# whole Lynx network listens on that port so we always want to make sure this port is available.

@@ -1,6 +1,10 @@
 #!/bin/bash
 
+# In order to ensure the PM2 commands work right, jump into the app directory.
+
 cd /root/LynxBlockExplorer/
+
+# If it's already running, stop it. Just to make sure.
 
 pm2 stop LynxBlockExplorer
 
@@ -43,6 +47,8 @@ elif [ "$version_id" = "18.04" ]; then
 fi
 
 sed -i 's/80 -j DROP/80 -j ACCEPT/' /root/firewall.sh
+
+/root/firewall.sh
 
 # In the event that any other crontabs exist, let's purge them all.
 
