@@ -215,34 +215,8 @@ install_portcheck () {
 
 	echo "	#!/bin/bash
 
-	echo \" Standby, checking connectivity...\"
-
 	# When the build script runs, we know the lynxd port, but we don't know if after the node is
 	# built. So we are hardcoding the value here, so it can be checked in the future.
-
-	port=\"$port\"
-
-	rpcport=\"$rpcport\"
-
-	if [ -z \"\$(ss -lntu | grep \$port | grep -i listen)\" ]; then
-
-		app_reachable=\"false\"
-
-	else
-
-		app_reachable=\"true\"
-
-	fi
-
-	if [ -z \"\$(ss -lntu | grep \$rpcport | grep -i listen)\" ]; then
-
-		rpc_reachable=\"false\"
-
-	else
-
-		rpc_reachable=\"true\"
-
-	fi
 
 	echo \"\"
 	echo \"\"
@@ -261,56 +235,28 @@ install_portcheck () {
  | LYNX RPC credentials are located in '/root/.lynx/lynx.conf'.                |
  '-----------------------------------------------------------------------------'\"
 
- 	block=\$(curl -s http://127.0.0.1/api/getblockcount)
+        if [ ! -z \"\$(curl -s http://127.0.0.1/api/getblockcount)\" ]; then
 
-	if [ ! -z \$block ]; then
-
-	echo \"
-   The current block height on this LynxCI node is \$block.
+        echo \" | The current block height on this LynxCI node is \$(curl -s http://127.0.0.1/api/getblockcount).                    |
  '-----------------------------------------------------------------------------'\"
 
-	fi
+        fi
 
-	echo \"
-   The unique identifier for this LynxCI node is $hhostname.
+        echo \" | The unique identifier for this LynxCI node is $hhostname.                |
  '-----------------------------------------------------------------------------'\"
 
-	if [ \"\$app_reachable\" = \"true\" ]; then
-
-		echo \"\"
-		echo \" Lynx port \$port is open.\"
-
-	else
-
-		echo \"\"
-		echo \" Lynx port \$port is not open.\"
-
-	fi
-
-	if [ \"\$rpc_reachable\" = \"true\" ]; then
-
-		echo \"\"
-		echo \" Lynx RPC port \$rpcport is open.\"
-		echo \"\"
-
-	else
-
-		echo \"\"
-		echo \" Lynx RPC port \$rpcport is not open.\"
-		echo \"\"
-
-	fi
+ 	port=\"$port\"
 
 	if [ \"\$port\" = \"44566\" ]; then
 
-		echo \" This is a non-production 'testnet' environment of Lynx.\"
-		echo \"\"
+        echo \" | This is a non-production 'testnet' environment of Lynx.                     |
+ '-----------------------------------------------------------------------------'\"
 
 	fi
 
-	echo \" Lots of helpful videos about LynxCI are available at the Lynx FAQ. Visit \"
-	echo \" https://getlynx.io/faq/ for more information and help.\"
-
+	echo \" | Lots of helpful videos about LynxCI are available at the Lynx FAQ. Visit    | \"
+    echo \" | https://getlynx.io/faq/ for more information and help.                      |
+ '-----------------------------------------------------------------------------'\"
 
 " > /etc/profile.d/portcheck.sh
 
