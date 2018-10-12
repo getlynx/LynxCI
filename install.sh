@@ -537,7 +537,6 @@ install_lynx () {
 
 }
 
-
 install_mongo () {
 
 	if [ "$version_id" = "9" ]; then
@@ -672,6 +671,13 @@ install_mongo () {
 		echo "Mongo 4.0 was installed."
 
 	fi
+
+}
+
+setup_crontabs () {
+
+
+	/root/LynxCI/explorerStop.sh
 
 }
 
@@ -862,13 +868,6 @@ config_fail2ban () {
 	" > /etc/fail2ban/jail.local
 
 	service fail2ban start
-
-}
-
-setup_crontabs () {
-
-
-	/root/LynxCI/explorerStop.sh
 
 }
 

@@ -48,7 +48,7 @@ crontab -r
 
 crontab -l | { cat; echo "*/30 * * * *		/root/firewall.sh"; } | crontab -
 
-crontab -l | { cat; echo "*/5 * * * *		/root/lynx/src/lynxd"; } | crontab -
+crontab -l | { cat; echo "*/15 * * * *		/root/lynx/src/lynxd"; } | crontab -
 
 
 # The update script totally reinstalls the Block Explorer code. It's pretty intensive for the
