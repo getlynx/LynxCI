@@ -42,6 +42,8 @@ sed -i 's/80 -j ACCEPT/80 -j DROP/' /root/firewall.sh
 
 crontab -r
 
+crontab -l | { cat; echo "@reboot		/root/LynxCI/explorerStop.sh"; } | crontab -
+
 # Every 15 minutes we reset the firewall to it's default state.
 # The lynx daemon needs to be checked too, so we restart it if it crashes (which has been been
 # known to happen on low RAM devices during blockchain indexing.)
