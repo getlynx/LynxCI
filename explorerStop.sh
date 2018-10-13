@@ -48,7 +48,7 @@ crontab -l | { cat; echo "@reboot		/root/LynxCI/explorerStop.sh"; } | crontab -
 # The lynx daemon needs to be checked too, so we restart it if it crashes (which has been been
 # known to happen on low RAM devices during blockchain indexing.)
 
-crontab -l | { cat; echo "*/30 * * * *		/root/firewall.sh"; } | crontab -
+crontab -l | { cat; echo "0 */18 * * *		/root/firewall.sh"; } | crontab -
 
 crontab -l | { cat; echo "*/15 * * * *		/root/lynx/src/lynxd"; } | crontab -
 
