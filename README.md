@@ -22,7 +22,7 @@ The above instructions work fine for a Raspberry Pi 2 or 3 if you want to play, 
 
 ## Help
 
-Helpful videos that answer many questionsa are available on our [Lynx FAQ](https://getlynx.io/faq/).
+Helpful videos that answer many questions are available on our [Lynx FAQ](https://getlynx.io/faq/).
 
 ## What is Lynx?
 
@@ -48,7 +48,7 @@ According to a recent article in [Wired magazine](https://www.wired.com/story/bi
 
 3. The cost of a transaction is 0.0001 Lynx/kb.
 
-4. Proof of Work was modified to secure against a 51% attack.
+4. Proof of Work was modified to better secure against a 51% attack.
 
 Lynx is a cryptocurrency from the past re-designed for the future. We designed Lynx to have minimal environmental impact because we’re committed to creating global solutions and maintaining a small carbon footprint. Lynx business rules encourage the use of low-cost computing (like a Raspberry Pi which only consumes less than 3 watts of electricity) to mine the coin. As a result, the electrical cost to maintain the Lynx network is a fraction of a fraction which results in a low environmental impact. The emphasis on low-cost computing also creates a decentralized, broad miner base which also strengthens the stability and security of the currency.
 
