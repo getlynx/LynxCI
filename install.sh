@@ -418,26 +418,25 @@ install_lynx () {
 
 	fi
 
-	# In the past, we used a bootstrap file to get the full blockchain history to load faster. This
-	# was very helpful but it did bring up a security concern. If the bootstrap file had been
-	# tampered with (even though it was created by Lynx dev team) it might prove a security risk.
-	# So now that the seed nodes run faster and new node discovery is much more efficient, we are
-	# phasing out the use of the bootstrap file.
+	cd ~/ && rm -rf .lynx && mkdir .lynx
+
+	# The size of the production blockchain (at time of writing) is about 1.2GB. This amount of data
+	# exchange can tax the network during a new build, so below we grab a bootstrap.dat file of the 
+	# blockchain history. This file was created by the Lynx development team and is regularly 
+	# updated.
+
+	if [ "$environment" = "mainnet" ]; then
+
+		wget http://cdn.getlynx.io/bootstrap.tar.gz
+		tar -xvf bootstrap.tar.gz -C /root/.lynx
+		rm -rf bootstrap.tar.gz
+
+	fi
 
 	# Below we are creating the default lynx.conf file. This file is created with the dynamically
 	# created RPC credentials and it sets up the networking with settings that testing has found to
 	# work well in the LynxCI build. Of course, you can edit it further if you like, but this
 	# default file is the recommended start point.
-
-	cd ~/ && rm -rf .lynx && mkdir .lynx
-
-	if [ "$environment" = "mainnet" ]; then
-
-		wget http://cdn.getlynx.io/bootstrap.tar.gz
-		tar -xvf bootstrap.tar.gz /root/.lynx
-		rm -rf bootstrap.tar.gz
-
-	fi
 
 	echo "
 	listen=1
