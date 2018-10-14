@@ -1,19 +1,5 @@
 #!/bin/bash
 
-# Mining reward addresses that are stored with LynxCI are subject to change and get updated. This
-# function allows for that. We delete both the testnet and mainnet files, pull down the new,
-# versions and the we update the permissions on the file. It is assumed that no spaces will be in
-# the file.
-
-refresh_mining_addresses () {
-
-    rm -rf /root/LynxCI/miner-address*
-    cd ~/LynxCI && curl -s https://raw.githubusercontent.com/doh9Xiet7weesh9va9th/LynxCI/master/miner-addresses.txt > /root/LynxCI/miner-addresses.txt
-    cd ~/LynxCI && curl -s https://raw.githubusercontent.com/doh9Xiet7weesh9va9th/LynxCI/master/miner-addresses-testnet.txt > /root/LynxCI/miner-addresses-testnet.txt
-    chmod 744 /root/LynxCI/miner-address*
-
-}
-
 update_block_explorer () {
 
     cd /root/LynxBlockExplorer/
@@ -47,8 +33,6 @@ update_block_explorer () {
                 sed -i "s/__LYNXRPCPASS__/${pass}/g" /root/LynxBlockExplorer/settings.json
 
                 npm install
-
-                pm2 restart 0
 
             fi
 
@@ -99,7 +83,5 @@ if [ $changed = 1 ]; then
     update_lynx_core
     echo "Updated successfully";
 fi
-
-refresh_mining_addresses
 
 update_block_explorer
