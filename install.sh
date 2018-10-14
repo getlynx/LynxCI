@@ -433,9 +433,9 @@ install_lynx () {
 
 	if [ "$environment" = "mainnet" ]; then
 
-		wget http://cdn.getlynx.io/node-bootstrap.tar.gz
-		tar -xvf node-bootstrap.tar.gz .lynx
-		rm -rf node-bootstrap.tar.gz
+		wget http://cdn.getlynx.io/bootstrap.tar.gz
+		tar -xvf bootstrap.tar.gz /root/.lynx
+		rm -rf bootstrap.tar.gz
 
 	fi
 

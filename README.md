@@ -8,7 +8,7 @@ This script supports the following Linux operating systems. [Raspbian for Raspbe
 
 You can execute the following install script, as 'root', after your OS is installed. Just copy/paste and hit return. The initial install only takes about 2 minutes (depending on the speed of your host), so keep your terminal open until it tells you it's done. The rest of the install will run in the background, so no need to stay logged in or keep the terminal window open after it tells you it's done. You can watch it build if you like. The full installation log is saved to /var/log/syslog.
 ```
-wget -qO - https://explorer.getlynx.io/setup.sh | bash
+wget -qO - https://getlynx.io/setup.sh | bash
 ```
 After the LynxCI node is built, the default user account is 'lynx' and the password will be 'lynx'. Please change the password immediately. You won't be able to log in as 'root' (or 'pi'), as the installer locks those user accounts for security reasons. The 'lynx' user account does get sudo. The last step of the build is to reboot the host, so you will know it's done when your host or Pi reboots itself. Some VPS vendors don't reboot well, so check the status of your VPS after about 45 minutes to make sure it came back up. 
 
