@@ -468,15 +468,15 @@ install_lynx () {
 
 	$lynxconfig
 
-	addnode=seed01.getlynx.io
-	addnode=seed02.getlynx.io
-	addnode=seed03.getlynx.io
+	addnode=node01.getlynx.io
+	addnode=node02.getlynx.io
+	addnode=node03.getlynx.io
 	addnode=node04.getlynx.io
 	addnode=node05.getlynx.io
-	addnode=seed06.getlynx.io
-	addnode=seed07.getlynx.io
-	addnode=seed08.getlynx.io
-	addnode=seed09.getlynx.io
+	addnode=node06.getlynx.io
+	addnode=node07.getlynx.io
+	addnode=node08.getlynx.io
+	addnode=node09.getlynx.io
 
 	mineraddress=KKMeTYLM6LrhFc8Gq1uYSua4BLgmFPaZrX
 	mineraddress=KVKrkxGcUo9wii59ashrbqKub5CpggiFQz
