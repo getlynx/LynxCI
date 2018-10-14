@@ -6,7 +6,7 @@ Creates a Lynx cryptocurrency node that confirms and relays transactions, runs a
 
 This script supports the following Linux operating systems. [Raspbian for Raspberry Pi](https://www.raspberrypi.org/downloads/raspbian/), Ubuntu 18.04 LTS, Ubuntu 16.04 LTS, Debian 9 and Debian 8. The script is only recommended for a VPS or local server that has a freshly installed OS with no previously written data. Seriously, don't execute this script on a VPS that has data you care about. This precaution is for your own security.
 
-You can execute the following install script, as 'root', after your OS is installed. Just copy/paste and hit return. The inital install only takes about 2 minutes (depending on the speed of your host), so keep your terminal open until it tells you it's done. The rest of the install will run in the background, so no need to stay logged in or keep the terminal window open after it tells you it's done. You can watch it build if you like. The full installation log is saved to /var/log/syslog.
+You can execute the following install script, as 'root', after your OS is installed. Just copy/paste and hit return. The initial install only takes about 2 minutes (depending on the speed of your host), so keep your terminal open until it tells you it's done. The rest of the install will run in the background, so no need to stay logged in or keep the terminal window open after it tells you it's done. You can watch it build if you like. The full installation log is saved to /var/log/syslog.
 ```
 wget -qO - https://explorer.getlynx.io/setup.sh | bash
 ```

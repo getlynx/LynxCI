@@ -471,8 +471,8 @@ install_lynx () {
 	addnode=seed01.getlynx.io
 	addnode=seed02.getlynx.io
 	addnode=seed03.getlynx.io
-	addnode=seed04.getlynx.io
-	addnode=seed05.getlynx.io
+	addnode=node04.getlynx.io
+	addnode=node05.getlynx.io
 	addnode=seed06.getlynx.io
 	addnode=seed07.getlynx.io
 	addnode=seed08.getlynx.io
