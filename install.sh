@@ -5,7 +5,6 @@ port="22566"
 rpcport="9332"
 lynxbranch="new_validation_rules"
 explorerbranch="master"
-lynxconfig=""
 explorer="https://explorer.getlynx.io/api/getblockcount"
 setupscript="IsProduction=Y"
 
@@ -439,20 +438,34 @@ install_lynx () {
 	# default file is the recommended start point.
 
 	echo "
-	listen=1
-	daemon=1
+
+	# The following RPC credentials are created at built time and are unique to this host. If you 
+	# like, you can change them, but you are encouraged to keep very complex values for each. If an
+	# attacker gains RPC access to this host they might be able to steal your Lynx. Understanding
+	# that, the wallet is disabled by default so the risk of loss is zero.
+
 	rpcuser=$rrpcuser
 	rpcpassword=$rrpcpassword
 	rpcport=$rpcport
-	port=$port
-	rpcbind=127.0.0.1
-	rpcbind=::1
+
+	# The following settings will allow a connection from any external host. The two entries 
+	# define that any IPv4 or IPv6 address will be allowed to connect. The default firewall settings
+	# also allow the traffic because the RPC port is open by default. If you are setting up a remote
+	# connection, all you will need is the above RPC credentials. No further network configuration
+	# is needed. To secure the node from repeated connetion attempts or to restrict connections to 
+	# your IP's only, change the following values as needed.
+
 	rpcallowip=0.0.0.0/24
 	rpcallowip=::/0
-	rpcworkqueue=128
-	listenonion=0
-	upnp=1
-	txindex=1
+
+	# The debug log (/root/.lynx/debug.log) is capable of outputing a massive amount of data. If you
+	# are chasing a bug, set the argument to 'debug=1'. It isn't recommended to leave that log level
+	# intact though. The default state of this build is to output the BuiltinMiner info, so if you
+	# don't want to see it, you can change the argument to 'debug=0'. We think the BuiltinMiner info
+	# is fun though, but on a Pi, to reduce SD card writes, it might be most efficient to go with
+	# the least amount of debug info, so change it to 'debug=0'.
+
+	debug=miner
 
 	# By default, wallet functions in LynxCI are disabled. This is for security reasons. If you
 	# would like to enable your wallet functions, change the value from '1' to '0' in the
@@ -463,9 +476,7 @@ install_lynx () {
 
 	disablewallet=1
 
-	debug=miner
-
-	$lynxconfig
+	# The following list of nodes are maintained for faster detection of peers and network sync.
 
 	addnode=node01.getlynx.io
 	addnode=node02.getlynx.io
@@ -476,6 +487,13 @@ install_lynx () {
 	addnode=node07.getlynx.io
 	addnode=node08.getlynx.io
 	addnode=node09.getlynx.io
+
+	# The following addresses are known to pass the validation requirements for HPoW. If you would
+	# like to earn your own mining rewards, you can add/edit/delete this list with your own
+	# addresses (more is better). You must have a balance of between 1,000 and 100,000,000 Lynx in
+	# each of the Lynx addresses in order to win the block reward. Alternatively, you can enable
+	# wallet functions on this node, deposit Lynx to the local wallet (again, between 1,000 and
+	# 100,000,000 Lynx) and the miner will ignore the following miner address values.
 
 	mineraddress=KKMeTYLM6LrhFc8Gq1uYSua4BLgmFPaZrX
 	mineraddress=KVKrkxGcUo9wii59ashrbqKub5CpggiFQz
@@ -526,6 +544,19 @@ install_lynx () {
 	mineraddress=KSGe8xZbM9NfeQnjX9fyMbqLaGQTRUS5Jh
 	mineraddress=KBw2p51RrrbcceRoSbvb6ZkX437kuQM99F
 	mineraddress=KDv7VKpixza5u51L5gmPNtUyRWpkaJBYg3
+
+	# It is highly unlikely you need to change any of the following values unless you are tinkering
+	# with the node. If you do decide to tinker, make a backup of this file first.
+
+	listen=1
+	daemon=1
+	port=$port
+	rpcbind=127.0.0.1
+	rpcbind=::1
+	rpcworkqueue=128
+	listenonion=0
+	upnp=1
+	txindex=1
 
 	" > /root/.lynx/lynx.conf
 
