@@ -845,15 +845,6 @@ set_firewall () {
 
 # This function is still under development.
 
-install_ssl () {
-
-	#https://calomel.org/lets_encrypt_client.html
-	echo "SSL creation scripts are still in process."
-
-}
-
-# This function is still under development.
-
 install_tor () {
 
 	apt install tor

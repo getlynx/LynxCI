@@ -34,15 +34,17 @@ elif [ "$version_id" = "18.04" ]; then
 
 fi
 
-sed -i 's/80 -j ACCEPT/80 -j DROP/' /root/firewall.sh
+# The following line is a search and replace for the string in the firewall script that enabled (or
+# disables) access to the node via port 80. If the Block Explorer isn't running, we might as well
+# close port 80 and remove that as a possible attack vector.
 
-/root/firewall.sh
+sed -i 's/80 -j ACCEPT/80 -j DROP/' /root/firewall.sh
 
 # In the event that any other crontabs exist, let's purge them all.
 
 crontab -r
 
-crontab -l | { cat; echo "@reboot		/root/LynxCI/explorerStop.sh"; } | crontab -
+crontab -l | { cat; echo "0 */3 * * *		/root/LynxCI/explorerStop.sh"; } | crontab -
 
 # Every 15 minutes we reset the firewall to it's default state.
 # The lynx daemon needs to be checked too, so we restart it if it crashes (which has been been
@@ -51,7 +53,6 @@ crontab -l | { cat; echo "@reboot		/root/LynxCI/explorerStop.sh"; } | crontab -
 crontab -l | { cat; echo "0 */18 * * *		/root/firewall.sh"; } | crontab -
 
 crontab -l | { cat; echo "*/15 * * * *		/root/lynx/src/lynxd"; } | crontab -
-
 
 # The update script totally reinstalls the Block Explorer code. It's pretty intensive for the
 # host device. So instead of running it daily like we used to, we only run it once a month. This
@@ -70,6 +71,3 @@ crontab -l | { cat; echo "*/30 * * * *		truncate -s 1KB /root/.lynx/debug.log"; 
 # 15th day of the month. An important distinction.
 
 crontab -l | { cat; echo "0 0 $(shuf -i 16-28 -n 1) * *		/sbin/shutdown -r now"; } | crontab -
-
-
-
