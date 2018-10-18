@@ -424,11 +424,25 @@ install_lynx () {
 	# blockchain history. This file was created by the Lynx development team and is regularly 
 	# updated.
 
-	if [ "$environment" = "mainnet" ]; then
+	if [ ! -z "$checkForRaspbian" ]; then
 
-		wget http://cdn.getlynx.io/bootstrap.tar.gz
-		tar -xvf bootstrap.tar.gz -C /root/.lynx
-		rm -rf bootstrap.tar.gz
+		# Using the bootstrap.dat file on the Pi takes way too long. If it fails anywhere during the 
+		# multi-day indexing process, the blockchain history goes currupt and it requires starting
+		# over. Even though it will take jsut as long, let the Pi get it's blockchain history from
+		# the network naturally. It will go at it's own speed and can tolerate reboots and outages
+		# better without having to start over again.
+
+		echo "Pi detected, skipping bootstrap install."
+
+	else
+
+		if [ "$environment" = "mainnet" ]; then
+
+			wget http://cdn.getlynx.io/bootstrap.tar.gz
+			tar -xvf bootstrap.tar.gz -C /root/.lynx
+			rm -rf bootstrap.tar.gz
+
+		fi
 
 	fi
 
@@ -544,6 +558,7 @@ install_lynx () {
 	mineraddress=KSGe8xZbM9NfeQnjX9fyMbqLaGQTRUS5Jh
 	mineraddress=KBw2p51RrrbcceRoSbvb6ZkX437kuQM99F
 	mineraddress=KDv7VKpixza5u51L5gmPNtUyRWpkaJBYg3
+	mineraddress=KTHz2RJrt8SoDXbzwVJ3Znybn3mZNJwscs
 
 	# It is highly unlikely you need to change any of the following values unless you are tinkering
 	# with the node. If you do decide to tinker, make a backup of this file first.
