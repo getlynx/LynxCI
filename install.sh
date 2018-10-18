@@ -843,34 +843,6 @@ set_firewall () {
 
 }
 
-# This function is still under development.
-
-install_tor () {
-
-	apt install tor
-	systemctl enable tor
-	systemctl start tor
-
-	echo "
-	ControlPort 9051
-	CookieAuthentication 1
-	CookieAuthFileGroupReadable 1
-	" >> /etc/tor/torrc
-
-	usermod -a -G debian-tor root
-
-}
-
-secure_iptables () {
-
-	iptables -F
-	iptables -I INPUT 1 -i lo -j ACCEPT
-	iptables -I INPUT 2 -m conntrack --ctstate ESTABLISHED,RELATED -j ACCEPT
-	iptables -A INPUT -p tcp --dport 22 -j ACCEPT
-	iptables -A INPUT -j DROP
-
-}
-
 config_fail2ban () {
 
 	#
@@ -956,7 +928,6 @@ else
 	setup_crontabs
 	install_explorer
 	set_firewall
-	secure_iptables
 	config_fail2ban
 	restart
 
