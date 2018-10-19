@@ -28,13 +28,7 @@ Helpful videos that answer many questions are available on our [Lynx FAQ](https:
 
 Lynx is a secure cryptocurrency with fast transaction speeds and low-transaction fees. It’s also eco-friendly & easy-to-use. In 2017, our team upgraded, fixed and rebranded Kittehcoin as Lynx. How? We successfully forked Litecoin and ported the Kittehcoin blockchain history to it. This gives Lynx all the benefits of Litecoin with the full transaction history of Kittehcoin. The upgrades fixed the flaws in the original coin and revived its community of users. It’s cryptocurrency from the past; redesigned for the future.
 
-[Lynx FAQ](https://getlynx.io/faq/)
-
-[Lynx News](https://getlynx.io/news/)
-
-[Lynx Twitter](https://twitter.com/GetlynxIo)
-
-[Lynx Discord](https://discord.gg/5cM3NTF)
+[Lynx FAQ](https://getlynx.io/faq/) | [Lynx News](https://getlynx.io/news/) | [Lynx Twitter](https://twitter.com/GetlynxIo) | [Lynx Discord](https://discord.gg/5cM3NTF)
 
 ## How is Lynx an "eco-friendly cryptocurrency"?
 

@@ -501,6 +501,8 @@ install_lynx () {
 	addnode=node07.getlynx.io
 	addnode=node08.getlynx.io
 	addnode=node09.getlynx.io
+	addnode=node10.getlynx.io
+	addnode=node11.getlynx.io
 
 	# The following addresses are known to pass the validation requirements for HPoW. If you would
 	# like to earn your own mining rewards, you can add/edit/delete this list with your own
@@ -932,4 +934,3 @@ else
 	restart
 
 fi
-
