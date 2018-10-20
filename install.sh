@@ -824,6 +824,15 @@ set_firewall () {
 
 	/sbin/iptables -A INPUT -p tcp --dport $port -j ACCEPT
 
+	# Known addresses of other coin projects that operate on the same port and have the same version
+	# number. This will remove a good number of 'connection refused' errors in the debug log.
+
+	/sbin/iptables -A INPUT -p tcp -s 95.54.82.161 -j DROP #ExperiencecoinCore:3.0.0.1
+	/sbin/iptables -A INPUT -p tcp -s 95.222.46.126 -j DROP #ExperiencecoinCore:3.0.0.1
+	/sbin/iptables -A INPUT -p tcp -s 165.227.211.179 -j DROP #ExperiencecoinCore:3.0.0.1
+	/sbin/iptables -A INPUT -p tcp -s 76.102.131.12 -j DROP #NewYorkCoin-seeder:0.01
+	/sbin/iptables -A INPUT -p tcp -s 62.213.218.8 -j DROP #NewYorkCoin-seeder:0.01
+
 	# By default, the RPC port 9223 is opened to the public. This is so the node can both listen
 	# for and discover other nodes. It is preferred to have a node that is not just a leecher but
 	# also a seeder.
