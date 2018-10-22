@@ -46,3 +46,7 @@ According to a recent article in [Wired magazine](https://www.wired.com/story/bi
 
 Lynx is a cryptocurrency from the past re-designed for the future. We designed Lynx to have minimal environmental impact because we’re committed to creating global solutions and maintaining a small carbon footprint. Lynx business rules encourage the use of low-cost computing (like a Raspberry Pi which only consumes less than 3 watts of electricity) to mine the coin. As a result, the electrical cost to maintain the Lynx network is a fraction of a fraction which results in a low environmental impact. The emphasis on low-cost computing also creates a decentralized, broad miner base which also strengthens the stability and security of the currency.
 
+## Ubuntu 16.04 LTS Note
+
+Package install will fail during the initial step if you don't upgrade the kernel first, then reboot. If you don't know how to do this, please consult the [Lynx FAQ](https://getlynx.io/faq/). 
+
