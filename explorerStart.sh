@@ -52,17 +52,11 @@ fi
 
 sed -i 's/80 -j DROP/80 -j ACCEPT/' /root/firewall.sh
 
-# In the event that any other crontabs exist, let's purge them all.
+/root/firewall.sh # Clear and reset the firewall state to the default state with recent changes.
 
-crontab -r
+crontab -r # In the event that any other crontabs exist, let's purge them all.
 
 crontab -l | { cat; echo "0 */3 * * *		/root/LynxCI/explorerStart.sh"; } | crontab -
-
-# Every 15 minutes we reset the firewall to it's default state.
-# The lynx daemon needs to be checked too, so we restart it if it crashes (which has been been
-# known to happen on low RAM devices during blockchain indexing.)
-
-crontab -l | { cat; echo "0 */18 * * *		/root/firewall.sh"; } | crontab -
 
 crontab -l | { cat; echo "*/5 * * * *		/root/lynx/src/lynxd"; } | crontab -
 
