@@ -230,7 +230,7 @@ install_portcheck () {
  '-----------------------------------------------------------------------------'
  | For local tools to play and learn, type 'sudo /root/lynx/src/lynx-cli help'.|
  '-----------------------------------------------------------------------------'
- | LYNX RPC credentials are located in '/root/.lynx/lynx.conf'.                |
+ | For LYNX RPC credentials, type 'sudo nano /root/.lynx/lynx.conf'.           |
  '-----------------------------------------------------------------------------'\"
 
         if [ ! -z \"\$(curl -s http://127.0.0.1/api/getblockcount)\" ]; then
@@ -252,8 +252,7 @@ install_portcheck () {
 
 	fi
 
-	echo \" | Lots of helpful videos about LynxCI are available at the Lynx FAQ. Visit    | \"
-    echo \" | https://getlynx.io/faq/ for more information and help.                      |
+    echo \" | Visit https://help.getlynx.io/ for more information.                        |
  '-----------------------------------------------------------------------------'\"
 
 " > /etc/profile.d/portcheck.sh
