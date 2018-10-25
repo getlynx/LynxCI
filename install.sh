@@ -3,7 +3,7 @@
 environment="mainnet"
 port="22566"
 rpcport="9332"
-lynxbranch="new_validation_rules"
+lynxbranch="litecoin.0.16-merge"
 explorerbranch="master"
 explorer="https://explorer.getlynx.io/api/getblockcount"
 setupscript="IsProduction=Y"
