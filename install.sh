@@ -573,6 +573,7 @@ install_lynx () {
 	listenonion=0
 	upnp=1
 	txindex=1
+	host=$hhostname
 
 	" > /root/.lynx/lynx.conf
 
