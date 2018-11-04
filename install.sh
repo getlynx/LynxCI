@@ -569,7 +569,7 @@ install_lynx () {
 	port=$port
 	rpcbind=127.0.0.1
 	rpcbind=::1
-	rpcworkqueue=128
+	rpcworkqueue=64
 	listenonion=0
 	upnp=1
 	txindex=1
