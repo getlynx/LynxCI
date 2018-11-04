@@ -418,33 +418,6 @@ install_lynx () {
 
 	cd ~/ && rm -rf .lynx && mkdir .lynx
 
-	# The size of the production blockchain (at time of writing) is about 1.2GB. This amount of data
-	# exchange can tax the network during a new build, so below we grab a bootstrap.dat file of the 
-	# blockchain history. This file was created by the Lynx development team and is regularly 
-	# updated.
-
-	if [ ! -z "$checkForRaspbian" ]; then
-
-		# Using the bootstrap.dat file on the Pi takes way too long. If it fails anywhere during the 
-		# multi-day indexing process, the blockchain history goes currupt and it requires starting
-		# over. Even though it will take jsut as long, let the Pi get it's blockchain history from
-		# the network naturally. It will go at it's own speed and can tolerate reboots and outages
-		# better without having to start over again.
-
-		echo "Pi detected, skipping bootstrap install."
-
-	else
-
-		if [ "$environment" = "mainnet" ]; then
-
-			wget http://cdn.getlynx.io/bootstrap.tar.gz
-			tar -xvf bootstrap.tar.gz -C /root/.lynx
-			rm -rf bootstrap.tar.gz
-
-		fi
-
-	fi
-
 	# Below we are creating the default lynx.conf file. This file is created with the dynamically
 	# created RPC credentials and it sets up the networking with settings that testing has found to
 	# work well in the LynxCI build. Of course, you can edit it further if you like, but this
