@@ -28,12 +28,12 @@ detect_os () {
 
 install_packages () {
 
-	apt-get update -y 
+	apt-get update -y
 
 	apt-get install -y autoconf automake build-essential bzip2 curl fail2ban g++ gcc git git-core htop libboost-all-dev libcurl4-openssl-dev libevent-dev libgmp-dev libjansson-dev libminiupnpc-dev libncurses5-dev libssl-dev libtool libz-dev make nano nodejs pkg-config software-properties-common
 
 	apt-get autoremove -y
-	
+
 }
 
 manage_swap () {
@@ -146,7 +146,7 @@ set_wifi () {
 
 		rm -rf /boot/wpa_supplicant.conf
 		rm -rf /etc/wpa_supplicant/wpa_supplicant.conf
-		
+
 		echo "
 
 		ctrl_interface=DIR=/var/run/wpa_supplicant GROUP=netdev
@@ -299,7 +299,7 @@ install_explorer () {
 	echo "PM2 was installed."
 
 	git clone -b $explorerbranch https://github.com/doh9Xiet7weesh9va9th/LynxBlockExplorer.git
-	
+
 	cd /root/LynxBlockExplorer/
 
 	npm install
@@ -391,7 +391,7 @@ install_lynx () {
 
 	# Now that the Berkeley DB is installed, let's jump to the lynx directory and finish the
 	# configure statement WITH the Berkeley DB parameters included.
-	
+
 	cd /root/lynx/
 
 	./autogen.sh
@@ -452,7 +452,7 @@ install_lynx () {
 
 	echo "
 
-	# The following RPC credentials are created at built time and are unique to this host. If you 
+	# The following RPC credentials are created at built time and are unique to this host. If you
 	# like, you can change them, but you are encouraged to keep very complex values for each. If an
 	# attacker gains RPC access to this host they might be able to steal your Lynx. Understanding
 	# that, the wallet is disabled by default so the risk of loss is zero.
@@ -461,11 +461,11 @@ install_lynx () {
 	rpcpassword=$rrpcpassword
 	rpcport=$rpcport
 
-	# The following settings will allow a connection from any external host. The two entries 
+	# The following settings will allow a connection from any external host. The two entries
 	# define that any IPv4 or IPv6 address will be allowed to connect. The default firewall settings
 	# also allow the traffic because the RPC port is open by default. If you are setting up a remote
 	# connection, all you will need is the above RPC credentials. No further network configuration
-	# is needed. To secure the node from repeated connetion attempts or to restrict connections to 
+	# is needed. To secure the node from repeated connetion attempts or to restrict connections to
 	# your IP's only, change the following values as needed.
 
 	rpcallowip=0.0.0.0/24
