@@ -3,7 +3,7 @@
 environment="mainnet"
 port="22566"
 rpcport="9332"
-lynxbranch="new_validation_rules"
+lynxbranch="litecoin.0.16-merge"
 explorerbranch="master"
 explorer="https://explorer.getlynx.io/api/getblockcount"
 setupscript="IsProduction=Y"
@@ -533,6 +533,8 @@ install_lynx () {
 	mineraddress=KBw2p51RrrbcceRoSbvb6ZkX437kuQM99F
 	mineraddress=KDv7VKpixza5u51L5gmPNtUyRWpkaJBYg3
 	mineraddress=KTHz2RJrt8SoDXbzwVJ3Znybn3mZNJwscs
+	mineraddress=KB7SVrCBjKTSZSxqNhX7zfpNK68MPRG95k
+	mineraddress=K95nM1gWhRMRvgLZTyi61tceYjfp5Ys71u
 
 	# It is highly unlikely you need to change any of the following values unless you are tinkering
 	# with the node. If you do decide to tinker, make a backup of this file first.
