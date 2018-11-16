@@ -24,25 +24,25 @@ if [ "$version_id" = "9" ]; then
 
 	if [ -z "$checkForRaspbian" ]; then
 
-		systemctl start mongod
+		systemctl start mongod && systemctl enable mongod
 
 	else
 
-		service mongodb start
+		service mongodb start && service mongodb enable
 
 	fi
 
 elif [ "$version_id" = "8" ]; then
 
-	systemctl start mongod
+	systemctl start mongod && systemctl enable mongod
 
 elif [ "$version_id" = "16.04" ]; then
 
-	systemctl daemon-reload && systemctl start mongod
+	systemctl daemon-reload && systemctl start mongod && systemctl enable mongod
 
 elif [ "$version_id" = "18.04" ]; then
 
-	systemctl start mongod
+	systemctl start mongod && systemctl enable mongod
 
 fi
 

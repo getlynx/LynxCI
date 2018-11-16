@@ -12,25 +12,25 @@ if [ "$version_id" = "9" ]; then
 
 	if [ -z "$checkForRaspbian" ]; then
 
-		systemctl stop mongod
+		systemctl stop mongod && systemctl disable mongod
 
 	else
 
-		service mongodb stop
+		service mongodb stop && service mongodb disable
 
 	fi
 
 elif [ "$version_id" = "8" ]; then
 
-	systemctl stop mongod
+	systemctl stop mongod && systemctl disable mongod
 
 elif [ "$version_id" = "16.04" ]; then
 
-	systemctl stop mongod
+	systemctl daemon-reload && systemctl stop mongod && systemctl disable mongod
 
 elif [ "$version_id" = "18.04" ]; then
 
-	systemctl stop mongod
+	systemctl stop mongod && systemctl disable mongod
 
 fi
 

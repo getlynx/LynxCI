@@ -594,7 +594,7 @@ install_mongo () {
 
 			apt-get install mongodb-server -y
 
-			service mongodb start
+			service mongodb start && service mongodb enable
 
 			sleep 5
 
