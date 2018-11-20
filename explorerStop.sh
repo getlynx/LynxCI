@@ -46,7 +46,7 @@ crontab -r # In the event that any other crontabs exist, let's purge them all.
 
 crontab -l | { cat; echo "0 */3 * * *		/root/LynxCI/explorerStop.sh"; } | crontab -
 
-crontab -l | { cat; echo "*/15 * * * *		MALLOC_ARENA_MAX=1 /root/lynx/src/lynxd"; } | crontab -
+crontab -l | { cat; echo "*/5 * * * *		MALLOC_ARENA_MAX=1 /root/lynx/src/lynxd"; } | crontab -
 
 # The update script totally reinstalls the Block Explorer code. It's pretty intensive for the
 # host device. So instead of running it daily like we used to, we only run it once a month. This
