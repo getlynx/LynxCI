@@ -416,6 +416,10 @@ install_lynx () {
 
 	fi
 
+	# The .lynx dir must exist for the bootstrap and lynx.conf to be placed in it.
+
+	cd ~/ && rm -rf .lynx && mkdir .lynx
+
 	# Some VPS vendors are struggling with cryptocurrency daemons and miners running on their 
 	# platforms. These applications and mining platforms waste resources on those platforms so it's 
 	# understandable why they block those daemons from running. Testing has found that lynxd is 
@@ -444,8 +448,6 @@ install_lynx () {
 	# created RPC credentials and it sets up the networking with settings that testing has found to
 	# work well in the LynxCI build. Of course, you can edit it further if you like, but this
 	# default file is the recommended start point.
-
-	cd ~/ && rm -rf .lynx && mkdir .lynx
 
 	echo "
 
