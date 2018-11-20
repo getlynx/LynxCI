@@ -52,6 +52,10 @@ fi
 
 sed -i 's/80 -j DROP/80 -j ACCEPT/' /root/firewall.sh
 
+# If the Explorer is running, it needs the txindex param of lynxd to be enabled. 
+
+sed -i 's/txindex=0/txindex=1/' /root/.lynx/lynx.conf
+
 /root/firewall.sh # Clear and reset the firewall state to the default state with recent changes.
 
 crontab -r # In the event that any other crontabs exist, let's purge them all.
