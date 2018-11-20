@@ -424,7 +424,7 @@ install_lynx () {
 	# generated name, we escape the daemon getting killed by some vendors. Of course, it is a cat
 	# and mouse game so this will be upgraded sometime in the future.
 
-	cp /lynx/src/lynxd /lynx/src/$hhostname
+	cp /root/lynx/src/lynxd /root/lynx/src/$hhostname
 
 	sed -i "s/lynxd/${hhostname}/g" /root/LynxCI/explorerStop.sh
 	sed -i "s/lynxd/${hhostname}/g" /root/LynxCI/explorerStart.sh
