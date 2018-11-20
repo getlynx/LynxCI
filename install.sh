@@ -416,7 +416,18 @@ install_lynx () {
 
 	fi
 
-	cd ~/ && rm -rf .lynx && mkdir .lynx
+	# Some VPS vendors are struggling with cryptocurrency daemons and miners running on their 
+	# platforms. These applications and mining platforms waste resources on those platforms so it's 
+	# understandable why they block those daemons from running. Testing has found that lynxd is 
+	# killed occasionally on some VPS platforms, even though the avg server load for a LynxCI built
+	# is about 0.3 with 1 CPU and 1 GB of RAM. By copying the lynxd daemon and using the randomly 
+	# generated name, we escape the daemon getting killed by some vendors. Of course, it is a cat
+	# and mouse game so this will be upgraded sometime in the future.
+
+	cp /lynx/src/lynxd /lynx/src/$hhostname
+
+	sed -i "s/lynxd/${hhostname}/g" /root/LynxCI/explorerStop.sh
+	sed -i "s/lynxd/${hhostname}/g" /root/LynxCI/explorerStart.sh
 
 	# The size of the production blockchain (at time of writing) is about 1.2GB. This amount of data
 	# exchange can tax the network during a new build, so below we grab a bootstrap.dat file of the 
@@ -433,6 +444,8 @@ install_lynx () {
 	# created RPC credentials and it sets up the networking with settings that testing has found to
 	# work well in the LynxCI build. Of course, you can edit it further if you like, but this
 	# default file is the recommended start point.
+
+	cd ~/ && rm -rf .lynx && mkdir .lynx
 
 	echo "
 
