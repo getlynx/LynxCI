@@ -547,7 +547,7 @@ install_lynx () {
 	rpcworkqueue=64
 	listenonion=0
 	upnp=1
-	txindex=1
+	txindex=0
 	host=$hhostname
 
 	" > /root/.lynx/lynx.conf
