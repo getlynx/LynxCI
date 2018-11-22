@@ -22,6 +22,11 @@ detect_os () {
 
 	echo "Build environment is '$environment'."
 
+	# Since we are starting the install of LynxCI, let's remove the crontab that started this
+	# process so we don't accidently run it twice simultaneously. That could get ugly. Now this 
+	# script can run as long as it needs without concern another crontab might start and withdraw
+	# reseources.
+
 	crontab -r
 
 }
@@ -439,9 +444,19 @@ install_lynx () {
 	# updated.
 
 	if [ "$environment" = "mainnet" ]; then
-		wget http://cdn.getlynx.io/bootstrap.tar.gz
-		tar -xvf bootstrap.tar.gz -C /root/.lynx
-		rm -rf bootstrap.tar.gz
+
+		wget http://cdn.getlynx.io/blocks.tar.gz
+
+		tar -xvf blocks.tar.gz -C /root/.lynx
+
+		rm -rf blocks.tar.gz
+
+		wget http://cdn.getlynx.io/chainstate.tar.gz
+
+		tar -xvf chainstate.tar.gz -C /root/.lynx
+
+		rm -rf chainstate.tar.gz
+
 	fi
 
 	# Below we are creating the default lynx.conf file. This file is created with the dynamically
@@ -451,7 +466,7 @@ install_lynx () {
 
 	echo "
 
-	# The following RPC credentials are created at built time and are unique to this host. If you
+	# The following RPC credentials are created at build time and are unique to this host. If you
 	# like, you can change them, but you are encouraged to keep very complex values for each. If an
 	# attacker gains RPC access to this host they might be able to steal your Lynx. Understanding
 	# that, the wallet is disabled by default so the risk of loss is zero.
@@ -501,6 +516,7 @@ install_lynx () {
 	addnode=node09.getlynx.io
 	addnode=node10.getlynx.io
 	addnode=node11.getlynx.io
+	addnode=node12.getlynx.io
 
 	# The following addresses are known to pass the validation requirements for HPoW. If you would
 	# like to earn your own mining rewards, you can add/edit/delete this list with your own
@@ -574,7 +590,6 @@ install_lynx () {
 	listenonion=0
 	upnp=1
 	txindex=0
-	dbcache=100
 	host=$hhostname
 
 	" > /root/.lynx/lynx.conf
