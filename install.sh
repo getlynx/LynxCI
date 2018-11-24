@@ -953,10 +953,10 @@ else
 	install_miniupnpc
 	install_lynx
 	install_mongo
-	setup_crontabs
 	install_explorer
 	set_firewall
 	config_fail2ban
+	setup_crontabs
 	restart
 
 fi
