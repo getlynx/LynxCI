@@ -589,6 +589,7 @@ install_lynx () {
 	rpcworkqueue=64
 	listenonion=0
 	upnp=1
+	dbcache=100
 	txindex=0
 	host=$hhostname
 
