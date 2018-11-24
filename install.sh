@@ -438,27 +438,6 @@ install_lynx () {
 	sed -i "s/lynxd/${hhostname}/g" /root/LynxCI/explorerStop.sh
 	sed -i "s/lynxd/${hhostname}/g" /root/LynxCI/explorerStart.sh
 
-	# The size of the production blockchain (at time of writing) is about 1.2GB. This amount of data
-	# exchange can tax the network during a new build, so below we grab a bootstrap.dat file of the 
-	# blockchain history. This file was created by the Lynx development team and is regularly 
-	# updated.
-
-	if [ "$environment" = "mainnet" ]; then
-
-		wget http://cdn.getlynx.io/blocks.tar.gz
-
-		tar -xvf blocks.tar.gz -C /root/.lynx
-
-		rm -rf blocks.tar.gz
-
-		wget http://cdn.getlynx.io/chainstate.tar.gz
-
-		tar -xvf chainstate.tar.gz -C /root/.lynx
-
-		rm -rf chainstate.tar.gz
-
-	fi
-
 	# Below we are creating the default lynx.conf file. This file is created with the dynamically
 	# created RPC credentials and it sets up the networking with settings that testing has found to
 	# work well in the LynxCI build. Of course, you can edit it further if you like, but this
