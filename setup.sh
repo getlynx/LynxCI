@@ -23,7 +23,7 @@ rm -rf /boot/setup # Assume this is the first time this script is being run and 
 
 rm -rf /boot/ssh # Assume this is the first time this script is being run and purge the marker file if it exists.
 
-crontab -r # In the event that any other crontabs exist, let's purge them all.
+crontab -r &> /dev/null # In the event that any other crontabs exist, let's purge them all.
 
 echo "Updating the local operating system. This might take a few minutes."
 
@@ -78,7 +78,7 @@ chmod 744 -R /root/LynxCI/
 # Since this is the first time the script is run, we will create a crontab to run it again
 # in a few minute, when a quarter of the hour rolls around.
 
-crontab -l | { cat; echo "*/15 * * * *		PATH='/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin' /bin/sh /root/LynxCI/install.sh mainnet >> /var/log/syslog"; } | crontab -
+crontab -l | { cat; echo "*/15 * * * *		PATH='/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin' /bin/sh /root/LynxCI/install.sh mainnet >> /var/log/syslog"; } | crontab - &> /dev/null
 
 # This file is created for the Pi. In order for SSH to work, this file must exist.
 
