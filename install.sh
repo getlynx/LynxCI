@@ -33,11 +33,11 @@ detect_os () {
 
 install_packages () {
 
-	apt-get update -y
+	apt-get -qq update -y
 
-	apt-get install -y autoconf automake build-essential bzip2 curl fail2ban g++ gcc git git-core htop libboost-all-dev libcurl4-openssl-dev libevent-dev libgmp-dev libjansson-dev libminiupnpc-dev libncurses5-dev libssl-dev libtool libz-dev make nano nodejs pkg-config software-properties-common
+	apt-get -qq install -y autoconf automake build-essential bzip2 curl fail2ban g++ gcc git git-core htop libboost-all-dev libcurl4-openssl-dev libevent-dev libgmp-dev libjansson-dev libminiupnpc-dev libncurses5-dev libssl-dev libtool libz-dev make nano nodejs pkg-config software-properties-common
 
-	apt-get autoremove -y
+	apt-get -qq autoremove -y
 
 }
 
@@ -118,7 +118,7 @@ disable_bluetooth () {
 
 		# Next, we remove the bluetooth package that was previously installed.
 
-		apt-get remove pi-bluetooth -y
+		apt-get -qq remove pi-bluetooth -y
 
 		echo "Bluetooth was uninstalled."
 
@@ -299,9 +299,9 @@ install_explorer () {
 
 	./setup_10.x
 
-    apt-get install -y nodejs build-essential libssl-dev
+    apt-get -qq install -y nodejs build-essential libssl-dev
 
-    apt-get autoremove -y
+    apt-get -qq autoremove -y
 
     echo "NodeJS was installed."
 
@@ -354,7 +354,7 @@ install_miniupnpc () {
 
 		echo "$pretty_name detected. Installing Miniupnpc."
 
-		apt-get install libminiupnpc-dev -y
+		apt-get -qq install libminiupnpc-dev -y
 
 		echo "Miniupnpc was installed."
 
@@ -366,7 +366,7 @@ install_lynx () {
 
 	echo "$pretty_name detected. Installing Lynx."
 
-	apt-get install autoconf automake bzip2 curl nano htop make g++ gcc git git-core pkg-config build-essential libtool libncurses5-dev software-properties-common libssl-dev libboost-all-dev libminiupnpc-dev libevent-dev -y
+	apt-get -qq install autoconf automake bzip2 curl nano htop make g++ gcc git git-core pkg-config build-essential libtool libncurses5-dev software-properties-common libssl-dev libboost-all-dev libminiupnpc-dev libevent-dev -y
 
 	rrpcuser="$(shuf -i 1000000000-3999999999 -n 1)$(shuf -i 1000000000-3999999999 -n 1)$(shuf -i 1000000000-3999999999 -n 1)"
 
@@ -596,13 +596,13 @@ install_mongo () {
 
 			echo "$pretty_name detected. Installing Mongo 4.0."
 
-			apt-get install dirmngr -y
+			apt-get -qq install dirmngr -y
 
  			apt-key adv --keyserver hkp://keyserver.ubuntu.com:80 --recv 9DA31620334BD75D9DCB49F368818C72E52529D4
 
  			echo "deb http://repo.mongodb.org/apt/debian stretch/mongodb-org/4.0 main" | tee /etc/apt/sources.list.d/mongodb-org-4.0.list
 
- 			apt-get update -y && apt-get install -y mongodb-org
+ 			apt-get update -y && apt-get -qq install -y mongodb-org
 
 			systemctl start mongod && systemctl enable mongod
 
@@ -620,7 +620,7 @@ install_mongo () {
 
 			echo "$pretty_name detected. Installing Mongo."
 
-			apt-get install mongodb-server -y
+			apt-get -qq install mongodb-server -y
 
 			service mongodb start && service mongodb enable
 
@@ -644,7 +644,7 @@ install_mongo () {
 
 		echo "deb http://repo.mongodb.org/apt/debian jessie/mongodb-org/4.0 main" | tee /etc/apt/sources.list.d/mongodb-org-4.0.list
 
-		apt-get update -y && apt-get install -y mongodb-org
+		apt-get -qq update -y && apt-get -qq install -y mongodb-org
 
 		systemctl start mongod && systemctl enable mongod
 
@@ -660,17 +660,17 @@ install_mongo () {
 
 		echo "$pretty_name detected. Installing Mongo 4.0."
 
-		apt-get update -y
+		apt-get -qq update -y
 
 		sleep 5
 
-		apt-get install apt-transport-https -y
+		apt-get -qq install apt-transport-https -y
 
 		apt-key adv --keyserver hkp://keyserver.ubuntu.com:80 --recv 9DA31620334BD75D9DCB49F368818C72E52529D4
 
 		echo "deb [ arch=amd64,arm64 ] https://repo.mongodb.org/apt/ubuntu xenial/mongodb-org/4.0 multiverse" | tee /etc/apt/sources.list.d/mongodb-org-4.0.list
 
-		apt-get update -y && apt-get install -y mongodb-org
+		apt-get -qq update -y && apt-get -qq install -y mongodb-org
 
 		echo "
 
@@ -707,7 +707,7 @@ install_mongo () {
 
 		echo "deb [ arch=amd64 ] https://repo.mongodb.org/apt/ubuntu bionic/mongodb-org/4.0 multiverse" | tee /etc/apt/sources.list.d/mongodb-org-4.0.list
 
-		apt-get update -y && apt-get install -y mongodb-org
+		apt-get -qq update -y && apt-get -qq install -y mongodb-org
 
 		systemctl start mongod && systemctl enable mongod
 
