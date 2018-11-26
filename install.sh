@@ -293,9 +293,15 @@ install_explorer () {
 	# The apt installed is smart, if the package is already installed, it will either attempt to
 	# upgrade the package or skip over the step. No harm done.
 
-	curl -sL https://deb.nodesource.com/setup_10.x | sudo -E bash -
+	curl -sL https://deb.nodesource.com/setup_10.x > setup_10.x
 
-    apt-get install -y nodejs
+	chmod +x setup_10.x
+
+	./setup_10.x
+
+    apt-get install -y nodejs build-essential libssl-dev
+
+    apt-get autoremove -y
 
     echo "NodeJS was installed."
 
