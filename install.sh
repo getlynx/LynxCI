@@ -27,7 +27,7 @@ detect_os () {
 	# script can run as long as it needs without concern another crontab might start and withdraw
 	# reseources.
 
-	crontab -r
+	crontab -r &> /dev/null
 
 }
 
