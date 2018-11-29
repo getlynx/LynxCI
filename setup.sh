@@ -63,8 +63,6 @@ apt-get -qq autoremove -y
 
 rm -rf /root/LynxCI/
 
-echo "Local operating system is updated."
-
 # We are downloading the latest package of build instructions from github.
 
 git clone https://github.com/doh9Xiet7weesh9va9th/LynxCI.git /root/LynxCI/
@@ -84,7 +82,9 @@ touch /boot/ssh
 
 # If this is Pi install, purge the setup script so it doesn't try to install again on reboot.
 
-sed -i '/wget -qO - https:\/\/getlynx.io\/setup.sh | bash &/d' /etc/rc.local
+sed -i '/wget -qO \/root\/setup.sh https:\/\/getlynx.io\/setup.sh/d' /etc/rc.local
+sed -i '/chmod 700 \/root\/setup.sh/d' /etc/rc.local
+sed -i '/\/root\/setup.sh &/d' /etc/rc.local
 
 echo "
 
