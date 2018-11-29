@@ -333,7 +333,7 @@ install_explorer () {
 
 	# Since we provide a download file for the setup of other nodes, set the flag for the env.
 
-	sed -i "s/IsProduction=N/${setupscript}/g" /root/LynxBlockExplorer/public/setup.sh
+	sed -i "s/IsProduction=N/${setupscript}/g" /root/LynxCI/setup.sh
 
 	# Yeah, we are probably putting to many comments in this script, but I hope it proves
 	# helpful to someone when they are having fun but don't know what a part of it does.

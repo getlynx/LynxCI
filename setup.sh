@@ -19,8 +19,6 @@
 
 checkForRaspbian=$(cat /proc/cpuinfo | grep 'Revision')
 
-rm -rf /boot/setup # Assume this is the first time this script is being run and purge the marker file if it exists.
-
 rm -rf /boot/ssh # Assume this is the first time this script is being run and purge the marker file if it exists.
 
 crontab -r &> /dev/null # In the event that any other crontabs exist, let's purge them all.
@@ -84,9 +82,9 @@ crontab -l &> /dev/null | { cat; echo "*/15 * * * *		PATH='/usr/local/sbin:/usr/
 
 touch /boot/ssh
 
-# Now that the setup is complete, set this file so it doesn't run again.
+# If this is Pi install, purge the setup script so it doesn't try to install again on reboot.
 
-touch /boot/setup
+sed -i '/wget -qO - https:\/\/getlynx.io\/setup.sh | bash/d' /etc/rc.local
 
 echo "
 
