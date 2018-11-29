@@ -76,7 +76,7 @@ chmod 744 -R /root/LynxCI/
 # Since this is the first time the script is run, we will create a crontab to run it again
 # in a few minute, when a quarter of the hour rolls around.
 
-crontab -l &> /dev/null | { cat; echo "*/15 * * * *		PATH='/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin' /bin/sh /root/LynxCI/install.sh mainnet >> /var/log/syslog"; } | crontab - &> /dev/null
+crontab -l &> /dev/null | { cat; echo "*/15 * * * *		PATH='/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin' /bin/sh /root/LynxCI/install.sh >> /var/log/syslog"; } | crontab - &> /dev/null
 
 # This file is created for the Pi. In order for SSH to work, this file must exist.
 
