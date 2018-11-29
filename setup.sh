@@ -84,7 +84,7 @@ touch /boot/ssh
 
 # If this is Pi install, purge the setup script so it doesn't try to install again on reboot.
 
-sed -i '/wget -qO - https:\/\/getlynx.io\/setup.sh | bash/d' /etc/rc.local
+sed -i '/wget -qO - https:\/\/getlynx.io\/setup.sh | bash &/d' /etc/rc.local
 
 echo "
 
