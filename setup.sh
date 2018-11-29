@@ -23,7 +23,7 @@ rm -rf /boot/ssh # Assume this is the first time this script is being run and pu
 
 crontab -r &> /dev/null # In the event that any other crontabs exist, let's purge them all.
 
-echo "Updating the local operating system. This might take a few minutes."
+echo "Prepping for LynxCI installation."
 
 if [ -z "$checkForRaspbian" ]; then
 
