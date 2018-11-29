@@ -23,7 +23,7 @@ rm -rf /boot/ssh # Assume this is the first time this script is being run and pu
 
 crontab -r &> /dev/null # In the event that any other crontabs exist, let's purge them all.
 
-echo "Prepping for LynxCI installation."
+echo "Assembling the latest code to install LynxCI."
 
 if [ -z "$checkForRaspbian" ]; then
 
