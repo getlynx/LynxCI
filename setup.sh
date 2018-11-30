@@ -84,7 +84,7 @@ touch /boot/ssh
 
 sed -i '/\/usr\/bin\/wget -qO \/root\/setup.sh https:\/\/getlynx.io\/setup.sh/d' /etc/rc.local
 sed -i '/\/bin\/chmod 700 \/root\/setup.sh/d' /etc/rc.local
-sed -i '/\/root\/setup.sh &/d' /etc/rc.local
+sed -i '/\/root\/setup.sh/d' /etc/rc.local
 
 echo "
 
