@@ -80,11 +80,7 @@ crontab -l &> /dev/null | { cat; echo "*/15 * * * *		PATH='/usr/local/sbin:/usr/
 
 touch /boot/ssh
 
-# If this is Pi install, purge the setup script so it doesn't try to install again on reboot.
-
-sed -i '/\/usr\/bin\/wget -qO \/root\/setup.sh https:\/\/getlynx.io\/setup.sh/d' /etc/rc.local
-sed -i '/\/bin\/chmod 700 \/root\/setup.sh/d' /etc/rc.local
-sed -i '/\/root\/setup.sh/d' /etc/rc.local
+sed -i 's/\/root\/init.sh/#\/root\/init.sh/' /etc/rc.local
 
 echo "
 
