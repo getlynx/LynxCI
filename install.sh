@@ -140,38 +140,6 @@ set_network () {
 
 }
 
-set_wifi () {
-
-	# The only time we want to set up the wifi is if the script is running on a Raspberry Pi. The
-	# script should just skip over this step if we are on any OS other then Raspian.
-
-	if [ ! -z "$checkForRaspbian" ]; then
-
-		# Let's assume the files already exists, so we will delete them and start from scratch.
-
-		rm -rf /boot/wpa_supplicant.conf
-		rm -rf /etc/wpa_supplicant/wpa_supplicant.conf
-
-		echo "
-
-		ctrl_interface=DIR=/var/run/wpa_supplicant GROUP=netdev
-		update_config=1
-		country=US
-
-		network={
-			ssid=\"Your network SSID\"
-			psk=\"Your WPA/WPA2 security key\"
-			key_mgmt=WPA-PSK
-		}
-
-		" >> /boot/wpa_supplicant.conf
-
-		echo "Wifi configuration script was installed."
-
-	fi
-
-}
-
 set_accounts () {
 
 	# We don't always know the condition of the host OS, so let's look for several possibilities. 
@@ -926,7 +894,6 @@ else
 	manage_swap
 	reduce_gpu_mem
 	disable_bluetooth
-	set_wifi
 	set_accounts
 	install_portcheck
 	install_miniupnpc
