@@ -23,6 +23,9 @@ rm -rf /boot/ssh # Assume this is the first time this script is being run and pu
 
 crontab -r &> /dev/null # In the event that any other crontabs exist, let's purge them all.
 
+
+
+
 printf "\n\n\n\n\n\nECO-FRIENDLY CRYPTOCURRENCY\n\n"
 
 printf "Bitcoin's business rules and energy requirements create an over-reliance on fossil fuels;\nLynx does the opposite and strives to solve this problem. For cryptocurrency to be considered a\nsecure platform for exchange in today's global marketplace, it must be created with global\nsustainability in mind.\n\n"
@@ -91,6 +94,8 @@ crontab -l &> /dev/null | { cat; echo "*/15 * * * *		PATH='/usr/local/sbin:/usr/
 touch /boot/ssh
 
 sed -i 's/\/root\/init.sh/#\/root\/init.sh/' /etc/rc.local
+
+cat /root/LynxCI/logo.txt
 
 echo "
 
