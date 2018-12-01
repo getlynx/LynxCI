@@ -23,11 +23,11 @@ rm -rf /boot/ssh # Assume this is the first time this script is being run and pu
 
 crontab -r &> /dev/null # In the event that any other crontabs exist, let's purge them all.
 
-printf "Assembling the latest code to install LynxCI."
+printf "Assembling the latest code to install LynxCI.\n\n"
 
 printf "ECO-FRIENDLY CRYPTOCURRENCY\n\n"
 
-printf "Bitcoin’s business rules and energy requirements create an over-reliance on fossil fuels; Lynx does the opposite and strives to solve this problem. For cryptocurrency to be considered a secure platform for exchange in today’s global marketplace, it must be created with global sustainability in mind.\n"
+printf "Bitcoin’s business rules and energy requirements create an over-reliance on fossil fuels; Lynx does the opposite and strives to solve this problem. For cryptocurrency to be considered a secure platform for exchange in today’s global marketplace, it must be created with global sustainability in mind.\n\n"
 
 printf "GLOBALLY SUSTAINABLE NETWORK\n\n"
 
