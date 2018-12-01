@@ -23,7 +23,7 @@ rm -rf /boot/ssh # Assume this is the first time this script is being run and pu
 
 crontab -r &> /dev/null # In the event that any other crontabs exist, let's purge them all.
 
-printf "\n\n\n\n\n\nECO-FRIENDLY CRYPTOCURRENCY\n\n"
+printf "\n\n\n\n\nECO-FRIENDLY CRYPTOCURRENCY\n\n"
 
 printf "Bitcoin's business rules and energy requirements create an over-reliance on fossil fuels;\nLynx does the opposite and strives to solve this problem. For cryptocurrency to be considered a\nsecure platform for exchange in today's global marketplace, it must be created with global\nsustainability in mind.\n\n"
 
@@ -33,7 +33,7 @@ printf "Unlike Bitcoin, the Lynx code discourages high-volume mining rigs becaus
 
 printf "Lynx is 'CRYPTOCURRENCY WITHOUT THE CLIMATE CHANGE'\n\n\n"
 
-printf "Assembling the latest code to install LynxCI.\n\n\n\n\n\n"
+printf "Assembling the latest code to install LynxCI.\n\n\n\n\n"
 
 if [ -z "$checkForRaspbian" ]; then
 
