@@ -92,10 +92,6 @@ touch /boot/ssh
 
 sed -i 's/\/root\/init.sh/#\/root\/init.sh/' /etc/rc.local
 
-printf "\n\n\n\n\n\n"
-
-cat /root/LynxCI/logo.txt
-
 echo "
 
 	 The unattended install will begin in 15 minutes or less.
