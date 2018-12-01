@@ -25,11 +25,11 @@ crontab -r &> /dev/null # In the event that any other crontabs exist, let's purg
 
 printf "\n\n\n\n\n\nECO-FRIENDLY CRYPTOCURRENCY\n\n"
 
-printf "Bitcoin's business rules and energy requirements create an over-reliance on fossil fuels; Lynx does the opposite and strives to solve this problem. For cryptocurrency to be considered a secure platform for exchange in today's global marketplace, it must be created with global sustainability in mind.\n\n"
+printf "Bitcoin's business rules and energy requirements create an over-reliance on fossil fuels;\nLynx does the opposite and strives to solve this problem. For cryptocurrency to be considered a\nsecure platform for exchange in today's global marketplace, it must be created with global\nsustainability in mind.\n\n"
 
 printf "GLOBALLY SUSTAINABLE NETWORK\n\n"
 
-printf "Unlike Bitcoin, the Lynx code discourages high-volume mining rigs because the code purposefully lacks incentives to mine it for profit. As a result, the entire Lynx network is designed to operate on a collaboration of low power devices that anyone can run, resulting in a collective global mining cost of only dollars a day.\n\n"
+printf "Unlike Bitcoin, the Lynx code discourages high-volume mining rigs because the code\npurposefully lacks incentives to mine it for profit. As a result, the entire Lynx network is\ndesigned to operate on a collaboration of low power devices that anyone can run, resulting in\na collective global mining cost of only dollars a day.\n\n"
 
 printf "Lynx is 'CRYPTOCURRENCY WITHOUT THE CLIMATE CHANGE'\n\n\n"
 
