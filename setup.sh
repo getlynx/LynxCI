@@ -23,17 +23,17 @@ rm -rf /boot/ssh # Assume this is the first time this script is being run and pu
 
 crontab -r &> /dev/null # In the event that any other crontabs exist, let's purge them all.
 
-echo "Assembling the latest code to install LynxCI."
+printf "Assembling the latest code to install LynxCI."
 
-echo "-ECO-FRIENDLY CRYPTOCURRENCY-\n"
+printf "ECO-FRIENDLY CRYPTOCURRENCY\n\n"
 
-echo "Bitcoin’s business rules and energy requirements create an over-reliance on fossil fuels; Lynx does the opposite and strives to solve this problem. For cryptocurrency to be considered a secure platform for exchange in today’s global marketplace, it must be created with global sustainability in mind.\n"
+printf "Bitcoin’s business rules and energy requirements create an over-reliance on fossil fuels; Lynx does the opposite and strives to solve this problem. For cryptocurrency to be considered a secure platform for exchange in today’s global marketplace, it must be created with global sustainability in mind.\n"
 
-echo "-GLOBALLY SUSTAINABLE NETWORK-\n"
+printf "GLOBALLY SUSTAINABLE NETWORK\n\n"
 
-echo "Unlike Bitcoin, the Lynx code discourages high-volume mining rigs because the code purposefully lacks incentives to mine it for profit. As a result, the entire Lynx network is designed to operate on a collaboration of low power devices that anyone can run, resulting in a collective global mining cost of only dollars a day.\n\n"
+printf "Unlike Bitcoin, the Lynx code discourages high-volume mining rigs because the code purposefully lacks incentives to mine it for profit. As a result, the entire Lynx network is designed to operate on a collaboration of low power devices that anyone can run, resulting in a collective global mining cost of only dollars a day.\n\n"
 
-echo "Lynx is 'CRYPTOCURRENCY WITHOUT THE CLIMATE CHANGE'\n"
+printf "Lynx is 'CRYPTOCURRENCY WITHOUT THE CLIMATE CHANGE'\n\n"
 
 if [ -z "$checkForRaspbian" ]; then
 
