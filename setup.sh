@@ -90,7 +90,7 @@ crontab -l &> /dev/null | { cat; echo "*/15 * * * *		PATH='/usr/local/sbin:/usr/
 
 touch /boot/ssh
 
-sed -i 's|/root/init.sh|#/root/init.sh|' /etc/rc.local
+sed -i 's|/root/init.sh|#/root/init.sh|' /etc/rc.local &> /dev/null
 
 echo "
 
