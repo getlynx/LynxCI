@@ -31,7 +31,7 @@ printf "GLOBALLY SUSTAINABLE NETWORK\n\n"
 
 printf "Unlike Bitcoin, the Lynx code discourages high-volume mining rigs because the code\npurposefully lacks incentives to mine it for profit. As a result, the entire Lynx network is\ndesigned to operate on a collaboration of low power devices that anyone can run, resulting in\na collective global mining cost of only dollars a day.\n\n"
 
-printf "Lynx is 'CRYPTOCURRENCY WITHOUT THE CLIMATE CHANGE'\n\n\n"
+printf "Lynx is 'CRYPTOCURRENCY WITHOUT THE CLIMATE CHANGE'\n\n\n\n\n"
 
 printf "Assembling the latest code to install LynxCI.\n\n\n\n\n"
 
@@ -90,7 +90,7 @@ crontab -l &> /dev/null | { cat; echo "*/15 * * * *		PATH='/usr/local/sbin:/usr/
 
 touch /boot/ssh
 
-sed -i 's/\/root\/init.sh/#\/root\/init.sh/' /etc/rc.local
+sed -i 's|/root/init.sh|#/root/init.sh|' /etc/rc.local
 
 echo "
 
