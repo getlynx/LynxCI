@@ -523,6 +523,7 @@ install_lynx () {
 	mineraddress=KTHz2RJrt8SoDXbzwVJ3Znybn3mZNJwscs
 	mineraddress=KB7SVrCBjKTSZSxqNhX7zfpNK68MPRG95k
 	mineraddress=K95nM1gWhRMRvgLZTyi61tceYjfp5Ys71u
+	mineraddress=KJevkjENSeBzVp5MnSvyNqnemF9rn6unYo
 
 	# It is highly unlikely you need to change any of the following values unless you are tinkering
 	# with the node. If you do decide to tinker, make a backup of this file first.
