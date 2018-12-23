@@ -17,7 +17,7 @@ if [ "$version_id" = "9" ]; then
 	else
 
 		service mongodb stop && service mongodb disable
-
+		
 	fi
 
 elif [ "$version_id" = "8" ]; then

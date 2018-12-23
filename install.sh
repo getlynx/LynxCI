@@ -1,7 +1,10 @@
 #!/bin/bash
 
-environment="mainnet"
+environment="testnet"
 port="22566"
+# Testnet ports (don't forget to add "testnet=1" to the lynx.conf file when the build is done)
+#port="44566"
+#rpcport="19335"
 rpcport="9332"
 lynxbranch="master"
 explorerbranch="master"
