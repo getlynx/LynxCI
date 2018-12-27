@@ -544,13 +544,17 @@ install_lynx () {
 	txindex=0
 	host=$hhostname
 
-if [ \"\$environment\" = \"testnet\" ]; then
+	" > /root/.lynx/lynx.conf
 
+	if [ "$environment" = "testnet" ]; then
+
+	echo "
+	
 	testnet=1
 
-fi
+	" >> /root/.lynx/lynx.conf
 
-	" > /root/.lynx/lynx.conf
+	fi
 
 	chown -R root:root /root/.lynx/*
 
