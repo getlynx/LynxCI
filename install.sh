@@ -1,17 +1,22 @@
 #!/bin/bash
 
 environment="mainnet"
-# Testnet ports (don't forget to add "testnet=1" to the lynx.conf file when the build is done)
-#port="44566"
-#rpcport="19335"
-port="22566"
-rpcport="9332"
 lynxbranch="master"
 explorerbranch="master"
-explorer="https://explorer.getlynx.io/api/getblockcount"
-setupscript="IsProduction=Y"
 
 detect_os () {
+
+	if [ "$environment" = "mainnet" ]; then
+
+		port="22566"
+		rpcport="9332"
+
+	else
+
+		port="44566"
+		rpcport="19335"
+
+	fi
 
 	# We are inspecting the local operating system and extracting the full name so we know the
 	# unique flavor. In the rest of the script we have various changes that are dedicated to
@@ -302,10 +307,6 @@ install_explorer () {
 
 	sed -i 's/User=undefined/User=root/' /etc/systemd/system/pm2-undefined.service
 
-	# Since we provide a download file for the setup of other nodes, set the flag for the env.
-
-	sed -i "s/IsProduction=N/${setupscript}/g" /root/LynxCI/setup.sh
-
 	# Yeah, we are probably putting to many comments in this script, but I hope it proves
 	# helpful to someone when they are having fun but don't know what a part of it does.
 
@@ -542,6 +543,12 @@ install_lynx () {
 	dbcache=100
 	txindex=0
 	host=$hhostname
+
+if [ \"\$environment\" = \"testnet\" ]; then
+
+	testnet=1
+
+fi
 
 	" > /root/.lynx/lynx.conf
 

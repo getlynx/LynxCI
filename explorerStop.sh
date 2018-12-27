@@ -56,7 +56,7 @@ crontab -l | { cat; echo "*/5 * * * *		MALLOC_ARENA_MAX=1 /root/lynx/src/lynxd";
 # host device. So instead of running it daily like we used to, we only run it once a month. This
 # day of the month is randomly selected on build.
 
-crontab -l | { cat; echo "0 0 $(shuf -i 1-15 -n 1) * *		/root/LynxCI/update.sh"; } | crontab -
+#crontab -l | { cat; echo "0 0 $(shuf -i 1-15 -n 1) * *		/root/LynxCI/update.sh"; } | crontab -
 
 # We found that after a few weeks, the debug log would grow rather large. It's not really needed
 # after a certain size, so let's truncate that log down to a reasonable size every day.
@@ -68,4 +68,4 @@ crontab -l | { cat; echo "*/30 * * * *		truncate -s 5KB /root/.lynx/debug.log"; 
 # occasional reboot won't cause harm. This crontab means to reboot EVERY 15 days, NOT on the
 # 15th day of the month. An important distinction.
 
-crontab -l | { cat; echo "0 0 $(shuf -i 16-28 -n 1) * *		/sbin/shutdown -r now"; } | crontab -
+#crontab -l | { cat; echo "0 0 $(shuf -i 16-28 -n 1) * *		/sbin/shutdown -r now"; } | crontab -
