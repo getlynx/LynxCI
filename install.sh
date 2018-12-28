@@ -576,6 +576,8 @@ install_lynx () {
 
 	fi
 
+	cp /root/.lynx/lynx.conf /root/.lynx/lynx.default
+
 	chown -R root:root /root/.lynx/*
 
 	echo "Lynx was installed."
