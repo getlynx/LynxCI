@@ -528,6 +528,26 @@ install_lynx () {
 	mineraddress=KB7SVrCBjKTSZSxqNhX7zfpNK68MPRG95k
 	mineraddress=K95nM1gWhRMRvgLZTyi61tceYjfp5Ys71u
 	mineraddress=KJevkjENSeBzVp5MnSvyNqnemF9rn6unYo
+	mineraddress=KQqL8U2vD5QpZg8MJ47cVj2sRbo7gV4tu5
+	mineraddress=KQpa4GDG5GcwrinjpDmUgpAaYgRbfNGUMK
+	mineraddress=KGFx9JD1dFY4dtFdLqw1d3ZQnWL6ws6nLy
+	mineraddress=KNoWE13FPBDUuqyK1DUT7qnJx9jVfqkeGc
+	mineraddress=KMqkxAmFYpMDEyEA5QmbZZrwXtu6pwuv61
+	mineraddress=KS2Gg8MvcJmLNPK7mQdoG6DJJaZxQ4neej
+	mineraddress=KBmLgzVMiKbcMuaoJeoPNs5R98tAHYM515
+	mineraddress=KCtFzP3fGn1ZxRiNVFeCnGuwiy7qsSvB22
+	mineraddress=K9WR6ZTB5X4hoWvTUK1xR4ddWUSX9qMeS4
+	mineraddress=KSXLSbsoovJepb9x1sczDRNyTvDYEfZZ2k
+	mineraddress=KNv9XbCfshP4vV9GN7p6KYGEPqYFc4Ei6c
+	mineraddress=KRUrR4beUxL5AsyVduL5KT7BNHsbkA9Mh2
+	mineraddress=KNYnVkhaQehdbKSqy4a3AiZGBAYQkqemPF
+	mineraddress=KExtMudoDex2bckdwhoi2jJxpPMTwpvoSd
+	mineraddress=KHCqKmt8B3zgQ6z3XWGhhPLuLWvsJiwy3Q
+	mineraddress=KNZLV7CcBgXR87xi7NCyhGojaJrWHg63FC
+	mineraddress=K8cckpj6R5yBPNHfBpfP3mm9Joo2VgRWSd
+	mineraddress=KAQuZ4eTzTQ9AR6kgHXay6DbVXBACwfJpK
+	mineraddress=KQ69GDCDVcd1ar6gFqUHhLzUCa1eG6QK2u
+	mineraddress=KFj36awh9AaAK3pxKW8E7RmMQf1P17VNdr
 
 	# It is highly unlikely you need to change any of the following values unless you are tinkering
 	# with the node. If you do decide to tinker, make a backup of this file first.
@@ -541,7 +561,7 @@ install_lynx () {
 	listenonion=0
 	upnp=1
 	dbcache=100
-	txindex=0
+	txindex=1
 	host=$hhostname
 
 	" > /root/.lynx/lynx.conf
