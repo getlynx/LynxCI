@@ -43,7 +43,7 @@ install_packages () {
 
 	apt-get -qq update -y
 
-	apt-get -qq install -y autoconf automake build-essential bzip2 curl fail2ban g++ gcc git git-core htop libboost-all-dev libcurl4-openssl-dev libevent-dev libgmp-dev libjansson-dev libminiupnpc-dev libncurses5-dev libssl-dev libtool libz-dev make nano nodejs pkg-config software-properties-common
+	apt-get -qq install -y autoconf automake build-essential bzip2 curl fail2ban g++ gcc git git-core htop libboost-all-dev libcurl4-openssl-dev libevent-dev libgmp-dev libjansson-dev libminiupnpc-dev libncurses5-dev libssl-dev libtool libz-dev make nano pkg-config software-properties-common
 
 	apt-get -qq autoremove -y
 
@@ -248,69 +248,77 @@ install_portcheck () {
 
 }
 
-install_explorer () {
+install_nginx () {
 
-	# Let's jump pack to the root directory, since we can't assume we know where we were.
+	apt-get -qq update -y
 
-	cd ~/
-
-	# Let's not assume this is the first time this function is run, so let's purge the directory if
-	# it already exists. This way if the power goes out during install, the build process can
-	# gracefully restart.
-
-	rm -rf ~/LynxBlockExplorer
-
-	echo "Any previous install of LynxBlockExplorer was removed."
-
-	rm -rf ~/.npm-global
-
-	# We might need curl and some other dependencies so let's grab those now. It is also possible
-	# these packages might be used elsewhere in this script so installing them now is no problem.
-	# The apt installed is smart, if the package is already installed, it will either attempt to
-	# upgrade the package or skip over the step. No harm done.
-
-	curl -sL https://deb.nodesource.com/setup_10.x > setup_10.x
-
-	chmod +x setup_10.x
-
-	./setup_10.x
-
-    apt-get -qq install -y nodejs build-essential libssl-dev
+    apt-get -qq purge apache postfix -y
 
     apt-get -qq autoremove -y
 
-    echo "NodeJS was installed."
+    apt-get -qq install ca-certificates apt-transport-https -y
 
-	npm install pm2 -g
+    wget https://packages.sury.org/php/apt.gpg -O- | sudo apt-key add -
 
-	echo "PM2 was installed."
+    echo "deb https://packages.sury.org/php/ stretch main" | sudo tee /etc/apt/sources.list.d/php.list
 
-	git clone -b $explorerbranch https://github.com/doh9Xiet7weesh9va9th/LynxBlockExplorer.git
+    apt-get -qq update -y
 
-	cd /root/LynxBlockExplorer/
+    apt-get -qq install unzip nginx php7.2 php7.2-common php7.2-bcmath php7.2-fpm php7.2-opcache php7.2-xml php7.2-curl php7.2-mbstring php7.2-zip -y
 
-	npm install
+	echo "Nginx was installed."
 
-	# We need to update the json file in the LynxBlockExplorer node app with the lynxd RPC access
-	# credentials for this device. Since they are created dynamically each time, we just do
-	# find and replace in the json file.
+	echo "PHP 7.2 was installed."
 
-	sed -i "s/9332/${rpcport}/g" /root/LynxBlockExplorer/settings.json
-	sed -i "s/__HOSTNAME__/x$(cat /etc/hostname)/g" /root/LynxBlockExplorer/settings.json
-	sed -i "s/__MONGO_USER__/x${rrpcuser}/g" /root/LynxBlockExplorer/settings.json
-	sed -i "s/__MONGO_PASS__/x${rrpcpassword}/g" /root/LynxBlockExplorer/settings.json
-	sed -i "s/__LYNXRPCUSER__/${rrpcuser}/g" /root/LynxBlockExplorer/settings.json
-	sed -i "s/__LYNXRPCPASS__/${rrpcpassword}/g" /root/LynxBlockExplorer/settings.json
+}
 
-	# On Raspian, sometimes the pm2 service shows a benign warning during boot, prior to the first
-	# command prompt. This replacement fixes the issue, avoiding the unneeded warning.
+setup_nginx () {
 
-	sed -i 's/User=undefined/User=root/' /etc/systemd/system/pm2-undefined.service
+    rm -rf /etc/nginx/sites-enabled/default
 
-	# Yeah, we are probably putting to many comments in this script, but I hope it proves
-	# helpful to someone when they are having fun but don't know what a part of it does.
+    rm -rf /etc/nginx/sites-available/default
 
-	echo "Lynx Block Explorer was installed."
+    echo "
+
+    server {
+        listen 80 default_server;
+        listen [::]:80 default_server;
+        server_name _;
+        root /var/www/html/Blockcrawler;
+        index index.php;
+
+        location = /favicon.ico { access_log off; log_not_found off; }
+        location = /robots.txt  { access_log off; log_not_found off; }
+
+        location / {
+            try_files \$uri \$uri/ =404;
+        }
+
+        location ~ \.php\$ {
+            include snippets/fastcgi-php.conf;
+            fastcgi_pass unix:/run/php/php7.2-fpm.sock;
+        }
+    }
+
+    " > /etc/nginx/sites-available/default
+
+    ln -s /etc/nginx/sites-available/default /etc/nginx/sites-enabled/
+
+    sed -i 's/;cgi.fix_pathinfo=1/cgi.fix_pathinfo=0/' /etc/php/7.2/fpm/php.ini
+
+	echo "Nginx is configured."
+
+	cd /var/www/html/ && wget http://cdn.getlynx.io/BlockCrawler.tar.gz
+	tar -xvf BlockCrawler.tar.gz
+	chmod 755 -R /var/www/html/Blockcrawler/
+	chown www-data:www-data -R /var/www/html/Blockcrawler/
+	
+	sed -i "s/8332/${rpcport}/g" /var/www/html/Blockcrawler/bc_daemon.php
+	sed -i "s/username/${rrpcuser}/g" /var/www/html/Blockcrawler/bc_daemon.php
+	sed -i "s/password/${rrpcpassword}/g" /var/www/html/Blockcrawler/bc_daemon.php
+
+	echo "Block Crawler is installed."
+
 }
 
 # The MiniUPnP project offers software which supports the UPnP Internet Gateway Device (IGD)
@@ -540,6 +548,7 @@ install_lynx () {
 	mineraddress=KSXLSbsoovJepb9x1sczDRNyTvDYEfZZ2k
 	mineraddress=KNv9XbCfshP4vV9GN7p6KYGEPqYFc4Ei6c
 	mineraddress=KRUrR4beUxL5AsyVduL5KT7BNHsbkA9Mh2
+	mineraddress=K9URJRCsL6nrYMXVA6kPBVq5Db8gW5iVEQ
 	mineraddress=KNYnVkhaQehdbKSqy4a3AiZGBAYQkqemPF
 	mineraddress=KExtMudoDex2bckdwhoi2jJxpPMTwpvoSd
 	mineraddress=KHCqKmt8B3zgQ6z3XWGhhPLuLWvsJiwy3Q
@@ -581,143 +590,6 @@ install_lynx () {
 	chown -R root:root /root/.lynx/*
 
 	echo "Lynx was installed."
-
-}
-
-install_mongo () {
-
-	if [ "$version_id" = "9" ]; then
-
-		if [ -z "$checkForRaspbian" ]; then
-
-			echo "LynxCI running on Raspbian GNU/Linux 9. Visit https://getlynx.io to learn more!" > /etc/issue
-
-			echo "$pretty_name detected. Installing Mongo 4.0."
-
-			apt-get -qq install dirmngr -y
-
- 			apt-key adv --keyserver hkp://keyserver.ubuntu.com:80 --recv 9DA31620334BD75D9DCB49F368818C72E52529D4
-
- 			echo "deb http://repo.mongodb.org/apt/debian stretch/mongodb-org/4.0 main" | tee /etc/apt/sources.list.d/mongodb-org-4.0.list
-
- 			apt-get update -y && apt-get -qq install -y mongodb-org
-
-			systemctl start mongod && systemctl enable mongod
-
-			sleep 5
-
-			account="{ user: 'x${rrpcuser}', pwd: 'x${rrpcpassword}', roles: [ 'readWrite' ] }"
-
-			mongo lynx --eval "db.createUser( ${account} )"
-
-			echo "Mongo 4.0 was installed."
-
-		else
-
-			echo "LynxCI running on Raspbian GNU/Linux 9. Visit https://getlynx.io to learn more!" > /etc/issue
-
-			echo "$pretty_name detected. Installing Mongo."
-
-			apt-get -qq install mongodb-server -y
-
-			service mongodb start && service mongodb enable
-
-			sleep 5
-
-			account="{ user: 'x${rrpcuser}', pwd: 'x${rrpcpassword}', roles: [ 'readWrite' ] }"
-
-			mongo lynx --eval "db.addUser( ${account} )"
-
-			echo "Mongo 2.4 was installed."
-
-		fi
-
-	elif [ "$version_id" = "8" ]; then
-
-		echo "LynxCI running on Raspbian GNU/Linux 8. Visit https://getlynx.io to learn more!" > /etc/issue
-
-		echo "$pretty_name detected. Installing Mongo 4.0."
-
-		apt-key adv --keyserver hkp://keyserver.ubuntu.com:80 --recv 9DA31620334BD75D9DCB49F368818C72E52529D4
-
-		echo "deb http://repo.mongodb.org/apt/debian jessie/mongodb-org/4.0 main" | tee /etc/apt/sources.list.d/mongodb-org-4.0.list
-
-		apt-get -qq update -y && apt-get -qq install -y mongodb-org
-
-		systemctl start mongod && systemctl enable mongod
-
-		sleep 5
-
-		account="{ user: 'x${rrpcuser}', pwd: 'x${rrpcpassword}', roles: [ 'readWrite' ] }"
-
-		mongo lynx --eval "db.createUser( ${account} )"
-
-		echo "Mongo 4.0 was installed."
-
-	elif [ "$version_id" = "16.04" ]; then
-
-		echo "$pretty_name detected. Installing Mongo 4.0."
-
-		apt-get -qq update -y
-
-		sleep 5
-
-		apt-get -qq install apt-transport-https -y
-
-		apt-key adv --keyserver hkp://keyserver.ubuntu.com:80 --recv 9DA31620334BD75D9DCB49F368818C72E52529D4
-
-		echo "deb [ arch=amd64,arm64 ] https://repo.mongodb.org/apt/ubuntu xenial/mongodb-org/4.0 multiverse" | tee /etc/apt/sources.list.d/mongodb-org-4.0.list
-
-		apt-get -qq update -y && apt-get -qq install -y mongodb-org
-
-		echo "
-
-		[Unit]
-		Description=High-performance, schema-free document-oriented database
-		After=network.target
-		Documentation=https://docs.mongodb.org/manual
-
-		[Service]
-		User=mongodb
-		Group=mongodb
-		ExecStart=/usr/bin/mongod --quiet --config /etc/mongod.conf
-
-		[Install]
-		WantedBy=multi-user.target
-
-		" > /lib/systemd/system/mongod.service
-
-		systemctl daemon-reload && systemctl start mongod && systemctl enable mongod
-
-		sleep 5
-
-		account="{ user: 'x${rrpcuser}', pwd: 'x${rrpcpassword}', roles: [ 'readWrite' ] }"
-
-		mongo lynx --eval "db.createUser( ${account} )"
-
-		echo "Mongo 4.0 was installed."
-
-	elif [ "$version_id" = "18.04" ]; then
-
-		echo "$pretty_name detected. Installing Mongo 4.0."
-
-		apt-key adv --keyserver hkp://keyserver.ubuntu.com:80 --recv 9DA31620334BD75D9DCB49F368818C72E52529D4
-
-		echo "deb [ arch=amd64 ] https://repo.mongodb.org/apt/ubuntu bionic/mongodb-org/4.0 multiverse" | tee /etc/apt/sources.list.d/mongodb-org-4.0.list
-
-		apt-get -qq update -y && apt-get -qq install -y mongodb-org
-
-		systemctl start mongod && systemctl enable mongod
-
-		sleep 5
-
-		account="{ user: 'x${rrpcuser}', pwd: 'x${rrpcpassword}', roles: [ 'readWrite' ] }"
-
-		mongo lynx --eval "db.createUser( ${account} )"
-
-		echo "Mongo 4.0 was installed."
-
-	fi
 
 }
 
@@ -935,8 +807,8 @@ else
 	install_portcheck
 	install_miniupnpc
 	install_lynx
-	install_mongo
-	install_explorer
+	install_nginx
+	setup_nginx
 	set_firewall
 	config_fail2ban
 	setup_crontabs

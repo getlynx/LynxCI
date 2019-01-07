@@ -1,38 +1,8 @@
 #!/bin/bash
 
-cd /root/LynxBlockExplorer/
+systemctl stop nginx && systemctl disable nginx
 
-pm2 kill
-
-version_id=`cat /etc/os-release | egrep '^VERSION_ID=' | cut -d= -f2 -d'"'`
-
-checkForRaspbian=$(cat /proc/cpuinfo | grep 'Revision')
-
-if [ "$version_id" = "9" ]; then
-
-	if [ -z "$checkForRaspbian" ]; then
-
-		systemctl stop mongod && systemctl disable mongod
-
-	else
-
-		service mongodb stop && service mongodb disable
-		
-	fi
-
-elif [ "$version_id" = "8" ]; then
-
-	systemctl stop mongod && systemctl disable mongod
-
-elif [ "$version_id" = "16.04" ]; then
-
-	systemctl daemon-reload && systemctl stop mongod && systemctl disable mongod
-
-elif [ "$version_id" = "18.04" ]; then
-
-	systemctl stop mongod && systemctl disable mongod
-
-fi
+systemctl stop php7.2-fpm && systemctl disable php7.2-fpm
 
 # The following line is a search and replace for the string in the firewall script that enabled (or
 # disables) access to the node via port 80. If the Block Explorer isn't running, we might as well
@@ -61,7 +31,7 @@ crontab -l | { cat; echo "*/5 * * * *		MALLOC_ARENA_MAX=1 /root/lynx/src/lynxd";
 # We found that after a few weeks, the debug log would grow rather large. It's not really needed
 # after a certain size, so let's truncate that log down to a reasonable size every day.
 
-crontab -l | { cat; echo "*/30 * * * *		truncate -s 5KB /root/.lynx/debug.log"; } | crontab -
+crontab -l | { cat; echo "*/30 * * * *		truncate -s 10KB /root/.lynx/debug.log"; } | crontab -
 
 # Evey 15 days we will reboot the device. This is for a few reasons. Since the device is often
 # not actively managed by it's owner, we can't assume it is always running perfectly so an
