@@ -284,7 +284,7 @@ setup_nginx () {
         listen 80 default_server;
         listen [::]:80 default_server;
         server_name _;
-        root /var/www/html/Blockcrawler;
+        root /var/www/html;
         index index.php;
 
         location = /favicon.ico { access_log off; log_not_found off; }
@@ -308,14 +308,16 @@ setup_nginx () {
 
 	echo "Nginx is configured."
 
-	cd /var/www/html/ && wget http://cdn.getlynx.io/BlockCrawler.tar.gz
-	tar -xvf BlockCrawler.tar.gz
-	chmod 755 -R /var/www/html/Blockcrawler/
-	chown www-data:www-data -R /var/www/html/Blockcrawler/
+	rm -rf /var/www/html/
+
+	git clone https://github.com/doh9Xiet7weesh9va9th/LynxBlockCrawler.git /var/www/html/
+
+	chmod 755 -R /var/www/html/
+	chown www-data:www-data -R /var/www/html/
 	
-	sed -i "s/8332/${rpcport}/g" /var/www/html/Blockcrawler/bc_daemon.php
-	sed -i "s/username/${rrpcuser}/g" /var/www/html/Blockcrawler/bc_daemon.php
-	sed -i "s/password/${rrpcpassword}/g" /var/www/html/Blockcrawler/bc_daemon.php
+	sed -i "s/8332/${rpcport}/g" /var/www/html/bc_daemon.php
+	sed -i "s/username/${rrpcuser}/g" /var/www/html/bc_daemon.php
+	sed -i "s/password/${rrpcpassword}/g" /var/www/html/bc_daemon.php
 
 	echo "Block Crawler is installed."
 
@@ -768,7 +770,7 @@ restart () {
 	# this script were to run again, it would abort because it would know it already ran sometime
 	# in the past. This is another way to prevent a loop if something bad happens during the install
 	# process. At least it will fail and the machine won't be looping a reboot/install over and
-	# over. This helps if we have ot debug a problem in the future.
+	# over. This helps if we have to debug a problem in the future.
 
 	/usr/bin/touch /boot/ssh
 
