@@ -593,9 +593,11 @@ install_lynx () {
 
 	cp /root/.lynx/lynx.conf /root/.lynx/lynx.default
 
-	wget ‐‐directory-prefix=/root/.lynx http://cdn.getlynx.io/timesaver.tar.gz
+	wget http://cdn.getlynx.io/timesaver.tar.gz
 
-	tar -xzvf /root/.lynx/timesaver.tar.gz -C /root/.lynx/
+	tar -xzvf /root/timesaver.tar.gz -C /root/.lynx/
+
+	mv /root/.lynx/lynx/* /root/.lynx/
 
 	# Be sure to reset the ownership of all files in the .lynx dir to root in case any process run
 	# previously changed the default ownership setting. More of a precautionary measure.
