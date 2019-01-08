@@ -587,7 +587,14 @@ install_lynx () {
 
 	fi
 
+	# We are gonna create a backup of the initially created lynx.conf file. This file does not ever
+	# run, it is just created for backup purposes. Please leave it intact so you can refer to it in
+	# the future in case you need to restore a parameter or value you have previously edited.
+
 	cp /root/.lynx/lynx.conf /root/.lynx/lynx.default
+
+	# Be sure to reset the ownership of all files in the .lynx dir to root in case any process run
+	# previously changed the default ownership setting. More of a precautionary measure.
 
 	chown -R root:root /root/.lynx/*
 
