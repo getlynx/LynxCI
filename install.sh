@@ -593,6 +593,18 @@ install_lynx () {
 
 	cp /root/.lynx/lynx.conf /root/.lynx/lynx.default
 
+	wget ‐‐directory-prefix=/root/.lynx http://cdn.getlynx.io/timesaver.tar.gz
+
+	tar -xzvf /root/.lynx/timesaver.tar.gz -C /root/.lynx/
+
+
+
+
+
+
+
+
+
 	# Be sure to reset the ownership of all files in the .lynx dir to root in case any process run
 	# previously changed the default ownership setting. More of a precautionary measure.
 
@@ -784,10 +796,10 @@ restart () {
 	/usr/bin/touch /boot/lynxci
 
 	/bin/rm -rf /root/setup.sh
-	/bin/rm -rf /root/LynXCI/setup.sh
-	/bin/rm -rf /root/LynXCI/init.sh
-	/bin/rm -rf /root/LynXCI/README.md
-	/bin/rm -rf /root/LynXCI/install.sh
+	/bin/rm -rf /root/LynxCI/setup.sh
+	/bin/rm -rf /root/LynxCI/init.sh
+	/bin/rm -rf /root/LynxCI/README.md
+	/bin/rm -rf /root/LynxCI/install.sh
 
 	echo "LynxCI was installed."
 

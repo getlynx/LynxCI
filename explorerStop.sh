@@ -1,6 +1,10 @@
 #!/bin/bash
 
+# The first command stops nginx and the second makes sure it doesn't start after a reboot.
+
 systemctl stop nginx && systemctl disable nginx
+
+# The first command stops PHP-FPM and the second makes sure it doesn't start after a reboot.
 
 systemctl stop php7.2-fpm && systemctl disable php7.2-fpm
 
@@ -22,12 +26,6 @@ crontab -l | { cat; echo "0 */3 * * *		/root/LynxCI/explorerStop.sh"; } | cronta
 
 crontab -l | { cat; echo "*/5 * * * *		MALLOC_ARENA_MAX=1 /root/lynx/src/lynxd"; } | crontab -
 
-# The update script totally reinstalls the Block Explorer code. It's pretty intensive for the
-# host device. So instead of running it daily like we used to, we only run it once a month. This
-# day of the month is randomly selected on build.
-
-#crontab -l | { cat; echo "0 0 $(shuf -i 1-15 -n 1) * *		/root/LynxCI/update.sh"; } | crontab -
-
 # We found that after a few weeks, the debug log would grow rather large. It's not really needed
 # after a certain size, so let's truncate that log down to a reasonable size every day.
 
@@ -38,4 +36,4 @@ crontab -l | { cat; echo "*/30 * * * *		truncate -s 10KB /root/.lynx/debug.log";
 # occasional reboot won't cause harm. This crontab means to reboot EVERY 15 days, NOT on the
 # 15th day of the month. An important distinction.
 
-#crontab -l | { cat; echo "0 0 $(shuf -i 16-28 -n 1) * *		/sbin/shutdown -r now"; } | crontab -
+crontab -l | { cat; echo "0 0 $(shuf -i 16-28 -n 1) * *		/sbin/shutdown -r now"; } | crontab -
