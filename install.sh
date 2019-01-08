@@ -593,11 +593,17 @@ install_lynx () {
 
 	cp /root/.lynx/lynx.conf /root/.lynx/lynx.default
 
-	#wget http://cdn.getlynx.io/timesaver.tar.gz
+	# For a faster sync time, we are pulling for a copy of the chainstate and blocks from a seed
+	# node and inserting them into the install. The blocks were created with txindex=1 so a full 
+	# network sync and rescan should not be needed.
 
-	#tar -xzvf /root/timesaver.tar.gz -C /root/.lynx/
+	wget http://cdn.getlynx.io/chainstate.tar.gz
 
-	#mv /root/.lynx/lynx/* /root/.lynx/
+	tar -xzvf /root/chainstate.tar.gz -C /root/.lynx/
+
+	wget http://cdn.getlynx.io/blocks.tar.gz
+
+	tar -xzvf /root/chainstate.tar.gz -C /root/.lynx/
 
 	# Be sure to reset the ownership of all files in the .lynx dir to root in case any process run
 	# previously changed the default ownership setting. More of a precautionary measure.
