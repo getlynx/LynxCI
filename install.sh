@@ -597,14 +597,6 @@ install_lynx () {
 
 	tar -xzvf /root/.lynx/timesaver.tar.gz -C /root/.lynx/
 
-
-
-
-
-
-
-
-
 	# Be sure to reset the ownership of all files in the .lynx dir to root in case any process run
 	# previously changed the default ownership setting. More of a precautionary measure.
 
