@@ -775,6 +775,10 @@ restart () {
 	/usr/bin/touch /boot/lynxci
 
 	/bin/rm -rf /root/setup.sh
+	/bin/rm -rf /root/LynXCI/setup.sh
+	/bin/rm -rf /root/LynXCI/init.sh
+	/bin/rm -rf /root/LynXCI/README.md
+	/bin/rm -rf /root/LynXCI/install.sh
 
 	echo "LynxCI was installed."
 

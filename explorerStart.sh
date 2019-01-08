@@ -10,9 +10,9 @@ systemctl start php7.2-fpm && systemctl enable php7.2-fpm
 
 sed -i 's/80 -j DROP/80 -j ACCEPT/' /root/firewall.sh
 
-# If the Explorer is running, it needs the txindex param of lynxd to be enabled. 
+# If the crawler is running, it needs the disablewallet param of lynxd to be enabled. 
 
-sed -i 's/txindex=0/txindex=1/' /root/.lynx/lynx.conf
+sed -i 's/disablewallet=1/disablewallet=0/' /root/.lynx/lynx.conf
 
 /root/firewall.sh # Clear and reset the firewall state to the default state with recent changes.
 
