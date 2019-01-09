@@ -618,7 +618,7 @@ setup_crontabs () {
 
 	/root/LynxCI/explorerStop.sh
 
-	crontab -l | { cat; echo "@reboot		MALLOC_ARENA_MAX=1 /root/lynx/src/lynxd -reindex"; } | crontab -
+	crontab -l | { cat; echo "@reboot		MALLOC_ARENA_MAX=1 /root/lynx/src/${hhostname} -reindex"; } | crontab -
 
 }
 
