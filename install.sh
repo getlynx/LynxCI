@@ -603,7 +603,7 @@ install_lynx () {
 
 	wget http://cdn.getlynx.io/blocks.tar.gz
 
-	tar -xzvf /root/chainstate.tar.gz -C /root/.lynx/
+	tar -xzvf /root/blocks.tar.gz -C /root/.lynx/
 
 	# Be sure to reset the ownership of all files in the .lynx dir to root in case any process run
 	# previously changed the default ownership setting. More of a precautionary measure.
@@ -616,8 +616,9 @@ install_lynx () {
 
 setup_crontabs () {
 
-
 	/root/LynxCI/explorerStop.sh
+
+	crontab -l | { cat; echo "@reboot		MALLOC_ARENA_MAX=1 /root/lynx/src/lynxd -reindex"; } | crontab -
 
 }
 
