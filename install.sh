@@ -348,7 +348,7 @@ install_lynx () {
 
 	echo "$pretty_name detected. Installing Lynx."
 
-	apt-get -qq install autoconf automake bzip2 curl nano htop make g++ gcc git git-core pkg-config build-essential libtool libncurses5-dev software-properties-common libssl-dev libboost-all-dev libminiupnpc-dev libevent-dev -y
+	apt-get -qq install autoconf automake bzip2 curl nano htop g++ gcc git git-core pkg-config build-essential libtool libncurses5-dev software-properties-common libssl-dev libboost-all-dev libminiupnpc-dev libevent-dev -y
 
 	rrpcuser="$(shuf -i 1000000000-3999999999 -n 1)$(shuf -i 1000000000-3999999999 -n 1)$(shuf -i 1000000000-3999999999 -n 1)"
 
@@ -357,8 +357,6 @@ install_lynx () {
 	rm -rf /root/lynx/
 
 	git clone -b "$lynxbranch" https://github.com/doh9Xiet7weesh9va9th/lynx.git /root/lynx/
-
-	#make -C /root/lynx/depends
 
 	# We will need this db4 directory soon so let's delete and create it.
 
@@ -380,7 +378,7 @@ install_lynx () {
 
 	../dist/configure --enable-cxx --disable-shared --with-pic --prefix=/root/lynx/db4
 
-	make install
+	make --quiet install
 
 	# Now that the Berkeley DB is installed, let's jump to the lynx directory and finish the
 	# configure statement WITH the Berkeley DB parameters included.
@@ -397,7 +395,7 @@ install_lynx () {
 
 		./configure LDFLAGS="-L/root/lynx/db4/lib/" CPPFLAGS="-I/root/lynx/db4/include/ -O2" --enable-cxx --without-gui --disable-shared --with-miniupnpc --enable-upnp-default --disable-tests --disable-bench
 
-		make
+		make --quiet
 
 	else
 
@@ -405,7 +403,7 @@ install_lynx () {
 
 		./configure LDFLAGS="-L/root/lynx/db4/lib/" CPPFLAGS="-I/root/lynx/db4/include/ -O2" --enable-cxx --without-gui --disable-shared --disable-tests --disable-bench
 
-		make
+		make --quiet
 
 	fi
 
