@@ -310,7 +310,7 @@ setup_nginx () {
 
 	rm -rf /var/www/html/
 
-	git clone https://github.com/doh9Xiet7weesh9va9th/LynxBlockCrawler.git /var/www/html/
+	git clone https://github.com/getlynx/LynxBlockCrawler.git /var/www/html/
 
 	chmod 755 -R /var/www/html/
 	chown www-data:www-data -R /var/www/html/
@@ -356,7 +356,7 @@ install_lynx () {
 
 	rm -rf /root/lynx/
 
-	git clone -b "$lynxbranch" https://github.com/doh9Xiet7weesh9va9th/lynx.git /root/lynx/
+	git clone -b "$lynxbranch" https://github.com/getlynx/Lynx.git /root/lynx/
 
 	# We will need this db4 directory soon so let's delete and create it.
 
@@ -799,6 +799,8 @@ restart () {
 	/bin/rm -rf /root/LynxCI/init.sh
 	/bin/rm -rf /root/LynxCI/README.md
 	/bin/rm -rf /root/LynxCI/install.sh
+	/bin/rm -rf /root/blocks.tar.gz
+	/bin/rm -rf /root/chainstate.tar.gz
 
 	echo "LynxCI was installed."
 
