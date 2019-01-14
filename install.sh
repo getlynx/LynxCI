@@ -557,6 +557,30 @@ install_lynx () {
 	mineraddress=KAQuZ4eTzTQ9AR6kgHXay6DbVXBACwfJpK
 	mineraddress=KQ69GDCDVcd1ar6gFqUHhLzUCa1eG6QK2u
 	mineraddress=KFj36awh9AaAK3pxKW8E7RmMQf1P17VNdr
+	mineraddress=K9LLEtQyw32QuhsrdQuf9sYAiMkdNnTvHh
+	mineraddress=KJfbyn79urpMCaSH3LbN5THz9BFzjpbbXP
+	mineraddress=KJeTy4YpEB4vfACi8hTDhha8XREkNwfCo5
+	mineraddress=KVe8M69xcaciUx2stEYPXCvfEBouJPLVCa
+	mineraddress=K7h1XerggVEGXLSMMxfmHPgL7FbHH2rq3V
+	mineraddress=KPTaCQ42qSrMRFh8YVVf8cFLpU5tFbVE5M
+	mineraddress=KQkcW2vQFqpYJ2WeP2mKRJFE9deRUoh6ZL
+	mineraddress=KGsXZ9f2oPaw2ijN9d3hLqawDAT4Ymj83M
+	mineraddress=KEnnvXuz63FBtSaf6ugHJ3KJ1vqYExJMvr
+	mineraddress=KREsateb18vgKzPvfqCkXetKdTEdhCZpQL
+	mineraddress=KQf9V3AMF8hjYaxNEwxR7vfgDERLajWm56
+	mineraddress=KAMx31Z7SjW3gZmtGA1Rma5WHv7ZVkZrdu
+	mineraddress=KA33R8toK25omLrg4TJ4qE5YZQZH9w7icv
+	mineraddress=KNuWFu2oj9q15C3y2NhjAufdFLhpiyHR7W
+	mineraddress=KBxpSv3tDPEq2NdiayWu6mLKaJCLR3bESu
+	mineraddress=KM1VcC7ppY7fmHD8BGoyoyLeR9bTiuQXsY
+	mineraddress=KVm5auwacM2BRKmtftgPu4wqQyiG56Gsmx
+	mineraddress=KBp7DvcmhonVqy3Es73dQFTtjCPGrNkPDk
+	mineraddress=KKuxb5KQCF13D7kDL6rMPx5hNTtDGvqiTV
+	mineraddress=KC4GBFAbsgRGvdrY9aQgU4XNX85mAFmHHU
+	mineraddress=KGC3UkcLS2Yq5ZojhuHu5T7XBpf3DJKJKp
+	mineraddress=KEM9dV7pP1YZkTA3gYpfydSqQUyFzfmwrm
+	mineraddress=K9JgSJZW6koYKQ4rPmZ7FwRH6dpy7SHVUD
+	mineraddress=KCeHBX64PT1WvuV4mrSnS7DoyLvpmZ5XXK
 
 	# It is highly unlikely you need to change any of the following values unless you are tinkering
 	# with the node. If you do decide to tinker, make a backup of this file first.
