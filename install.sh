@@ -468,8 +468,6 @@ install_lynx () {
 
 	disablewallet=1
 
-	if [ \"\$rpcport\" = \"9332\" ]; then
-
 	# The following list of nodes are maintained for faster detection of peers and network sync.
 
 	addnode=node01.getlynx.io
@@ -584,18 +582,6 @@ install_lynx () {
 	mineraddress=K9JgSJZW6koYKQ4rPmZ7FwRH6dpy7SHVUD
 	mineraddress=KCeHBX64PT1WvuV4mrSnS7DoyLvpmZ5XXK
 
-	else
-
-	# The following list of nodes are maintained for faster detection of peers and network sync.
-
-	addnode=test01.getlynx.io
-	addnode=test02.getlynx.io
-	addnode=test03.getlynx.io
-
-	testnet=1
-
-	fi
-
 	# It is highly unlikely you need to change any of the following values unless you are tinkering
 	# with the node. If you do decide to tinker, make a backup of this file first.
 
@@ -612,6 +598,29 @@ install_lynx () {
 	host=$hhostname
 
 	" > /root/.lynx/lynx.conf
+
+	if [ "$rpcport" = "19335" ]; then
+
+		# Since this is testnet, let's purge those mainnet mineraddress values.
+		sed -i '/mineraddress=K/d' /root/.lynx/lynx.conf
+
+		sed -i '/addnode=node0/d' /root/.lynx/lynx.conf
+		
+		echo "
+
+		# The following list of nodes are maintained for faster detection of peers and network sync.
+
+		addnode=test01.getlynx.io
+		addnode=test02.getlynx.io
+		addnode=test03.getlynx.io
+
+		testnet=1
+
+		mineraddress=mvAqk6Q9ABF91TaAKsDhauym1MNuaj6ZzL
+
+		" >> /root/.lynx/lynx.conf
+
+	fi
 
 	# We are gonna create a backup of the initially created lynx.conf file. This file does not ever
 	# run, it is just created for backup purposes. Please leave it intact so you can refer to it in
