@@ -298,6 +298,23 @@ setup_nginx () {
             include snippets/fastcgi-php.conf;
             fastcgi_pass unix:/run/php/php7.2-fpm.sock;
         }
+
+		location /tx {
+		  rewrite ^/tx/([^/]+)/?$ /?txid=$1;
+		}
+
+		location /height {
+		  rewrite ^/height/([^/]+)/?$ /?height=$1;
+		}
+
+		location /block {
+		  rewrite ^/block/([^/]+)/?$ /?hash=$1;
+		}
+
+		location /address {
+		  rewrite ^/address/([^/]+)/?$ /?address=$1;
+		}
+
     }
 
     " > /etc/nginx/sites-available/default
