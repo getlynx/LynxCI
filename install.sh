@@ -468,6 +468,8 @@ install_lynx () {
 
 	disablewallet=1
 
+	if [ "$environment" = "mainnet" ]; then
+
 	# The following list of nodes are maintained for faster detection of peers and network sync.
 
 	addnode=node01.getlynx.io
@@ -597,17 +599,33 @@ install_lynx () {
 	txindex=1
 	host=$hhostname
 
-	" > /root/.lynx/lynx.conf
+	else
 
-	if [ "$environment" = "testnet" ]; then
+	# The following list of nodes are maintained for faster detection of peers and network sync.
 
-	echo "
-	
+	addnode=test01.getlynx.io
+	addnode=test02.getlynx.io
+	addnode=test03.getlynx.io
+
+	# It is highly unlikely you need to change any of the following values unless you are tinkering
+	# with the node. If you do decide to tinker, make a backup of this file first.
+
+	listen=1
+	daemon=1
+	port=$port
+	rpcbind=127.0.0.1
+	rpcbind=::1
+	rpcworkqueue=64
+	listenonion=0
+	upnp=1
+	dbcache=100
+	txindex=1
+	host=$hhostname
 	testnet=1
 
-	" >> /root/.lynx/lynx.conf
-
 	fi
+
+	" > /root/.lynx/lynx.conf
 
 	# We are gonna create a backup of the initially created lynx.conf file. This file does not ever
 	# run, it is just created for backup purposes. Please leave it intact so you can refer to it in
