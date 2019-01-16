@@ -233,7 +233,7 @@ install_portcheck () {
 
 	fi
 
-    echo \" | Visit https://help.getlynx.io/ for more information.                        |
+    echo \" | Visit https://getlynx.io/ for more information.                             |
  '-----------------------------------------------------------------------------'\"
 
 " > /etc/profile.d/portcheck.sh
@@ -614,9 +614,72 @@ install_lynx () {
 		addnode=test02.getlynx.io
 		addnode=test03.getlynx.io
 
+		# All testnet coin public addresses start with am M or a N. Mainnet coins, the one's that 
+		# are publicly traded and used always start with a K.
 		testnet=1
 
+		# Private key for the below address: cUYQ4bvyzUy2gAzSf79hUPqEasuziKYzSpRaifAXM2zb5Y6X5gQD
 		mineraddress=mvAqk6Q9ABF91TaAKsDhauym1MNuaj6ZzL
+
+		# Private key for the below address: cUNsqZjzywvZPLcUvso8d1FixiJZc7aX1iLfEB9BHqVxRGdz7tuz
+		mineraddress=mzKEf2fzK5WYTUM3ZffQQKtGXbuBSyQbXL
+
+		# Private key for the below address: cMppJ2yBU918qiwYo9aEhgqKiDK45TLSoEid8s7XBdajE8ZrZwmS
+		mineraddress=mo5Nvd6GJHN696NJ1NmXj4b6RHoig1NEV9
+
+		# Private key for the below address: cVGvDcvdm6gmRDqR5BQwbhdcj6eNMLJNkjwaKEq3YNkj9sv5Q3Lr
+		mineraddress=mh6KV4wKbm5pmG6Y6LTT1A9DeXziUafsP4
+
+		# Private key for the below address: cTGFEfAbu7Q8fr7hvkWWzRxPANWT76quFCazris5V7ojkQggUCTp
+		mineraddress=mgX7cXxob5DNAJgu1UrpAgLGfa4FnfSCVj
+
+		# Private key for the below address: cNuUkW32HkYqenNV5FV51PRKejCPYK3PZ2YpkqndaMDvJEpwTZ2G
+		mineraddress=mgriF5mgsuyvnh3f9QNwFHR9qDwgYfEjZP
+
+		# Private key for the below address: cW8Nt4N7QcK1K1g6igrYRR4QBzagujFSNJ7dDcMpUkGWEyaGTJL8
+		mineraddress=n3wKyoCcpcE4x8oo3hvJU1drgi7QTVEcrf
+
+		# Private key for the below address: cU8wXQWXbAbfrhGSM6raX2wWhxisHC5oiwWQyzr2mRdKvzdKQ643
+		mineraddress=myJwCi7nBLv5wUyXz3ZFq15hnGVtHa7tun
+
+		# Private key for the below address: cR97VSALAiZPLL9GwcQajP45crGajfxrcPyucZgnrvPZD4Zfu5UP
+		mineraddress=n1j2L3tncm8Prc3oQmtgKKjERUEr1x3uDK
+
+		# Private key for the below address: cTKf8NYhWksuWsHmNxfcHUN2TCkv6YNkk8ekpAGyqhLvtuV6Kfmc
+		mineraddress=mhuwHPSWKBaHSaWMjuU7m5TbzG3j75amTw
+
+		# Private key for the below address: cQD2PkGkjrCGywyMU5331xxvHbNWgcvByK4X8gU1bST5dMfGzpaB
+		mineraddress=mtp2CyLf7kBfBjEfBjnsdt3x6kv7CWkWTe
+
+		# Private key for the below address: cRMyr2RHhbF1FKARiwoDWBh8pQLC2KrRRRSLztLioT97XU1cegYA
+		mineraddress=mmQxpEVVp7bBXfkF2dVkGCWxaX5dxt2vR5
+
+		# Private key for the below address: cVB7cPJiWUCP72J39EZjJ6k1T4FSH5u8LrMKfk5YqyrbxiZwChcb
+		mineraddress=mgDHQbZHUU2YCx3wpF6gjvND7UPSmYUEgc
+
+		# Private key for the below address: cN9JnwhNDiTY1f3UaY5F7jeiEfnv3tWCVBp6GfZq43HnT2NH5R7e
+		mineraddress=mfmXw6tnWuMPPAPEqFeakodw3nwJoyYw71
+
+		# Private key for the below address: cVXzDVfw4mW3tVWepek35ENXNnp1X6NiNgnm2pJpvQA3tPY3pwiL
+		mineraddress=mhuP1zXXsBb5AbGgX5H4veTYM8RgkpshJv
+
+		# Private key for the below address: cQBVDLHgSyxbvxWApQXHDTaLwApsNx4NLCofWGjSrFCPq96Qyfec
+		mineraddress=mnRyuThfF2YF4kbtVXWFXgX9knhfFQzBoB
+
+		# Private key for the below address: cVwrj2tnSLLaMvF2r5UPtq53DnXkhPmZhjUn8yXZX3WyNv9Z3Z5p
+		mineraddress=mmfspxuCpe5getSthHFrorK4YJE9MoxHFE
+
+		# Private key for the below address: cSNJbVb2LdspWQVWB6H1VpMwHLDv7DzWx7bfb9uQPAWnXD712tCH
+		mineraddress=n4CkrFFcYSRtazYSw1MYJ1dYUQSN2jpe3P
+
+		# Private key for the below address: cQSzmvtszC8hratBG1Wdyv2QUd9xXPALEkpqU7g7xu66YAcr1QQD
+		mineraddress=mphs8iML38DhsbB1qx4D8kxLgQvjYubKvc
+
+		# Private key for the below address: cVXHFRAw8qEYvxzU4trU8tWWqVo93E2T287mJou6nUhbHBB1C28k
+		mineraddress=mindpMbbrNEE6Ap15G7PSAQaJsaFsydvEt
+
+		# Private key for the below address: cW3otbFXUy7dCwGsA1wsM2yTnJsEo4djXDFXiVab6Tk2Zv4dxfMX
+		mineraddress=mkUh7tjREvdL9zK9SeLs4mVhhTLcffk82k
 
 		" >> /root/.lynx/lynx.conf
 
