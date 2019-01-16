@@ -468,7 +468,7 @@ install_lynx () {
 
 	disablewallet=1
 
-	if [ "$environment" = "mainnet" ]; then
+	if [ \"\$rpcport\" = \"9332\" ]; then
 
 	# The following list of nodes are maintained for faster detection of peers and network sync.
 
@@ -584,21 +584,6 @@ install_lynx () {
 	mineraddress=K9JgSJZW6koYKQ4rPmZ7FwRH6dpy7SHVUD
 	mineraddress=KCeHBX64PT1WvuV4mrSnS7DoyLvpmZ5XXK
 
-	# It is highly unlikely you need to change any of the following values unless you are tinkering
-	# with the node. If you do decide to tinker, make a backup of this file first.
-
-	listen=1
-	daemon=1
-	port=$port
-	rpcbind=127.0.0.1
-	rpcbind=::1
-	rpcworkqueue=64
-	listenonion=0
-	upnp=1
-	dbcache=100
-	txindex=1
-	host=$hhostname
-
 	else
 
 	# The following list of nodes are maintained for faster detection of peers and network sync.
@@ -607,6 +592,10 @@ install_lynx () {
 	addnode=test02.getlynx.io
 	addnode=test03.getlynx.io
 
+	testnet=1
+
+	fi
+
 	# It is highly unlikely you need to change any of the following values unless you are tinkering
 	# with the node. If you do decide to tinker, make a backup of this file first.
 
@@ -621,9 +610,6 @@ install_lynx () {
 	dbcache=100
 	txindex=1
 	host=$hhostname
-	testnet=1
-
-	fi
 
 	" > /root/.lynx/lynx.conf
 
