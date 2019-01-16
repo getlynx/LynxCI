@@ -18,6 +18,11 @@ sed -i 's/80 -j ACCEPT/80 -j DROP/' /root/firewall.sh
 
 sed -i 's/disablewallet=0/disablewallet=1/' /root/.lynx/lynx.conf
 
+# For the built in Block Crawler. Since it is not being used, let's purge the lynx.conf file copy
+# if it still exists.
+
+rm -rf /var/www/lynx.conf
+
 /root/firewall.sh # Clear and reset the firewall state to the default state with recent changes.
 
 crontab -r # In the event that any other crontabs exist, let's purge them all.
