@@ -280,42 +280,43 @@ setup_nginx () {
 
     echo "
 
-    server {
-        listen 80 default_server;
-        listen [::]:80 default_server;
-        server_name _;
-        root /var/www/html;
-        index index.php;
+	server {
 
-        location = /favicon.ico { access_log off; log_not_found off; }
-        location = /robots.txt  { access_log off; log_not_found off; }
+		listen 80 default_server;
+		listen [::]:80 default_server;
+		server_name _;
+		root /var/www/html;
+		index index.php;
 
-        location / {
-            try_files \$uri \$uri/ =404;
-        }
+		location = /favicon.ico { access_log off; log_not_found off; }
+		location = /robots.txt  { access_log off; log_not_found off; }
 
-        location ~ \.php\$ {
-            include snippets/fastcgi-php.conf;
-            fastcgi_pass unix:/run/php/php7.2-fpm.sock;
-        }
+		location / {
+			try_files \$uri \$uri/ =404;
+		}
+
+		location ~ \.php$ {
+			include snippets/fastcgi-php.conf;
+			fastcgi_pass unix:/run/php/php7.2-fpm.sock;
+		}
 
 		location /tx {
-		  rewrite ^/tx/([^/]+)/?$ /?txid=$1;
+			rewrite ^/tx/([^/]+)/?\$ /?txid=\$1;
 		}
 
 		location /height {
-		  rewrite ^/height/([^/]+)/?$ /?height=$1;
+			rewrite ^/height/([^/]+)/?\$ /?height=\$1;
 		}
 
 		location /block {
-		  rewrite ^/block/([^/]+)/?$ /?hash=$1;
+			rewrite ^/block/([^/]+)/?\$ /?hash=\$1;
 		}
 
 		location /address {
-		  rewrite ^/address/([^/]+)/?$ /?address=$1;
+			rewrite ^/address/([^/]+)/?\$ /?address=\$1;
 		}
 
-    }
+	}
 
     " > /etc/nginx/sites-available/default
 
