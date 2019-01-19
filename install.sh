@@ -264,7 +264,7 @@ install_nginx () {
 
     apt-get -qq update -y
 
-    apt-get -qq install unzip nginx php7.2 php7.2-common php7.2-bcmath php7.2-fpm php7.2-opcache php7.2-xml php7.2-curl php7.2-mbstring php7.2-zip -y
+    apt-get -qq install unzip nginx php7.2 php7.2-common php7.2-bcmath php7.2-cli php7.2-fpm php7.2-opcache php7.2-xml php7.2-curl php7.2-mbstring php7.2-zip -y
 
 	echo "Nginx was installed."
 
@@ -699,6 +699,51 @@ install_lynx () {
 
 	# Private key for the below address: cW3otbFXUy7dCwGsA1wsM2yTnJsEo4djXDFXiVab6Tk2Zv4dxfMX
 	mineraddress=mkUh7tjREvdL9zK9SeLs4mVhhTLcffk82k
+
+	# Private key for the below address: cSRMwRnrtXjee1SewUNuwD468WfP8kUvj8iruerRpnBQNzoynS4f
+	mineraddress=msfDHvn2L5TSqFZYCq3EerxzHtbFZ4cBpE
+
+	# Private key for the below address: cR8ZQpFF9yq2BXRCN7xxL3EYYsGczS51tpRBkvFNjRdPe3d1jWuk
+	mineraddress=miMWN96feXFA4a4fktA68xscZPeXBqvHsc
+
+	# Private key for the below address: cU1farVJJ56mYv8RJzVuwqFuFPwPwKSMtpstaujBYrBDWNisJ62u
+	mineraddress=mvrMeLhELTCaXkmo7r8XccEMGa6ppKqiUb
+
+	# Private key for the below address: cScYkvYV8m9Xbr8nYpb6F4n6D15HLzVTR9ZUeKazk9oW4NoJpism
+	mineraddress=mu3fpDNWjCTMaAGtnoJVKpwbZtoRkasphJ
+
+	# Private key for the below address: cNzX2wv65SxE5c1VeRc7FYAxXY6qnwgsyv3fcMZvwiGkdhKeDNTX
+	mineraddress=ms6W9vmqT5NDw6vdmT31yLEo7TwCm3cgVh
+
+	# Private key for the below address: cSf99ZpsiQNP2WMm5zo6WefBnRX1V1Kxaguco3jsdx3U1kzLgqXi
+	mineraddress=mxJC8oiLbsSRhmSCgcBWpahC2eyZU1W7qs
+
+	# Private key for the below address: cN3LdHXGZy2ANNP221Tbm7uoG7AGBgvz6doPuERVsg6W5DwxZZ6p
+	mineraddress=mpniFaj9a8L6332TpjoWArcso5cTRFgJHd
+
+	# Private key for the below address: cScdbYMYAD8zYFfX9VxVbmkg61oDV64vUTxAL9zvSGLpRwduVWmC
+	mineraddress=mydYEwnf6s2BRWLVA7dYPmVLvK2PcdTkDt
+
+	# Private key for the below address: cQQNxD6CZ8CrinW4Eq3wrXuCuX6Ccaws6LTDD1c64YXYngyyp86f
+	mineraddress=mhZtewGZTJw2ewWHufFa7ZCkrz4jeWVmD9
+
+	# Private key for the below address: cMyyArq6kzXBb4L9jKWLkANqfaMmchjobyMGdYANdu935Hv7RBMu
+	mineraddress=mqVPvnrkCvSkKnR3KPeVk3LcnWf6rvRAPe
+
+	# Private key for the below address: cRyYu5mHXrDzGqQpbeW2ksTPJcwdodqJyej3KsqxFvFQhsqCQTHx
+	mineraddress=mvfi4LZxMDdPzT9PnDuxyKsK63a1ybSZUf
+
+	# Private key for the below address: cVMinxvyGjv943184JcNbY1zzjkuTScLYfm6k4QG2f4wVeArN4HT
+	mineraddress=muzoQBrL1T4tyCALtsapWJY76ertjZhuow
+
+	# Private key for the below address: cTMdGYJ8Wm8f8cfhAxSERecTt8wj4KcNvqk88G9uihmufyZaiVRR
+	mineraddress=mjucNa4ZS5QD5TD8WzZv7CHze3wLLneK84
+
+	# Private key for the below address: cV1YnJrcM8gUg2g81HMgbZXCLdPUBSyWK3ZQXpsmNpiZo5DeJLT5
+	mineraddress=mg4oSdwnD2MNJ4JW5a2qYWrk7FHQUypHJf
+
+	# Private key for the below address: cURgVN4gUfBHVd9eFsnqWyqRWJrQep6SRg8AsBjv9F8mUUgNLNQL
+	mineraddress=mqkMYkskQ7DiFf57FmfvWJoiSNUG5uBfUJ
 
 	" >> /root/.lynx/lynx.conf
 
