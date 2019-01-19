@@ -214,9 +214,9 @@ install_portcheck () {
  | For LYNX RPC credentials, type 'sudo nano /root/.lynx/lynx.conf'.           |
  '-----------------------------------------------------------------------------'\"
 
-        if [ ! -z \"\$(curl -s http://127.0.0.1/api/getblockcount)\" ]; then
+        if [ ! -z \"\$(/root/lynx/src/lynx-cli getblockcount)\" ]; then
 
-        echo \" | The current block height on this LynxCI node is \$(curl -s http://127.0.0.1/api/getblockcount).                    |
+        echo \" | The current block height on this LynxCI node is \$(/root/lynx/src/lynx-cli getblockcount).                    |
  '-----------------------------------------------------------------------------'\"
 
         fi
@@ -634,6 +634,7 @@ install_lynx () {
 
 	# All testnet coin public addresses start with am M or a N. Mainnet coins, the one's that 
 	# are publicly traded and used always start with a K.
+
 	testnet=1
 
 	# Private key for the below address: cUYQ4bvyzUy2gAzSf79hUPqEasuziKYzSpRaifAXM2zb5Y6X5gQD
