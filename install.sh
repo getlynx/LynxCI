@@ -332,7 +332,7 @@ setup_nginx () {
 
 	chmod 755 -R /var/www/html/
 	chown www-data:www-data -R /var/www/html/
-	
+
 	sed -i "s/8332/${rpcport}/g" /var/www/html/bc_daemon.php
 	sed -i "s/username/${rrpcuser}/g" /var/www/html/bc_daemon.php
 	sed -i "s/password/${rrpcpassword}/g" /var/www/html/bc_daemon.php
@@ -441,6 +441,16 @@ install_lynx () {
 
 	sed -i "s/lynxd/${hhostname}/g" /root/LynxCI/explorerStop.sh
 	sed -i "s/lynxd/${hhostname}/g" /root/LynxCI/explorerStart.sh
+
+	# If this is a testnet node, the debug.log file is in a different directory. Lets be sure to
+	#truncate that file too, otherwise the drive space will fill up.
+
+	if [ "$rpcport" = "19335" ]; then
+
+		sed -i "s|debug.log|testnet4/debug.log|g" /root/LynxCI/explorerStop.sh
+		sed -i "s|debug.log|testnet4/debug.log|g" /root/LynxCI/explorerStart.sh
+
+	fi
 
 	# Below we are creating the default lynx.conf file. This file is created with the dynamically
 	# created RPC credentials and it sets up the networking with settings that testing has found to
@@ -623,7 +633,7 @@ install_lynx () {
 	sed -i '/mineraddress=K/d' /root/.lynx/lynx.conf
 
 	sed -i '/addnode=node0/d' /root/.lynx/lynx.conf
-	
+
 	echo "
 
 	# The following list of nodes are maintained for faster detection of peers and network sync.
@@ -825,6 +835,62 @@ install_lynx () {
 
 	# Private key for the below address: cSHDivWZwoa3jiQDFBF5EWwfYXtpsQVfJtNEaKLeRRi3z16rQjWJ
 	mineraddress=mrZcAGQdffwtuBkjUSyzK7wzqMfrgrF4BC
+
+	# Ineviably someone is gonna think themselves a smarty pants and sweep all the above addresses,
+	# thus possibly forcing the above addresses to fail HPoW Rule 2. This means the testnet network
+	# could run the risk of getting stuck, since it's not widely supported with lots of installs.
+	# Here are some addresses with privkey keys destroyed. The coins the following addresses earn
+	# therfore get burned as they become unspendable, but their existence supports HPoW on testnet.
+
+	mineraddress=mmk8CCHi93gg351xPC1KY7DB9GKQXn1dND
+	mineraddress=n4Umb19mAMKkweNxf6wDFeta7Kqbbd8e9e
+	mineraddress=mgwku1Hqymiku4i6UN3nv36EhhqdUgfMQf
+	mineraddress=mfXR3URZMVwpqgY6aP2TDN5Xj6wR7nUPuy
+	mineraddress=mvRA8JuuxZczjAk1Zttn2BHhK17Vwa4i3P
+	mineraddress=moshiPo8QK8QJtqrgerNbCAbiQpCgiQCb4
+	mineraddress=msgvtCw7q5e6iEzsLFUVpmFZz1TSMGCrJP
+	mineraddress=mnDTBaD1oUXHhAqVAMXy5Yas7BtmY3BnoH
+	mineraddress=n1zPyea3XW4CnfeKZaR1LaADWLZommz8fn
+	mineraddress=mqGEqJUjfJ3PFxTGt6x1JxEEVHspLowBiJ
+	mineraddress=n1qNhrY26ZBksfnFfxkB6euyq9RUH5UASp
+	mineraddress=n4ptNkLYof6a6GMTZHtRVC5bW6QHWjMKF9
+	mineraddress=mrQzJBQUVKcuLAN64ZDZjTDw2gKzBV2uHu
+	mineraddress=mkdMfEJWAmgmNVaU6JiR69hMUV6RwvR5PF
+	mineraddress=mv5HnFHt93urdVB6pVSkzN8esaPU8J551q
+	mineraddress=mknnHC9gKaD2KE43Ny5EeBAKk74zoeQ8M6
+	mineraddress=mkE5BDyEbnF6dozynFkrdg2SP4p5mXfaCS
+	mineraddress=mp6dPWFC95yetJ5euDgcsfiwcC8DBb14PW
+	mineraddress=mh3nEeKZgc5jSa9k51QB96SpCZxbAvFHsz
+	mineraddress=moBoENZ5hNWiRwCJ7Tb6epg8F27f7spu7E
+	mineraddress=mwRDN68vjkejaLAGXKMcDHynbMmCL7AxyV
+	mineraddress=mj5QWTV7y1nhRhnJwE3ijjpteRrM2t3LBN
+	mineraddress=n1HYzMmNsrghmqeAZYgaWpJKCAnqsgq7F5
+	mineraddress=n2u8QKFWuDyupUgRqunwcfUHY7PUZVaW9Y
+	mineraddress=mrkJcrkPES8gR1JfDWPPmTZxGUVSSmQkib
+	mineraddress=mvAqV7PhQvBvBNiyqtALobuvnNoz6TYu5v
+	mineraddress=mwNoXPVEdyXNxsTEqBSsGZpe9LLSmPToCZ
+	mineraddress=mkCrJG6qKr6CRimZMqQAFDz5a1yN8ptGme
+	mineraddress=mmj5LXEFjcVrHCp2hqM8JGQ7ecPJd9jFJP
+	mineraddress=n3THNwh4kocJBF2gi4cJPJq1NLA5FgPnVY
+	mineraddress=mkTkF7WqUpJqWN6TrXtyu1KG9GU1hh1kN8
+	mineraddress=n2eSFHcJ3RSN9eureDJd6nwgE9aenYugSV
+	mineraddress=mvH81VdKephp9XzsVif7QV7PSKRAjBP5AU
+	mineraddress=mqL2ErA7YkiMDJRAJ5xL1ZHKYYJ1Ds9PxX
+	mineraddress=n4FSDmXBqb9qETX9KsJyQvBKAimdQjcV9S
+	mineraddress=mgdUzX1qGQSCMkq7mGaEMqX1eXuVtydZmZ
+	mineraddress=myUtG77J773qyAahSCzt7DuASS9yZhU97f
+	mineraddress=mswf3m24hbmkn7VRq9r7Y2wEF9eswcDYGb
+	mineraddress=n1nGp2nW9NLSLhAaTbwtXJejfMd27Fd91e
+	mineraddress=mxgNrFKDRwEcKTsU8Xdx41LZojcwbhWxvc
+	mineraddress=mmJZ7gdiZ1RPLEA8WDqx9sKy3AVUUcHeg6
+	mineraddress=mqUYpQ6cEBFLpC9iTDP1Q8f9PvtQqHHjyR
+	mineraddress=mmuvg4iFFntt9RFpxfPFUnBBQTe4q2TijS
+	mineraddress=mynJAtjMZEAcvbFoVputEQTiTjW9joyvhf
+	mineraddress=mpJcGDnoMCEF3ojHhrJwd6fGXyBtkp2M2U
+	mineraddress=mnKt7ht49rfBCgvA5K9kZaTEoR8eY2jFPu
+	mineraddress=mqKuLJ6LmbDn8DJDa3ZXRJwrcqqUtAEA7F
+	mineraddress=mskeq29fY4UCWDWxRtt6SAQm7e9j3TAeJt
+	mineraddress=mruPcrfu9XC7L5BKYVMm64ySLpJuL4vTVE
 
 	" >> /root/.lynx/lynx.conf
 
