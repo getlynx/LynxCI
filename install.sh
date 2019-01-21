@@ -745,6 +745,87 @@ install_lynx () {
 	# Private key for the below address: cURgVN4gUfBHVd9eFsnqWyqRWJrQep6SRg8AsBjv9F8mUUgNLNQL
 	mineraddress=mqkMYkskQ7DiFf57FmfvWJoiSNUG5uBfUJ
 
+	# Private key for the below address: cTLxyQq95fPWV7q3NpAg25nCcuo9acmg25PK9Cc6WDHcfbqrj9mU
+	mineraddress=mgMs2dY1Tx1wYJTEsUhJwja9n8xcyoNUbv
+
+	# Private key for the below address: cQVCzmtp9qF4aQChoJkjrsVZn1bM4NgPezQeQLP1PQ3FQt8JxjW8
+	mineraddress=mv4m5GWongwdX43sjN9HTQwcpuPq9gfmKM
+
+	# Private key for the below address: cT6TKiBpwWC191damceRu31NjyqA9KhVUSBEPZtjRkN6ntDbCqoK
+	mineraddress=mqwyDHhvDb3nNWYdRrT7JJxK3uf2ciMWyy
+
+	# Private key for the below address: cNefKgDW18N3aeondGVaRMEjfEyZvzejFAD7KCnthECMtSeNtZb9
+	mineraddress=mtfxpRruFQxC958vScDrW34WnAao7g45Nc
+
+	# Private key for the below address: cRXzXq3on3gKmZgGcftbj7JZeGSfpjR38abdgKBi1hyiucsKaXVs
+	mineraddress=mj84VsKaDCf1bXJkSVLNoM68mMPzg59dQW
+
+	# Private key for the below address: cQyUrfhCiU8rp1mcv4eQfAdTwZVXvj7N21kZEX52TcELS5FDAL2p
+	mineraddress=mhUhvRLRmbFvsBsA2Eo7r2wa779YoxRFbj
+
+	# Private key for the below address: cSLtUJZYZ5aPCNNvTTuXBPy94Mr49iBgzfXqiRcZb6BPTJycMM1g
+	mineraddress=mzdykDkMfSdeidP7acpUbhcVfFtVTMg5DB
+
+	# Private key for the below address: cP3z7fvNG3yoeiYpBeoqDWa1qzYHsDPZ2eDRjLzMf7wcFGDNtu1P
+	mineraddress=n1gS6tDmcMuWoTeCbRFdQzfAhKYjaxnTHj
+
+	# Private key for the below address: cT14ZwS1Zsfz19CBAxPKk4dfNM1shtC2jHcepUTYcj3qRqeoNbsD
+	mineraddress=mmYxH7a3qtrQyhCyK1nBqctSLgiSyfd9vt
+
+	# Private key for the below address: cNCf7DECtWD7ysj4kqARUobvqjE1FBvzN8Hfq3bgoHjvPyVVEr93
+	mineraddress=mizWLQTrBcAhp8fmYp9qwepLWEx7MfRLyv
+
+	# Private key for the below address: cPBSQabsG33RS9AL8j6VAgF7veYtUVbySFKXen3qoh7bbpsYVEEs
+	mineraddress=mzwp37KxEDfKZfQm6LxRS7nkxrZAcgUrqS
+
+	# Private key for the below address: cPM7st6TpGFKxJkb7xmvMjuv2HYpLs8FbDeGW7KtswpM1RK4FF5k
+	mineraddress=mt7zphoNE3U1NsQEcN1miwpCVqrppDEoib
+
+	# Private key for the below address: cS9cxEjPkjYAhEBrYcmxRiVJQYFJ2sDc6s2JYrYwrkmi1LYeY15D
+	mineraddress=mg9WCFUUB7uVTEzJVfD3fi3kUnzZdUFMqU
+
+	# Private key for the below address: cURaQQjK8ZDjhEmYKpRy2jani6cjCd2JtUynDehKd1btnXG1znTE
+	mineraddress=mxqG7ioQGjowKoTUKy7ndoH2RKU8cv8JYt
+
+	# Private key for the below address: cVcJpgFFXcM99xq6BWxWozsg5vz7fm1GgcXvoYuwCybArrMQxsHk
+	mineraddress=mrkoa8hEXKfWiWmYgJAzStQCUjxgUvhQQW
+
+	# Private key for the below address: cQYGrYDG1GRxyNtdK54rDquf2YojLwTr67Pxa9AreUYq6v5cAMxt
+	mineraddress=mh4hFG8Bt6iWkiZP8mBmZxCNSKd4AZLJDE
+
+	# Private key for the below address: cRJMKmRwaJn6z4EPqamFgqWoWLp6rcgsyB8xKNe1juAsLi3zsE91
+	mineraddress=mkcEyefPiV2LXmiAsJxtnCw4ZEhLWsnwN1
+
+	# Private key for the below address: cS8LE8NkY4FCcDUKgX2frNApVaqKP3KJJpLnioAANkYWb4NR9LLe
+	mineraddress=mwEPbNRxsaNfgQmPHYcfU9CHo2Ux5QRc1x
+
+	# Private key for the below address: cUkvh4sDUXHrXmfmZYY2oUJmfPc1rRhF8Btb9tfWt3FT47KxBokY
+	mineraddress=mr9JzWDH6s7cJuAdZHhoKrH9aWo5dmYLW3
+
+	# Private key for the below address: cPwq3wr1x2mQD5NzkTXkhNVz6SkMdxss3AiVy3NWiC3u7isbpnav
+	mineraddress=mh3ReeQk5XhF6cpw2TexQVZbtND1mFBU5Q
+
+	# Private key for the below address: cVhhRkAGHFpvH2yxLjtzeJpGEp7tB8SmXiYxV7MazAp8zKi7xsj1
+	mineraddress=mvbRLcu2xX31pGPbfL8yV6t4JNUf4sQHgc
+
+	# Private key for the below address: cSE4c2zoa8XCTXjLDcrRWWPEHehM6qoS5v5647jiVkQboyCqKdtn
+	mineraddress=mmnwg2spU3DQVhVuBpTCsKd2jC4tAFk2xg
+
+	# Private key for the below address: cTcBgsx9g4oVZSKTgsmCT4TmCKz5Y2Kat4LDnrGxLkxWju67L6Ws
+	mineraddress=mtiReGFHm1i6LpUZ54eQAY1jojGPBuQBwP
+
+	# Private key for the below address: cNd2yuK5T246doYKwdtCTbnAqdZg4sx69vKgcBZ4gNWdZYg6GERM
+	mineraddress=mtHtim5hxsCPq6vkytVtFJzYiTYRDFVXwT
+
+	# Private key for the below address: cPDCDc9bp88jitpZNA3Va7geEqatmRbDsAa86DQNPwB9woVHjuVA
+	mineraddress=mq6dunoC4sPPJnBgoUyZEz3ihHNe5wGmkq
+
+	# Private key for the below address: cMtkabnJKiN7T4ma1Moq4mxdGaBKKB5wiJ8JsMfgE5VUsntGwFKW
+	mineraddress=mnPb788WQyQRK8Qp83URpS2bD2noVGJEQz
+
+	# Private key for the below address: cSHDivWZwoa3jiQDFBF5EWwfYXtpsQVfJtNEaKLeRRi3z16rQjWJ
+	mineraddress=mrZcAGQdffwtuBkjUSyzK7wzqMfrgrF4BC
+
 	" >> /root/.lynx/lynx.conf
 
 	fi
