@@ -2,7 +2,6 @@
 
 environment="mainnet"
 lynxbranch="master"
-explorerbranch="master"
 
 detect_os () {
 
@@ -443,6 +442,8 @@ install_lynx () {
 
 	sed -i "s/lynxd/${hhostname}/g" /root/LynxCI/explorerStop.sh
 	sed -i "s/lynxd/${hhostname}/g" /root/LynxCI/explorerStart.sh
+	sed -i "s|/root/lynx/src/lynxd|/root/lynx/src/${hhostname}|g" /root/LynxCI/installers/systemd.sh
+
 
 	# If this is a testnet node, the debug.log file is in a different directory. Lets be sure to
 	#truncate that file too, otherwise the drive space will fill up.
@@ -645,7 +646,9 @@ install_lynx () {
 	addnode=test03.getlynx.io
 
 	# All testnet coin public addresses start with am M or a N. Mainnet coins, the one's that 
-	# are publicly traded and used always start with a K.
+	# are publicly traded and used always start with a K. If you would like to take coins from any
+	# of these addresses, be sure to send at least 1 coin back the original address so it will
+	# still meet HPoW Rule 2 with it's minimum balance requirement.
 
 	testnet=1
 
