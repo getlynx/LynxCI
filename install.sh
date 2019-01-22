@@ -843,6 +843,7 @@ install_lynx () {
 	# therfore get burned as they become unspendable, but their existence supports HPoW on testnet.
 
 	mineraddress=mmk8CCHi93gg351xPC1KY7DB9GKQXn1dND
+	mineraddress=ms2Q1NbYsqinfqQKbBCLasg5XFBrbRjbPx
 	mineraddress=n4Umb19mAMKkweNxf6wDFeta7Kqbbd8e9e
 	mineraddress=mgwku1Hqymiku4i6UN3nv36EhhqdUgfMQf
 	mineraddress=mfXR3URZMVwpqgY6aP2TDN5Xj6wR7nUPuy
