@@ -214,12 +214,14 @@ install_portcheck () {
  | For LYNX RPC credentials, type 'sudo nano /root/.lynx/lynx.conf'.           |
  '-----------------------------------------------------------------------------'\"
 
+ 		if [ \$(id -u) ]; then
         if [ ! -z \"\$(/root/lynx/src/lynx-cli getblockcount)\" ]; then
 
         echo \" | The current block height on this LynxCI node is \$(/root/lynx/src/lynx-cli getblockcount).                    |
  '-----------------------------------------------------------------------------'\"
 
         fi
+    	fi
 
         echo \" | The unique identifier for this LynxCI node is $hhostname.                |
  '-----------------------------------------------------------------------------'\"
