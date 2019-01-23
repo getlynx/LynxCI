@@ -13,7 +13,7 @@ echo "
 	User=root
 	Group=root
 	WorkingDirectory=/root/lynx
-	ExecStart=/root/lynx/src/lynxd -daemon=0 -printtoconsole
+	ExecStart=/root/lynx/src/lynxd -daemon=0
 	ExecStop=/root/lynx/src/lynx-cli stop
 
 	Restart=always
@@ -28,7 +28,7 @@ systemctl daemon-reload
 
 systemctl enable lynxd
 
-systemctl start lynxd
+# systemctl start lynxd
 
 # systemctl restart lynxd
 

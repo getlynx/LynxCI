@@ -29,8 +29,6 @@ crontab -r # In the event that any other crontabs exist, let's purge them all.
 
 crontab -l | { cat; echo "0 */3 * * *		/root/LynxCI/explorerStop.sh"; } | crontab -
 
-crontab -l | { cat; echo "*/5 * * * *		MALLOC_ARENA_MAX=1 /root/lynx/src/lynxd"; } | crontab -
-
 # We found that after a few weeks, the debug log would grow rather large. It's not really needed
 # after a certain size, so let's truncate that log down to a reasonable size every day.
 

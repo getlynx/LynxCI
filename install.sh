@@ -38,16 +38,6 @@ detect_os () {
 
 }
 
-install_packages () {
-
-	apt-get -qq update -y
-
-	apt-get -qq install -y autoconf automake build-essential bzip2 curl fail2ban g++ gcc git git-core htop libboost-all-dev libcurl4-openssl-dev libevent-dev libgmp-dev libjansson-dev libminiupnpc-dev libncurses5-dev libssl-dev libtool libz-dev make nano pkg-config software-properties-common
-
-	apt-get -qq autoremove -y
-
-}
-
 manage_swap () {
 
 	# Some vendors already have swap set up, so only create it if it's not already there.
@@ -213,7 +203,7 @@ install_portcheck () {
  | For LYNX RPC credentials, type 'sudo nano /root/.lynx/lynx.conf'.           |
  '-----------------------------------------------------------------------------'\"
 
- 		if [ \$(id -u) ]; then
+ 		if [ \"\$(id -u)\" = \"0\" ]; then
         if [ ! -z \"\$(/root/lynx/src/lynx-cli getblockcount)\" ]; then
 
         echo \" | The current block height on this LynxCI node is \$(/root/lynx/src/lynx-cli getblockcount).                    |
@@ -246,30 +236,6 @@ install_portcheck () {
 	chown root:root /etc/profile.d/portcheck.sh
 
 	chown root:root /etc/profile.d/logo.txt
-
-}
-
-install_nginx () {
-
-	apt-get -qq update -y
-
-    apt-get -qq purge apache postfix -y
-
-    apt-get -qq autoremove -y
-
-    apt-get -qq install ca-certificates apt-transport-https -y
-
-    wget https://packages.sury.org/php/apt.gpg -O- | sudo apt-key add -
-
-    echo "deb https://packages.sury.org/php/ stretch main" | sudo tee /etc/apt/sources.list.d/php.list
-
-    apt-get -qq update -y
-
-    apt-get -qq install unzip nginx php7.2 php7.2-common php7.2-bcmath php7.2-cli php7.2-fpm php7.2-opcache php7.2-xml php7.2-curl php7.2-mbstring php7.2-zip -y
-
-	echo "Nginx was installed."
-
-	echo "PHP 7.2 was installed."
 
 }
 
@@ -440,8 +406,6 @@ install_lynx () {
 
 	cp /root/lynx/src/lynxd /root/lynx/src/$hhostname
 
-	sed -i "s/lynxd/${hhostname}/g" /root/LynxCI/explorerStop.sh
-	sed -i "s/lynxd/${hhostname}/g" /root/LynxCI/explorerStart.sh
 	sed -i "s|/root/lynx/src/lynxd|/root/lynx/src/${hhostname}|g" /root/LynxCI/installers/systemd.sh
 
 
@@ -939,7 +903,9 @@ setup_crontabs () {
 
 	/root/LynxCI/explorerStop.sh
 
-	crontab -l | { cat; echo "@reboot		MALLOC_ARENA_MAX=1 /root/lynx/src/${hhostname} -reindex"; } | crontab -
+	# crontab -l | { cat; echo "@reboot		MALLOC_ARENA_MAX=1 /root/lynx/src/${hhostname} -reindex"; } | crontab -
+
+	/root/LynxCI/installers/systemd.sh
 
 }
 
@@ -1165,7 +1131,7 @@ else
 	echo "Starting installation of LynxCI."
 
 	detect_os
-	install_packages
+	/root/LynxCI/installers/package.sh
 	set_network
 	manage_swap
 	reduce_gpu_mem
@@ -1174,7 +1140,7 @@ else
 	install_portcheck
 	install_miniupnpc
 	install_lynx
-	install_nginx
+	/root/LynxCI/installers/nginx.sh
 	setup_nginx
 	set_firewall
 	config_fail2ban
