@@ -872,23 +872,13 @@ install_lynx () {
 
 	cp /root/.lynx/lynx.conf /root/.lynx/lynx.default
 
-	# Only download the bootstrap files for mainnet, not testnet
+	# Only download the bootstrap files for mainnet.
 
-	#if [ "$environment" = "mainnet" ]; then
+	if [ "$environment" = "mainnet" ]; then
 
-		# For a faster sync time, we are pulling for a copy of the chainstate and blocks from a seed
-		# node and inserting them into the install. The blocks were created with txindex=1 so a full 
-		# network sync and rescan should not be needed.
+		wget https://github.com/getlynx/Lynx/releases/download/v0.16.3.5/bootstrap.tar.gz -O - | tar -xz -C /root/.lynx/
 
-		#wget http://cdn.getlynx.io/chainstate.tar.gz
-
-		#tar -xzvf /root/chainstate.tar.gz -C /root/.lynx/
-
-		#wget http://cdn.getlynx.io/blocks.tar.gz
-
-		#tar -xzvf /root/blocks.tar.gz -C /root/.lynx/
-
-	#fi
+	fi
 
 	# Be sure to reset the ownership of all files in the .lynx dir to root in case any process run
 	# previously changed the default ownership setting. More of a precautionary measure.
