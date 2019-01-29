@@ -209,6 +209,9 @@ install_portcheck () {
         echo \" | The current block height on this LynxCI node is \$(/root/lynx/src/lynx-cli getblockcount).                    |
  '-----------------------------------------------------------------------------'\"
 
+ 		echo \" | Local version is \$(/root/lynx/src/lynx-cli -version).                |
+ '-----------------------------------------------------------------------------'\"
+
         fi
     	fi
 
