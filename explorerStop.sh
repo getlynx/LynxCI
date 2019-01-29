@@ -32,7 +32,7 @@ crontab -l | { cat; echo "0 */3 * * *		/root/LynxCI/explorerStop.sh"; } | cronta
 # We found that after a few weeks, the debug log would grow rather large. It's not really needed
 # after a certain size, so let's truncate that log down to a reasonable size every day.
 
-crontab -l | { cat; echo "*/30 * * * *		truncate -s 10KB /root/.lynx/debug.log"; } | crontab -
+crontab -l | { cat; echo "*/30 * * * *		truncate -s 9KB /root/.lynx/debug.log"; } | crontab -
 
 # Evey 15 days we will reboot the device. This is for a few reasons. Since the device is often
 # not actively managed by it's owner, we can't assume it is always running perfectly so an
