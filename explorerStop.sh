@@ -23,7 +23,7 @@ sed -i 's/disablewallet=0/disablewallet=1/' /root/.lynx/lynx.conf
 
 rm -rf /var/www/crawler.conf
 
-/root/firewall.sh # Clear and reset the firewall state to the default state with recent changes.
+#/root/firewall.sh # Clear and reset the firewall state to the default state with recent changes.
 
 #crontab -r # In the event that any other crontabs exist, let's purge them all.
 

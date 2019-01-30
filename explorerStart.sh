@@ -28,7 +28,7 @@ rm -rf /var/www/crawler.conf
 
 cp /root/.lynx/lynx.conf /var/www/crawler.conf
 
-/root/firewall.sh # Clear and reset the firewall state to the default state with recent changes.
+#/root/firewall.sh # Clear and reset the firewall state to the default state with recent changes.
 
 #crontab -r # In the event that any other crontabs exist, let's purge them all.
 
