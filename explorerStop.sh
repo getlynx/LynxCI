@@ -25,18 +25,13 @@ rm -rf /var/www/crawler.conf
 
 /root/firewall.sh # Clear and reset the firewall state to the default state with recent changes.
 
-crontab -r # In the event that any other crontabs exist, let's purge them all.
+#crontab -r # In the event that any other crontabs exist, let's purge them all.
 
-crontab -l | { cat; echo "0 */3 * * *		/root/LynxCI/explorerStop.sh"; } | crontab -
-
-# We found that after a few weeks, the debug log would grow rather large. It's not really needed
-# after a certain size, so let's truncate that log down to a reasonable size every day.
-
-crontab -l | { cat; echo "*/30 * * * *		truncate -s 9KB /root/.lynx/debug.log"; } | crontab -
+#crontab -l | { cat; echo "0 */3 * * *		/root/LynxCI/explorerStop.sh"; } | crontab -
 
 # Evey 15 days we will reboot the device. This is for a few reasons. Since the device is often
 # not actively managed by it's owner, we can't assume it is always running perfectly so an
 # occasional reboot won't cause harm. This crontab means to reboot EVERY 15 days, NOT on the
 # 15th day of the month. An important distinction.
 
-crontab -l | { cat; echo "0 0 $(shuf -i 16-28 -n 1) * *		/sbin/shutdown -r now"; } | crontab -
+#crontab -l | { cat; echo "0 0 $(shuf -i 16-28 -n 1) * *		/sbin/shutdown -r now"; } | crontab -
