@@ -87,19 +87,22 @@ fi
 # Known addresses of other coin projects that operate on the same port and have the same version
 # number. This will remove a good number of 'connection refused' errors in the debug log.
 
-/sbin/iptables -A INPUT -p tcp -s 165.227.211.179 -j DROP #ExperiencecoinCore:3.0.0.1
 /sbin/iptables -A INPUT -p tcp -s 118.240.210.46 -j DROP #ExperiencecoinCore:3.0.0.1
 /sbin/iptables -A INPUT -p tcp -s 146.120.14.160 -j DROP #ExperiencecoinCore:3.0.0.1
 /sbin/iptables -A INPUT -p tcp -s 159.203.134.242 -j DROP #ExperiencecoinCore:3.0.0.1
 /sbin/iptables -A INPUT -p tcp -s 165.227.211.179 -j DROP #ExperiencecoinCore:3.0.0.1
+/sbin/iptables -A INPUT -p tcp -s 165.227.211.179 -j DROP #ExperiencecoinCore:3.0.0.1
 /sbin/iptables -A INPUT -p tcp -s 178.62.59.145 -j DROP #ExperiencecoinCore:3.0.0.1
+/sbin/iptables -A INPUT -p tcp -s 188.166.62.180 -j DROP #/blockchair.com/dogecoin/nodes/
 /sbin/iptables -A INPUT -p tcp -s 2.226.152.231 -j DROP #ExperiencecoinCore:3.0.0.1
 /sbin/iptables -A INPUT -p tcp -s 200.252.9.194 -j DROP #ExperiencecoinCore:3.0.0.1
 /sbin/iptables -A INPUT -p tcp -s 207.154.242.254 -j DROP #ExperiencecoinCore:3.0.0.1
 /sbin/iptables -A INPUT -p tcp -s 50.225.198.67 -j DROP #ExperiencecoinCore:3.0.0.1
+/sbin/iptables -A INPUT -p tcp -s 62.213.218.8 -j DROP #NewYorkCoin-seeder:0.01
 /sbin/iptables -A INPUT -p tcp -s 73.164.61.211 -j DROP #ExperiencecoinCore:3.0.0.1
 /sbin/iptables -A INPUT -p tcp -s 74.124.24.246 -j DROP #ExperiencecoinCore:3.0.0.1
 /sbin/iptables -A INPUT -p tcp -s 75.88.232.28 -j DROP #ExperiencecoinCore:3.0.0.1
+/sbin/iptables -A INPUT -p tcp -s 76.102.131.12 -j DROP #NewYorkCoin-seeder:0.01
 /sbin/iptables -A INPUT -p tcp -s 80.82.49.16 -j DROP #ExperiencecoinCore:3.0.0.1
 /sbin/iptables -A INPUT -p tcp -s 94.130.16.85 -j DROP #ExperiencecoinCore:3.0.0.1
 /sbin/iptables -A INPUT -p tcp -s 94.177.201.91 -j DROP #ExperiencecoinCore:3.0.0.1
@@ -108,8 +111,6 @@ fi
 /sbin/iptables -A INPUT -p tcp -s 95.54.69.24 -j DROP #ExperiencecoinCore:3.0.0.1
 /sbin/iptables -A INPUT -p tcp -s 95.68.166.255 -j DROP #ExperiencecoinCore:3.0.0.1
 /sbin/iptables -A INPUT -p tcp -s 95.68.196.178 -j DROP #ExperiencecoinCore:3.0.0.1
-/sbin/iptables -A INPUT -p tcp -s 76.102.131.12 -j DROP #NewYorkCoin-seeder:0.01
-/sbin/iptables -A INPUT -p tcp -s 62.213.218.8 -j DROP #NewYorkCoin-seeder:0.01
 
 # By default, the RPC port 9223 is opened to the public. This is so the node can both listen
 # for and discover other nodes. It is preferred to have a node that is not just a leecher but

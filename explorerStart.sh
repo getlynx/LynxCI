@@ -12,7 +12,7 @@ systemctl start php7.2-fpm && systemctl enable php7.2-fpm
 # disables) access to the node via port 80. If the Block Explorer isn't running, we might as well
 # close port 80 and remove that as a possible attack vector.
 
-sed -i 's/80 -j DROP/80 -j ACCEPT/' /root/firewall.sh
+sed -i 's/80 -j DROP/80 -j ACCEPT/' /root/LynxCI/installers/firewall.sh
 
 # If the crawler is running, it needs the disablewallet param of lynxd to be enabled. 
 
@@ -27,16 +27,3 @@ rm -rf /var/www/crawler.conf
 # this file as it is overwritten regularly. Only ever edit the /root/.lynx/lynx.conf version.
 
 cp /root/.lynx/lynx.conf /var/www/crawler.conf
-
-#/root/firewall.sh # Clear and reset the firewall state to the default state with recent changes.
-
-#crontab -r # In the event that any other crontabs exist, let's purge them all.
-
-#crontab -l | { cat; echo "0 */3 * * *		/root/LynxCI/explorerStart.sh"; } | crontab -
-
-# Evey 15 days we will reboot the device. This is for a few reasons. Since the device is often
-# not actively managed by it's owner, we can't assume it is always running perfectly so an
-# occasional reboot won't cause harm. This crontab means to reboot EVERY 15 days, NOT on the
-# 15th day of the month. An important distinction.
-
-#crontab -l | { cat; echo "0 0 $(shuf -i 16-28 -n 1) * *		/sbin/shutdown -r now"; } | crontab -
