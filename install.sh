@@ -899,41 +899,6 @@ config_firewall () {
 	
 }
 
-config_fail2ban () {
-
-	#
-	# The default ban time for abusers on port 22 (SSH) is 10 minutes. Lets make this a full 24
-	# hours that we will ban the IP address of the attacker. This is the tuning of the fail2ban
-	# jail that was documented earlier in this file. The number 86400 is the number of seconds in
-	# a 24 hour term. Set the bantime for lynxd on port 22566/44566 banned regex matches to 24
-	# hours as well.
-
-	echo "
-
-	[sshd]
-	enabled	= true
-	bantime = 86400
-
-	" > /etc/fail2ban/jail.d/defaults-debian.conf
-
-	# Configure the fail2ban jail for lynxd and set the frequency to 20 min and 3 polls.
-
-	echo "
-
-	#
-	# SSH
-	#
-
-	[sshd]
-	port		= ssh
-	logpath		= %(sshd_log)s
-
-	" > /etc/fail2ban/jail.local
-
-	service fail2ban start
-
-}
-
 restart () {
 
 	# We now write this empty file to the /boot dir. This file will persist after reboot so if
@@ -951,8 +916,6 @@ restart () {
 	/bin/rm -rf /root/LynxCI/init.sh
 	/bin/rm -rf /root/LynxCI/README.md
 	/bin/rm -rf /root/LynxCI/install.sh
-	/bin/rm -rf /root/blocks.tar.gz
-	/bin/rm -rf /root/chainstate.tar.gz
 
 	echo "LynxCI was installed."
 
@@ -988,7 +951,6 @@ else
 	/root/LynxCI/installers/nginx.sh
 	setup_nginx
 	config_firewall
-	config_fail2ban
 	/root/LynxCI/explorerStop.sh
 	/root/LynxCI/installers/systemd.sh
 	/root/LynxCI/installers/logrotate.sh
