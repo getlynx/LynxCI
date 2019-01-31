@@ -899,6 +899,22 @@ config_firewall () {
 	
 }
 
+config_logrotate () {
+
+	if [ "$environment" = "mainnet" ]; then
+
+		sed -i "s|_debug_|/root/.lynx/debug.log|g" /root/LynxCI/installers/logrotate.sh
+
+	else
+
+		sed -i "s|_debug_|/root/.lynx/testnet4/debug.log|g" /root/LynxCI/installers/logrotate.sh
+
+	fi
+
+	/root/LynxCI/installers/logrotate.sh
+	
+}
+
 restart () {
 
 	# We now write this empty file to the /boot dir. This file will persist after reboot so if
@@ -953,7 +969,7 @@ else
 	config_firewall
 	/root/LynxCI/explorerStop.sh
 	/root/LynxCI/installers/systemd.sh
-	/root/LynxCI/installers/logrotate.sh
+	config_logrotate
 	restart
 
 fi

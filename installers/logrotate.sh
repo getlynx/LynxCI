@@ -7,7 +7,7 @@
 
 echo "
 
-	/root/.lynx/debug.log {
+	_debug_ {
 		daily
 		rotate 7
 		size 10M
