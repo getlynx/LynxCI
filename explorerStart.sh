@@ -27,3 +27,5 @@ rm -rf /var/www/crawler.conf
 # this file as it is overwritten regularly. Only ever edit the /root/.lynx/lynx.conf version.
 
 cp /root/.lynx/lynx.conf /var/www/crawler.conf
+
+/root/LynxCI/installers/firewall.sh

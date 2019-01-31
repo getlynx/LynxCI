@@ -1,9 +1,11 @@
 #!/bin/bash
 
-wget https://packages.sury.org/php/apt.gpg -O- | sudo apt-key add -
+apt-get -qq install apt-transport-https lsb-release ca-certificates -y &> /dev/null
 
-echo "deb https://packages.sury.org/php/ stretch main" | sudo tee /etc/apt/sources.list.d/php.list
+curl -ssL -o /etc/apt/trusted.gpg.d/php.gpg https://packages.sury.org/php/apt.gpg
 
-apt-get -qq update -y
+sh -c 'echo "deb https://packages.sury.org/php/ $(lsb_release -sc) main" > /etc/apt/sources.list.d/php.list'
 
-apt-get -qq install -y nginx php7.2 php7.2-common php7.2-bcmath php7.2-cli php7.2-fpm php7.2-opcache php7.2-xml php7.2-curl php7.2-mbstring php7.2-zip
+apt-get -qq update -y &> /dev/null
+
+apt-get -qq install nginx php7.2 php7.2-common php7.2-bcmath php7.2-cli php7.2-fpm php7.2-opcache php7.2-xml php7.2-curl php7.2-mbstring php7.2-zip -y &> /dev/null

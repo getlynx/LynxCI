@@ -303,10 +303,6 @@ setup_nginx () {
 	chmod 755 -R /var/www/html/
 	chown www-data:www-data -R /var/www/html/
 
-	sed -i "s/8332/${rpcport}/g" /var/www/html/bc_daemon.php
-	sed -i "s/username/${rrpcuser}/g" /var/www/html/bc_daemon.php
-	sed -i "s/password/${rrpcpassword}/g" /var/www/html/bc_daemon.php
-
 	echo "Block Crawler is installed."
 
 }
