@@ -456,6 +456,8 @@ install_lynx () {
 	# the least amount of debug info, so change it to 'debug=0'.
 
 	debug=miner
+	debuglogfile=debug.log
+	shrinkdebugfile=0
 
 	# By default, wallet functions in LynxCI are disabled. This is for security reasons. If you
 	# would like to enable your wallet functions, change the value from '1' to '0' in the
