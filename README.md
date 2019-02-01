@@ -60,6 +60,6 @@ While we love [Linode.com](https://www.linode.com) for their quality of service 
 
 3. [SnowVPS](https://www.snowvps.com/portal/cart.php?a=add&pid=93) 2GB KVM VPS is USD $30/year
 
-4. [HostBrz](https://www.hostbrz.com/portal/cart.php?a=add&pid=137&billingcycle=triennially) 2GB KVM VPS is USD $35/year (Exception for Lynxd is established. No ban risk if load average stay under 1.0.)
+4. [HostBrz](https://www.hostbrz.com/portal/cart.php?a=add&pid=137&billingcycle=triennially) 2GB KVM VPS is USD $35/year (Exception agreement for Lynx. No ban risk if load average stay under 1.0.)
 
 5. [KayHosting](https://clients.kayhosting.com/cart.php?a=add&pid=104) 2GB KVM VPS is USD $35/year
