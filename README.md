@@ -50,3 +50,16 @@ Lynx is a cryptocurrency from the past re-designed for the future. We designed L
 
 A bootstrap file for all blocks up to 2,500,000 can be downloaded [here](https://github.com/getlynx/Lynx/releases/tag/v0.16.3.5). Any remaining blocks will be synced automatically. The bootstrap is used automatically in the LynxCI install. No official bootstrap file exists for Testnet.
 
+## Discount VPS vendor recommendations
+
+While we love [Linode.com](https://www.linode.com) for their quality of service and ease of use, the following discount vendors allow for a very low monthly fee to build and run a Lynx node in the cloud. Again, we recommend Debian 9 OS. We strongly recommend you not modify the [CPU limit](https://getlynx.io/can-the-integrated-miner-in-lynx-be-disabled/) so the vendor doesn't ban your node for abuse.
+
+1. [SparkVPS](https://www.sparkvps.com/crm/cart.php?a=add&pid=180) 2GB KVM VPS is USD $25/year
+
+2. [DCNHost](https://my.dcnhost.com/cart.php?a=add&pid=150) 2GB KVM VPS is USD $25/year
+
+3. [SnowVPS](https://www.snowvps.com/portal/cart.php?a=add&pid=93) 2GB KVM VPS is USD $30/year
+
+4. [HostBrz](https://www.hostbrz.com/portal/cart.php?a=add&pid=137&billingcycle=triennially) 2GB KVM VPS is USD $35/year (Exception for Lynxd is established. No ban risk if load average stay under 1.0.)
+
+5. [KayHosting](https://clients.kayhosting.com/cart.php?a=add&pid=104) 2GB KVM VPS is USD $35/year
