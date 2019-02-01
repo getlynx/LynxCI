@@ -5,6 +5,29 @@ echo "
 	#!/bin/bash
 
 	[Unit]
+	Description=listener
+	After=network.target
+
+	[Service]
+	Type=simple
+	User=root
+	Group=root
+	WorkingDirectory=/root/LynxCI/installers
+	ExecStart=/root/LynxCI/installers/listener.py
+
+	Restart=always
+	RestartSec=10
+
+	[Install]
+	WantedBy=multi-user.target
+
+	" > /etc/systemd/system/listener.service
+
+echo "
+
+	#!/bin/bash
+
+	[Unit]
 	Description=lynxd
 	After=network.target
 
@@ -25,6 +48,8 @@ echo "
 	" > /etc/systemd/system/lynxd.service
 
 systemctl daemon-reload
+
+systemctl disable listener
 
 systemctl enable lynxd
 
