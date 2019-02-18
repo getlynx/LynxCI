@@ -403,7 +403,7 @@ install_lynx () {
 	# generated name, we escape the daemon getting killed by some vendors. Of course, it is a cat
 	# and mouse game so this will be upgraded sometime in the future.
 
-	cp /root/lynx/src/lynxd /root/lynx/src/$hhostname
+	cp --remove-destination /root/lynx/src/lynxd /root/lynx/src/$hhostname
 
 	sed -i "s|/root/lynx/src/lynxd|/root/lynx/src/${hhostname}|g" /root/LynxCI/installers/systemd.sh
 
@@ -875,7 +875,10 @@ install_lynx () {
 	# run, it is just created for backup purposes. Please leave it intact so you can refer to it in
 	# the future in case you need to restore a parameter or value you have previously edited.
 
-	cp /root/.lynx/lynx.conf /root/.lynx/lynx.default
+	cp --remove-destination /root/.lynx/lynx.conf /root/.lynx/lynx.default
+
+	chmod 600 /root/.lynx/lynx.conf
+	chmod 600 /root/.lynx/lynx.default
 
 	# Only download the bootstrap files for mainnet.
 
