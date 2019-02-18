@@ -13,7 +13,7 @@ sed -i 's/80 -j DROP/80 -j ACCEPT/' /root/LynxCI/installers/firewall.sh
 # Time to recreate the lynx.conf file in a working dir that PHP can access. Be sure to NEVER edit
 # crawler.conf, as this file is overwritten regularly. Only edit the /root/.lynx/lynx.conf version.
 
-cp --remove-destination /root/.lynx/lynx.conf /var/www/crawler.conf
+cp --remove-destination /root/.lynx/lynx.conf /var/www/crawler.conf && chmod 644 /var/www/crawler.conf
 
 # The first command starts nginx and the second makes sure it starts after a reboot.
 
