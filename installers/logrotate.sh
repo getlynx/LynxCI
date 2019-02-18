@@ -11,8 +11,8 @@ echo "
 		daily
 		rotate 7
 		size 10M
+		copytruncate
 		compress
-		delaycompress
 		notifempty
 		postrotate
 			/root/LynxCI/installers/firewall.sh

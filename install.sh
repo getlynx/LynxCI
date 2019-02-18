@@ -452,8 +452,8 @@ install_lynx () {
 	# the least amount of debug info, so change it to 'debug=0'.
 
 	debug=miner
-	debuglogfile=debug.log
-	shrinkdebugfile=0
+	#disablebuiltinminer=1
+	#cpulimitforbuiltinminer=0.01
 
 	# By default, wallet functions in LynxCI are disabled. This is for security reasons. If you
 	# would like to enable your wallet functions, change the value from '1' to '0' in the
@@ -471,6 +471,10 @@ install_lynx () {
 	addnode=node03.getlynx.io
 	addnode=node04.getlynx.io
 	addnode=node05.getlynx.io
+	addnode=node06.getlynx.io
+	addnode=node07.getlynx.io
+	addnode=node08.getlynx.io
+	addnode=node09.getlynx.io
 
 	# The following addresses are known to pass the validation requirements for HPoW. If you would
 	# like to earn your own mining rewards, you can add/edit/delete this list with your own
