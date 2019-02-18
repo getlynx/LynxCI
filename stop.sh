@@ -14,11 +14,15 @@ systemctl stop php7.2-fpm && systemctl disable php7.2-fpm
 
 sed -i 's/80 -j ACCEPT/80 -j DROP/' /root/LynxCI/installers/firewall.sh
 
-# If the crawler is not running, it needs the disablewallet param of lynxd to be disabled. 
+# If the crawler is not running, it needs the disablewallet param of lynxd to be disabled.
 
-sed -i 's/disablewallet=0/disablewallet=1/' /root/.lynx/lynx.conf
+#sed -i 's/disablewallet=0/disablewallet=1/' /root/.lynx/lynx.conf
 
-# For the built in Block Crawler. Since it is not being used, let's purge the lynx.conf file copy
-# if it still exists.
+# Some system cleanup. If the bootstrap.dat file had been used in the past, it is not flagged as
+# old. It is no longer needed so let's delete it if it still exists on the drive.
 
-rm -rf /var/www/crawler.conf
+rm -rf /root/.lynx/bootstrap.dat.old
+
+# Since we just changed some settings in the firewall script, let's reset the firewall.
+
+/root/LynxCI/installers/firewall.sh

@@ -413,8 +413,8 @@ install_lynx () {
 
 	if [ "$rpcport" = "19335" ]; then
 
-		sed -i "s|debug.log|testnet4/debug.log|g" /root/LynxCI/explorerStop.sh
-		sed -i "s|debug.log|testnet4/debug.log|g" /root/LynxCI/explorerStart.sh
+		sed -i "s|debug.log|testnet4/debug.log|g" /root/LynxCI/stop.sh
+		sed -i "s|debug.log|testnet4/debug.log|g" /root/LynxCI/start.sh
 
 	fi
 
@@ -969,7 +969,7 @@ else
 	/root/LynxCI/installers/nginx.sh
 	setup_nginx
 	config_firewall
-	/root/LynxCI/explorerStop.sh
+	/root/LynxCI/stop.sh
 	/root/LynxCI/installers/systemd.sh
 	config_logrotate
 	restart
