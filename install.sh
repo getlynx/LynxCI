@@ -427,19 +427,23 @@ install_lynx () {
 
 	# The following RPC credentials are created at build time and are unique to this host. If you
 	# like, you can change them, but you are encouraged to keep very complex values for each. If an
-	# attacker gains RPC access to this host they might be able to steal your Lynx. Understanding
-	# that, the wallet is disabled by default so the risk of loss is zero.
+	# attacker gains RPC access to this host they will steal your Lynx. Understanding that, the
+	# wallet is disabled by default so the risk of loss is zero with the default configuration.
 
 	rpcuser=$rrpcuser
 	rpcpassword=$rrpcpassword
 	rpcport=$rpcport
 
-	# The following settings will allow a connection from any external host. The two entries
+	# The following settings will allow a connection from ANY external host. The two entries
 	# define that any IPv4 or IPv6 address will be allowed to connect. The default firewall settings
 	# also allow the traffic because the RPC port is open by default. If you are setting up a remote
 	# connection, all you will need is the above RPC credentials. No further network configuration
-	# is needed. To secure the node from repeated connetion attempts or to restrict connections to
-	# your IP's only, change the following values as needed.
+	# is needed. To secure the node from repeated connection attempts or to restrict connections to
+	# your IP's only, change the following values as needed. The following example will work 
+	# locally, on this machine. You can try this curl example from another computer, just change the
+	# 'localhost' value to the IP of this node.
+	#
+	# curl --user $rrpcuser:$rrpcpassword --data-binary '{\"jsonrpc\": \"1.0\", \"id\":\"curltest\", \"method\": \"getblockcount\", \"params\": [] }' -H 'content-type: text/plain;' http://localhost:9332/
 
 	rpcallowip=0.0.0.0/24
 	rpcallowip=::/0
@@ -451,9 +455,9 @@ install_lynx () {
 	# is fun though, but on a Pi, to reduce SD card writes, it might be most efficient to go with
 	# the least amount of debug info, so change it to 'debug=0'.
 
+	#debug=1
 	debug=miner
-	#disablebuiltinminer=1
-	#cpulimitforbuiltinminer=0.01
+	#debug=0
 
 	# By default, wallet functions in LynxCI are disabled. This is for security reasons. If you
 	# would like to enable your wallet functions, change the value from '1' to '0' in the
@@ -461,6 +465,10 @@ install_lynx () {
 	# reverse action to disable wallet functions on this node. You can always check to see if
 	# wallet functions are enabled with '$ /root/lynx/src/lynx-cli help', looking for the
 	# '== Wallet ==' section at the bottom of the help file.
+	#
+	# If you change this value to '0' and someone knows your RPC username and password, all your 
+	# Lynx coins on this wallet will probably be stolen. You are responsible for your coins. If the
+	# wallet is empty, it's not a risk, but make sure you know what you are doing.
 
 	disablewallet=1
 
@@ -588,14 +596,25 @@ install_lynx () {
 	listen=1
 	daemon=1
 	port=$port
-	rpcbind=127.0.0.1
-	rpcbind=::1
 	rpcworkqueue=64
 	listenonion=0
 	upnp=1
 	dbcache=100
 	txindex=1
 	host=$hhostname
+
+	# Our exchange and SPV wallet partners might want to disable the built in miner. This can be 
+	# easily done with the 'disablebuiltinminer' parameter below. As for our miners who are looking
+	# to tune their devices, we recommend the default 0.01 (1%), but if you insist on increasing the 
+	# amount, we recommend you not tune it past using 50% of your CPU load. This often means setting 
+	# the 'cpulimitforbuiltinminer' value no greater then 0.3 (30%). Remember, with HPoW, increasing
+	# the mining speed does not mean you will win more blocks. You are are just generating heat, 
+	# not blocks, if you increase the 'cpulimitforbuiltinminer' value. Also, if you are using a VPS
+	# like AWS or Linode, your node will get banned and shut down if they detect mining activity.
+	# Best to keep it low.
+
+	#disablebuiltinminer=1
+	#cpulimitforbuiltinminer=0.01
 
 	" > /root/.lynx/lynx.conf
 

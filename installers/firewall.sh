@@ -90,8 +90,9 @@ fi
 /sbin/iptables -A INPUT -p tcp -s 118.240.210.46 -j DROP #ExperiencecoinCore:3.0.0.1
 /sbin/iptables -A INPUT -p tcp -s 146.120.14.160 -j DROP #ExperiencecoinCore:3.0.0.1
 /sbin/iptables -A INPUT -p tcp -s 159.203.134.242 -j DROP #ExperiencecoinCore:3.0.0.1
+/sbin/iptables -A INPUT -p tcp -s 159.65.189.70 -j DROP #Satoshi:0.15.0.1
 /sbin/iptables -A INPUT -p tcp -s 165.227.211.179 -j DROP #ExperiencecoinCore:3.0.0.1
-/sbin/iptables -A INPUT -p tcp -s 165.227.211.179 -j DROP #ExperiencecoinCore:3.0.0.1
+/sbin/iptables -A INPUT -p tcp -s 178.118.21.128 -j DROP #NewYorkCoin-seeder:0.01
 /sbin/iptables -A INPUT -p tcp -s 178.62.59.145 -j DROP #ExperiencecoinCore:3.0.0.1
 /sbin/iptables -A INPUT -p tcp -s 188.166.62.180 -j DROP #/blockchair.com/dogecoin/nodes/
 /sbin/iptables -A INPUT -p tcp -s 2.226.152.231 -j DROP #ExperiencecoinCore:3.0.0.1
@@ -103,10 +104,14 @@ fi
 /sbin/iptables -A INPUT -p tcp -s 74.124.24.246 -j DROP #ExperiencecoinCore:3.0.0.1
 /sbin/iptables -A INPUT -p tcp -s 75.88.232.28 -j DROP #ExperiencecoinCore:3.0.0.1
 /sbin/iptables -A INPUT -p tcp -s 76.102.131.12 -j DROP #NewYorkCoin-seeder:0.01
+/sbin/iptables -A INPUT -p tcp -s 78.81.182.206 -j DROP #ExperiencecoinCore:3.0.0.1
 /sbin/iptables -A INPUT -p tcp -s 80.82.49.16 -j DROP #ExperiencecoinCore:3.0.0.1
+/sbin/iptables -A INPUT -p tcp -s 85.236.188.28 -j DROP #Satoshi:0.8.6.2
+/sbin/iptables -A INPUT -p tcp -s 88.99.91.47 -j DROP #CryptoTransfer:1.0.0
 /sbin/iptables -A INPUT -p tcp -s 94.130.16.85 -j DROP #ExperiencecoinCore:3.0.0.1
 /sbin/iptables -A INPUT -p tcp -s 94.177.201.91 -j DROP #ExperiencecoinCore:3.0.0.1
 /sbin/iptables -A INPUT -p tcp -s 95.52.43.220 -j DROP #ExperiencecoinCore:3.0.0.1
+/sbin/iptables -A INPUT -p tcp -s 95.52.42.249 -j DROP #ExperiencecoinCore:3.0.0.1
 /sbin/iptables -A INPUT -p tcp -s 95.54.68.250 -j DROP #ExperiencecoinCore:3.0.0.1
 /sbin/iptables -A INPUT -p tcp -s 95.54.69.24 -j DROP #ExperiencecoinCore:3.0.0.1
 /sbin/iptables -A INPUT -p tcp -s 95.68.166.255 -j DROP #ExperiencecoinCore:3.0.0.1
