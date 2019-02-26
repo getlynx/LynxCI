@@ -483,6 +483,10 @@ install_lynx () {
 	addnode=node07.getlynx.io
 	addnode=node08.getlynx.io
 	addnode=node09.getlynx.io
+	addnode=node10.getlynx.io
+	addnode=node11.getlynx.io
+	addnode=node12.getlynx.io
+	addnode=node13.getlynx.io
 
 	# The following addresses are known to pass the validation requirements for HPoW. If you would
 	# like to earn your own mining rewards, you can add/edit/delete this list with your own
@@ -599,7 +603,7 @@ install_lynx () {
 	rpcworkqueue=64
 	listenonion=0
 	upnp=1
-	dbcache=100
+	#dbcache=100
 	txindex=1
 	host=$hhostname
 
@@ -887,6 +891,16 @@ install_lynx () {
 	mineraddress=mruPcrfu9XC7L5BKYVMm64ySLpJuL4vTVE
 
 	" >> /root/.lynx/lynx.conf
+
+	fi
+
+	# On the Pi, the dbcache param has value. The limited RAM environment of the Pi means we should
+	# store less data about the chainstate in RAM. We can reduce the about of RAM used my lynxd with
+	# this param. Default is 450MB.
+
+	if [ ! -z "$checkForRaspbian" ]; then
+
+		sed -i "s|#dbcache=100|dbcache=100|g" /root/.lynx/lynx.conf
 
 	fi
 
