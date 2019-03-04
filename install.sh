@@ -917,7 +917,7 @@ install_lynx () {
 
 	if [ "$environment" = "mainnet" ]; then
 
-		wget https://github.com/getlynx/Lynx/releases/download/v0.16.3.5/bootstrap.tar.gz -O - | tar -xz -C /root/.lynx/
+		wget https://github.com/getlynx/Lynx/releases/download/v0.16.3.6/bootstrap.tar.gz -O - | tar -xz -C /root/.lynx/
 
 	fi
 
