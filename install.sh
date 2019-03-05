@@ -68,10 +68,18 @@ manage_swap () {
 
 	fi
 
-	# On a Raspberry Pi 3, the default swap is 100MB. This is a little restrictive, so we are
-	# expanding it to a full 1GB of swap.
+	# Only if the target device is a Pi, bump up the swap.
 
-	sed -i 's/CONF_SWAPSIZE=100/CONF_SWAPSIZE=1024/' /etc/dphys-swapfile
+	if [ ! -z "$checkForRaspbian" ]; then
+
+		# On a Raspberry Pi, the default swap is 100MB. This is a little restrictive, so we are
+		# expanding it to a full 1GB of swap.
+
+		sed -i 's/CONF_SWAPSIZE=100/CONF_SWAPSIZE=2048/' /etc/dphys-swapfile
+
+		/etc/init.d/dphys-swapfile restart
+
+	fi
 
 }
 
