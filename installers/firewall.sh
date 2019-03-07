@@ -2,6 +2,18 @@
 
 IsRestricted=Y
 
+# Whenever the firewall is reset, we also remove the lynx user from the sudo group. This is for
+# security reasons. A grace period exists after the initial build but after the firewall is reset,
+# we no longer allow the lynx user to use the sudo command to gain access to root. The user MUST
+# know the root account password to administer the lynxd settings. An exception exists for the
+# Raspberry pi device. We don't take away sudo from the lynx user on the Pi.
+
+if ! grep 'pi' /etc/passwd >/dev/null 2>&1; then
+
+	/usr/sbin/deluser lynx sudo
+
+fi
+
 # Let's flush any pre existing iptables rules that might exist and start with a clean slate.
 
 /sbin/iptables -F

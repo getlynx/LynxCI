@@ -145,42 +145,6 @@ set_network () {
 
 }
 
-set_accounts () {
-
-	# We don't always know the condition of the host OS, so let's look for several possibilities. 
-	# This will disable the ability to log in directly as root.
-
-	sed -i 's/PermitRootLogin yes/PermitRootLogin no/' /etc/ssh/sshd_config
-
-	sed -i 's/PermitRootLogin without-password/PermitRootLogin no/' /etc/ssh/sshd_config
-
-	# The new LynxCI username and default password.
-
-	ssuser="lynx"
-
-	sspassword="lynx"
-
-	adduser $ssuser --disabled-password --gecos ""
-
-	echo "$ssuser:$sspassword" | chpasswd
-
-	adduser $ssuser sudo
-
-	# We only need to lock the Pi account if this is a Raspberry Pi. Otherwise, ignore this step.
-
-	if [ ! -z "$checkForRaspbian" ]; then
-
-		# Let's lock the pi user account, no need to delete it.
-
-		usermod -L -e 1 pi
-
-		echo "The 'pi' login was locked. Please log in with '$ssuser'. The default password is '$sspassword'."
-
-		sleep 5
-
-	fi
-}
-
 install_portcheck () {
 
 	rm -rf /etc/profile.d/portcheck.sh
@@ -990,7 +954,7 @@ else
 	manage_swap
 	reduce_gpu_mem
 	disable_bluetooth
-	set_accounts
+	/root/LynxCI/installers/account.sh
 	install_portcheck
 	install_miniupnpc
 	install_lynx

@@ -15,6 +15,11 @@ sed -i 's/80 -j DROP/80 -j ACCEPT/' /root/LynxCI/installers/firewall.sh
 
 cp --remove-destination /root/.lynx/lynx.conf /var/www/crawler.conf && chmod 644 /var/www/crawler.conf
 
+# For security, let's remove the rest of the file, since the PHP app doesn't need to see it. We
+# don't want the PHP app to potentially see any other sensitive info in the lynx.conf file.
+
+sed -i '11,$ d' /var/www/crawler.conf
+
 # The first command starts nginx and the second makes sure it starts after a reboot.
 
 systemctl start nginx && systemctl enable nginx
