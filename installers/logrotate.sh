@@ -10,9 +10,6 @@ echo "
 	compress
 	notifempty
 	missingok
-	prerotate
-		/root/LynxCI/installers/firewall.sh
-	endscript
 }
 
 /root/.lynx/testnet4/debug.log {
@@ -23,9 +20,6 @@ echo "
 	compress
 	notifempty
 	missingok
-	prerotate
-		/root/LynxCI/installers/firewall.sh
-	endscript
 }
 
 " > /etc/logrotate.d/lynxd.conf

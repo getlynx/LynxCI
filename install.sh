@@ -905,7 +905,12 @@ install_lynx () {
 config_firewall () {
 
 	sed -i "s/_port_/${port}/g" /root/LynxCI/installers/firewall.sh
+	
 	sed -i "s/_rpcport_/${rpcport}/g" /root/LynxCI/installers/firewall.sh
+
+	crontab -r
+
+	crontab -l | { cat; echo "@daily		/root/LynxCI/installers/firewall.sh"; } | crontab -
 	
 }
 
