@@ -266,6 +266,14 @@ setup_nginx () {
 
     sed -i 's/;cgi.fix_pathinfo=1/cgi.fix_pathinfo=0/' /etc/php/7.2/fpm/php.ini
 
+    # The first command stops nginx and the second makes sure it doesn't start after a reboot.
+
+	systemctl stop nginx && systemctl disable nginx
+
+	# The first command stops PHP-FPM and the second makes sure it doesn't start after a reboot.
+
+	systemctl stop php7.2-fpm && systemctl disable php7.2-fpm
+
 	echo "Nginx is configured."
 
 	rm -rf /var/www/html/
@@ -439,8 +447,9 @@ install_lynx () {
 	# '== Wallet ==' section at the bottom of the help file.
 	#
 	# If you change this value to '0' and someone knows your RPC username and password, all your 
-	# Lynx coins on this wallet will probably be stolen. You are responsible for your coins. If the
-	# wallet is empty, it's not a risk, but make sure you know what you are doing.
+	# Lynx coins in this wallet will probably be stolen. The Lynx development team can not get your
+	# stolen coins back. You are responsible for your coins. If the wallet is empty, it's not a
+	# risk, but make sure you know what you are doing.
 
 	disablewallet=1
 
@@ -464,8 +473,8 @@ install_lynx () {
 	# like to earn your own mining rewards, you can add/edit/delete this list with your own
 	# addresses (more is better). You must have a balance of between 1,000 and 100,000,000 Lynx in
 	# each of the Lynx addresses in order to win the block reward. Alternatively, you can enable
-	# wallet functions on this node, deposit Lynx to the local wallet (again, between 1,000 and
-	# 100,000,000 Lynx) and the miner will ignore the following miner address values.
+	# wallet functions on this node (above), deposit Lynx to the local wallet (again, between 1,000
+	# and 100,000,000 Lynx) and the miner will ignore the following miner address values.
 
 	mineraddress=KKMeTYLM6LrhFc8Gq1uYSua4BLgmFPaZrX
 	mineraddress=KVKrkxGcUo9wii59ashrbqKub5CpggiFQz
@@ -966,7 +975,6 @@ else
 	/root/LynxCI/installers/nginx.sh
 	setup_nginx
 	config_firewall
-	/root/LynxCI/stop.sh
 	/root/LynxCI/installers/systemd.sh
 	/root/LynxCI/installers/logrotate.sh
 	restart
