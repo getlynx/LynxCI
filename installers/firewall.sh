@@ -10,7 +10,7 @@ IsRestricted=Y
 
 if ! grep 'pi' /etc/passwd >/dev/null 2>&1; then
 
-	/usr/sbin/deluser lynx sudo
+	/usr/sbin/deluser lynx sudo >/dev/null 2>&1
 
 fi
 
