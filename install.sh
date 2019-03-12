@@ -421,9 +421,9 @@ install_lynx () {
 	# is needed. To secure the node from repeated connection attempts or to restrict connections to
 	# your IP's only, change the following values as needed. The following example will work 
 	# locally, on this machine. You can try this curl example from another computer, just change the
-	# 'localhost' value to the IP of this node.
+	# '$hhostname' value to the IP of this node.
 	#
-	# curl --user $rrpcuser:$rrpcpassword --data-binary '{\"jsonrpc\": \"1.0\", \"id\":\"curltest\", \"method\": \"getblockcount\", \"params\": [] }' -H 'content-type: text/plain;' http://localhost:9332/
+	# curl --user $rrpcuser:$rrpcpassword --data-binary '{\"jsonrpc\": \"1.0\", \"id\":\"curltest\", \"method\": \"getblockcount\", \"params\": [] }' -H 'content-type: text/plain;' http://$hhostname:$rpcport/
 
 	rpcallowip=0.0.0.0/24
 	rpcallowip=::/0
@@ -617,6 +617,7 @@ install_lynx () {
 	addnode=test01.getlynx.io
 	addnode=test02.getlynx.io
 	addnode=test03.getlynx.io
+	addnode=test04.getlynx.io
 
 	# All testnet coin public addresses start with am M or a N. Mainnet coins, the one's that 
 	# are publicly traded and used always start with a K. If you would like to take coins from any
