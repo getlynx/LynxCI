@@ -18,7 +18,7 @@ cp --remove-destination /root/.lynx/lynx.conf /var/www/crawler.conf && chmod 644
 # For security, let's remove the rest of the file, since the PHP app doesn't need to see it. We
 # don't want the PHP app to potentially see any other sensitive info in the lynx.conf file.
 
-sed -i '11,$ d' /var/www/crawler.conf
+sed -i '15,$ d' /var/www/crawler.conf
 
 # The first command starts nginx and the second makes sure it starts after a reboot.
 
@@ -27,11 +27,6 @@ systemctl start nginx && systemctl enable nginx
 # The first command starts PHP-FPM and the second makes sure it starts after a reboot.
 
 systemctl start php7.2-fpm && systemctl enable php7.2-fpm
-
-# Some system cleanup. If the bootstrap.dat file had been used in the past, it is not flagged as
-# old. It is no longer needed so let's delete it if it still exists on the drive.
-
-rm -rf /root/.lynx/bootstrap.dat.old
 
 # Since we just changed some settings in the firewall script, let's reset the firewall.
 

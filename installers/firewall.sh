@@ -140,6 +140,11 @@ fi
 
 /sbin/iptables -A INPUT -j DROP
 
+# Some system cleanup. If the bootstrap.dat file had been used in the past, it is not flagged as
+# old. It is no longer needed so let's delete it if it still exists on the drive.
+
+rm -rf /root/.lynx/bootstrap.dat.old
+
 #
 # Metus est Plenus Tyrannis
 #
