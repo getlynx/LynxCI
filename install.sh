@@ -579,6 +579,11 @@ mineraddress=KGC3UkcLS2Yq5ZojhuHu5T7XBpf3DJKJKp
 mineraddress=KEM9dV7pP1YZkTA3gYpfydSqQUyFzfmwrm
 mineraddress=K9JgSJZW6koYKQ4rPmZ7FwRH6dpy7SHVUD
 mineraddress=KCeHBX64PT1WvuV4mrSnS7DoyLvpmZ5XXK
+# Added March 18, 2019
+mineraddress=KCEtXtUd3H8bG7Jn7FCLuEhNdVvD5AbDVf
+mineraddress=K9aVTZzPRwuVD7k3oELGh2aDKcF95kjEN1
+mineraddress=KAaaYX5rXaSJstmszDEJgxAYjx655CctoE
+mineraddress=KQVjEoCtKfB2KRQCrpL91NxokdmosJAWSH
 
 # It is highly unlikely you need to change any of the following values unless you are tinkering
 # with the node. If you do decide to tinker, make a backup of this file first.
