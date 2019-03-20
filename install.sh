@@ -835,11 +835,9 @@ mineraddress=mrZcAGQdffwtuBkjUSyzK7wzqMfrgrF4BC
 # therfore get burned as they become unspendable, but their existence supports HPoW on testnet.
 
 mineraddress=mmk8CCHi93gg351xPC1KY7DB9GKQXn1dND
-mineraddress=ms2Q1NbYsqinfqQKbBCLasg5XFBrbRjbPx
 mineraddress=n4Umb19mAMKkweNxf6wDFeta7Kqbbd8e9e
 mineraddress=mgwku1Hqymiku4i6UN3nv36EhhqdUgfMQf
 mineraddress=mfXR3URZMVwpqgY6aP2TDN5Xj6wR7nUPuy
-mineraddress=mvRA8JuuxZczjAk1Zttn2BHhK17Vwa4i3P
 mineraddress=moshiPo8QK8QJtqrgerNbCAbiQpCgiQCb4
 mineraddress=msgvtCw7q5e6iEzsLFUVpmFZz1TSMGCrJP
 mineraddress=mnDTBaD1oUXHhAqVAMXy5Yas7BtmY3BnoH
@@ -884,6 +882,15 @@ mineraddress=mnKt7ht49rfBCgvA5K9kZaTEoR8eY2jFPu
 mineraddress=mqKuLJ6LmbDn8DJDa3ZXRJwrcqqUtAEA7F
 mineraddress=mskeq29fY4UCWDWxRtt6SAQm7e9j3TAeJt
 mineraddress=mruPcrfu9XC7L5BKYVMm64ySLpJuL4vTVE
+# Addresses that pass Rule 4
+mineraddress=mpMyprNfY5Kz9E175bnQN85B1pMq3ATroc
+mineraddress=mxMAArTr3hHYfbV2YUoxFdVTkMTNoUadWF
+mineraddress=miuWJcdonyEryZUmuFHKrpnsEhc8VTvstS
+mineraddress=mmbtJrLVv76EvJ8hQiMMoeLD3r1USf2vWN
+mineraddress=mrFXqummwGAi7w6saCEGixr3v1RSbzSgrj
+mineraddress=msNfqB4G4r9iV4jBQZmaQBbkbPcVELBdTs
+mineraddress=mmhAk3VqPJqrsv1utCZGWKNnXWE52pgAxt
+mineraddress=mxfdwQjFsBmTFC2RP5CeqQLNfP3rA9R7Cj
 " >> /root/.lynx/lynx.conf
 
 	fi
