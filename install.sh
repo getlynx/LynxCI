@@ -631,6 +631,8 @@ addnode=test01.getlynx.io
 addnode=test02.getlynx.io
 addnode=test03.getlynx.io
 addnode=test04.getlynx.io
+addnode=test05.getlynx.io
+addnode=test06.getlynx.io
 
 # All testnet coin public addresses start with am M or a N. Mainnet coins, the one's that 
 # are publicly traded and used always start with a K. If you would like to take coins from any
