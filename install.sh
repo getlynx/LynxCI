@@ -885,9 +885,9 @@ mineraddress=mxfdwQjFsBmTFC2RP5CeqQLNfP3rA9R7Cj
 
 		wget https://github.com/getlynx/Lynx/releases/download/v0.16.3.7/bootstrap.tar.gz -O - | tar -xz -C /root/.lynx/
 
-	#else
+	else
 
-		#wget https://github.com/getlynx/Lynx/releases/download/v0.16.3.8/bootstrap.tar.gz -O - | tar -xz -C /root/.lynx/
+		wget https://github.com/getlynx/Lynx/releases/download/v0.16.3.8/bootstrap.tar.gz -O - | tar -xz -C /root/.lynx/
 
 	fi
 
