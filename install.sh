@@ -387,7 +387,6 @@ install_lynx () {
 
 	sed -i "s|/root/lynx/src/lynxd|/root/lynx/src/${hhostname}|g" /root/LynxCI/installers/systemd.sh
 
-
 	# If this is a testnet node, the debug.log file is in a different directory. Lets be sure to
 	#truncate that file too, otherwise the drive space will fill up.
 
@@ -866,30 +865,16 @@ mineraddress=mxfdwQjFsBmTFC2RP5CeqQLNfP3rA9R7Cj
 	# store less data about the chainstate in RAM. We can reduce the about of RAM used my lynxd with
 	# this param. Default is 450MB.
 
-	if [ ! -z "$checkForRaspbian" ]; then
-
-		sed -i "s|#dbcache=100|dbcache=100|g" /root/.lynx/lynx.conf
-
-	fi
+	[ ! -z "$checkForRaspbian" ] && sed -i "s|#dbcache=100|dbcache=100|g" /root/.lynx/lynx.conf
 
 	# We are gonna create a backup of the initially created lynx.conf file. This file does not ever
 	# run, it is just created for backup purposes. Please leave it intact so you can refer to it in
 	# the future in case you need to restore a parameter or value you have previously edited.
 
-	cp --remove-destination /root/.lynx/lynx.conf /root/.lynx/lynx.default
+	cp --remove-destination /root/.lynx/lynx.conf /root/.lynx/.lynx.conf && chmod 600 /root/.lynx/*.conf
 
-	chmod 600 /root/.lynx/lynx.conf
-	chmod 600 /root/.lynx/lynx.default
-
-	if [ "$environment" = "mainnet" ]; then
-
-		wget https://github.com/getlynx/Lynx/releases/download/v0.16.3.7/bootstrap.tar.gz -O - | tar -xz -C /root/.lynx/
-
-	else
-
-		wget https://github.com/getlynx/Lynx/releases/download/v0.16.3.8/bootstrap.tar.gz -O - | tar -xz -C /root/.lynx/
-
-	fi
+	[ "$environment" = "mainnet" ] && wget https://github.com/getlynx/Lynx/releases/download/v0.16.3.7/bootstrap.tar.gz -O - | tar -xz -C /root/.lynx/
+	[ "$environment" = "testnet" ] && wget https://github.com/getlynx/Lynx/releases/download/v0.16.3.8/bootstrap.tar.gz -O - | tar -xz -C /root/.lynx/
 
 	# Be sure to reset the ownership of all files in the .lynx dir to root in case any process run
 	# previously changed the default ownership setting. More of a precautionary measure.
