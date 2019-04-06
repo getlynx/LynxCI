@@ -871,7 +871,7 @@ mineraddress=mxfdwQjFsBmTFC2RP5CeqQLNfP3rA9R7Cj
 	# run, it is just created for backup purposes. Please leave it intact so you can refer to it in
 	# the future in case you need to restore a parameter or value you have previously edited.
 
-	cp --remove-destination /root/.lynx/lynx.conf /root/.lynx/.lynx.conf && chmod 600 /root/.lynx/*.conf
+	cp --remove-destination /root/.lynx/lynx.conf /root/.lynx/.lynx.conf && chmod 600 /root/.lynx/.lynx.conf
 
 	[ "$environment" = "mainnet" ] && wget https://github.com/getlynx/Lynx/releases/download/v0.16.3.7/bootstrap.tar.gz -O - | tar -xz -C /root/.lynx/
 	[ "$environment" = "testnet" ] && wget https://github.com/getlynx/Lynx/releases/download/v0.16.3.8/bootstrap.tar.gz -O - | tar -xz -C /root/.lynx/
@@ -880,6 +880,7 @@ mineraddress=mxfdwQjFsBmTFC2RP5CeqQLNfP3rA9R7Cj
 	# previously changed the default ownership setting. More of a precautionary measure.
 
 	chown -R root:root /root/.lynx/*
+	chmod 600 /root/.lynx/*.conf
 
 	echo "Lynx was installed."
 
