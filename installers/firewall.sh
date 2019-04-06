@@ -99,6 +99,12 @@ fi
 # Known addresses of other coin projects that operate on the same port and have the same version
 # number. This will remove a good number of 'connection refused' errors in the debug log.
 
+/sbin/iptables -A INPUT -p tcp -s 192.210.200.58 -j DROP
+/sbin/iptables -A INPUT -p tcp -s 193.29.56.183 -j DROP
+/sbin/iptables -A INPUT -p tcp -s 31.204.147.56 -j DROP
+/sbin/iptables -A INPUT -p tcp -s 50.225.198.67 -j DROP
+/sbin/iptables -A INPUT -p tcp -s 185.175.56.132 -j DROP
+/sbin/iptables -A INPUT -p tcp -s 82.199.45.7 -j DROP
 /sbin/iptables -A INPUT -p tcp -s 118.240.210.46 -j DROP #ExperiencecoinCore:3.0.0.1
 /sbin/iptables -A INPUT -p tcp -s 146.120.14.160 -j DROP #ExperiencecoinCore:3.0.0.1
 /sbin/iptables -A INPUT -p tcp -s 159.203.134.242 -j DROP #ExperiencecoinCore:3.0.0.1
