@@ -36,12 +36,12 @@ fi
 # Known addresses of other coin projects that operate on the same port and have the same version
 # number. This will remove a good number of 'connection refused' errors in the debug log.
 
-/sbin/iptables -A INPUT -p tcp -s 192.210.200.58 -j DROP #Known out of date node
-/sbin/iptables -A INPUT -p tcp -s 193.29.56.183 -j DROP #Known out of date node
-/sbin/iptables -A INPUT -p tcp -s 31.204.147.56 -j DROP #Known out of date node
-/sbin/iptables -A INPUT -p tcp -s 50.225.198.67 -j DROP #Known out of date node
-/sbin/iptables -A INPUT -p tcp -s 185.175.56.132 -j DROP #Known out of date node
-/sbin/iptables -A INPUT -p tcp -s 82.199.45.7 -j DROP #Known out of date node
+/sbin/iptables -A INPUT -p tcp -s 192.210.200.58 -j DROP #Satoshi:0.15.0.1
+/sbin/iptables -A INPUT -p tcp -s 193.29.56.183 -j DROP #Satoshi:0.15.0.1
+/sbin/iptables -A INPUT -p tcp -s 31.204.147.56 -j DROP #Satoshi:0.15.0.1
+/sbin/iptables -A INPUT -p tcp -s 50.225.198.67 -j DROP #Satoshi:0.15.0.1
+/sbin/iptables -A INPUT -p tcp -s 185.175.56.132 -j DROP #Satoshi:0.15.0.1
+/sbin/iptables -A INPUT -p tcp -s 82.199.45.7 -j DROP #Satoshi:0.15.0.1
 /sbin/iptables -A INPUT -p tcp -s 118.240.210.46 -j DROP #ExperiencecoinCore:3.0.0.1
 /sbin/iptables -A INPUT -p tcp -s 146.120.14.160 -j DROP #ExperiencecoinCore:3.0.0.1
 /sbin/iptables -A INPUT -p tcp -s 159.203.134.242 -j DROP #ExperiencecoinCore:3.0.0.1
@@ -60,6 +60,7 @@ fi
 /sbin/iptables -A INPUT -p tcp -s 75.88.232.28 -j DROP #ExperiencecoinCore:3.0.0.1
 /sbin/iptables -A INPUT -p tcp -s 76.102.131.12 -j DROP #NewYorkCoin-seeder:0.01
 /sbin/iptables -A INPUT -p tcp -s 78.81.182.206 -j DROP #ExperiencecoinCore:3.0.0.1
+/sbin/iptables -A INPUT -p tcp -s 78.81.191.136 -j DROP #ExperiencecoinCore:3.0.0.1
 /sbin/iptables -A INPUT -p tcp -s 80.82.49.16 -j DROP #ExperiencecoinCore:3.0.0.1
 /sbin/iptables -A INPUT -p tcp -s 85.236.188.28 -j DROP #Satoshi:0.8.6.2
 /sbin/iptables -A INPUT -p tcp -s 88.99.91.47 -j DROP #CryptoTransfer:1.0.0

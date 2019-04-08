@@ -43,7 +43,7 @@ if [ -z "$checkForRaspbian" ]; then
 	echo "locales locales/default_environment_locale select en_US.UTF-8" | debconf-set-selections
 	echo "locales locales/locales_to_be_generated multiselect en_US.UTF-8 UTF-8" | debconf-set-selections
 	rm -rf "/etc/locale.gen"
-	dpkg-reconfigure --frontend noninteractive locales
+	dpkg-reconfigure --frontend noninteractive locales &> /dev/null
 	echo "Locale for the target host was set to en_US.UTF-8 UTF-8."
 
 fi

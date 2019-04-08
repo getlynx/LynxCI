@@ -14,7 +14,7 @@ apt-get -qq remove -y postfix apache2 pi-bluetooth &> /dev/null
 
 apt-get -qq upgrade -y &> /dev/null
 
-# We need to ensure we have git for the following step. Let's not assume we already ahve it. Also
+# We need to ensure we have git for the following step. Let's not assume we already have it. Also
 # added a few other tools as testing has revealed that some vendors didn't have them pre-installed.
 
 apt-get -qq install -y autoconf automake build-essential bzip2 curl unzip fail2ban g++ gcc git git-core htop libboost-all-dev libcurl4-openssl-dev libevent-dev libgmp-dev libjansson-dev libminiupnpc-dev libncurses5-dev libssl-dev libtool libz-dev logrotate make nano pkg-config software-properties-common sudo &> /dev/null
