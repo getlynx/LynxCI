@@ -135,7 +135,7 @@ set_network () {
 
 	ipaddr=$(ip route get 1 | awk '{print $NF;exit}')
 
-	# If the device is a Pi, the "pi" string is preperded. If he device is running testnet then the 
+	# If the device is a Pi, the "pi" string is prepended. If he device is running testnet then the 
 	# node id starts with a 1.
 
 	[ "$environment" = "mainnet" -a ! -z "$checkForRaspbian" ] && hhostname="lynxpi$(shuf -i 200000000-999999999 -n 1)"
