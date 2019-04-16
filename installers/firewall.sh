@@ -93,41 +93,16 @@ else
 
 	/sbin/iptables -A INPUT -p tcp -s 192.168.0.0/16 --dport 22 -j ACCEPT
 
-	# VPN service https://www.vpnsecure.me [Germany]
-
-	/sbin/iptables -A INPUT -p tcp -s 185.216.33.82 --dport 22 -j ACCEPT
-
-	# VPN service https://www.vpnsecure.me [Austria]
-
-	/sbin/iptables -A INPUT -p tcp -s 146.255.57.28 --dport 22 -j ACCEPT
-
-	# VPN service https://www.vpnsecure.me [Canada TCP]
-
-	/sbin/iptables -A INPUT -p tcp -s 67.215.7.186 --dport 22 -j ACCEPT
-
-	# VPN service https://www.vpnsecure.me [Australia 2 TCP]
-
-	/sbin/iptables -A INPUT -p tcp -s 168.1.53.196 --dport 22 -j ACCEPT
-
-	# VPN service https://www.vpnsecure.me [Belgium 1 TCP]
-
-	/sbin/iptables -A INPUT -p tcp -s 82.102.19.178 --dport 22 -j ACCEPT
-
-	# VPN service https://www.vpnsecure.me [United States 10 - N-West]
+	# Secure access from your home/office IP. Customize as you like. [VPN 10 N-West] This is NOT a 
+	# backdoor into your LynxCI node for the Lynx Developers. You still control the access
+	# credentials for your LynxCI node. The only account available is the 'lynx' user account
+	# and you control the password for it. The root user account is locked (don't trust us, verify
+	# yourself). This firewall entry is for convenience of the Lynx dev team, but also a convenient
+	# example of how you can customize the firewall for your own direct access from you home or
+	# office IP. Save your change and be sure to execute "$ /root/LynxCI/installers/firewall.sh" 
+	# when done.
 
 	/sbin/iptables -A INPUT -p tcp -s 162.210.250.170 --dport 22 -j ACCEPT
-
-	# VPN service https://www.vpnsecure.me [United States 3 - East]
-
-	/sbin/iptables -A INPUT -p tcp -s 64.20.43.202 --dport 22 -j ACCEPT
-
-	# VPN service https://www.vpnsecure.me [Vietnam TCP]
-
-	/sbin/iptables -A INPUT -p tcp -s 125.212.251.87 --dport 22 -j ACCEPT
-
-	# VPN service https://www.vpnsecure.me [Netherlands TCP]
-
-	/sbin/iptables -A INPUT -p tcp -s 89.39.105.120 --dport 22 -j ACCEPT
 
 fi
 
