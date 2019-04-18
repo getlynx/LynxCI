@@ -30,7 +30,7 @@ detect_os () {
 	echo "Build environment is '$environment'."
 
 	# Since we are starting the install of LynxCI, let's remove the crontab that started this
-	# process so we don't accidently run it twice simultaneously. That could get ugly. Now this 
+	# process so we don't accidently run it twice simultaneously. That could get ugly. Now this
 	# script can run as long as it needs without concern another crontab might start and withdraw
 	# reseources.
 
@@ -135,7 +135,7 @@ set_network () {
 
 	ipaddr=$(ip route get 1 | awk '{print $NF;exit}')
 
-	# If the device is a Pi, the "pi" string is prepended. If he device is running testnet then the 
+	# If the device is a Pi, the "pi" string is prepended. If he device is running testnet then the
 	# node id starts with a 1.
 
 	[ "$environment" = "mainnet" -a ! -z "$checkForRaspbian" ] && hhostname="lynxpi$(shuf -i 200000000-999999999 -n 1)"
@@ -381,11 +381,11 @@ install_lynx () {
 
 	cd ~/ && rm -rf .lynx && mkdir .lynx
 
-	# Some VPS vendors are struggling with cryptocurrency daemons and miners running on their 
-	# platforms. These applications and mining platforms waste resources on those platforms so it's 
-	# understandable why they block those daemons from running. Testing has found that lynxd is 
+	# Some VPS vendors are struggling with cryptocurrency daemons and miners running on their
+	# platforms. These applications and mining platforms waste resources on those platforms so it's
+	# understandable why they block those daemons from running. Testing has found that lynxd is
 	# killed occasionally on some VPS platforms, even though the avg server load for a LynxCI built
-	# is about 0.3 with 1 CPU and 1 GB of RAM. By copying the lynxd daemon and using the randomly 
+	# is about 0.3 with 1 CPU and 1 GB of RAM. By copying the lynxd daemon and using the randomly
 	# generated name, we escape the daemon getting killed by some vendors. Of course, it is a cat
 	# and mouse game so this will be upgraded sometime in the future.
 
@@ -477,21 +477,12 @@ addnode=node11.getlynx.io
 addnode=node12.getlynx.io
 addnode=node13.getlynx.io
 
-# curl --user $rrpcuser:$rrpcpassword --data-binary '{\"jsonrpc\": \"1.0\", \"id\":\"curltest\", \"method\": \"getconnectioncount\", \"params\": [] }' -H 'content-type: text/plain;' http://$hhostname:$rpcport/
-
-# The following addresses are known to pass the validation requirements for HPoW. If you would
-# like to earn your own mining rewards, you can add/edit/delete this list with your own
-# addresses (more is better). You must have a balance of between 1,000 and 100,000,000 Lynx in
-# each of the Lynx addresses in order to win the block reward. Alternatively, you can enable
-# wallet functions on this node (above), deposit Lynx to the local wallet (again, between 1,000
-# and 100,000,000 Lynx) and the miner will ignore the following miner address values.
-
-mineraddress=KKMeTYLM6LrhFc8Gq1uYSua4BLgmFPaZrX
-mineraddress=KVKrkxGcUo9wii59ashrbqKub5CpggiFQz
-mineraddress=KMPxdPMwJb3rn1dLx9L2xxxUgiZiGRC8Um
-mineraddress=KERgGnd5vCMkdFbGynrGeqhBnitz1zrg22
-mineraddress=KWJfZ9qQ4aAiieB9jh8iJk5ttxhWV566RU
-mineraddress=KVaeY15ikttZM2rwBh694LPC1qZHgKvTsg
+mineraddress=KKMeTYLM6LrhFc8Gq1uYSua4BLgmFPaZrX # The following addresses are known to pass the validation requirements for HPoW. If you would
+mineraddress=KVKrkxGcUo9wii59ashrbqKub5CpggiFQz # like to earn your own mining rewards, you can add/edit/delete this list with your own
+mineraddress=KMPxdPMwJb3rn1dLx9L2xxxUgiZiGRC8Um # addresses (more is better). You must have a balance of between 1,000 and 100,000,000 Lynx in
+mineraddress=KERgGnd5vCMkdFbGynrGeqhBnitz1zrg22 # each of the Lynx addresses in order to win the block reward. Alternatively, you can enable
+mineraddress=KWJfZ9qQ4aAiieB9jh8iJk5ttxhWV566RU # wallet functions on this node (above), deposit Lynx to the local wallet (again, between 1,000
+mineraddress=KVaeY15ikttZM2rwBh694LPC1qZHgKvTsg # and 100,000,000 Lynx) and the miner will ignore the following miner address values.
 mineraddress=KA8VJVzqy7xo6AEYRxAa8WHLqqScwGHmGx
 mineraddress=KJhTW2s2q1gvpaWLWSdmwLa9dvvqmAcnzj
 mineraddress=KTT3d4obtRGdkyLeUQQk75VKkBavXcXcFn
@@ -584,31 +575,27 @@ mineraddress=KGC3UkcLS2Yq5ZojhuHu5T7XBpf3DJKJKp
 mineraddress=KEM9dV7pP1YZkTA3gYpfydSqQUyFzfmwrm
 mineraddress=K9JgSJZW6koYKQ4rPmZ7FwRH6dpy7SHVUD
 mineraddress=KCeHBX64PT1WvuV4mrSnS7DoyLvpmZ5XXK
-# Added March 18, 2019
 mineraddress=KCEtXtUd3H8bG7Jn7FCLuEhNdVvD5AbDVf
 mineraddress=K9aVTZzPRwuVD7k3oELGh2aDKcF95kjEN1
 mineraddress=KAaaYX5rXaSJstmszDEJgxAYjx655CctoE
 mineraddress=KQVjEoCtKfB2KRQCrpL91NxokdmosJAWSH
 
-# It is highly unlikely you need to change any of the following values unless you are tinkering
-# with the node. If you do decide to tinker, make a backup of this file first.
-
-listen=1
-daemon=1
-port=$port
+listen=1		# It is highly unlikely you need to change any of the following values unless you are tinkering
+daemon=1		# with the node. If you decide to tinker, know that a backup of this file already exists 
+port=$port 		# as /root/.lynx/.lynx.conf
 rpcworkqueue=64
 listenonion=0
 upnp=1
-#dbcache=100
+dbcache=450
 txindex=1
 host=$hhostname
 
-# Our exchange and SPV wallet partners might want to disable the built in miner. This can be 
+# Our exchange and SPV wallet partners might want to disable the built in miner. This can be
 # easily done with the 'disablebuiltinminer' parameter below. As for our miners who are looking
-# to tune their devices, we recommend the default 0.01 (1%), but if you insist on increasing the 
-# amount, we recommend you not tune it past using 50% of your CPU load. This often means setting 
+# to tune their devices, we recommend the default 0.01 (1%), but if you insist on increasing the
+# amount, we recommend you not tune it past using 50% of your CPU load. This often means setting
 # the 'cpulimitforbuiltinminer' value no greater then 0.3 (30%). Remember, with HPoW, increasing
-# the mining speed does not mean you will win more blocks. You are are just generating heat, 
+# the mining speed does not mean you will win more blocks. You are are just generating heat,
 # not blocks, if you increase the 'cpulimitforbuiltinminer' value. Also, if you are using a VPS
 # like AWS or Linode, your node will get banned and shut down if they detect mining activity.
 # Best to keep it low.
@@ -627,235 +614,93 @@ host=$hhostname
 	sed -i '/addnode=node/d' /root/.lynx/lynx.conf
 
 	echo "
-# The following list of nodes are maintained for faster detection of peers and network sync.
-#
-# curl --user $rrpcuser:$rrpcpassword --data-binary '{\"jsonrpc\": \"1.0\", \"id\":\"curltest\", \"method\": \"getpeerinfo\", \"params\": [] }' -H 'content-type: text/plain;' http://$hhostname:$rpcport/
-# curl --user $rrpcuser:$rrpcpassword --data-binary '{\"jsonrpc\": \"1.0\", \"id\":\"curltest\", \"method\": \"getconnectioncount\", \"params\": [] }' -H 'content-type: text/plain;' http://$hhostname:$rpcport/
-
-addnode=test01.getlynx.io
-addnode=test02.getlynx.io
+addnode=test01.getlynx.io # The following list of nodes are maintained by the Lynx Development
+addnode=test02.getlynx.io # team for faster detection of peers.
 addnode=test03.getlynx.io
 addnode=test04.getlynx.io
 addnode=test05.getlynx.io
 addnode=test06.getlynx.io
 
-# All testnet coin public addresses start with am M or a N. Mainnet coins, the one's that 
-# are publicly traded and used always start with a K. If you would like to take coins from any
-# of these addresses, be sure to send at least 1 coin back the original address so it will
-# still meet HPoW Rule 2 with it's minimum balance requirement.
-
 testnet=1
 
-# Private key for the below address: cUYQ4bvyzUy2gAzSf79hUPqEasuziKYzSpRaifAXM2zb5Y6X5gQD
-mineraddress=mvAqk6Q9ABF91TaAKsDhauym1MNuaj6ZzL
-
-# Private key for the below address: cUNsqZjzywvZPLcUvso8d1FixiJZc7aX1iLfEB9BHqVxRGdz7tuz
-mineraddress=mzKEf2fzK5WYTUM3ZffQQKtGXbuBSyQbXL
-
-# Private key for the below address: cMppJ2yBU918qiwYo9aEhgqKiDK45TLSoEid8s7XBdajE8ZrZwmS
-mineraddress=mo5Nvd6GJHN696NJ1NmXj4b6RHoig1NEV9
-
-# Private key for the below address: cVGvDcvdm6gmRDqR5BQwbhdcj6eNMLJNkjwaKEq3YNkj9sv5Q3Lr
-mineraddress=mh6KV4wKbm5pmG6Y6LTT1A9DeXziUafsP4
-
-# Private key for the below address: cTGFEfAbu7Q8fr7hvkWWzRxPANWT76quFCazris5V7ojkQggUCTp
-mineraddress=mgX7cXxob5DNAJgu1UrpAgLGfa4FnfSCVj
-
-# Private key for the below address: cNuUkW32HkYqenNV5FV51PRKejCPYK3PZ2YpkqndaMDvJEpwTZ2G
-mineraddress=mgriF5mgsuyvnh3f9QNwFHR9qDwgYfEjZP
-
-# Private key for the below address: cW8Nt4N7QcK1K1g6igrYRR4QBzagujFSNJ7dDcMpUkGWEyaGTJL8
-mineraddress=n3wKyoCcpcE4x8oo3hvJU1drgi7QTVEcrf
-
-# Private key for the below address: cU8wXQWXbAbfrhGSM6raX2wWhxisHC5oiwWQyzr2mRdKvzdKQ643
-mineraddress=myJwCi7nBLv5wUyXz3ZFq15hnGVtHa7tun
-
-# Private key for the below address: cR97VSALAiZPLL9GwcQajP45crGajfxrcPyucZgnrvPZD4Zfu5UP
-mineraddress=n1j2L3tncm8Prc3oQmtgKKjERUEr1x3uDK
-
-# Private key for the below address: cTKf8NYhWksuWsHmNxfcHUN2TCkv6YNkk8ekpAGyqhLvtuV6Kfmc
-mineraddress=mhuwHPSWKBaHSaWMjuU7m5TbzG3j75amTw
-
-# Private key for the below address: cQD2PkGkjrCGywyMU5331xxvHbNWgcvByK4X8gU1bST5dMfGzpaB
-mineraddress=mtp2CyLf7kBfBjEfBjnsdt3x6kv7CWkWTe
-
-# Private key for the below address: cRMyr2RHhbF1FKARiwoDWBh8pQLC2KrRRRSLztLioT97XU1cegYA
-mineraddress=mmQxpEVVp7bBXfkF2dVkGCWxaX5dxt2vR5
-
-# Private key for the below address: cVB7cPJiWUCP72J39EZjJ6k1T4FSH5u8LrMKfk5YqyrbxiZwChcb
-mineraddress=mgDHQbZHUU2YCx3wpF6gjvND7UPSmYUEgc
-
-# Private key for the below address: cN9JnwhNDiTY1f3UaY5F7jeiEfnv3tWCVBp6GfZq43HnT2NH5R7e
-mineraddress=mfmXw6tnWuMPPAPEqFeakodw3nwJoyYw71
-
-# Private key for the below address: cVXzDVfw4mW3tVWepek35ENXNnp1X6NiNgnm2pJpvQA3tPY3pwiL
-mineraddress=mhuP1zXXsBb5AbGgX5H4veTYM8RgkpshJv
-
-# Private key for the below address: cQBVDLHgSyxbvxWApQXHDTaLwApsNx4NLCofWGjSrFCPq96Qyfec
-mineraddress=mnRyuThfF2YF4kbtVXWFXgX9knhfFQzBoB
-
-# Private key for the below address: cVwrj2tnSLLaMvF2r5UPtq53DnXkhPmZhjUn8yXZX3WyNv9Z3Z5p
-mineraddress=mmfspxuCpe5getSthHFrorK4YJE9MoxHFE
-
-# Private key for the below address: cSNJbVb2LdspWQVWB6H1VpMwHLDv7DzWx7bfb9uQPAWnXD712tCH
-mineraddress=n4CkrFFcYSRtazYSw1MYJ1dYUQSN2jpe3P
-
-# Private key for the below address: cQSzmvtszC8hratBG1Wdyv2QUd9xXPALEkpqU7g7xu66YAcr1QQD
-mineraddress=mphs8iML38DhsbB1qx4D8kxLgQvjYubKvc
-
-# Private key for the below address: cVXHFRAw8qEYvxzU4trU8tWWqVo93E2T287mJou6nUhbHBB1C28k
-mineraddress=mindpMbbrNEE6Ap15G7PSAQaJsaFsydvEt
-
-# Private key for the below address: cW3otbFXUy7dCwGsA1wsM2yTnJsEo4djXDFXiVab6Tk2Zv4dxfMX
-mineraddress=mkUh7tjREvdL9zK9SeLs4mVhhTLcffk82k
-
-# Private key for the below address: cSRMwRnrtXjee1SewUNuwD468WfP8kUvj8iruerRpnBQNzoynS4f
-mineraddress=msfDHvn2L5TSqFZYCq3EerxzHtbFZ4cBpE
-
-# Private key for the below address: cR8ZQpFF9yq2BXRCN7xxL3EYYsGczS51tpRBkvFNjRdPe3d1jWuk
-mineraddress=miMWN96feXFA4a4fktA68xscZPeXBqvHsc
-
-# Private key for the below address: cU1farVJJ56mYv8RJzVuwqFuFPwPwKSMtpstaujBYrBDWNisJ62u
-mineraddress=mvrMeLhELTCaXkmo7r8XccEMGa6ppKqiUb
-
-# Private key for the below address: cScYkvYV8m9Xbr8nYpb6F4n6D15HLzVTR9ZUeKazk9oW4NoJpism
-mineraddress=mu3fpDNWjCTMaAGtnoJVKpwbZtoRkasphJ
-
-# Private key for the below address: cNzX2wv65SxE5c1VeRc7FYAxXY6qnwgsyv3fcMZvwiGkdhKeDNTX
-mineraddress=ms6W9vmqT5NDw6vdmT31yLEo7TwCm3cgVh
-
-# Private key for the below address: cSf99ZpsiQNP2WMm5zo6WefBnRX1V1Kxaguco3jsdx3U1kzLgqXi
-mineraddress=mxJC8oiLbsSRhmSCgcBWpahC2eyZU1W7qs
-
-# Private key for the below address: cN3LdHXGZy2ANNP221Tbm7uoG7AGBgvz6doPuERVsg6W5DwxZZ6p
-mineraddress=mpniFaj9a8L6332TpjoWArcso5cTRFgJHd
-
-# Private key for the below address: cScdbYMYAD8zYFfX9VxVbmkg61oDV64vUTxAL9zvSGLpRwduVWmC
-mineraddress=mydYEwnf6s2BRWLVA7dYPmVLvK2PcdTkDt
-
-# Private key for the below address: cQQNxD6CZ8CrinW4Eq3wrXuCuX6Ccaws6LTDD1c64YXYngyyp86f
-mineraddress=mhZtewGZTJw2ewWHufFa7ZCkrz4jeWVmD9
-
-# Private key for the below address: cMyyArq6kzXBb4L9jKWLkANqfaMmchjobyMGdYANdu935Hv7RBMu
-mineraddress=mqVPvnrkCvSkKnR3KPeVk3LcnWf6rvRAPe
-
-# Private key for the below address: cRyYu5mHXrDzGqQpbeW2ksTPJcwdodqJyej3KsqxFvFQhsqCQTHx
-mineraddress=mvfi4LZxMDdPzT9PnDuxyKsK63a1ybSZUf
-
-# Private key for the below address: cVMinxvyGjv943184JcNbY1zzjkuTScLYfm6k4QG2f4wVeArN4HT
-mineraddress=muzoQBrL1T4tyCALtsapWJY76ertjZhuow
-
-# Private key for the below address: cTMdGYJ8Wm8f8cfhAxSERecTt8wj4KcNvqk88G9uihmufyZaiVRR
-mineraddress=mjucNa4ZS5QD5TD8WzZv7CHze3wLLneK84
-
-# Private key for the below address: cV1YnJrcM8gUg2g81HMgbZXCLdPUBSyWK3ZQXpsmNpiZo5DeJLT5
-mineraddress=mg4oSdwnD2MNJ4JW5a2qYWrk7FHQUypHJf
-
-# Private key for the below address: cURgVN4gUfBHVd9eFsnqWyqRWJrQep6SRg8AsBjv9F8mUUgNLNQL
-mineraddress=mqkMYkskQ7DiFf57FmfvWJoiSNUG5uBfUJ
-
-# Private key for the below address: cTLxyQq95fPWV7q3NpAg25nCcuo9acmg25PK9Cc6WDHcfbqrj9mU
-mineraddress=mgMs2dY1Tx1wYJTEsUhJwja9n8xcyoNUbv
-
-# Private key for the below address: cQVCzmtp9qF4aQChoJkjrsVZn1bM4NgPezQeQLP1PQ3FQt8JxjW8
-mineraddress=mv4m5GWongwdX43sjN9HTQwcpuPq9gfmKM
-
-# Private key for the below address: cT6TKiBpwWC191damceRu31NjyqA9KhVUSBEPZtjRkN6ntDbCqoK
-mineraddress=mqwyDHhvDb3nNWYdRrT7JJxK3uf2ciMWyy
-
-# Private key for the below address: cNefKgDW18N3aeondGVaRMEjfEyZvzejFAD7KCnthECMtSeNtZb9
-mineraddress=mtfxpRruFQxC958vScDrW34WnAao7g45Nc
-
-# Private key for the below address: cRXzXq3on3gKmZgGcftbj7JZeGSfpjR38abdgKBi1hyiucsKaXVs
-mineraddress=mj84VsKaDCf1bXJkSVLNoM68mMPzg59dQW
-
-# Private key for the below address: cQyUrfhCiU8rp1mcv4eQfAdTwZVXvj7N21kZEX52TcELS5FDAL2p
-mineraddress=mhUhvRLRmbFvsBsA2Eo7r2wa779YoxRFbj
-
-# Private key for the below address: cSLtUJZYZ5aPCNNvTTuXBPy94Mr49iBgzfXqiRcZb6BPTJycMM1g
-mineraddress=mzdykDkMfSdeidP7acpUbhcVfFtVTMg5DB
-
-# Private key for the below address: cP3z7fvNG3yoeiYpBeoqDWa1qzYHsDPZ2eDRjLzMf7wcFGDNtu1P
-mineraddress=n1gS6tDmcMuWoTeCbRFdQzfAhKYjaxnTHj
-
-# Private key for the below address: cT14ZwS1Zsfz19CBAxPKk4dfNM1shtC2jHcepUTYcj3qRqeoNbsD
-mineraddress=mmYxH7a3qtrQyhCyK1nBqctSLgiSyfd9vt
-
-# Private key for the below address: cNCf7DECtWD7ysj4kqARUobvqjE1FBvzN8Hfq3bgoHjvPyVVEr93
-mineraddress=mizWLQTrBcAhp8fmYp9qwepLWEx7MfRLyv
-
-# Private key for the below address: cPBSQabsG33RS9AL8j6VAgF7veYtUVbySFKXen3qoh7bbpsYVEEs
-mineraddress=mzwp37KxEDfKZfQm6LxRS7nkxrZAcgUrqS
-
-# Private key for the below address: cPM7st6TpGFKxJkb7xmvMjuv2HYpLs8FbDeGW7KtswpM1RK4FF5k
-mineraddress=mt7zphoNE3U1NsQEcN1miwpCVqrppDEoib
-
-# Private key for the below address: cS9cxEjPkjYAhEBrYcmxRiVJQYFJ2sDc6s2JYrYwrkmi1LYeY15D
-mineraddress=mg9WCFUUB7uVTEzJVfD3fi3kUnzZdUFMqU
-
-# Private key for the below address: cURaQQjK8ZDjhEmYKpRy2jani6cjCd2JtUynDehKd1btnXG1znTE
-mineraddress=mxqG7ioQGjowKoTUKy7ndoH2RKU8cv8JYt
-
-# Private key for the below address: cVcJpgFFXcM99xq6BWxWozsg5vz7fm1GgcXvoYuwCybArrMQxsHk
-mineraddress=mrkoa8hEXKfWiWmYgJAzStQCUjxgUvhQQW
-
-# Private key for the below address: cQYGrYDG1GRxyNtdK54rDquf2YojLwTr67Pxa9AreUYq6v5cAMxt
-mineraddress=mh4hFG8Bt6iWkiZP8mBmZxCNSKd4AZLJDE
-
-# Private key for the below address: cRJMKmRwaJn6z4EPqamFgqWoWLp6rcgsyB8xKNe1juAsLi3zsE91
-mineraddress=mkcEyefPiV2LXmiAsJxtnCw4ZEhLWsnwN1
-
-# Private key for the below address: cS8LE8NkY4FCcDUKgX2frNApVaqKP3KJJpLnioAANkYWb4NR9LLe
-mineraddress=mwEPbNRxsaNfgQmPHYcfU9CHo2Ux5QRc1x
-
-# Private key for the below address: cUkvh4sDUXHrXmfmZYY2oUJmfPc1rRhF8Btb9tfWt3FT47KxBokY
-mineraddress=mr9JzWDH6s7cJuAdZHhoKrH9aWo5dmYLW3
-
-# Private key for the below address: cPwq3wr1x2mQD5NzkTXkhNVz6SkMdxss3AiVy3NWiC3u7isbpnav
-mineraddress=mh3ReeQk5XhF6cpw2TexQVZbtND1mFBU5Q
-
-# Private key for the below address: cVhhRkAGHFpvH2yxLjtzeJpGEp7tB8SmXiYxV7MazAp8zKi7xsj1
-mineraddress=mvbRLcu2xX31pGPbfL8yV6t4JNUf4sQHgc
-
-# Private key for the below address: cSE4c2zoa8XCTXjLDcrRWWPEHehM6qoS5v5647jiVkQboyCqKdtn
-mineraddress=mmnwg2spU3DQVhVuBpTCsKd2jC4tAFk2xg
-
-# Private key for the below address: cTcBgsx9g4oVZSKTgsmCT4TmCKz5Y2Kat4LDnrGxLkxWju67L6Ws
-mineraddress=mtiReGFHm1i6LpUZ54eQAY1jojGPBuQBwP
-
-# Private key for the below address: cNd2yuK5T246doYKwdtCTbnAqdZg4sx69vKgcBZ4gNWdZYg6GERM
-mineraddress=mtHtim5hxsCPq6vkytVtFJzYiTYRDFVXwT
-
-# Private key for the below address: cPDCDc9bp88jitpZNA3Va7geEqatmRbDsAa86DQNPwB9woVHjuVA
-mineraddress=mq6dunoC4sPPJnBgoUyZEz3ihHNe5wGmkq
-
-# Private key for the below address: cMtkabnJKiN7T4ma1Moq4mxdGaBKKB5wiJ8JsMfgE5VUsntGwFKW
-mineraddress=mnPb788WQyQRK8Qp83URpS2bD2noVGJEQz
-
-# Private key for the below address: cSHDivWZwoa3jiQDFBF5EWwfYXtpsQVfJtNEaKLeRRi3z16rQjWJ
-mineraddress=mrZcAGQdffwtuBkjUSyzK7wzqMfrgrF4BC
-
-# Ineviably someone is gonna think themselves a smarty pants and sweep all the above addresses,
-# thus possibly forcing the above addresses to fail HPoW Rule 2. This means the testnet network
-# could run the risk of getting stuck, since it's not widely supported with lots of installs.
-# Here are some addresses with privkey keys destroyed. The coins the following addresses earn
-# therfore get burned as they become unspendable, but their existence supports HPoW on testnet.
-
-mineraddress=miVEdh1sWTM2TQr24hHhjW1Q77QQQHUAGH
-mineraddress=mzVR6YdZRUhaB872BH5SR8rPXsYtCrRqRV
-mineraddress=mwFFHvixYABGVQ6G2csVqwzfMYd6VQcvWe
-mineraddress=myKe9zSDqLWGJZufjXEfjBuWo61Ks4Lg3v
-mineraddress=mxV4B4niYHmkxBBmawtHBnUQyHJG11g9Gk
+mineraddress=mvAqk6Q9ABF91TaAKsDhauym1MNuaj6ZzL # Private key: cUYQ4bvyzUy2gAzSf79hUPqEasuziKYzSpRaifAXM2zb5Y6X5gQD
+mineraddress=mzKEf2fzK5WYTUM3ZffQQKtGXbuBSyQbXL # Private key: cUNsqZjzywvZPLcUvso8d1FixiJZc7aX1iLfEB9BHqVxRGdz7tuz
+mineraddress=mo5Nvd6GJHN696NJ1NmXj4b6RHoig1NEV9 # Private key: cMppJ2yBU918qiwYo9aEhgqKiDK45TLSoEid8s7XBdajE8ZrZwmS
+mineraddress=mh6KV4wKbm5pmG6Y6LTT1A9DeXziUafsP4 # Private key: cVGvDcvdm6gmRDqR5BQwbhdcj6eNMLJNkjwaKEq3YNkj9sv5Q3Lr
+mineraddress=mgX7cXxob5DNAJgu1UrpAgLGfa4FnfSCVj # Private key: cTGFEfAbu7Q8fr7hvkWWzRxPANWT76quFCazris5V7ojkQggUCTp
+mineraddress=mgriF5mgsuyvnh3f9QNwFHR9qDwgYfEjZP # Private key: cNuUkW32HkYqenNV5FV51PRKejCPYK3PZ2YpkqndaMDvJEpwTZ2G
+mineraddress=n3wKyoCcpcE4x8oo3hvJU1drgi7QTVEcrf # Private key: cW8Nt4N7QcK1K1g6igrYRR4QBzagujFSNJ7dDcMpUkGWEyaGTJL8
+mineraddress=myJwCi7nBLv5wUyXz3ZFq15hnGVtHa7tun # Private key: cU8wXQWXbAbfrhGSM6raX2wWhxisHC5oiwWQyzr2mRdKvzdKQ643
+mineraddress=n1j2L3tncm8Prc3oQmtgKKjERUEr1x3uDK # Private key: cR97VSALAiZPLL9GwcQajP45crGajfxrcPyucZgnrvPZD4Zfu5UP
+mineraddress=mhuwHPSWKBaHSaWMjuU7m5TbzG3j75amTw # Private key: cTKf8NYhWksuWsHmNxfcHUN2TCkv6YNkk8ekpAGyqhLvtuV6Kfmc
+mineraddress=mtp2CyLf7kBfBjEfBjnsdt3x6kv7CWkWTe # Private key: cQD2PkGkjrCGywyMU5331xxvHbNWgcvByK4X8gU1bST5dMfGzpaB
+mineraddress=mmQxpEVVp7bBXfkF2dVkGCWxaX5dxt2vR5 # Private key: cRMyr2RHhbF1FKARiwoDWBh8pQLC2KrRRRSLztLioT97XU1cegYA
+mineraddress=mgDHQbZHUU2YCx3wpF6gjvND7UPSmYUEgc # Private key: cVB7cPJiWUCP72J39EZjJ6k1T4FSH5u8LrMKfk5YqyrbxiZwChcb
+mineraddress=mfmXw6tnWuMPPAPEqFeakodw3nwJoyYw71 # Private key: cN9JnwhNDiTY1f3UaY5F7jeiEfnv3tWCVBp6GfZq43HnT2NH5R7e
+mineraddress=mhuP1zXXsBb5AbGgX5H4veTYM8RgkpshJv # Private key: cVXzDVfw4mW3tVWepek35ENXNnp1X6NiNgnm2pJpvQA3tPY3pwiL
+mineraddress=mnRyuThfF2YF4kbtVXWFXgX9knhfFQzBoB # Private key: cQBVDLHgSyxbvxWApQXHDTaLwApsNx4NLCofWGjSrFCPq96Qyfec
+mineraddress=mmfspxuCpe5getSthHFrorK4YJE9MoxHFE # Private key: cVwrj2tnSLLaMvF2r5UPtq53DnXkhPmZhjUn8yXZX3WyNv9Z3Z5p
+mineraddress=n4CkrFFcYSRtazYSw1MYJ1dYUQSN2jpe3P # Private key: cSNJbVb2LdspWQVWB6H1VpMwHLDv7DzWx7bfb9uQPAWnXD712tCH
+mineraddress=mphs8iML38DhsbB1qx4D8kxLgQvjYubKvc # Private key: cQSzmvtszC8hratBG1Wdyv2QUd9xXPALEkpqU7g7xu66YAcr1QQD
+mineraddress=mindpMbbrNEE6Ap15G7PSAQaJsaFsydvEt # Private key: cVXHFRAw8qEYvxzU4trU8tWWqVo93E2T287mJou6nUhbHBB1C28k
+mineraddress=mkUh7tjREvdL9zK9SeLs4mVhhTLcffk82k # Private key: cW3otbFXUy7dCwGsA1wsM2yTnJsEo4djXDFXiVab6Tk2Zv4dxfMX
+mineraddress=msfDHvn2L5TSqFZYCq3EerxzHtbFZ4cBpE # Private key: cSRMwRnrtXjee1SewUNuwD468WfP8kUvj8iruerRpnBQNzoynS4f
+mineraddress=miMWN96feXFA4a4fktA68xscZPeXBqvHsc # Private key: cR8ZQpFF9yq2BXRCN7xxL3EYYsGczS51tpRBkvFNjRdPe3d1jWuk
+mineraddress=mvrMeLhELTCaXkmo7r8XccEMGa6ppKqiUb # Private key: cU1farVJJ56mYv8RJzVuwqFuFPwPwKSMtpstaujBYrBDWNisJ62u
+mineraddress=mu3fpDNWjCTMaAGtnoJVKpwbZtoRkasphJ # Private key: cScYkvYV8m9Xbr8nYpb6F4n6D15HLzVTR9ZUeKazk9oW4NoJpism
+mineraddress=ms6W9vmqT5NDw6vdmT31yLEo7TwCm3cgVh # Private key: cNzX2wv65SxE5c1VeRc7FYAxXY6qnwgsyv3fcMZvwiGkdhKeDNTX
+mineraddress=mxJC8oiLbsSRhmSCgcBWpahC2eyZU1W7qs # Private key: cSf99ZpsiQNP2WMm5zo6WefBnRX1V1Kxaguco3jsdx3U1kzLgqXi
+mineraddress=mpniFaj9a8L6332TpjoWArcso5cTRFgJHd # Private key: cN3LdHXGZy2ANNP221Tbm7uoG7AGBgvz6doPuERVsg6W5DwxZZ6p
+mineraddress=mydYEwnf6s2BRWLVA7dYPmVLvK2PcdTkDt # Private key: cScdbYMYAD8zYFfX9VxVbmkg61oDV64vUTxAL9zvSGLpRwduVWmC
+mineraddress=mhZtewGZTJw2ewWHufFa7ZCkrz4jeWVmD9 # Private key: cQQNxD6CZ8CrinW4Eq3wrXuCuX6Ccaws6LTDD1c64YXYngyyp86f
+mineraddress=mqVPvnrkCvSkKnR3KPeVk3LcnWf6rvRAPe # Private key: cMyyArq6kzXBb4L9jKWLkANqfaMmchjobyMGdYANdu935Hv7RBMu
+mineraddress=mvfi4LZxMDdPzT9PnDuxyKsK63a1ybSZUf # Private key: cRyYu5mHXrDzGqQpbeW2ksTPJcwdodqJyej3KsqxFvFQhsqCQTHx
+mineraddress=muzoQBrL1T4tyCALtsapWJY76ertjZhuow # Private key: cVMinxvyGjv943184JcNbY1zzjkuTScLYfm6k4QG2f4wVeArN4HT
+mineraddress=mjucNa4ZS5QD5TD8WzZv7CHze3wLLneK84 # Private key: cTMdGYJ8Wm8f8cfhAxSERecTt8wj4KcNvqk88G9uihmufyZaiVRR
+mineraddress=mg4oSdwnD2MNJ4JW5a2qYWrk7FHQUypHJf # Private key: cV1YnJrcM8gUg2g81HMgbZXCLdPUBSyWK3ZQXpsmNpiZo5DeJLT5
+mineraddress=mqkMYkskQ7DiFf57FmfvWJoiSNUG5uBfUJ # Private key: cURgVN4gUfBHVd9eFsnqWyqRWJrQep6SRg8AsBjv9F8mUUgNLNQL
+mineraddress=mgMs2dY1Tx1wYJTEsUhJwja9n8xcyoNUbv # Private key: cTLxyQq95fPWV7q3NpAg25nCcuo9acmg25PK9Cc6WDHcfbqrj9mU
+mineraddress=mv4m5GWongwdX43sjN9HTQwcpuPq9gfmKM # Private key: cQVCzmtp9qF4aQChoJkjrsVZn1bM4NgPezQeQLP1PQ3FQt8JxjW8
+mineraddress=mqwyDHhvDb3nNWYdRrT7JJxK3uf2ciMWyy # Private key: cT6TKiBpwWC191damceRu31NjyqA9KhVUSBEPZtjRkN6ntDbCqoK
+mineraddress=mtfxpRruFQxC958vScDrW34WnAao7g45Nc # Private key: cNefKgDW18N3aeondGVaRMEjfEyZvzejFAD7KCnthECMtSeNtZb9
+mineraddress=mj84VsKaDCf1bXJkSVLNoM68mMPzg59dQW # Private key: cRXzXq3on3gKmZgGcftbj7JZeGSfpjR38abdgKBi1hyiucsKaXVs
+mineraddress=mhUhvRLRmbFvsBsA2Eo7r2wa779YoxRFbj # Private key: cQyUrfhCiU8rp1mcv4eQfAdTwZVXvj7N21kZEX52TcELS5FDAL2p
+mineraddress=mzdykDkMfSdeidP7acpUbhcVfFtVTMg5DB # Private key: cSLtUJZYZ5aPCNNvTTuXBPy94Mr49iBgzfXqiRcZb6BPTJycMM1g
+mineraddress=n1gS6tDmcMuWoTeCbRFdQzfAhKYjaxnTHj # Private key: cP3z7fvNG3yoeiYpBeoqDWa1qzYHsDPZ2eDRjLzMf7wcFGDNtu1P
+mineraddress=mmYxH7a3qtrQyhCyK1nBqctSLgiSyfd9vt # Private key: cT14ZwS1Zsfz19CBAxPKk4dfNM1shtC2jHcepUTYcj3qRqeoNbsD
+mineraddress=mizWLQTrBcAhp8fmYp9qwepLWEx7MfRLyv # Private key: cNCf7DECtWD7ysj4kqARUobvqjE1FBvzN8Hfq3bgoHjvPyVVEr93
+mineraddress=mzwp37KxEDfKZfQm6LxRS7nkxrZAcgUrqS # Private key: cPBSQabsG33RS9AL8j6VAgF7veYtUVbySFKXen3qoh7bbpsYVEEs
+mineraddress=mt7zphoNE3U1NsQEcN1miwpCVqrppDEoib # Private key: cPM7st6TpGFKxJkb7xmvMjuv2HYpLs8FbDeGW7KtswpM1RK4FF5k
+mineraddress=mg9WCFUUB7uVTEzJVfD3fi3kUnzZdUFMqU # Private key: cS9cxEjPkjYAhEBrYcmxRiVJQYFJ2sDc6s2JYrYwrkmi1LYeY15D
+mineraddress=mxqG7ioQGjowKoTUKy7ndoH2RKU8cv8JYt # Private key: cURaQQjK8ZDjhEmYKpRy2jani6cjCd2JtUynDehKd1btnXG1znTE
+mineraddress=mrkoa8hEXKfWiWmYgJAzStQCUjxgUvhQQW # Private key: cVcJpgFFXcM99xq6BWxWozsg5vz7fm1GgcXvoYuwCybArrMQxsHk
+mineraddress=mh4hFG8Bt6iWkiZP8mBmZxCNSKd4AZLJDE # Private key: cQYGrYDG1GRxyNtdK54rDquf2YojLwTr67Pxa9AreUYq6v5cAMxt
+mineraddress=mkcEyefPiV2LXmiAsJxtnCw4ZEhLWsnwN1 # Private key: cRJMKmRwaJn6z4EPqamFgqWoWLp6rcgsyB8xKNe1juAsLi3zsE91
+mineraddress=mwEPbNRxsaNfgQmPHYcfU9CHo2Ux5QRc1x # Private key: cS8LE8NkY4FCcDUKgX2frNApVaqKP3KJJpLnioAANkYWb4NR9LLe
+mineraddress=mr9JzWDH6s7cJuAdZHhoKrH9aWo5dmYLW3 # Private key: cUkvh4sDUXHrXmfmZYY2oUJmfPc1rRhF8Btb9tfWt3FT47KxBokY
+mineraddress=mh3ReeQk5XhF6cpw2TexQVZbtND1mFBU5Q # Private key: cPwq3wr1x2mQD5NzkTXkhNVz6SkMdxss3AiVy3NWiC3u7isbpnav
+mineraddress=mvbRLcu2xX31pGPbfL8yV6t4JNUf4sQHgc # Private key: cVhhRkAGHFpvH2yxLjtzeJpGEp7tB8SmXiYxV7MazAp8zKi7xsj1
+mineraddress=mmnwg2spU3DQVhVuBpTCsKd2jC4tAFk2xg # Private key: cSE4c2zoa8XCTXjLDcrRWWPEHehM6qoS5v5647jiVkQboyCqKdtn
+mineraddress=mtiReGFHm1i6LpUZ54eQAY1jojGPBuQBwP # Private key: cTcBgsx9g4oVZSKTgsmCT4TmCKz5Y2Kat4LDnrGxLkxWju67L6Ws
+mineraddress=mtHtim5hxsCPq6vkytVtFJzYiTYRDFVXwT # Private key: cNd2yuK5T246doYKwdtCTbnAqdZg4sx69vKgcBZ4gNWdZYg6GERM
+mineraddress=mq6dunoC4sPPJnBgoUyZEz3ihHNe5wGmkq # Private key: cPDCDc9bp88jitpZNA3Va7geEqatmRbDsAa86DQNPwB9woVHjuVA
+mineraddress=mnPb788WQyQRK8Qp83URpS2bD2noVGJEQz # Private key: cMtkabnJKiN7T4ma1Moq4mxdGaBKKB5wiJ8JsMfgE5VUsntGwFKW
+mineraddress=mrZcAGQdffwtuBkjUSyzK7wzqMfrgrF4BC # Private key: cSHDivWZwoa3jiQDFBF5EWwfYXtpsQVfJtNEaKLeRRi3z16rQjWJ
 mineraddress=mo9hxMnMQUcqAEXTqovMeEdJ4wmvswkH6t
+mineraddress=miVEdh1sWTM2TQr24hHhjW1Q77QQQHUAGH # Inevitably someone is gonna think themselves a smarty pants and sweep all the above addresses,
+mineraddress=mzVR6YdZRUhaB872BH5SR8rPXsYtCrRqRV # thus possibly forcing the above addresses to fail HPoW Rule 2. This means the testnet network
+mineraddress=mwFFHvixYABGVQ6G2csVqwzfMYd6VQcvWe # could run the risk of getting stuck, since it's not widely supported with lots of installs.
+mineraddress=myKe9zSDqLWGJZufjXEfjBuWo61Ks4Lg3v # Here are some addresses with privkey keys destroyed. The coins the following addresses receive
+mineraddress=mxV4B4niYHmkxBBmawtHBnUQyHJG11g9Gk # therefor get burned as they become unspendable UTXO, but their existence supports HPoW on testnet.
 mineraddress=mmQ7HjBLideqDKP5fqpY2oiRPC2pBYjnxt
+mineraddress=myCqSH8dfZ9EXBQPZgHnK9VF43nvpWkcyw # All testnet coin public addresses start with am M or a N. Mainnet coins, the one's that
+mineraddress=mxqyFrJ6DYQ5CPjptdX9jXLMP4npa6SyCx # are publicly traded and used always start with a K. If you would like to take coins from any
+mineraddress=mnYqYpN6gKMzhG2rrfFp6UYZZzazujc6Bu # of these addresses, be sure to send at least 1 coin back the original address so it will
+mineraddress=mnenfD8DYmHwxaQ2mnZQR2XfcP8YzfTfM2 # still meet HPoW Rule 2 with it's minimum balance requirement.
+mineraddress=mpMyprNfY5Kz9E175bnQN85B1pMq3ATroc
 mineraddress=mvxVyK2LJ41Cv4vm8yHZ8Xw534oRGaiH2Z
 mineraddress=mstUwkrcdTAChLymymgFB4h4ibyBTkKMWD
 mineraddress=mtN9c9TeazxLw5uPSR6mW6zwABPbmaEHpL
-mineraddress=myCqSH8dfZ9EXBQPZgHnK9VF43nvpWkcyw
-mineraddress=mxqyFrJ6DYQ5CPjptdX9jXLMP4npa6SyCx
-mineraddress=mnYqYpN6gKMzhG2rrfFp6UYZZzazujc6Bu
-mineraddress=mnenfD8DYmHwxaQ2mnZQR2XfcP8YzfTfM2
-mineraddress=mpMyprNfY5Kz9E175bnQN85B1pMq3ATroc
 mineraddress=mxMAArTr3hHYfbV2YUoxFdVTkMTNoUadWF
 mineraddress=miuWJcdonyEryZUmuFHKrpnsEhc8VTvstS
 mineraddress=mmbtJrLVv76EvJ8hQiMMoeLD3r1USf2vWN
@@ -869,9 +714,9 @@ mineraddress=mxfdwQjFsBmTFC2RP5CeqQLNfP3rA9R7Cj
 
 	# On the Pi, the dbcache param has value. The limited RAM environment of the Pi means we should
 	# store less data about the chainstate in RAM. We can reduce the about of RAM used my lynxd with
-	# this param. Default is 450MB.
+	# this param. Default is 450MB. Changed to 100MB on the Pi.
 
-	[ ! -z "$checkForRaspbian" ] && sed -i "s|#dbcache=100|dbcache=100|g" /root/.lynx/lynx.conf
+	[ ! -z "$checkForRaspbian" ] && sed -i "s|dbcache=450|dbcache=100|g" /root/.lynx/lynx.conf
 
 	# We are gonna create a backup of the initially created lynx.conf file. This file does not ever
 	# run, it is just created for backup purposes. Please leave it intact so you can refer to it in
@@ -895,13 +740,13 @@ mineraddress=mxfdwQjFsBmTFC2RP5CeqQLNfP3rA9R7Cj
 config_firewall () {
 
 	sed -i "s/_port_/${port}/g" /root/LynxCI/installers/firewall.sh
-	
+
 	sed -i "s/_rpcport_/${rpcport}/g" /root/LynxCI/installers/firewall.sh
 
 	crontab -r
 
 	crontab -l | { cat; echo "@daily		/root/LynxCI/installers/firewall.sh"; } | crontab -
-	
+
 }
 
 restart () {
