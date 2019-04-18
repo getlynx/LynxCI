@@ -463,8 +463,8 @@ disablewallet=1
 #
 # curl --user $rrpcuser:$rrpcpassword --data-binary '{\"jsonrpc\": \"1.0\", \"id\":\"curltest\", \"method\": \"getpeerinfo\", \"params\": [] }' -H 'content-type: text/plain;' http://$hhostname:$rpcport/
 
-addnode=node01.getlynx.io
-addnode=node02.getlynx.io
+addnode=node01.getlynx.io # The following list of nodes are maintained by the Lynx Development
+addnode=node02.getlynx.io # team for faster detection of peers.
 addnode=node03.getlynx.io
 addnode=node04.getlynx.io
 addnode=node05.getlynx.io
@@ -476,6 +476,12 @@ addnode=node10.getlynx.io
 addnode=node11.getlynx.io
 addnode=node12.getlynx.io
 addnode=node13.getlynx.io
+addnode=test01.getlynx.io # The following list of nodes are maintained by the Lynx Development
+addnode=test02.getlynx.io # team for faster detection of peers.
+addnode=test03.getlynx.io
+addnode=test04.getlynx.io
+addnode=test05.getlynx.io
+addnode=test06.getlynx.io
 
 mineraddress=KKMeTYLM6LrhFc8Gq1uYSua4BLgmFPaZrX # The following addresses are known to pass the validation requirements for HPoW. If you would
 mineraddress=KVKrkxGcUo9wii59ashrbqKub5CpggiFQz # like to earn your own mining rewards, you can add/edit/delete this list with your own
@@ -579,50 +585,6 @@ mineraddress=KCEtXtUd3H8bG7Jn7FCLuEhNdVvD5AbDVf
 mineraddress=K9aVTZzPRwuVD7k3oELGh2aDKcF95kjEN1
 mineraddress=KAaaYX5rXaSJstmszDEJgxAYjx655CctoE
 mineraddress=KQVjEoCtKfB2KRQCrpL91NxokdmosJAWSH
-
-listen=1		# It is highly unlikely you need to change any of the following values unless you are tinkering
-daemon=1		# with the node. If you decide to tinker, know that a backup of this file already exists 
-port=$port 		# as /root/.lynx/.lynx.conf
-rpcworkqueue=64
-listenonion=0
-upnp=1
-dbcache=450
-txindex=1
-host=$hhostname
-
-# Our exchange and SPV wallet partners might want to disable the built in miner. This can be
-# easily done with the 'disablebuiltinminer' parameter below. As for our miners who are looking
-# to tune their devices, we recommend the default 0.01 (1%), but if you insist on increasing the
-# amount, we recommend you not tune it past using 50% of your CPU load. This often means setting
-# the 'cpulimitforbuiltinminer' value no greater then 0.3 (30%). Remember, with HPoW, increasing
-# the mining speed does not mean you will win more blocks. You are are just generating heat,
-# not blocks, if you increase the 'cpulimitforbuiltinminer' value. Also, if you are using a VPS
-# like AWS or Linode, your node will get banned and shut down if they detect mining activity.
-# Best to keep it low.
-#
-# curl --user $rrpcuser:$rrpcpassword --data-binary '{\"jsonrpc\": \"1.0\", \"id\":\"curltest\", \"method\": \"getmininginfo\", \"params\": [] }' -H 'content-type: text/plain;' http://$hhostname:$rpcport/
-
-#disablebuiltinminer=1
-#cpulimitforbuiltinminer=0.01
-" > /root/.lynx/lynx.conf
-
-	if [ "$rpcport" = "19335" ]; then
-
-	# Since this is testnet, let's purge those mainnet mineraddress values.
-	sed -i '/mineraddress=K/d' /root/.lynx/lynx.conf
-
-	sed -i '/addnode=node/d' /root/.lynx/lynx.conf
-
-	echo "
-addnode=test01.getlynx.io # The following list of nodes are maintained by the Lynx Development
-addnode=test02.getlynx.io # team for faster detection of peers.
-addnode=test03.getlynx.io
-addnode=test04.getlynx.io
-addnode=test05.getlynx.io
-addnode=test06.getlynx.io
-
-testnet=1
-
 mineraddress=mvAqk6Q9ABF91TaAKsDhauym1MNuaj6ZzL # Private key: cUYQ4bvyzUy2gAzSf79hUPqEasuziKYzSpRaifAXM2zb5Y6X5gQD
 mineraddress=mzKEf2fzK5WYTUM3ZffQQKtGXbuBSyQbXL # Private key: cUNsqZjzywvZPLcUvso8d1FixiJZc7aX1iLfEB9BHqVxRGdz7tuz
 mineraddress=mo5Nvd6GJHN696NJ1NmXj4b6RHoig1NEV9 # Private key: cMppJ2yBU918qiwYo9aEhgqKiDK45TLSoEid8s7XBdajE8ZrZwmS
@@ -708,9 +670,38 @@ mineraddress=mrFXqummwGAi7w6saCEGixr3v1RSbzSgrj
 mineraddress=msNfqB4G4r9iV4jBQZmaQBbkbPcVELBdTs
 mineraddress=mmhAk3VqPJqrsv1utCZGWKNnXWE52pgAxt
 mineraddress=mxfdwQjFsBmTFC2RP5CeqQLNfP3rA9R7Cj
-" >> /root/.lynx/lynx.conf
 
-	fi
+listen=1		# It is highly unlikely you need to change any of the following values unless you are tinkering
+daemon=1		# with the node. If you decide to tinker, know that a backup of this file already exists 
+port=$port 		# as /root/.lynx/.lynx.conf
+rpcworkqueue=64
+listenonion=0
+upnp=1
+dbcache=450
+txindex=1
+host=$hhostname
+testnet=0
+
+# Our exchange and SPV wallet partners might want to disable the built in miner. This can be
+# easily done with the 'disablebuiltinminer' parameter below. As for our miners who are looking
+# to tune their devices, we recommend the default 0.01 (1%), but if you insist on increasing the
+# amount, we recommend you not tune it past using 50% of your CPU load. This often means setting
+# the 'cpulimitforbuiltinminer' value no greater then 0.3 (30%). Remember, with HPoW, increasing
+# the mining speed does not mean you will win more blocks. You are are just generating heat,
+# not blocks, if you increase the 'cpulimitforbuiltinminer' value. Also, if you are using a VPS
+# like AWS or Linode, your node will get banned and shut down if they detect mining activity.
+# Best to keep it low.
+
+disablebuiltinminer=0
+cpulimitforbuiltinminer=0.01
+" > /root/.lynx/lynx.conf
+
+	[ "$environment" = "testnet" ] && { sed -i 's|testnet=0|testnet=1|g' /root/.lynx/lynx.conf; echo "This node is operating on the testnet environment."; }
+	[ "$environment" = "mainnet" ] && { sed -i '/mineraddress=m/d' /root/.lynx/lynx.conf; echo "Removed testnet mining addresses (M) from conf."; }
+	[ "$environment" = "mainnet" ] && { sed -i '/mineraddress=n/d' /root/.lynx/lynx.conf; echo "Removed testnet mining addresses (N) from conf."; }
+	[ "$environment" = "testnet" ] && { sed -i '/mineraddress=K/d' /root/.lynx/lynx.conf; echo "Removed mainnet mining addresses (K) from conf."; }
+	[ "$environment" = "mainnet" ] && { sed -i '/addnode=test/d' /root/.lynx/lynx.conf; echo "Removed testnet nodes from addnode list."; }
+	[ "$environment" = "testnet" ] && { sed -i '/addnode=node/d' /root/.lynx/lynx.conf; echo "Removed mainnet nodes from addnode list."; }
 
 	# On the Pi, the dbcache param has value. The limited RAM environment of the Pi means we should
 	# store less data about the chainstate in RAM. We can reduce the about of RAM used my lynxd with
