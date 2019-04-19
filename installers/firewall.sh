@@ -91,7 +91,7 @@ fi
 
 /sbin/iptables -A INPUT -p tcp --dport _port_ -j ACCEPT # This node listens for other Lynx nodes on port _port_, so we need to open that port.
 /sbin/iptables -A INPUT -p tcp --dport _rpcport_ -j ACCEPT # By default, the RPC port 9223 is opened to the public.
-/sbin/iptables -A INPUT -j DROP # We add this last line to drop any other traffic that comes to this computer that doesn't comply with the earlier rules. If previous iptables rules dont match, then drop'em!
+/sbin/iptables -A INPUT -j DROP # We add this last line to drop any other traffic that comes to this computer.
 
 [ -f /root/.lynx/bootstrap.dat.old ] && { /bin/rm -rf /root/.lynx/bootstrap.dat.old; } # If the bootstrap.dat file had been used in the past, lets delete it if it still exists on the drive.
 [ ! $(grep 'pi' /etc/passwd) ] && { /usr/sbin/deluser lynx sudo >/dev/null 2>&1; } # Remove the lynx user from the sudo group, except if the host is a Pi. This is for security reasons.
