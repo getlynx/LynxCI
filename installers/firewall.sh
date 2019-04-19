@@ -2,18 +2,6 @@
 
 IsRestricted=Y
 
-# Whenever the firewall is reset, we also remove the lynx user from the sudo group. This is for
-# security reasons. A grace period exists after the initial build but after the firewall is reset,
-# we no longer allow the lynx user to use the sudo command to gain access to root. The user MUST
-# know the root account password to administer the lynxd settings. An exception exists for the
-# Raspberry pi device. We don't take away sudo from the lynx user on the Pi.
-
-if ! grep 'pi' /etc/passwd >/dev/null 2>&1; then
-
-	/usr/sbin/deluser lynx sudo >/dev/null 2>&1
-
-fi
-
 /sbin/iptables -F # Let's flush any pre existing iptables rules that might exist and start with a clean slate.
 /sbin/iptables -I INPUT 1 -i lo -j ACCEPT # We should always allow loopback traffic.
 
@@ -105,10 +93,8 @@ fi
 /sbin/iptables -A INPUT -p tcp --dport _rpcport_ -j ACCEPT # By default, the RPC port 9223 is opened to the public.
 /sbin/iptables -A INPUT -j DROP # We add this last line to drop any other traffic that comes to this computer that doesn't comply with the earlier rules. If previous iptables rules dont match, then drop'em!
 
-# Some system cleanup. If the bootstrap.dat file had been used in the past, it is not flagged as
-# old. It is no longer needed so let's delete it if it still exists on the drive.
-
-/bin/rm -rf /root/.lynx/bootstrap.dat.old
+[ -f /root/.lynx/bootstrap.dat.old ] && { /bin/rm -rf /root/.lynx/bootstrap.dat.old; } # If the bootstrap.dat file had been used in the past, lets delete it if it still exists on the drive.
+[ ! $(grep 'pi' /etc/passwd) ] && { /usr/sbin/deluser lynx sudo >/dev/null 2>&1; } # Remove the lynx user from the sudo group, except if the host is a Pi. This is for security reasons.
 
 #
 # Metus est Plenus Tyrannis
