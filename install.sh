@@ -413,8 +413,6 @@ install_lynx () {
 # like, you can change them, but you are encouraged to keep very complex values for each. If an
 # attacker gains RPC access to this host they will steal your Lynx. Understanding that, the
 # wallet is disabled by default so the risk of loss is zero with the default configuration.
-#
-# curl --user $rrpcuser:$rrpcpassword --data-binary '{\"jsonrpc\": \"1.0\", \"id\":\"curltest\", \"method\": \"help\", \"params\": [] }' -H 'content-type: text/plain;' http://$hhostname:$rpcport/
 
 rpcuser=$rrpcuser
 rpcpassword=$rrpcpassword
@@ -428,8 +426,6 @@ rpcport=$rpcport
 # your IP's only, change the following values as needed. The following example will work 
 # locally, on this machine. You can try this curl example from another computer, just change the
 # '$hhostname' value to the IP of this node.
-#
-# curl --user $rrpcuser:$rrpcpassword --data-binary '{\"jsonrpc\": \"1.0\", \"id\":\"curltest\", \"method\": \"getblockcount\", \"params\": [] }' -H 'content-type: text/plain;' http://$hhostname:$rpcport/
 
 rpcallowip=0.0.0.0/24
 rpcallowip=::/0
@@ -443,6 +439,8 @@ rpcallowip=::/0
 
 #debug=1
 debug=miner
+#debug=mempool
+#debug=rpc
 #debug=0
 
 # By default, wallet functions in LynxCI are disabled. This is for security reasons. If you
@@ -459,12 +457,8 @@ debug=miner
 
 disablewallet=1
 
-# The following list of nodes are maintained for faster detection of peers and network sync.
-#
-# curl --user $rrpcuser:$rrpcpassword --data-binary '{\"jsonrpc\": \"1.0\", \"id\":\"curltest\", \"method\": \"getpeerinfo\", \"params\": [] }' -H 'content-type: text/plain;' http://$hhostname:$rpcport/
-
 addnode=node01.getlynx.io # The following list of nodes are maintained by the Lynx Development
-addnode=node02.getlynx.io # team for faster detection of peers.
+addnode=node02.getlynx.io # team for faster detection of peers on mainnet.
 addnode=node03.getlynx.io
 addnode=node04.getlynx.io
 addnode=node05.getlynx.io
@@ -476,12 +470,16 @@ addnode=node10.getlynx.io
 addnode=node11.getlynx.io
 addnode=node12.getlynx.io
 addnode=node13.getlynx.io
+addnode=node14.getlynx.io
+addnode=node15.getlynx.io
 addnode=test01.getlynx.io # The following list of nodes are maintained by the Lynx Development
-addnode=test02.getlynx.io # team for faster detection of peers.
+addnode=test02.getlynx.io # team for faster detection of peers on testnet.
 addnode=test03.getlynx.io
 addnode=test04.getlynx.io
 addnode=test05.getlynx.io
 addnode=test06.getlynx.io
+addnode=test07.getlynx.io
+addnode=test08.getlynx.io
 
 mineraddress=KKMeTYLM6LrhFc8Gq1uYSua4BLgmFPaZrX # The following addresses are known to pass the validation requirements for HPoW. If you would
 mineraddress=KVKrkxGcUo9wii59ashrbqKub5CpggiFQz # like to earn your own mining rewards, you can add/edit/delete this list with your own
