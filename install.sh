@@ -568,9 +568,9 @@ mineraddress=msNfqB4G4r9iV4jBQZmaQBbkbPcVELBdTs
 mineraddress=mmhAk3VqPJqrsv1utCZGWKNnXWE52pgAxt
 mineraddress=mxfdwQjFsBmTFC2RP5CeqQLNfP3rA9R7Cj
 
-listen=1		# It is highly unlikely you need to change any of the following values unless you are tinkering
-daemon=1		# with the node. If you decide to tinker, know that a backup of this file already exists 
-port=$port 		# as /root/.lynx/.lynx.conf
+listen=1        # It is highly unlikely you need to change any of the following values unless you are tinkering
+daemon=1        # with the node. If you decide to tinker, know that a backup of this file already exists 
+port=$port      # as /root/.lynx/.lynx.conf
 rpcworkqueue=64
 listenonion=0
 upnp=1
