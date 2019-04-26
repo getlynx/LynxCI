@@ -1,10 +1,24 @@
 #!/bin/bash
-environment="mainnet" # For most rollouts, the two options are 'mainnet' or 'testnet'.
+enviro="mainnet" # For most rollouts, the two options are mainnet or testnet.
 branch="master" # The master branch contains the most recent code. You can switch out an alternate branch name for testing, but beware, branches may not operate as expected.
-[ "$environment" = "mainnet" ] && { port="22566"; echo "The mainnet environment port is set to 22566."; } # The Lynx network uses this port when peers talk to each other.
-[ "$environment" = "mainnet" ] && { rpcport="9332"; echo "The mainnet environment rpcport is set to 9332."; } # This is the netowork port for RPC communication with clients.
-[ "$environment" = "testnet" ] && { port="44566"; echo "The testnet environment port is set to 44566."; } # The Lynx network uses this port when peers talk to each other.
-[ "$environment" = "testnet" ] && { rpcport="19335"; echo "The testnet environment rpcport is set to 19335."; } # This is the netowork port for RPC communication with clients.
+[ "$enviro" = "mainnet" ] && { port="22566"; echo "The mainnet environment port is set to 22566."; } # The Lynx network uses this port when peers talk to each other.
+[ "$enviro" = "mainnet" ] && { rpcport="9332"; echo "The mainnet environment rpcport is set to 9332."; } # This is the netowork port for RPC communication with clients.
+[ "$enviro" = "testnet" ] && { port="44566"; echo "The testnet environment port is set to 44566."; } # The Lynx network uses this port when peers talk to each other.
+[ "$enviro" = "testnet" ] && { rpcport="19335"; echo "The testnet environment rpcport is set to 19335."; } # This is the netowork port for RPC communication with clients.
+apt-get update -y &> /dev/null # Before we begin, we need to update the local repo's. For now, the update is all we need and the device will still function properly.
+apt-get upgrade -y &> /dev/null # Now that certain packages that might bring an interactive prompt are removed, let's do an upgrade.
+apt-get remove -y apache2 pi-bluetooth postfix &> /dev/null
+apt-get install -y autoconf automake build-essential bzip2 curl fail2ban g++ gcc git git-core htop libboost-all-dev libcurl4-openssl-dev \
+libevent-dev libgmp-dev libjansson-dev libminiupnpc-dev libncurses5-dev libssl-dev libtool libz-dev logrotate make nano pkg-config \
+software-properties-common sudo unzip &> /dev/null && echo "Required system packages have been installed."
+apt-get autoremove -y &> /dev/null # Time for some cleanup work.
+rpcuser="$(shuf -i 1000000000-3999999999 -n 1)$(shuf -i 1000000000-3999999999 -n 1)$(shuf -i 1000000000-3999999999 -n 1)" # Lets generate some RPC credentials for this node.
+rpcpass="$(shuf -i 1000000000-3999999999 -n 1)$(shuf -i 1000000000-3999999999 -n 1)$(shuf -i 1000000000-3999999999 -n 1)" # Lets generate some RPC credentials for this node.
+isPi="0" && [ "$(cat /proc/cpuinfo | grep 'Revision')" != "" ] && { isPi="1"; echo "The target device is a Raspberry Pi."; } # Default to 0. If the value is 1, then we know the target device is a Pi.
+[ "$enviro" = "mainnet" -a "$isPi" = "1" ] && name="lynxpi$(shuf -i 200000000-999999999 -n 1)" # If the device is a Pi, the "pi" string is appended.
+[ "$enviro" = "mainnet" -a "$isPi" = "0" ] && name="lynx$(shuf -i 200000000-999999999 -n 1)" # If he device is running mainnet then the node id starts with 2-9.
+[ "$enviro" = "testnet" -a "$isPi" = "1" ] && name="lynxpi$(shuf -i 100000000-199999999 -n 1)" # If the device is a Pi, the "pi" string is appended.
+[ "$enviro" = "testnet" -a "$isPi" = "0" ] && name="lynx$(shuf -i 100000000-199999999 -n 1)" # If he device is running testnet then the node id starts with 1.
 
 detect_os () {
 
@@ -15,8 +29,6 @@ detect_os () {
 	version_id=`cat /etc/os-release | egrep '^VERSION_ID=' | cut -d= -f2 -d'"'`
 
 	pretty_name=`cat /etc/os-release | egrep '^PRETTY_NAME=' | cut -d= -f2 -d'"'`
-
-	checkForRaspbian=$(cat /proc/cpuinfo | grep 'Revision')
 
 	# Since we are starting the install of LynxCI, let's remove the crontab that started this
 	# process so we don't accidently run it twice simultaneously. That could get ugly. Now this
@@ -59,7 +71,7 @@ manage_swap () {
 
 	# Only if the target device is a Pi, bump up the swap.
 
-	if [ ! -z "$checkForRaspbian" ]; then
+	if [ "$isPi" = "1" ]; then
 
 		# On a Raspberry Pi, the default swap is 100MB. This is a little restrictive, so we are
 		# expanding it to a full 1GB of swap.
@@ -80,7 +92,7 @@ reduce_gpu_mem () {
 	# we only use the CLI. So no need to allocate GPU ram to something that isn't being used. Let's
 	# assign the param below to the minimum value in the /boot/config.txt file.
 
-	if [ ! -z "$checkForRaspbian" ]; then
+	if [ "$isPi" = "1" ]; then
 
 		# First, lets not assume that an entry doesn't already exist, so let's purge and preexisting
 		# gpu_mem variables from the respective file.
@@ -99,7 +111,7 @@ reduce_gpu_mem () {
 
 disable_bluetooth () {
 
-	if [ ! -z "$checkForRaspbian" ]; then
+	if [ "$isPi" = "1" ]; then
 
 		# First, lets not assume that an entry doesn't already exist, so let's purge any preexisting
 		# bluetooth variables from the respective file.
@@ -124,19 +136,11 @@ set_network () {
 
 	ipaddr=$(ip route get 1 | awk '{print $NF;exit}')
 
-	# If the device is a Pi, the "pi" string is prepended. If he device is running testnet then the
-	# node id starts with a 1.
+	fqdn="$name.getlynx.io"
 
-	[ "$environment" = "mainnet" -a ! -z "$checkForRaspbian" ] && hhostname="lynxpi$(shuf -i 200000000-999999999 -n 1)"
-	[ "$environment" = "mainnet" -a -z "$checkForRaspbian" ] && hhostname="lynx$(shuf -i 200000000-999999999 -n 1)"
-	[ "$environment" = "testnet" -a ! -z "$checkForRaspbian" ] && hhostname="lynxpi$(shuf -i 100000000-199999999 -n 1)"
-	[ "$environment" = "testnet" -a -z "$checkForRaspbian" ] && hhostname="lynx$(shuf -i 100000000-199999999 -n 1)"
+	echo $name > /etc/hostname && hostname -F /etc/hostname
 
-	fqdn="$hhostname.getlynx.io"
-
-	echo $hhostname > /etc/hostname && hostname -F /etc/hostname
-
-	echo $ipaddr $fqdn $hhostname >> /etc/hosts
+	echo $ipaddr $fqdn $name >> /etc/hosts
 
 }
 
@@ -182,7 +186,7 @@ install_portcheck () {
         fi
     	fi
 
-        echo \" | The unique identifier for this LynxCI node is $hhostname.                |
+        echo \" | The unique identifier for this LynxCI node is $name.                |
  '-----------------------------------------------------------------------------'\"
 
  	port=\"$port\"
@@ -210,6 +214,8 @@ install_portcheck () {
 }
 
 setup_nginx () {
+
+	/root/LynxCI/installers/nginx.sh
 
     rm -rf /etc/nginx/sites-enabled/default
 
@@ -286,64 +292,29 @@ install_lynx () {
 
 	echo "$pretty_name detected. Installing Lynx."
 
-	apt-get -qq install autoconf automake bzip2 curl nano htop g++ gcc git git-core pkg-config build-essential libtool libncurses5-dev software-properties-common libssl-dev libboost-all-dev libminiupnpc-dev libevent-dev -y
-
-	rrpcuser="$(shuf -i 1000000000-3999999999 -n 1)$(shuf -i 1000000000-3999999999 -n 1)$(shuf -i 1000000000-3999999999 -n 1)"
-
-	rrpcpassword="$(shuf -i 1000000000-3999999999 -n 1)$(shuf -i 1000000000-3999999999 -n 1)$(shuf -i 1000000000-3999999999 -n 1)"
-
-	rm -rf /root/lynx/
-
-	git clone -b "$branch" https://github.com/getlynx/Lynx.git /root/lynx/
-
-	# We will need this db4 directory soon so let's delete and create it.
-
-	rm -rf /root/lynx/db4 && mkdir -p /root/lynx/db4
-
-	# We need a very specific version of the Berkeley DB for the wallet to function properly.
-
-	cd /root/lynx/
-
-	wget http://download.oracle.com/berkeley-db/db-4.8.30.NC.tar.gz
-
-	# Now that we have the tarbar file, lets unpack it and jump to a sub directory within it.
-
-	tar -xzf db-4.8.30.NC.tar.gz
-
-	cd db-4.8.30.NC/build_unix/
-
-	# Configure and run the make file to compile the Berkeley DB source.
-
-	../dist/configure --enable-cxx --disable-shared --with-pic --prefix=/root/lynx/db4
-
-	make --quiet install
-
-	# Now that the Berkeley DB is installed, let's jump to the lynx directory and finish the
-	# configure statement WITH the Berkeley DB parameters included.
-
-	cd /root/lynx/
-
-	./autogen.sh
+	rm -rf /root/lynx/ # Lets assume this directory already exists, so lets purge it first.
+	git clone -b "$branch" https://github.com/getlynx/Lynx.git /root/lynx/ # Pull down the specific branch version of Lynx source we arew planning to compile.
+	rm -rf /root/lynx/db4 && mkdir -p /root/lynx/db4 # We will need this db4 directory soon so let's delete and create it. Just in case.
+	cd /root/lynx/ && wget http://download.oracle.com/berkeley-db/db-4.8.30.NC.tar.gz # Pull down the Berkeley DB 4.8 source tarball.
+	tar -xzf db-4.8.30.NC.tar.gz && cd db-4.8.30.NC/build_unix/ # Unpack the tarball and hop into the directory.
+	../dist/configure --enable-cxx --disable-shared --with-pic --prefix=/root/lynx/db4 # Configure the make file to compile the Berkeley DB 4.8 source.
+	make --quiet install # Compile the Berkeley DB 4.8 source
+	cd /root/lynx/ # Now that the Berkeley DB is installed, let's jump to the lynx directory...
+	./autogen.sh # And finish the configure statement WITH the Berkeley DB parameters included.
 
 	# If it's a Pi device then set up the uPNP arguments.
 
-	if [ ! -z "$checkForRaspbian" ]; then
-
-		cd /root/lynx/
+	if [ "$isPi" = "1" ]; then
 
 		./configure LDFLAGS="-L/root/lynx/db4/lib/" CPPFLAGS="-I/root/lynx/db4/include/ -O2" --enable-cxx --without-gui --disable-shared --with-miniupnpc --enable-upnp-default --disable-tests --disable-bench
 
-		make --quiet
-
 	else
-
-		cd /root/lynx/
 
 		./configure LDFLAGS="-L/root/lynx/db4/lib/" CPPFLAGS="-I/root/lynx/db4/include/ -O2" --enable-cxx --without-gui --disable-shared --disable-tests --disable-bench
 
-		make --quiet
-
 	fi
+
+	make --quiet
 
 	# The .lynx dir must exist for the bootstrap and lynx.conf to be placed in it.
 
@@ -357,9 +328,9 @@ install_lynx () {
 	# generated name, we escape the daemon getting killed by some vendors. Of course, it is a cat
 	# and mouse game so this will be upgraded sometime in the future.
 
-	cp --remove-destination /root/lynx/src/lynxd /root/lynx/src/$hhostname
+	cp --remove-destination /root/lynx/src/lynxd /root/lynx/src/$name
 
-	sed -i "s|/root/lynx/src/lynxd|/root/lynx/src/${hhostname}|g" /root/LynxCI/installers/systemd.sh
+	sed -i "s|/root/lynx/src/lynxd|/root/lynx/src/${name}|g" /root/LynxCI/installers/systemd.sh
 
 	# If this is a testnet node, the debug.log file is in a different directory. Lets be sure to
 	#truncate that file too, otherwise the drive space will fill up.
@@ -382,8 +353,8 @@ install_lynx () {
 # attacker gains RPC access to this host they will steal your Lynx. Understanding that, the
 # wallet is disabled by default so the risk of loss is zero with the default configuration.
 
-rpcuser=$rrpcuser
-rpcpassword=$rrpcpassword
+rpcuser=$rpcuser
+rpcpassword=$rpcpass
 rpcport=$rpcport
 
 # The following settings will allow a connection from ANY external host. The two entries
@@ -393,7 +364,7 @@ rpcport=$rpcport
 # is needed. To secure the node from repeated connection attempts or to restrict connections to
 # your IP's only, change the following values as needed. The following example will work 
 # locally, on this machine. You can try this curl example from another computer, just change the
-# '$hhostname' value to the IP of this node.
+# '$name' value to the IP of this node.
 
 rpcallowip=0.0.0.0/24
 rpcallowip=::/0
@@ -645,7 +616,7 @@ listenonion=0
 upnp=1
 dbcache=450
 txindex=1
-host=$hhostname
+host=$name
 testnet=0
 
 # Our exchange and SPV wallet partners might want to disable the built in miner. This can be
@@ -662,19 +633,19 @@ disablebuiltinminer=0
 cpulimitforbuiltinminer=0.01
 " > /root/.lynx/lynx.conf
 
-	[ "$environment" = "testnet" ] && { sed -i 's|testnet=0|testnet=1|g' /root/.lynx/lynx.conf; echo "This node is operating on the testnet environment and it's now set in the lynx.conf file."; }
-	[ "$environment" = "mainnet" ] && { sed -i 's|testnet=1|testnet=0|g' /root/.lynx/lynx.conf; echo "This node is operating on the mainnet environment and it's now set in the lynx.conf file."; }
-	[ "$environment" = "mainnet" ] && { sed -i '/mineraddress=m/d' /root/.lynx/lynx.conf; echo "Removed default testnet mining addresses (M) from the lynx.conf file."; }
-	[ "$environment" = "mainnet" ] && { sed -i '/mineraddress=n/d' /root/.lynx/lynx.conf; echo "Removed default testnet mining addresses (N) from the lynx.conf file."; }
-	[ "$environment" = "testnet" ] && { sed -i '/mineraddress=K/d' /root/.lynx/lynx.conf; echo "Removed default mainnet mining addresses (K) from the lynx.conf file."; }
-	[ "$environment" = "mainnet" ] && { sed -i '/addnode=test/d' /root/.lynx/lynx.conf; echo "Removed default testnet nodes from the addnode list in the lynx.conf file."; }
-	[ "$environment" = "testnet" ] && { sed -i '/addnode=node/d' /root/.lynx/lynx.conf; echo "Removed default mainnet nodes from the addnode list in the lynx.conf file."; }
+	[ "$enviro" = "testnet" ] && { sed -i 's|testnet=0|testnet=1|g' /root/.lynx/lynx.conf; echo "This node is operating on the testnet environment and it's now set in the lynx.conf file."; }
+	[ "$enviro" = "mainnet" ] && { sed -i 's|testnet=1|testnet=0|g' /root/.lynx/lynx.conf; echo "This node is operating on the mainnet environment and it's now set in the lynx.conf file."; }
+	[ "$enviro" = "mainnet" ] && { sed -i '/mineraddress=m/d' /root/.lynx/lynx.conf; echo "Removed default testnet mining addresses (M) from the lynx.conf file."; }
+	[ "$enviro" = "mainnet" ] && { sed -i '/mineraddress=n/d' /root/.lynx/lynx.conf; echo "Removed default testnet mining addresses (N) from the lynx.conf file."; }
+	[ "$enviro" = "testnet" ] && { sed -i '/mineraddress=K/d' /root/.lynx/lynx.conf; echo "Removed default mainnet mining addresses (K) from the lynx.conf file."; }
+	[ "$enviro" = "mainnet" ] && { sed -i '/addnode=test/d' /root/.lynx/lynx.conf; echo "Removed default testnet nodes from the addnode list in the lynx.conf file."; }
+	[ "$enviro" = "testnet" ] && { sed -i '/addnode=node/d' /root/.lynx/lynx.conf; echo "Removed default mainnet nodes from the addnode list in the lynx.conf file."; }
 
 	# On the Pi, the dbcache param has value. The limited RAM environment of the Pi means we should
 	# store less data about the chainstate in RAM. We can reduce the about of RAM used my lynxd with
 	# this param. Default is 450MB. Changed to 100MB on the Pi.
 
-	[ ! -z "$checkForRaspbian" ] && sed -i "s|dbcache=450|dbcache=100|g" /root/.lynx/lynx.conf
+	[ "$isPi" = "1" ] && sed -i "s|dbcache=450|dbcache=100|g" /root/.lynx/lynx.conf
 
 	# We are gonna create a backup of the initially created lynx.conf file. This file does not ever
 	# run, it is just created for backup purposes. Please leave it intact so you can refer to it in
@@ -682,8 +653,8 @@ cpulimitforbuiltinminer=0.01
 
 	cp --remove-destination /root/.lynx/lynx.conf /root/.lynx/.lynx.conf && chmod 600 /root/.lynx/.lynx.conf
 
-	[ "$environment" = "mainnet" ] && wget https://github.com/getlynx/Lynx/releases/download/v0.16.3.7/bootstrap.tar.gz -O - | tar -xz -C /root/.lynx/
-	[ "$environment" = "testnet" ] && wget https://github.com/getlynx/Lynx/releases/download/v0.16.3.8/bootstrap.tar.gz -O - | tar -xz -C /root/.lynx/
+	[ "$enviro" = "mainnet" ] && wget https://github.com/getlynx/Lynx/releases/download/v0.16.3.7/bootstrap.tar.gz -O - | tar -xz -C /root/.lynx/
+	[ "$enviro" = "testnet" ] && wget https://github.com/getlynx/Lynx/releases/download/v0.16.3.8/bootstrap.tar.gz -O - | tar -xz -C /root/.lynx/
 
 	# Be sure to reset the ownership of all files in the .lynx dir to root in case any process run
 	# previously changed the default ownership setting. More of a precautionary measure.
@@ -747,7 +718,7 @@ else
 	echo "Starting installation of LynxCI."
 
 	detect_os
-	/root/LynxCI/installers/package.sh
+	/root/LynxCI/installers/nginx.sh
 	set_network
 	manage_swap
 	reduce_gpu_mem
