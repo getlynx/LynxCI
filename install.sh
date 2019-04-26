@@ -20,6 +20,8 @@ isPi="0" && [ "$(cat /proc/cpuinfo | grep 'Revision')" != "" ] && { isPi="1"; ec
 [ "$enviro" = "mainnet" -a "$isPi" = "0" ] && name="lynx$(shuf -i 200000000-999999999 -n 1)" # If he device is running mainnet then the node id starts with 2-9.
 [ "$enviro" = "testnet" -a "$isPi" = "1" ] && name="lynxpi$(shuf -i 100000000-199999999 -n 1)" # If the device is a Pi, the "pi" string is appended.
 [ "$enviro" = "testnet" -a "$isPi" = "0" ] && name="lynx$(shuf -i 100000000-199999999 -n 1)" # If he device is running testnet then the node id starts with 1.
+[ "$isPi" = "1" ] && sed -i '/pi3-disable-bt/d' /boot/config.txt # Lets not assume that an entry doesn't already exist on the Pi, so let's purge any preexisting bluetooth variables.
+[ "$isPi" = "1" ] && echo "dtoverlay=pi3-disable-bt" >> /boot/config.txt # Now, let's append the variable and value to the end of the file for the Pi.
 
 # We are inspecting the local operating system and extracting the full name so we know the
 # unique flavor. In the rest of the script we have various changes that are dedicated to
@@ -101,29 +103,6 @@ reduce_gpu_mem () {
 		echo "gpu_mem=16" >> /boot/config.txt
 
 		echo "GPU memory was reduced to 16MB on reboot."
-
-	fi
-
-}
-
-disable_bluetooth () {
-
-	if [ "$isPi" = "1" ]; then
-
-		# First, lets not assume that an entry doesn't already exist, so let's purge any preexisting
-		# bluetooth variables from the respective file.
-
-		sed -i '/pi3-disable-bt/d' /boot/config.txt
-
-		# Now, let's append the variable and value to the end of the file.
-
-		echo "dtoverlay=pi3-disable-bt" >> /boot/config.txt
-
-		# Next, we remove the bluetooth package that was previously installed.
-
-		apt-get -qq remove pi-bluetooth -y
-
-		echo "Bluetooth was uninstalled."
 
 	fi
 
@@ -718,7 +697,6 @@ else
 	set_network
 	manage_swap
 	reduce_gpu_mem
-	disable_bluetooth
 	/root/LynxCI/installers/account.sh
 	install_portcheck
 	install_lynx
