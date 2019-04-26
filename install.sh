@@ -1,21 +1,12 @@
 #!/bin/bash
-
-environment="mainnet"
-lynxbranch="master"
+environment="mainnet" # For most rollouts, the two options are 'mainnet' or 'testnet'.
+branch="master" # The master branch contains the most recent code. You can switch out an alternate branch name for testing, but beware, branches may not operate as expected.
+[ "$environment" = "mainnet" ] && { port="22566"; echo "The mainnet environment port is set to 22566."; } # The Lynx network uses this port when peers talk to each other.
+[ "$environment" = "mainnet" ] && { rpcport="9332"; echo "The mainnet environment rpcport is set to 9332."; } # This is the netowork port for RPC communication with clients.
+[ "$environment" = "testnet" ] && { port="44566"; echo "The mainnet environment port is set to 44566."; } # The Lynx network uses this port when peers talk to each other.
+[ "$environment" = "testnet" ] && { rpcport="19335"; echo "The mainnet environment rpcport is set to 19335."; } # This is the netowork port for RPC communication with clients.
 
 detect_os () {
-
-	if [ "$environment" = "mainnet" ]; then
-
-		port="22566"
-		rpcport="9332"
-
-	else
-
-		port="44566"
-		rpcport="19335"
-
-	fi
 
 	# We are inspecting the local operating system and extracting the full name so we know the
 	# unique flavor. In the rest of the script we have various changes that are dedicated to
@@ -318,7 +309,7 @@ install_lynx () {
 
 	echo "$pretty_name detected. Installing Lynx."
 
-	apt-get -qq install autoconf automake bzip2 curl nano htop g++ gcc git git-core pkg-config build-essential libtool libncurses5-dev software-properties-common libssl-dev libboost-all-dev libminiupnpc-dev libevent-dev -y
+	apt-get -qq install autoconf autotools-dev automake bsdmainutils bzip2 cmake curl nano htop g++ gcc git git-core pkg-config build-essential libtool libncurses5-dev software-properties-common libssl1.0.0-dev libboost-all-dev libminiupnpc-dev libevent-dev -y
 
 	rrpcuser="$(shuf -i 1000000000-3999999999 -n 1)$(shuf -i 1000000000-3999999999 -n 1)$(shuf -i 1000000000-3999999999 -n 1)"
 
@@ -326,29 +317,7 @@ install_lynx () {
 
 	rm -rf /root/lynx/
 
-	git clone -b "$lynxbranch" https://github.com/getlynx/Lynx.git /root/lynx/
-
-	# We will need this db4 directory soon so let's delete and create it.
-
-	rm -rf /root/lynx/db4 && mkdir -p /root/lynx/db4
-
-	# We need a very specific version of the Berkeley DB for the wallet to function properly.
-
-	cd /root/lynx/
-
-	wget http://download.oracle.com/berkeley-db/db-4.8.30.NC.tar.gz
-
-	# Now that we have the tarbar file, lets unpack it and jump to a sub directory within it.
-
-	tar -xzf db-4.8.30.NC.tar.gz
-
-	cd db-4.8.30.NC/build_unix/
-
-	# Configure and run the make file to compile the Berkeley DB source.
-
-	../dist/configure --enable-cxx --disable-shared --with-pic --prefix=/root/lynx/db4
-
-	make --quiet install
+	git clone -b "$branch" https://github.com/getlynx/Lynx.git /root/lynx/
 
 	# Now that the Berkeley DB is installed, let's jump to the lynx directory and finish the
 	# configure statement WITH the Berkeley DB parameters included.
@@ -361,19 +330,17 @@ install_lynx () {
 
 	if [ ! -z "$checkForRaspbian" ]; then
 
-		cd /root/lynx/
-
-		./configure LDFLAGS="-L/root/lynx/db4/lib/" CPPFLAGS="-I/root/lynx/db4/include/ -O2" --enable-cxx --without-gui --disable-shared --with-miniupnpc --enable-upnp-default --disable-tests --disable-bench
+		./configure --enable-cxx --without-gui --disable-shared --with-miniupnpc --enable-upnp-default --disable-tests --disable-bench
 
 		make --quiet
+		make install
 
 	else
 
-		cd /root/lynx/
-
-		./configure LDFLAGS="-L/root/lynx/db4/lib/" CPPFLAGS="-I/root/lynx/db4/include/ -O2" --enable-cxx --without-gui --disable-shared --disable-tests --disable-bench
+		./configure --enable-cxx --without-gui --disable-shared --disable-tests --disable-bench
 
 		make --quiet
+		make install
 
 	fi
 
@@ -694,12 +661,13 @@ disablebuiltinminer=0
 cpulimitforbuiltinminer=0.01
 " > /root/.lynx/lynx.conf
 
-	[ "$environment" = "testnet" ] && { sed -i 's|testnet=0|testnet=1|g' /root/.lynx/lynx.conf; echo "This node is operating on the testnet environment."; }
-	[ "$environment" = "mainnet" ] && { sed -i '/mineraddress=m/d' /root/.lynx/lynx.conf; echo "Removed testnet mining addresses (M) from conf."; }
-	[ "$environment" = "mainnet" ] && { sed -i '/mineraddress=n/d' /root/.lynx/lynx.conf; echo "Removed testnet mining addresses (N) from conf."; }
-	[ "$environment" = "testnet" ] && { sed -i '/mineraddress=K/d' /root/.lynx/lynx.conf; echo "Removed mainnet mining addresses (K) from conf."; }
-	[ "$environment" = "mainnet" ] && { sed -i '/addnode=test/d' /root/.lynx/lynx.conf; echo "Removed testnet nodes from addnode list."; }
-	[ "$environment" = "testnet" ] && { sed -i '/addnode=node/d' /root/.lynx/lynx.conf; echo "Removed mainnet nodes from addnode list."; }
+	[ "$environment" = "testnet" ] && { sed -i 's|testnet=0|testnet=1|g' /root/.lynx/lynx.conf; echo "This node is operating on the testnet environment and it's now set in the lynx.conf file."; }
+	[ "$environment" = "mainnet" ] && { sed -i 's|testnet=1|testnet=0|g' /root/.lynx/lynx.conf; echo "This node is operating on the mainnet environment and it's now set in the lynx.conf file."; }
+	[ "$environment" = "mainnet" ] && { sed -i '/mineraddress=m/d' /root/.lynx/lynx.conf; echo "Removed default testnet mining addresses (M) from the lynx.conf file."; }
+	[ "$environment" = "mainnet" ] && { sed -i '/mineraddress=n/d' /root/.lynx/lynx.conf; echo "Removed default testnet mining addresses (N) from the lynx.conf file."; }
+	[ "$environment" = "testnet" ] && { sed -i '/mineraddress=K/d' /root/.lynx/lynx.conf; echo "Removed default mainnet mining addresses (K) from the lynx.conf file."; }
+	[ "$environment" = "mainnet" ] && { sed -i '/addnode=test/d' /root/.lynx/lynx.conf; echo "Removed default testnet nodes from the addnode list in the lynx.conf file."; }
+	[ "$environment" = "testnet" ] && { sed -i '/addnode=node/d' /root/.lynx/lynx.conf; echo "Removed default mainnet nodes from the addnode list in the lynx.conf file."; }
 
 	# On the Pi, the dbcache param has value. The limited RAM environment of the Pi means we should
 	# store less data about the chainstate in RAM. We can reduce the about of RAM used my lynxd with
