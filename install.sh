@@ -20,21 +20,9 @@ isPi="0" && [ "$(cat /proc/cpuinfo | grep 'Revision')" != "" ] && { isPi="1"; ec
 [ "$enviro" = "testnet" -a "$isPi" = "0" ] && name="lynx$(shuf -i 100000000-199999999 -n 1)" # If he device is running testnet then the node id starts with 1.
 [ "$isPi" = "1" ] && sed -i '/pi3-disable-bt/d' /boot/config.txt # Lets not assume that an entry already exists on the Pi, so purge any preexisting bluetooth variables.
 [ "$isPi" = "1" ] && echo "dtoverlay=pi3-disable-bt" >> /boot/config.txt # Now, append the variable and value to the end of the file for the Pi.
-
-# We are inspecting the local operating system and extracting the full name so we know the
-# unique flavor. In the rest of the script we have various changes that are dedicated to
-# certain operating system versions.
-
-version_id=`cat /etc/os-release | egrep '^VERSION_ID=' | cut -d= -f2 -d'"'`
-
-pretty_name=`cat /etc/os-release | egrep '^PRETTY_NAME=' | cut -d= -f2 -d'"'`
-
-# Since we are starting the install of LynxCI, let's remove the crontab that started this
-# process so we don't accidently run it twice simultaneously. That could get ugly. Now this
-# script can run as long as it needs without concern another crontab might start and withdraw
-# reseources.
-
-crontab -r
+cat /etc/os-release # Display the target host operating system information.
+crontab -r # Purge the crontab that started this script so it doesn't run twice if the above code takes longer then 15 min to execute.
+echo "Starting installation of LynxCI."
 
 manage_swap () {
 
@@ -263,8 +251,6 @@ setup_nginx () {
 }
 
 install_lynx () {
-
-	echo "$pretty_name detected. Installing Lynx."
 
 	rm -rf /root/lynx/ # Lets assume this directory already exists, so lets purge it first.
 	git clone -b "$branch" https://github.com/getlynx/Lynx.git /root/lynx/ # Pull down the specific branch version of Lynx source we arew planning to compile.
@@ -688,8 +674,6 @@ if [ -f /boot/lynxci ]; then
 	echo "Previous LynxCI detected. Install aborted."
 
 else
-
-	echo "Starting installation of LynxCI."
 
 	/root/LynxCI/installers/nginx.sh
 	set_network
