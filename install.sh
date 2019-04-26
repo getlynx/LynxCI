@@ -3,8 +3,8 @@ environment="mainnet" # For most rollouts, the two options are 'mainnet' or 'tes
 branch="master" # The master branch contains the most recent code. You can switch out an alternate branch name for testing, but beware, branches may not operate as expected.
 [ "$environment" = "mainnet" ] && { port="22566"; echo "The mainnet environment port is set to 22566."; } # The Lynx network uses this port when peers talk to each other.
 [ "$environment" = "mainnet" ] && { rpcport="9332"; echo "The mainnet environment rpcport is set to 9332."; } # This is the netowork port for RPC communication with clients.
-[ "$environment" = "testnet" ] && { port="44566"; echo "The mainnet environment port is set to 44566."; } # The Lynx network uses this port when peers talk to each other.
-[ "$environment" = "testnet" ] && { rpcport="19335"; echo "The mainnet environment rpcport is set to 19335."; } # This is the netowork port for RPC communication with clients.
+[ "$environment" = "testnet" ] && { port="44566"; echo "The testnet environment port is set to 44566."; } # The Lynx network uses this port when peers talk to each other.
+[ "$environment" = "testnet" ] && { rpcport="19335"; echo "The testnet environment rpcport is set to 19335."; } # This is the netowork port for RPC communication with clients.
 
 detect_os () {
 
@@ -17,8 +17,6 @@ detect_os () {
 	pretty_name=`cat /etc/os-release | egrep '^PRETTY_NAME=' | cut -d= -f2 -d'"'`
 
 	checkForRaspbian=$(cat /proc/cpuinfo | grep 'Revision')
-
-	echo "Build environment is '$environment'."
 
 	# Since we are starting the install of LynxCI, let's remove the crontab that started this
 	# process so we don't accidently run it twice simultaneously. That could get ugly. Now this
@@ -284,32 +282,11 @@ setup_nginx () {
 
 }
 
-# The MiniUPnP project offers software which supports the UPnP Internet Gateway Device (IGD)
-# specifications. You can read more about it here --> http://miniupnp.free.fr
-# We use this code because most folks don't know how to configure their home cable modem or wifi
-# router to allow outside access to the Lynx node. While this Lynx node can talk to others, the
-# others on the network can't always talk to this device, especially if it's behind a router at
-# home. Currently, this library is only installed if the device is a Raspberry Pi.
-
-install_miniupnpc () {
-
-	if [ ! -z "$checkForRaspbian" ]; then
-
-		echo "$pretty_name detected. Installing Miniupnpc."
-
-		apt-get -qq install libminiupnpc-dev -y
-
-		echo "Miniupnpc was installed."
-
-	fi
-
-}
-
 install_lynx () {
 
 	echo "$pretty_name detected. Installing Lynx."
 
-	apt-get -qq install autoconf autotools-dev automake bsdmainutils bzip2 cmake curl nano htop g++ gcc git git-core pkg-config build-essential libtool libncurses5-dev software-properties-common libssl1.0.0-dev libboost-all-dev libminiupnpc-dev libevent-dev -y
+	apt-get -qq install autoconf autotools-dev automake bsdmainutils bzip2 cmake curl nano htop g++ gcc git git-core pkg-config build-essential libtool libncurses5-dev software-properties-common libssl1.0-dev libboost-all-dev libminiupnpc-dev libevent-dev -y
 
 	rrpcuser="$(shuf -i 1000000000-3999999999 -n 1)$(shuf -i 1000000000-3999999999 -n 1)$(shuf -i 1000000000-3999999999 -n 1)"
 
@@ -317,32 +294,23 @@ install_lynx () {
 
 	rm -rf /root/lynx/
 
+	rm -rf /root/lynx/db4 && mkdir -p /root/lynx/db4 && cd /root/lynx/ # If the Berkeley DB directory already exists then purge it and it's contents, recreate it.
+	wget http://download.oracle.com/berkeley-db/db-4.8.30.NC.tar.gz # Grab 4.8 of Berkeley DB to compile.
+	tar -xzf db-4.8.30.NC.tar.gz && cd db-4.8.30.NC/build_unix/ # Pull it apart and hop into the directory we need.
+	../dist/configure --enable-cxx --disable-shared --with-pic --prefix=/root/lynx/db4 # Do some prep work.
+	make && make install # Compile Berkeley DB 4.8 so we can include it in the Lynx compile below.
+
+
 	git clone -b "$branch" https://github.com/getlynx/Lynx.git /root/lynx/
 
 	# Now that the Berkeley DB is installed, let's jump to the lynx directory and finish the
 	# configure statement WITH the Berkeley DB parameters included.
 
-	cd /root/lynx/
+	cd /root/lynx/ && ./autogen.sh &> /dev/null
 
-	./autogen.sh
+	./configure --enable-cxx --without-gui --disable-shared --disable-tests --disable-bench
 
-	# If it's a Pi device then set up the uPNP arguments.
-
-	if [ ! -z "$checkForRaspbian" ]; then
-
-		./configure --enable-cxx --without-gui --disable-shared --with-miniupnpc --enable-upnp-default --disable-tests --disable-bench
-
-		make --quiet
-		make install
-
-	else
-
-		./configure --enable-cxx --without-gui --disable-shared --disable-tests --disable-bench
-
-		make --quiet
-		make install
-
-	fi
+	make install
 
 	# The .lynx dir must exist for the bootstrap and lynx.conf to be placed in it.
 
@@ -753,7 +721,6 @@ else
 	disable_bluetooth
 	/root/LynxCI/installers/account.sh
 	install_portcheck
-	install_miniupnpc
 	install_lynx
 	/root/LynxCI/installers/nginx.sh
 	setup_nginx
