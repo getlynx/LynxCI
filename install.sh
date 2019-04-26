@@ -5,23 +5,21 @@ branch="master" # The master branch contains the most recent code. You can switc
 [ "$enviro" = "mainnet" ] && { rpcport="9332"; echo "The mainnet environment rpcport is set to 9332."; } # This is the netowork port for RPC communication with clients.
 [ "$enviro" = "testnet" ] && { port="44566"; echo "The testnet environment port is set to 44566."; } # The Lynx network uses this port when peers talk to each other.
 [ "$enviro" = "testnet" ] && { rpcport="19335"; echo "The testnet environment rpcport is set to 19335."; } # This is the netowork port for RPC communication with clients.
-apt-get update -y &> /dev/null # Before we begin, we need to update the local repo's. For now, the update is all we need and the device will still function properly.
-apt-get upgrade -y &> /dev/null # Now that certain packages that might bring an interactive prompt are removed, let's do an upgrade.
-apt-get remove -y apache2 pi-bluetooth postfix &> /dev/null
-apt-get install -y autoconf automake build-essential bzip2 curl fail2ban g++ gcc git git-core htop libboost-all-dev libcurl4-openssl-dev \
-libevent-dev libgmp-dev libjansson-dev libminiupnpc-dev libncurses5-dev libssl-dev libtool libz-dev logrotate make nano pkg-config \
-software-properties-common sudo unzip &> /dev/null
+apt-get update -y # Before we begin, we need to update the local repo's. For now, the update is all we need and the device will still function properly.
+apt-get remove -y apache2 pi-bluetooth postfix
+apt-get upgrade -y # Now that certain packages that might bring an interactive prompt are removed, let's do an upgrade.
+apt-get install -y autoconf automake build-essential bzip2 curl fail2ban g++ gcc git git-core htop libboost-all-dev libcurl4-openssl-dev libevent-dev libgmp-dev libjansson-dev libminiupnpc-dev libncurses5-dev libssl-dev libtool libz-dev logrotate make nano pkg-config software-properties-common sudo unzip
 echo "Required system packages have been installed."
-apt-get autoremove -y &> /dev/null # Time for some cleanup work.
+apt-get autoremove -y # Time for some cleanup work.
 rpcuser="$(shuf -i 1000000000-3999999999 -n 1)$(shuf -i 1000000000-3999999999 -n 1)$(shuf -i 1000000000-3999999999 -n 1)" # Lets generate some RPC credentials for this node.
 rpcpass="$(shuf -i 1000000000-3999999999 -n 1)$(shuf -i 1000000000-3999999999 -n 1)$(shuf -i 1000000000-3999999999 -n 1)" # Lets generate some RPC credentials for this node.
 isPi="0" && [ "$(cat /proc/cpuinfo | grep 'Revision')" != "" ] && { isPi="1"; echo "The target device is a Raspberry Pi."; } # Default to 0. If the value is 1, then we know the target device is a Pi.
-[ "$enviro" = "mainnet" -a "$isPi" = "1" ] && name="lynxpi$(shuf -i 200000000-999999999 -n 1)" # If the device is a Pi, the "pi" string is appended.
+[ "$enviro" = "mainnet" -a "$isPi" = "1" ] && name="lynxpi$(shuf -i 200000000-999999999 -n 1)" # If the device is a Pi, the name is appended.
 [ "$enviro" = "mainnet" -a "$isPi" = "0" ] && name="lynx$(shuf -i 200000000-999999999 -n 1)" # If he device is running mainnet then the node id starts with 2-9.
-[ "$enviro" = "testnet" -a "$isPi" = "1" ] && name="lynxpi$(shuf -i 100000000-199999999 -n 1)" # If the device is a Pi, the "pi" string is appended.
+[ "$enviro" = "testnet" -a "$isPi" = "1" ] && name="lynxpi$(shuf -i 100000000-199999999 -n 1)" # If the device is a Pi, the name is appended.
 [ "$enviro" = "testnet" -a "$isPi" = "0" ] && name="lynx$(shuf -i 100000000-199999999 -n 1)" # If he device is running testnet then the node id starts with 1.
-[ "$isPi" = "1" ] && sed -i '/pi3-disable-bt/d' /boot/config.txt # Lets not assume that an entry doesn't already exist on the Pi, so let's purge any preexisting bluetooth variables.
-[ "$isPi" = "1" ] && echo "dtoverlay=pi3-disable-bt" >> /boot/config.txt # Now, let's append the variable and value to the end of the file for the Pi.
+[ "$isPi" = "1" ] && sed -i '/pi3-disable-bt/d' /boot/config.txt # Lets not assume that an entry already exists on the Pi, so purge any preexisting bluetooth variables.
+[ "$isPi" = "1" ] && echo "dtoverlay=pi3-disable-bt" >> /boot/config.txt # Now, append the variable and value to the end of the file for the Pi.
 
 # We are inspecting the local operating system and extracting the full name so we know the
 # unique flavor. In the rest of the script we have various changes that are dedicated to
@@ -36,7 +34,7 @@ pretty_name=`cat /etc/os-release | egrep '^PRETTY_NAME=' | cut -d= -f2 -d'"'`
 # script can run as long as it needs without concern another crontab might start and withdraw
 # reseources.
 
-crontab -r &> /dev/null
+crontab -r
 
 manage_swap () {
 
