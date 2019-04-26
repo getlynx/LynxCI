@@ -10,7 +10,8 @@ apt-get upgrade -y &> /dev/null # Now that certain packages that might bring an 
 apt-get remove -y apache2 pi-bluetooth postfix &> /dev/null
 apt-get install -y autoconf automake build-essential bzip2 curl fail2ban g++ gcc git git-core htop libboost-all-dev libcurl4-openssl-dev \
 libevent-dev libgmp-dev libjansson-dev libminiupnpc-dev libncurses5-dev libssl-dev libtool libz-dev logrotate make nano pkg-config \
-software-properties-common sudo unzip &> /dev/null && echo "Required system packages have been installed."
+software-properties-common sudo unzip &> /dev/null
+echo "Required system packages have been installed."
 apt-get autoremove -y &> /dev/null # Time for some cleanup work.
 rpcuser="$(shuf -i 1000000000-3999999999 -n 1)$(shuf -i 1000000000-3999999999 -n 1)$(shuf -i 1000000000-3999999999 -n 1)" # Lets generate some RPC credentials for this node.
 rpcpass="$(shuf -i 1000000000-3999999999 -n 1)$(shuf -i 1000000000-3999999999 -n 1)$(shuf -i 1000000000-3999999999 -n 1)" # Lets generate some RPC credentials for this node.
@@ -20,24 +21,20 @@ isPi="0" && [ "$(cat /proc/cpuinfo | grep 'Revision')" != "" ] && { isPi="1"; ec
 [ "$enviro" = "testnet" -a "$isPi" = "1" ] && name="lynxpi$(shuf -i 100000000-199999999 -n 1)" # If the device is a Pi, the "pi" string is appended.
 [ "$enviro" = "testnet" -a "$isPi" = "0" ] && name="lynx$(shuf -i 100000000-199999999 -n 1)" # If he device is running testnet then the node id starts with 1.
 
-detect_os () {
+# We are inspecting the local operating system and extracting the full name so we know the
+# unique flavor. In the rest of the script we have various changes that are dedicated to
+# certain operating system versions.
 
-	# We are inspecting the local operating system and extracting the full name so we know the
-	# unique flavor. In the rest of the script we have various changes that are dedicated to
-	# certain operating system versions.
+version_id=`cat /etc/os-release | egrep '^VERSION_ID=' | cut -d= -f2 -d'"'`
 
-	version_id=`cat /etc/os-release | egrep '^VERSION_ID=' | cut -d= -f2 -d'"'`
+pretty_name=`cat /etc/os-release | egrep '^PRETTY_NAME=' | cut -d= -f2 -d'"'`
 
-	pretty_name=`cat /etc/os-release | egrep '^PRETTY_NAME=' | cut -d= -f2 -d'"'`
+# Since we are starting the install of LynxCI, let's remove the crontab that started this
+# process so we don't accidently run it twice simultaneously. That could get ugly. Now this
+# script can run as long as it needs without concern another crontab might start and withdraw
+# reseources.
 
-	# Since we are starting the install of LynxCI, let's remove the crontab that started this
-	# process so we don't accidently run it twice simultaneously. That could get ugly. Now this
-	# script can run as long as it needs without concern another crontab might start and withdraw
-	# reseources.
-
-	crontab -r &> /dev/null
-
-}
+crontab -r &> /dev/null
 
 manage_swap () {
 
@@ -717,7 +714,6 @@ else
 
 	echo "Starting installation of LynxCI."
 
-	detect_os
 	/root/LynxCI/installers/nginx.sh
 	set_network
 	manage_swap
