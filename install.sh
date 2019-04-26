@@ -286,7 +286,7 @@ install_lynx () {
 
 	echo "$pretty_name detected. Installing Lynx."
 
-	apt-get -qq install autoconf autotools-dev automake bsdmainutils bzip2 cmake curl nano htop g++ gcc git git-core pkg-config build-essential libtool libncurses5-dev software-properties-common libssl1.0-dev libboost-all-dev libminiupnpc-dev libevent-dev -y
+	apt-get -qq install autoconf automake bzip2 curl nano htop g++ gcc git git-core pkg-config build-essential libtool libncurses5-dev software-properties-common libssl-dev libboost-all-dev libminiupnpc-dev libevent-dev -y
 
 	rrpcuser="$(shuf -i 1000000000-3999999999 -n 1)$(shuf -i 1000000000-3999999999 -n 1)$(shuf -i 1000000000-3999999999 -n 1)"
 
@@ -294,23 +294,56 @@ install_lynx () {
 
 	rm -rf /root/lynx/
 
-	rm -rf /root/lynx/db4 && mkdir -p /root/lynx/db4 && cd /root/lynx/ # If the Berkeley DB directory already exists then purge it and it's contents, recreate it.
-	wget http://download.oracle.com/berkeley-db/db-4.8.30.NC.tar.gz # Grab 4.8 of Berkeley DB to compile.
-	tar -xzf db-4.8.30.NC.tar.gz && cd db-4.8.30.NC/build_unix/ # Pull it apart and hop into the directory we need.
-	../dist/configure --enable-cxx --disable-shared --with-pic --prefix=/root/lynx/db4 # Do some prep work.
-	make && make install # Compile Berkeley DB 4.8 so we can include it in the Lynx compile below.
-
-
 	git clone -b "$branch" https://github.com/getlynx/Lynx.git /root/lynx/
+
+	# We will need this db4 directory soon so let's delete and create it.
+
+	rm -rf /root/lynx/db4 && mkdir -p /root/lynx/db4
+
+	# We need a very specific version of the Berkeley DB for the wallet to function properly.
+
+	cd /root/lynx/
+
+	wget http://download.oracle.com/berkeley-db/db-4.8.30.NC.tar.gz
+
+	# Now that we have the tarbar file, lets unpack it and jump to a sub directory within it.
+
+	tar -xzf db-4.8.30.NC.tar.gz
+
+	cd db-4.8.30.NC/build_unix/
+
+	# Configure and run the make file to compile the Berkeley DB source.
+
+	../dist/configure --enable-cxx --disable-shared --with-pic --prefix=/root/lynx/db4
+
+	make --quiet install
 
 	# Now that the Berkeley DB is installed, let's jump to the lynx directory and finish the
 	# configure statement WITH the Berkeley DB parameters included.
 
-	cd /root/lynx/ && ./autogen.sh &> /dev/null
+	cd /root/lynx/
 
-	./configure --enable-cxx --without-gui --disable-shared --disable-tests --disable-bench
+	./autogen.sh
 
-	make install
+	# If it's a Pi device then set up the uPNP arguments.
+
+	if [ ! -z "$checkForRaspbian" ]; then
+
+		cd /root/lynx/
+
+		./configure LDFLAGS="-L/root/lynx/db4/lib/" CPPFLAGS="-I/root/lynx/db4/include/ -O2" --enable-cxx --without-gui --disable-shared --with-miniupnpc --enable-upnp-default --disable-tests --disable-bench
+
+		make --quiet
+
+	else
+
+		cd /root/lynx/
+
+		./configure LDFLAGS="-L/root/lynx/db4/lib/" CPPFLAGS="-I/root/lynx/db4/include/ -O2" --enable-cxx --without-gui --disable-shared --disable-tests --disable-bench
+
+		make --quiet
+
+	fi
 
 	# The .lynx dir must exist for the bootstrap and lynx.conf to be placed in it.
 
