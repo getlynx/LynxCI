@@ -1,4 +1,5 @@
 #!/bin/bash
+echo "Thanks for starting the installation of the Lynx Cryptocurrency Installer (LynxCI)."
 enviro="mainnet" # For most rollouts, the two options are mainnet or testnet.
 branch="master" # The master branch contains the most recent code. You can switch out an alternate branch name for testing, but beware, branches may not operate as expected.
 [ "$enviro" = "mainnet" ] && { port="22566"; echo "The mainnet environment port is set to 22566."; } # The Lynx network uses this port when peers talk to each other.
@@ -15,14 +16,14 @@ rpcuser="$(shuf -i 1000000000-3999999999 -n 1)$(shuf -i 1000000000-3999999999 -n
 rpcpass="$(shuf -i 1000000000-3999999999 -n 1)$(shuf -i 1000000000-3999999999 -n 1)$(shuf -i 1000000000-3999999999 -n 1)" # Lets generate some RPC credentials for this node.
 isPi="0" && [ "$(cat /proc/cpuinfo | grep 'Revision')" != "" ] && { isPi="1"; echo "The target device is a Raspberry Pi."; } # Default to 0. If the value is 1, then we know the target device is a Pi.
 [ "$enviro" = "mainnet" -a "$isPi" = "1" ] && name="lynxpi$(shuf -i 200000000-999999999 -n 1)" # If the device is a Pi, the name is appended.
-[ "$enviro" = "mainnet" -a "$isPi" = "0" ] && name="lynx$(shuf -i 200000000-999999999 -n 1)" # If he device is running mainnet then the node id starts with 2-9.
+[ "$enviro" = "mainnet" -a "$isPi" = "0" ] && name="lynx$(shuf -i 200000000-999999999 -n 1)" # If the device is running mainnet then the node id starts with 2-9.
 [ "$enviro" = "testnet" -a "$isPi" = "1" ] && name="lynxpi$(shuf -i 100000000-199999999 -n 1)" # If the device is a Pi, the name is appended.
-[ "$enviro" = "testnet" -a "$isPi" = "0" ] && name="lynx$(shuf -i 100000000-199999999 -n 1)" # If he device is running testnet then the node id starts with 1.
+[ "$enviro" = "testnet" -a "$isPi" = "0" ] && name="lynx$(shuf -i 100000000-199999999 -n 1)" # If the device is running testnet then the node id starts with 1.
 [ "$isPi" = "1" ] && sed -i '/pi3-disable-bt/d' /boot/config.txt # Lets not assume that an entry already exists on the Pi, so purge any preexisting bluetooth variables.
 [ "$isPi" = "1" ] && echo "dtoverlay=pi3-disable-bt" >> /boot/config.txt # Now, append the variable and value to the end of the file for the Pi.
 cat /etc/os-release # Display the target host operating system information.
 crontab -r # Purge the crontab that started this script so it doesn't run twice if the above code takes longer then 15 min to execute.
-echo "Starting installation of LynxCI."
+[ "$isPi" = "1" ] && { sed -i '/gpu_mem/d' /boot/config.txt; echo "gpu_mem=16" >> /boot/config.txt; echo "Pi GPU memory was reduced to 16MB on reboot."; }
 
 manage_swap () {
 
@@ -54,43 +55,7 @@ manage_swap () {
 
 	fi
 
-	# Only if the target device is a Pi, bump up the swap.
-
-	if [ "$isPi" = "1" ]; then
-
-		# On a Raspberry Pi, the default swap is 100MB. This is a little restrictive, so we are
-		# expanding it to a full 1GB of swap.
-
-		sed -i 's/CONF_SWAPSIZE=100/CONF_SWAPSIZE=2048/' /etc/dphys-swapfile
-
-		/etc/init.d/dphys-swapfile restart
-
-	fi
-
-}
-
-reduce_gpu_mem () {
-
-	# On the Pi, the default amount of gpu memory is set to be used with the GUI build. Instead
-	# we are going to set the amount of gpu memmory to a minimum due to the use of the Command
-	# Line Interface (CLI) that we are using in this build. This means we don't have a GUI here,
-	# we only use the CLI. So no need to allocate GPU ram to something that isn't being used. Let's
-	# assign the param below to the minimum value in the /boot/config.txt file.
-
-	if [ "$isPi" = "1" ]; then
-
-		# First, lets not assume that an entry doesn't already exist, so let's purge and preexisting
-		# gpu_mem variables from the respective file.
-
-		sed -i '/gpu_mem/d' /boot/config.txt
-
-		# Now, let's append the variable and value to the end of the file.
-
-		echo "gpu_mem=16" >> /boot/config.txt
-
-		echo "GPU memory was reduced to 16MB on reboot."
-
-	fi
+	[ "$isPi" = "1" ] && { sed -i 's/CONF_SWAPSIZE=100/CONF_SWAPSIZE=2048/' /etc/dphys-swapfile; /etc/init.d/dphys-swapfile restart; } # On a Raspberry Pi, the default swap is 100MB. This is a little restrictive, so we are expanding it to a full 2GB of swap.
 
 }
 
@@ -678,7 +643,6 @@ else
 	/root/LynxCI/installers/nginx.sh
 	set_network
 	manage_swap
-	reduce_gpu_mem
 	/root/LynxCI/installers/account.sh
 	install_portcheck
 	install_lynx
