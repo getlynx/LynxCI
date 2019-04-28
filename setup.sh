@@ -62,12 +62,12 @@ apt-get -qq remove -y postfix apache2 &> /dev/null
 
 # Now that certain packages that might bring an interactive prompt are removed, let's do an upgrade.
 
-#apt-get -qq upgrade -y &> /dev/null
+#apt-get -qq upgrade -y &> /dev/null # Sometimes the upgrade generates an interactive prompt. This is best handled manually depending on the VPS vendor.
 
 # We need to ensure we have git for the following step. Let's not assume we already ahve it. Also
 # added a few other tools as testing has revealed that some vendors didn't have them pre-installed.
 
-apt-get -qq install -y git git-core htop nano &> /dev/null
+apt-get -qq install -y htop nano &> /dev/null
 
 apt-get -qq autoremove -y &> /dev/null
 
