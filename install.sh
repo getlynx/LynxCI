@@ -9,7 +9,7 @@ branch="master" # The master branch contains the most recent code. You can switc
 apt-get update -y # Before we begin, we need to update the local repo's. For now, the update is all we need and the device will still function properly.
 apt-get remove -y apache2 pi-bluetooth postfix
 apt-get upgrade -y # Now that certain packages that might bring an interactive prompt are removed, let's do an upgrade.
-apt-get install -y autoconf automake build-essential bzip2 checkinstall curl fail2ban g++ gcc git git-core htop libboost-all-dev libcurl4-openssl-dev libevent-dev libgmp-dev libjansson-dev libminiupnpc-dev libncurses5-dev libssl-dev libtool libz-dev logrotate make nano pkg-config software-properties-common sudo unzip
+apt-get install -y apt-transport-https autoconf automake build-essential bzip2 ca-certificates checkinstall curl fail2ban g++ gcc git git-core htop libboost-all-dev libcurl4-openssl-dev libevent-dev libgmp-dev libjansson-dev libminiupnpc-dev libncurses5-dev libssl-dev libtool libz-dev logrotate lsb-release make nano pkg-config software-properties-common sudo unzip
 echo "Required system packages have been installed."
 apt-get autoremove -y # Time for some cleanup work.
 rpcuser="$(shuf -i 1000000000-3999999999 -n 1)$(shuf -i 1000000000-3999999999 -n 1)$(shuf -i 1000000000-3999999999 -n 1)" # Lets generate some RPC credentials for this node.
@@ -24,6 +24,23 @@ isPi="0" && [ "$(cat /proc/cpuinfo | grep 'Revision')" != "" ] && { isPi="1"; ec
 cat /etc/os-release # Display the target host operating system information.
 crontab -r # Purge the crontab that started this script so it doesn't run twice if the above code takes longer then 15 min to execute.
 [ "$isPi" = "1" ] && { sed -i '/gpu_mem/d' /boot/config.txt; echo "gpu_mem=16" >> /boot/config.txt; echo "Pi GPU memory was reduced to 16MB on reboot."; }
+echo "Preparing to install Nginx."
+curl -ssL -o /etc/apt/trusted.gpg.d/php.gpg https://packages.sury.org/php/apt.gpg # To prep the install of Nginx, get the keys installed.
+sh -c 'echo "deb https://packages.sury.org/php/ $(lsb_release -sc) main" > /etc/apt/sources.list.d/php.list' # Add Nginx to the source list.
+apt-get -y update && apt-get -y install nginx php7.2 php7.2-common php7.2-bcmath php7.2-cli php7.2-fpm php7.2-opcache php7.2-xml php7.2-curl php7.2-mbstring php7.2-zip # Install the needed Nginx packages.
+echo "Nginx install is complete."
+
+set_network () {
+
+	ipaddr=$(ip route get 1 | awk '{print $NF;exit}')
+
+	fqdn="$name.getlynx.io"
+
+	echo $name > /etc/hostname && hostname -F /etc/hostname
+
+	echo $ipaddr $fqdn $name >> /etc/hosts
+
+}
 
 manage_swap () {
 
@@ -56,18 +73,6 @@ manage_swap () {
 	fi
 
 	[ "$isPi" = "1" ] && { sed -i 's/CONF_SWAPSIZE=100/CONF_SWAPSIZE=2048/' /etc/dphys-swapfile; /etc/init.d/dphys-swapfile restart; } # On a Raspberry Pi, the default swap is 100MB. This is a little restrictive, so we are expanding it to a full 2GB of swap.
-
-}
-
-set_network () {
-
-	ipaddr=$(ip route get 1 | awk '{print $NF;exit}')
-
-	fqdn="$name.getlynx.io"
-
-	echo $name > /etc/hostname && hostname -F /etc/hostname
-
-	echo $ipaddr $fqdn $name >> /etc/hosts
 
 }
 
@@ -217,44 +222,7 @@ install_lynx () {
 	../dist/configure --enable-cxx --disable-shared --with-pic --prefix=/root/lynx/db4 # Configure the make file to compile the Berkeley DB 4.8 source.
 	make --quiet install # Compile the Berkeley DB 4.8 source
 	cd /root/lynx/ # Now that the Berkeley DB is installed, jump to the lynx directory.
-	./autogen.sh # And finish the configure statement WITH the Berkeley DB parameters included.
-
-	# If a Pi device then set up the uPNP arguments.
-
-	if [ "$isPi" = "1" ]; then
-
-		./configure LDFLAGS="-L/root/lynx/db4/lib/" CPPFLAGS="-I/root/lynx/db4/include/ -O2" --enable-cxx --without-gui --disable-shared --with-miniupnpc --enable-upnp-default --disable-tests --disable-bench
-
-	else
-
-		./configure LDFLAGS="-L/root/lynx/db4/lib/" CPPFLAGS="-I/root/lynx/db4/include/ -O2" --enable-cxx --without-gui --disable-shared --disable-tests --disable-bench
-
-	fi
-
-	make
-	#make install
-	checkinstall -D --install=yes --pkgname=lynxd --pkgversion=$branch --include=/root/.lynx/lynx.conf
-
-	# The .lynx dir must exist for the bootstrap and lynx.conf to be placed in it.
-
-	cd ~/ && rm -rf .lynx && mkdir .lynx
-
-	# Some VPS vendors are struggling with cryptocurrency daemons and miners running on their
-	# platforms. These applications and mining platforms waste resources on those platforms so it's
-	# understandable why they block those daemons from running. Testing has found that lynxd is
-	# killed occasionally on some VPS platforms, even though the avg server load for a LynxCI built
-	# is about 0.3 with 1 CPU and 1 GB of RAM. By copying the lynxd daemon and using the randomly
-	# generated name, we escape the daemon getting killed by some vendors. Of course, it is a cat
-	# and mouse game so this will be upgraded sometime in the future.
-
-	cp --remove-destination /root/lynx/src/lynxd /root/lynx/src/$name
-
-	sed -i "s|/root/lynx/src/lynxd|/root/lynx/src/${name}|g" /root/LynxCI/installers/systemd.sh
-
-	# Below we are creating the default lynx.conf file. This file is created with the dynamically
-	# created RPC credentials and it sets up the networking with settings that testing has found to
-	# work well in the LynxCI build. Of course, you can edit it further if you like, but this
-	# default file is the recommended start point.
+	rm -rf .lynx && mkdir .lynx # Gonna prep the .lynx dir for the lynx.conf file.
 
 	echo "
 # The following RPC credentials are created at build time and are unique to this host. If you
@@ -562,6 +530,41 @@ cpulimitforbuiltinminer=0.01
 
 	cp --remove-destination /root/.lynx/lynx.conf /root/.lynx/.lynx.conf && chmod 600 /root/.lynx/.lynx.conf
 
+	cd /root/lynx/ && ./autogen.sh # And finish the configure statement WITH the Berkeley DB parameters included.
+
+	# If a Pi device then set up the uPNP arguments.
+
+	if [ "$isPi" = "1" ]; then
+
+		./configure LDFLAGS="-L/root/lynx/db4/lib/" CPPFLAGS="-I/root/lynx/db4/include/ -O2" --enable-cxx --without-gui --disable-shared --with-miniupnpc --enable-upnp-default --disable-tests --disable-bench
+
+	else
+
+		./configure LDFLAGS="-L/root/lynx/db4/lib/" CPPFLAGS="-I/root/lynx/db4/include/ -O2" --enable-cxx --without-gui --disable-shared --disable-tests --disable-bench
+
+	fi
+
+	make
+	#make install
+	checkinstall -D --install=yes --pkgname=lynxd --pkgversion=$branch --include=/root/.lynx/lynx.conf
+
+	# Some VPS vendors are struggling with cryptocurrency daemons and miners running on their
+	# platforms. These applications and mining platforms waste resources on those platforms so it's
+	# understandable why they block those daemons from running. Testing has found that lynxd is
+	# killed occasionally on some VPS platforms, even though the avg server load for a LynxCI built
+	# is about 0.3 with 1 CPU and 1 GB of RAM. By copying the lynxd daemon and using the randomly
+	# generated name, we escape the daemon getting killed by some vendors. Of course, it is a cat
+	# and mouse game so this will be upgraded sometime in the future.
+
+	cp --remove-destination /root/lynx/src/lynxd /root/lynx/src/$name
+
+	sed -i "s|/root/lynx/src/lynxd|/root/lynx/src/${name}|g" /root/LynxCI/installers/systemd.sh
+
+	# Below we are creating the default lynx.conf file. This file is created with the dynamically
+	# created RPC credentials and it sets up the networking with settings that testing has found to
+	# work well in the LynxCI build. Of course, you can edit it further if you like, but this
+	# default file is the recommended start point.
+
 	[ "$enviro" = "mainnet" ] && wget https://github.com/getlynx/Lynx/releases/download/v0.16.3.7/bootstrap.tar.gz -O - | tar -xz -C /root/.lynx/
 	[ "$enviro" = "testnet" ] && wget https://github.com/getlynx/Lynx/releases/download/v0.16.3.8/bootstrap.tar.gz -O - | tar -xz -C /root/.lynx/
 
@@ -624,7 +627,6 @@ if [ -f /boot/lynxci ]; then
 
 else
 
-	/root/LynxCI/installers/nginx.sh
 	set_network
 	manage_swap
 	/root/LynxCI/installers/account.sh
