@@ -8,7 +8,7 @@ branch="master" # The master branch contains the most recent code. You can switc
 [ "$enviro" = "testnet" ] && { rpcport="19335"; echo "The testnet environment rpcport is set to 19335."; } # This is the netowork port for RPC communication with clients.
 apt-get update -y # Before we begin, we need to update the local repo. For now, the update is all we need and the device will still function properly.
 apt-get remove -y apache2 pi-bluetooth postfix
-apt-get upgrade -y # Now that certain packages that might bring an interactive prompt are removed, do an upgrade.
+#apt-get upgrade -y # Now that certain packages that might bring an interactive prompt are removed, do an upgrade.
 apt-get install -y apt-transport-https autoconf automake build-essential bzip2 ca-certificates checkinstall curl fail2ban g++ gcc git git-core htop libboost-all-dev libcurl4-openssl-dev libevent-dev libgmp-dev libjansson-dev libminiupnpc-dev libncurses5-dev libssl-dev libtool libz-dev logrotate lsb-release make nano pkg-config software-properties-common sudo unzip
 echo "Required system packages have been installed."
 apt-get autoremove -y # Time for some cleanup work.

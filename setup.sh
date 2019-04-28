@@ -62,7 +62,7 @@ apt-get -qq remove -y postfix apache2 &> /dev/null
 
 # Now that certain packages that might bring an interactive prompt are removed, let's do an upgrade.
 
-apt-get -qq upgrade -y &> /dev/null
+#apt-get -qq upgrade -y &> /dev/null
 
 # We need to ensure we have git for the following step. Let's not assume we already ahve it. Also
 # added a few other tools as testing has revealed that some vendors didn't have them pre-installed.
