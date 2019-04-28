@@ -6,9 +6,9 @@ branch="master" # The master branch contains the most recent code. You can switc
 [ "$enviro" = "mainnet" ] && { rpcport="9332"; echo "The mainnet environment rpcport is set to 9332."; } # This is the netowork port for RPC communication with clients.
 [ "$enviro" = "testnet" ] && { port="44566"; echo "The testnet environment port is set to 44566."; } # The Lynx network uses this port when peers talk to each other.
 [ "$enviro" = "testnet" ] && { rpcport="19335"; echo "The testnet environment rpcport is set to 19335."; } # This is the netowork port for RPC communication with clients.
-apt-get update -y # Before we begin, we need to update the local repo's. For now, the update is all we need and the device will still function properly.
+apt-get update -y # Before we begin, we need to update the local repo. For now, the update is all we need and the device will still function properly.
 apt-get remove -y apache2 pi-bluetooth postfix
-apt-get upgrade -y # Now that certain packages that might bring an interactive prompt are removed, let's do an upgrade.
+apt-get upgrade -y # Now that certain packages that might bring an interactive prompt are removed, do an upgrade.
 apt-get install -y apt-transport-https autoconf automake build-essential bzip2 ca-certificates checkinstall curl fail2ban g++ gcc git git-core htop libboost-all-dev libcurl4-openssl-dev libevent-dev libgmp-dev libjansson-dev libminiupnpc-dev libncurses5-dev libssl-dev libtool libz-dev logrotate lsb-release make nano pkg-config software-properties-common sudo unzip
 echo "Required system packages have been installed."
 apt-get autoremove -y # Time for some cleanup work.
@@ -221,8 +221,7 @@ install_lynx () {
 	tar -xzf db-4.8.30.NC.tar.gz && cd db-4.8.30.NC/build_unix/ # Unpack the tarball and hop into the directory.
 	../dist/configure --enable-cxx --disable-shared --with-pic --prefix=/root/lynx/db4 # Configure the make file to compile the Berkeley DB 4.8 source.
 	make --quiet install # Compile the Berkeley DB 4.8 source
-	cd /root/lynx/ # Now that the Berkeley DB is installed, jump to the lynx directory.
-	rm -rf .lynx && mkdir .lynx # Gonna prep the .lynx dir for the lynx.conf file.
+	rm -rf /root/.lynx && mkdir -p /root/.lynx # Gonna prep the .lynx dir for the lynx.conf file.
 
 	echo "
 # The following RPC credentials are created at build time and are unique to this host. If you
