@@ -9,7 +9,7 @@ branch="master" # The master branch contains the most recent code. You can switc
 apt-get update -y # Before we begin, we need to update the local repo's. For now, the update is all we need and the device will still function properly.
 apt-get remove -y apache2 pi-bluetooth postfix
 apt-get upgrade -y # Now that certain packages that might bring an interactive prompt are removed, let's do an upgrade.
-apt-get install -y autoconf automake build-essential bzip2 curl fail2ban g++ gcc git git-core htop libboost-all-dev libcurl4-openssl-dev libevent-dev libgmp-dev libjansson-dev libminiupnpc-dev libncurses5-dev libssl-dev libtool libz-dev logrotate make nano pkg-config software-properties-common sudo unzip
+apt-get install -y autoconf automake build-essential bzip2 checkinstall curl fail2ban g++ gcc git git-core htop libboost-all-dev libcurl4-openssl-dev libevent-dev libgmp-dev libjansson-dev libminiupnpc-dev libncurses5-dev libssl-dev libtool libz-dev logrotate make nano pkg-config software-properties-common sudo unzip
 echo "Required system packages have been installed."
 apt-get autoremove -y # Time for some cleanup work.
 rpcuser="$(shuf -i 1000000000-3999999999 -n 1)$(shuf -i 1000000000-3999999999 -n 1)$(shuf -i 1000000000-3999999999 -n 1)" # Lets generate some RPC credentials for this node.
@@ -190,19 +190,11 @@ setup_nginx () {
 
     " > /etc/nginx/sites-available/default
 
-    ln -s /etc/nginx/sites-available/default /etc/nginx/sites-enabled/
-
-    sed -i 's/;cgi.fix_pathinfo=1/cgi.fix_pathinfo=0/' /etc/php/7.2/fpm/php.ini
-
-    # The first command stops nginx and the second makes sure it doesn't start after a reboot.
-
-	systemctl stop nginx && systemctl disable nginx
-
-	# The first command stops PHP-FPM and the second makes sure it doesn't start after a reboot.
-
-	systemctl stop php7.2-fpm && systemctl disable php7.2-fpm
-
-	echo "Nginx is configured."
+    ln -s /etc/nginx/sites-available/default /etc/nginx/sites-enabled/           # Manually creating the site profile link in Nginx.
+    sed -i 's/;cgi.fix_pathinfo=1/cgi.fix_pathinfo=0/' /etc/php/7.2/fpm/php.ini  # Normal cgi pathinfo fix.
+	systemctl stop nginx && systemctl disable nginx && echo "Nginx service was gracefully stopped and also disabled on boot."
+	systemctl stop php7.2-fpm && systemctl disable php7.2-fpm && echo "PHP-FPM service was gracefully stopped and also disabled on boot."
+	echo "Nginx is installed, but it's disabled on boot."
 
 	rm -rf /var/www/html/
 
@@ -224,10 +216,10 @@ install_lynx () {
 	tar -xzf db-4.8.30.NC.tar.gz && cd db-4.8.30.NC/build_unix/ # Unpack the tarball and hop into the directory.
 	../dist/configure --enable-cxx --disable-shared --with-pic --prefix=/root/lynx/db4 # Configure the make file to compile the Berkeley DB 4.8 source.
 	make --quiet install # Compile the Berkeley DB 4.8 source
-	cd /root/lynx/ # Now that the Berkeley DB is installed, let's jump to the lynx directory...
+	cd /root/lynx/ # Now that the Berkeley DB is installed, jump to the lynx directory.
 	./autogen.sh # And finish the configure statement WITH the Berkeley DB parameters included.
 
-	# If it's a Pi device then set up the uPNP arguments.
+	# If a Pi device then set up the uPNP arguments.
 
 	if [ "$isPi" = "1" ]; then
 
@@ -239,7 +231,9 @@ install_lynx () {
 
 	fi
 
-	make --quiet
+	make
+	make install
+	#checkinstall -D --install=yes --pkgname=lynxd --pkgversion=$branch --include=/root/.lynx/lynx.conf
 
 	# The .lynx dir must exist for the bootstrap and lynx.conf to be placed in it.
 
@@ -256,16 +250,6 @@ install_lynx () {
 	cp --remove-destination /root/lynx/src/lynxd /root/lynx/src/$name
 
 	sed -i "s|/root/lynx/src/lynxd|/root/lynx/src/${name}|g" /root/LynxCI/installers/systemd.sh
-
-	# If this is a testnet node, the debug.log file is in a different directory. Lets be sure to
-	#truncate that file too, otherwise the drive space will fill up.
-
-	if [ "$rpcport" = "19335" ]; then
-
-		sed -i "s|debug.log|testnet4/debug.log|g" /root/LynxCI/stop.sh
-		sed -i "s|debug.log|testnet4/debug.log|g" /root/LynxCI/start.sh
-
-	fi
 
 	# Below we are creating the default lynx.conf file. This file is created with the dynamically
 	# created RPC credentials and it sets up the networking with settings that testing has found to
