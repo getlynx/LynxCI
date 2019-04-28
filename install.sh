@@ -232,8 +232,8 @@ install_lynx () {
 	fi
 
 	make
-	make install
-	#checkinstall -D --install=yes --pkgname=lynxd --pkgversion=$branch --include=/root/.lynx/lynx.conf
+	#make install
+	checkinstall -D --install=yes --pkgname=lynxd --pkgversion=$branch --include=/root/.lynx/lynx.conf
 
 	# The .lynx dir must exist for the bootstrap and lynx.conf to be placed in it.
 
