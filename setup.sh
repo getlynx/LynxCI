@@ -29,7 +29,7 @@ printf "The business rules and energy requirements of mining creates an over-rel
 
 printf "GLOBALLY SUSTAINABLE NETWORK\n\n"
 
-printf "The Lynx code discourages high-volume mining rigs because the code\npurposefully lacks incentives to mine it for profit. As a result, the entire Lynx network is\ndesigned to operate on a collaboration of low power devices that anyone can run, resulting in\na collective global mining cost of only dollars a day.\n\n"
+printf "The Lynx code discourages high-volume mining rigs because the code purposefully lacks incentives to\nmine it for profit. As a result, the entire Lynx network is designed to operate on a collaboration\nof low power devices that anyone can run, resulting in a collective global mining cost of only\ndollars a day.\n\n"
 
 printf "Lynx is 'CRYPTOCURRENCY WITHOUT THE CLIMATE CHANGE'\n\n\n\n\n"
 
