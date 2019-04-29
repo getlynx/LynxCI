@@ -67,7 +67,7 @@ apt-get -qq remove -y postfix apache2 &> /dev/null
 # We need to ensure we have git for the following step. Let's not assume we already ahve it. Also
 # added a few other tools as testing has revealed that some vendors didn't have them pre-installed.
 
-apt-get -qq install -y git git-core &> /dev/null
+apt-get -qq install -y git git-core nano &> /dev/null
 
 apt-get -qq autoremove -y &> /dev/null
 
