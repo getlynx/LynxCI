@@ -46,7 +46,7 @@ if [ -z "$checkForRaspbian" ]; then
 	echo "locales locales/locales_to_be_generated multiselect en_US.UTF-8 UTF-8" | debconf-set-selections
 	rm -rf "/etc/locale.gen"
 	dpkg-reconfigure --frontend noninteractive locales &> /dev/null
-	echo "Locale for the target host was set to en_US.UTF-8 UTF-8."
+	#echo "Locale for the target host was set to en_US.UTF-8 UTF-8."
 
 fi
 
@@ -77,7 +77,7 @@ rm -rf /root/LynxCI/
 
 # We are downloading the latest package of build instructions from github.
 
-git clone https://github.com/getlynx/LynxCI.git /root/LynxCI/
+git clone https://github.com/getlynx/LynxCI.git /root/LynxCI/ &> /dev/null
 
 # We cant assume the file permissions will be right, so lets reset them.
 
