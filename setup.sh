@@ -77,7 +77,7 @@ rm -rf /root/LynxCI/
 
 # We are downloading the latest package of build instructions from github.
 
-git clone https://github.com/getlynx/LynxCI.git /root/LynxCI/ &> /dev/null
+git clone --quiet https://github.com/getlynx/LynxCI.git /root/LynxCI/
 
 # We cant assume the file permissions will be right, so lets reset them.
 
