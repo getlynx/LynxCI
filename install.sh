@@ -484,29 +484,19 @@ mineraddress=msNfqB4G4r9iV4jBQZmaQBbkbPcVELBdTs
 mineraddress=mmhAk3VqPJqrsv1utCZGWKNnXWE52pgAxt
 mineraddress=mxfdwQjFsBmTFC2RP5CeqQLNfP3rA9R7Cj
 
-listen=1        # It is highly unlikely you need to change any of the following values unless you are tinkering
-daemon=1        # with the node. If you decide to tinker, know that a backup of this file already exists 
-port=$port      # as /root/.lynx/.lynx.conf
-rpcworkqueue=64
-listenonion=0
-upnp=1
-dbcache=450
-txindex=1
+listen=1                      # It is highly unlikely you need to change any of the following values unless you are tinkering with the node. If you decide to
+daemon=1                      # tinker, know that a backup of this file already exists as /root/.lynx/.lynx.conf.
+port=$port
+rpcworkqueue=64               # Our exchange and SPV wallet partners might want to disable the built in miner. This can be easily done with the 'disablebuiltinminer'
+listenonion=0                 # parameter below. As for our miners who are looking to tune their devices, we recommend the default 0.25 (25%), but if you insist on
+upnp=1                        # increasing the 'cpulimitforbuiltinminer' amount, we recommend you not tune it past using 50% of your CPU load. Remember, with HPoW
+dbcache=450                   # increasing the mining speed does not mean you will win more blocks. You are are just generating heat, not blocks. Also, if you are 
+txindex=1                     # using a VPS, increasing 'cpulimitforbuiltinminer' too high might get you banned from the the VPS vendors platform. You've been warned.
 host=$name
 testnet=0
-
-# Our exchange and SPV wallet partners might want to disable the built in miner. This can be
-# easily done with the 'disablebuiltinminer' parameter below. As for our miners who are looking
-# to tune their devices, we recommend the default 0.01 (1%), but if you insist on increasing the
-# amount, we recommend you not tune it past using 50% of your CPU load. This often means setting
-# the 'cpulimitforbuiltinminer' value no greater then 0.3 (30%). Remember, with HPoW, increasing
-# the mining speed does not mean you will win more blocks. You are are just generating heat,
-# not blocks, if you increase the 'cpulimitforbuiltinminer' value. Also, if you are using a VPS
-# like AWS or Linode, your node will get banned and shut down if they detect mining activity.
-# Best to keep it low.
-
 disablebuiltinminer=0
-cpulimitforbuiltinminer=0.01
+cpulimitforbuiltinminer=0.25
+
 " > /root/.lynx/lynx.conf
 
 	[ "$enviro" = "testnet" ] && { sed -i 's|testnet=0|testnet=1|g' /root/.lynx/lynx.conf; echo "This node is operating on the testnet environment and it's now set in the lynx.conf file."; }
