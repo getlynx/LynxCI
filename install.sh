@@ -493,6 +493,7 @@ upnp=1                        # increasing the 'cpulimitforbuiltinminer' amount,
 dbcache=450                   # increasing the mining speed does not mean you will win more blocks. You are are just generating heat, not blocks. Also, if you are 
 txindex=1                     # using a VPS, increasing 'cpulimitforbuiltinminer' too high might get you banned from the the VPS vendors platform. You've been warned.
 host=$name
+maxmempool=100
 testnet=0
 disablebuiltinminer=0
 cpulimitforbuiltinminer=0.25
@@ -506,6 +507,7 @@ cpulimitforbuiltinminer=0.25
 	[ "$enviro" = "testnet" ] && { sed -i '/mineraddress=K/d' /root/.lynx/lynx.conf; echo "Removed default mainnet mining addresses (K) from the lynx.conf file."; }
 	[ "$enviro" = "mainnet" ] && { sed -i '/addnode=test/d' /root/.lynx/lynx.conf; echo "Removed default testnet nodes from the addnode list in the lynx.conf file."; }
 	[ "$enviro" = "testnet" ] && { sed -i '/addnode=node/d' /root/.lynx/lynx.conf; echo "Removed default mainnet nodes from the addnode list in the lynx.conf file."; }
+	[ "$isPi" = "1" ] && sed -i "s|maxmempool=100|maxmempool=10|g" /root/.lynx/lynx.conf
 
 	# On the Pi, the dbcache param has value. The limited RAM environment of the Pi means we should
 	# store less data about the chainstate in RAM. We can reduce the about of RAM used my lynxd with
