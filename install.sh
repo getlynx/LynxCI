@@ -287,6 +287,7 @@ addnode=node12.getlynx.io
 addnode=node13.getlynx.io
 addnode=node14.getlynx.io
 addnode=node15.getlynx.io
+addnode=node16.getlynx.io
 addnode=test01.getlynx.io # The following list of nodes are maintained by the Lynx Development
 addnode=test02.getlynx.io # team for faster detection of peers on testnet.
 addnode=test03.getlynx.io
@@ -295,6 +296,8 @@ addnode=test05.getlynx.io
 addnode=test06.getlynx.io
 addnode=test07.getlynx.io
 addnode=test08.getlynx.io
+addnode=test09.getlynx.io
+addnode=test10.getlynx.io
 
 mineraddress=KKMeTYLM6LrhFc8Gq1uYSua4BLgmFPaZrX # The following addresses are known to pass the validation requirements for HPoW. If you would
 mineraddress=KVKrkxGcUo9wii59ashrbqKub5CpggiFQz # like to earn your own mining rewards, you can add/edit/delete this list with your own
