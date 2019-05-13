@@ -1,7 +1,7 @@
 #!/bin/bash
 echo "Thanks for starting the installation of the Lynx Cryptocurrency Installer (LynxCI)."
 enviro="mainnet" # For most rollouts, the two options are mainnet or testnet.
-branch="0.16.3.7" # The master branch contains the most recent code. You can switch out an alternate branch name for testing, but beware, branches may not operate as expected.
+branch="0.16.3.8" # The master branch contains the most recent code. You can switch out an alternate branch name for testing, but beware, branches may not operate as expected.
 [ "$enviro" = "mainnet" ] && { port="22566"; echo "The mainnet environment port is set to 22566."; } # The Lynx network uses this port when peers talk to each other.
 [ "$enviro" = "mainnet" ] && { rpcport="9332"; echo "The mainnet environment rpcport is set to 9332."; } # This is the netowork port for RPC communication with clients.
 [ "$enviro" = "testnet" ] && { port="44566"; echo "The testnet environment port is set to 44566."; } # The Lynx network uses this port when peers talk to each other.
