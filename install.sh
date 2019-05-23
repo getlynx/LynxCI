@@ -553,7 +553,7 @@ cpulimitforbuiltinminer=0.25
 	# work well in the LynxCI build. Of course, you can edit it further if you like, but this
 	# default file is the recommended start point.
 
-	[ "$enviro" = "mainnet" ] && wget https://github.com/getlynx/Lynx/releases/download/v0.16.3.7/bootstrap.tar.gz -O - | tar -xz -C /root/.lynx/
+	#[ "$enviro" = "mainnet" ] && wget https://github.com/getlynx/Lynx/releases/download/v0.16.3.7/bootstrap.tar.gz -O - | tar -xz -C /root/.lynx/
 	[ "$enviro" = "testnet" ] && wget https://github.com/getlynx/Lynx/releases/download/v0.16.3.8/bootstrap.tar.gz -O - | tar -xz -C /root/.lynx/
 
 	# Be sure to reset the ownership of all files in the .lynx dir to root in case any process run
