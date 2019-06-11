@@ -3,13 +3,15 @@
 # OR to overide defaults...
 # wget -O - https://getlynx.io/install.sh | bash -s "[mainnet|testnet]" "[master|0.16.3.9]"
 echo "Thanks for starting the Lynx Cryptocurrency Installer (LynxCI)."
-enviro="testnet" # For most rollouts, the two options are mainnet or testnet. Mainnet is the default
-branch="master" # The master branch contains the most recent code. You can switch out an alternate branch name for testing, but beware, branches may not operate as expected.
+enviro="$1" # For most rollouts, the two options are mainnet or testnet. Mainnet is the default 
+branch="$2" # The master branch contains the most recent code. You can switch out an alternate branch name for testing, but beware, branches may not operate as expected.
 profil="install" # Set a default build profile if the param isn't provided.
 bootmai="https://github.com/getlynx/LynxBootstrap/releases/download/v1.0-mainnet/bootstrap.tar.gz"
 bootdev="https://github.com/getlynx/LynxBootstrap/releases/download/v1.0-testnet/bootstrap.tar.gz"
 [ -z "$1" ] && enviro="mainnet" # Default is mainnet.
 [ -z "$2" ] && branch="0.16.3.9"
+[ "enviro" = "mainnet" -o "enviro" = "testnet" ] && { echo "Environment params pass."; } || { echo "Failed to meet required params."; exit 13; }
+[ "branch" = "master" -o "branch" = "0.16.3.9" ] && { echo "Branch params pass."; } || { echo "Failed to meet required params."; exit 14; }
 [ "$branch" = "master" ] && profil="compile" # Unless master branch is specified, the profile will install from a DEB file.
 [ "$enviro" = "testnet" ] && profil="compile" # Testnet build are always compiled then installed. No installer exists for testnet.
 [ "$enviro" = "mainnet" ] && { port="22566"; echo "The mainnet port is 22566."; } # The Lynx network uses this port when peers talk to each other.
@@ -96,7 +98,7 @@ After=network.target
 Type=simple
 User=root
 Group=root
-WorkingDirectory=/root/lynx
+#WorkingDirectory=/root/lynx
 ExecStart=/root/lynx/src/lynxd -daemon=0
 ExecStop=/root/lynx/src/lynx-cli stop
 
@@ -611,12 +613,12 @@ cpulimitforbuiltinminer=0.25
 	if [ "$profil" = "install" ]; then
 		sed -i "s|/root/lynx/src/lynxd -daemon=0|/usr/local/bin/lynxd -daemon|g" /etc/systemd/system/lynxd.service
 		sed -i "s|/root/lynx/src/lynx-cli|/usr/local/bin/lynx-cli|g" /etc/systemd/system/lynxd.service
-		sed -i "s|WorkingDirectory=/root/lynx|WorkingDirectory=/usr/local/bin|g" /etc/systemd/system/lynxd.service
+		#sed -i "s|WorkingDirectory=/root/lynx|WorkingDirectory=/usr/local/bin|g" /etc/systemd/system/lynxd.service
 	fi
 
 	systemctl daemon-reload
 	systemctl disable listener
-	systemctl enable lynxd
+	systemctl enable lynxd # lynxd will start automatically after reboot.
 
 	# Below we are creating the default lynx.conf file. This file is created with the dynamically
 	# created RPC credentials and it sets up the networking with settings that testing has found to
