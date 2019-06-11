@@ -1,17 +1,25 @@
 #!/bin/bash
-echo "Thanks for starting the installation of the Lynx Cryptocurrency Installer (LynxCI)."
-enviro="mainnet" # For most rollouts, the two options are mainnet or testnet.
-branch="0.16.3.8" # The master branch contains the most recent code. You can switch out an alternate branch name for testing, but beware, branches may not operate as expected.
-[ "$enviro" = "mainnet" ] && { port="22566"; echo "The mainnet environment port is set to 22566."; } # The Lynx network uses this port when peers talk to each other.
-[ "$enviro" = "mainnet" ] && { rpcport="9332"; echo "The mainnet environment rpcport is set to 9332."; } # This is the netowork port for RPC communication with clients.
-[ "$enviro" = "testnet" ] && { port="44566"; echo "The testnet environment port is set to 44566."; } # The Lynx network uses this port when peers talk to each other.
-[ "$enviro" = "testnet" ] && { rpcport="19335"; echo "The testnet environment rpcport is set to 19335."; } # This is the netowork port for RPC communication with clients.
-apt-get update -y # Before we begin, we need to update the local repo. For now, the update is all we need and the device will still function properly.
-apt-get remove -y apache2 pi-bluetooth postfix
+# wget -qO - https://getlynx.io/setup.sh | bash -s "[mainnet|testnet]" "[master|0.16.3.9]"
+echo "Thanks for starting the Lynx Cryptocurrency Installer (LynxCI)."
+enviro="mainnet" # For most rollouts, the two options are mainnet or testnet. Mainnet is the default
+branch="0.16.3.9" # The master branch contains the most recent code. You can switch out an alternate branch name for testing, but beware, branches may not operate as expected.
+profil="install" # Set a default build profile if the param isn't provided.
+bootmai="https://github.com/getlynx/LynxBootstrap/releases/download/v1.0-mainnet/bootstrap.tar.gz"
+bootdev="https://github.com/getlynx/LynxBootstrap/releases/download/v1.0-testnet/bootstrap.tar.gz"
+[ "$1" != "mainnet" ] && enviro="testnet" # Default is mainnet, if mainnet is NPT 
+[ "$2" == "master" ] && branch="master"
+[ "$branch" == "master" ] && profil="compile" # Unless master branch is specified, the profile will install from a DEB file.
+[ "$enviro" == "testnet" ] && profil="compile" # Testnet build are always compiled then installed. No installer exists for testnet.
+[ "$enviro" == "mainnet" ] && { port="22566"; echo "The mainnet port is 22566."; } # The Lynx network uses this port when peers talk to each other.
+[ "$enviro" == "mainnet" ] && { rpcport="9332"; echo "The mainnet rpcport is 9332."; } # This is the netowork port for RPC communication with clients.
+[ "$enviro" == "testnet" ] && { port="44566"; echo "The testnet port is 44566."; } # The Lynx network uses this port when peers talk to each other.
+[ "$enviro" == "testnet" ] && { rpcport="19335"; echo "The testnet rpcport is 19335."; } # This is the netowork port for RPC communication with clients.
+apt-get update -y >/dev/null 2>&1 # Before we begin, we need to update the local repo. For now, the update is all we need and the device will still function properly.
+apt-get remove -y apache2 pi-bluetooth postfix >/dev/null 2>&1
 #apt-get upgrade -y # Sometimes the upgrade generates an interactive prompt. This is best handled manually depending on the VPS vendor.
-apt-get install -y apt-transport-https autoconf automake build-essential bzip2 ca-certificates checkinstall curl fail2ban g++ gcc git git-core htop libboost-all-dev libcurl4-openssl-dev libevent-dev libgmp-dev libjansson-dev libminiupnpc-dev libncurses5-dev libssl-dev libtool libz-dev logrotate lsb-release make nano pkg-config software-properties-common sudo unzip
+apt-get install -y apt-transport-https autoconf automake build-essential bzip2 ca-certificates checkinstall curl fail2ban g++ gcc git git-core htop libboost-all-dev libcurl4-openssl-dev libevent-dev libgmp-dev libjansson-dev libminiupnpc-dev libncurses5-dev libssl-dev libtool libz-dev logrotate lsb-release make nano pkg-config software-properties-common sudo unzip >/dev/null 2>&1
 echo "Required system packages have been installed."
-apt-get autoremove -y # Time for some cleanup work.
+apt-get autoremove -y >/dev/null 2>&1 # Time for some cleanup work.
 rpcuser="$(shuf -i 1000000000-3999999999 -n 1)$(shuf -i 1000000000-3999999999 -n 1)$(shuf -i 1000000000-3999999999 -n 1)" # Lets generate some RPC credentials for this node.
 rpcpass="$(shuf -i 1000000000-3999999999 -n 1)$(shuf -i 1000000000-3999999999 -n 1)$(shuf -i 1000000000-3999999999 -n 1)" # Lets generate some RPC credentials for this node.
 isPi="0" && [ "$(cat /proc/cpuinfo | grep 'Revision')" != "" ] && { isPi="1"; echo "The target device is a Raspberry Pi."; } # Default to 0. If the value is 1, then we know the target device is a Pi.
@@ -21,26 +29,38 @@ isPi="0" && [ "$(cat /proc/cpuinfo | grep 'Revision')" != "" ] && { isPi="1"; ec
 [ "$enviro" = "testnet" -a "$isPi" = "0" ] && name="lynx$(shuf -i 100000000-199999999 -n 1)" # If the device is running testnet then the node id starts with 1.
 [ "$isPi" = "1" ] && sed -i '/pi3-disable-bt/d' /boot/config.txt # Lets not assume that an entry already exists on the Pi, so purge any preexisting bluetooth variables.
 [ "$isPi" = "1" ] && echo "dtoverlay=pi3-disable-bt" >> /boot/config.txt # Now, append the variable and value to the end of the file for the Pi.
-cat /etc/os-release # Display the target host operating system information.
-crontab -r # Purge the crontab that started this script so it doesn't run twice if the above code takes longer then 15 min to execute.
+echo "#!/bin/bash
+IsRestricted=N # If the script has IsRestricted set to N, then let's open up port 22 for any IP address.
+iptables -F # Let's flush any existing iptables rules that might exist and start with a clean slate.
+iptables -I INPUT 1 -i lo -j ACCEPT # We should always allow loopback traffic.
+iptables -I INPUT 2 -m conntrack --ctstate ESTABLISHED,RELATED -j ACCEPT # If we are already authenticated, then ACCEPT further traffic from that IP address.
+iptables -I INPUT 3 -p tcp --dport 80 -j DROP # Because the Block Crawler is available via port 80 we MIGHT open up port 80 for that traffic, later.
+iptables -I INPUT 4 -p tcp -s 10.0.0.0/8 --dport 22 -j ACCEPT # Always allow local LAN access.
+iptables -I INPUT 5 -p tcp -s 192.168.0.0/16 --dport 22 -j ACCEPT # Always allow local LAN access.
+iptables -I INPUT 6 -p tcp --dport $port -j ACCEPT # This node listens for other Lynx nodes on port $port, so we need to open that port.
+iptables -I INPUT 7 -p tcp --dport $rpcport -j ACCEPT # By default, the RPC port $rpcport is opened to the public.
+[ \"\$IsRestricted\" = \"N\" ] && iptables -I INPUT 8 -p tcp --dport 22 -j ACCEPT
+# Secure access from your home/office IP. Customize as you like. [VPN 10 N-West] This is NOT a backdoor into your LynxCI node for the Lynx Developers. You still
+# control the access credentials for your LynxCI node. The only account available is the _lynx_ user account and you control the password for it. The root user
+# account is locked (don't trust us, verify yourself). This firewall entry is for convenience of the Lynx dev team, but also a convenient example of how you can
+# customize the firewall for your own direct access from you home or office IP. Save your change and be sure to execute /root/firewall.sh when done.
+[ \"\$IsRestricted\" = \"Y\" ] && iptables -I INPUT 8 -p tcp -s 162.210.250.170 --dport 22 -j ACCEPT
+iptables -I INPUT 9 -j DROP # We add this last line to drop any other traffic that comes to this computer.
+[ -f /root/.lynx/bootstrap.dat.old ] && rm -rf /root/.lynx/bootstrap.dat.old # Lets delete it if it still exists on the drive." > /root/LynxCI/firewall.sh
+[ "$isPi" = "0" ] && echo "deluser lynx sudo >/dev/null 2>&1" >> /root/LynxCI/firewall.sh # Remove the lynx user from the sudo group, except if the host is a Pi. This is for security reasons.
+chmod 700 /root/LynxCI/firewall.sh # Need to make sure crontab can run the fire.
+crontab -r >/dev/null 2>&1 # Purge and set the firewall crontab
+crontab -l >/dev/null 2>&1 | { cat; echo "@daily		/root/LynxCI/firewall.sh"; } | crontab - # Purge and set the firewall crontab
+crontab -l >/dev/null 2>&1 | { cat; echo "@weekly		sed -i 's/IsRestricted=N/IsRestricted=Y/' /root/LynxCI/firewall.sh"; } | crontab - # Purge and set the firewall crontab
+echo "Firewall is built and scheduled to run daily."
 [ "$isPi" = "1" ] && { sed -i '/gpu_mem/d' /boot/config.txt; echo "gpu_mem=16" >> /boot/config.txt; echo "Pi GPU memory was reduced to 16MB on reboot."; }
 echo "Preparing to install Nginx."
 curl -ssL -o /etc/apt/trusted.gpg.d/php.gpg https://packages.sury.org/php/apt.gpg # To prep the install of Nginx, get the keys installed.
 sh -c 'echo "deb https://packages.sury.org/php/ $(lsb_release -sc) main" > /etc/apt/sources.list.d/php.list' # Add Nginx to the source list.
-apt-get -y update && apt-get -y install nginx php7.2 php7.2-common php7.2-bcmath php7.2-cli php7.2-fpm php7.2-opcache php7.2-xml php7.2-curl php7.2-mbstring php7.2-zip # Install the needed Nginx packages.
+apt-get -y update >/dev/null 2>&1 && apt-get -y install nginx php7.2 php7.2-common php7.2-bcmath php7.2-cli php7.2-fpm php7.2-opcache php7.2-xml php7.2-curl php7.2-mbstring php7.2-zip >/dev/null 2>&1 # Install the needed Nginx packages.
 echo "Nginx install is complete."
-
-set_network () {
-
-	ipaddr=$(ip route get 1 | awk '{print $NF;exit}')
-
-	fqdn="$name.getlynx.io"
-
-	echo $name > /etc/hostname && hostname -F /etc/hostname
-
-	echo $ipaddr $fqdn $name >> /etc/hosts
-
-}
+[ "$enviro" = "mainnet" ] && wget $bootmai -O - | tar -xz -C /root/.lynx/
+[ "$enviro" = "testnet" ] && wget $bootdev -O - | tar -xz -C /root/.lynx/
 
 manage_swap () {
 
@@ -212,16 +232,35 @@ setup_nginx () {
 
 }
 
+
+scratch () {
+
+	wget https://github.com/getlynx/Lynx/releases/download/v0.16.3.9/lynxd_0.16.3.9-1_amd64.deb
+	dpkg -i lynxd_0.16.3.9-1_amd64.deb
+
+	# start lynxd -daemon
+
+	[ "$profil" = "compile" ] && stuff
+	[ "$profil" = "install" ] && stuff
+
+}
+
 install_lynx () {
 
-	rm -rf /root/lynx/ # Lets assume this directory already exists, so lets purge it first.
-	git clone -b "$branch" https://github.com/getlynx/Lynx.git /root/lynx/ # Pull down the specific branch version of Lynx source we arew planning to compile.
-	rm -rf /root/lynx/db4 && mkdir -p /root/lynx/db4 # We will need this db4 directory soon so let's delete and create it. Just in case.
-	cd /root/lynx/ && wget http://download.oracle.com/berkeley-db/db-4.8.30.NC.tar.gz # Pull down the Berkeley DB 4.8 source tarball.
-	tar -xzf db-4.8.30.NC.tar.gz && cd db-4.8.30.NC/build_unix/ # Unpack the tarball and hop into the directory.
-	../dist/configure --enable-cxx --disable-shared --with-pic --prefix=/root/lynx/db4 # Configure the make file to compile the Berkeley DB 4.8 source.
-	make --quiet install # Compile the Berkeley DB 4.8 source
-	rm -rf /root/.lynx && mkdir -p /root/.lynx # Gonna prep the .lynx dir for the lynx.conf file.
+	if [ "$profil" = "compile" ]; then
+		rm -rf /root/lynx/ # Lets assume this directory already exists, so lets purge it first.
+		git clone -b "$branch" https://github.com/getlynx/Lynx.git /root/lynx/ # Pull down the specific branch version of Lynx source we arew planning to compile.
+		rm -rf /root/lynx/db4 && mkdir -p /root/lynx/db4 # We will need this db4 directory soon so let's delete and create it. Just in case.
+		cd /root/lynx/ && wget http://download.oracle.com/berkeley-db/db-4.8.30.NC.tar.gz # Pull down the Berkeley DB 4.8 source tarball.
+		tar -xzf db-4.8.30.NC.tar.gz && cd db-4.8.30.NC/build_unix/ # Unpack the tarball and hop into the directory.
+		../dist/configure --enable-cxx --disable-shared --with-pic --prefix=/root/lynx/db4 # Configure the make file to compile the Berkeley DB 4.8 source.
+		make --quiet install # Compile the Berkeley DB 4.8 source
+	fi
+
+	if [ "$profil" = "install" ]; then
+		wget -P /root https://github.com/getlynx/Lynx/releases/download/v0.16.3.9/lynxd_0.16.3.9-1_amd64.deb
+		dpkg -i /root/lynxd_0.16.3.9-1_amd64.deb
+	fi
 
 	echo "
 # The following RPC credentials are created at build time and are unique to this host. If you
@@ -505,56 +544,46 @@ cpulimitforbuiltinminer=0.25
 	[ "$enviro" = "mainnet" ] && { sed -i '/addnode=test/d' /root/.lynx/lynx.conf; echo "Removed default testnet nodes from the addnode list in the lynx.conf file."; }
 	[ "$enviro" = "testnet" ] && { sed -i '/addnode=node/d' /root/.lynx/lynx.conf; echo "Removed default mainnet nodes from the addnode list in the lynx.conf file."; }
 	[ "$isPi" = "1" ] && sed -i "s|maxmempool=100|maxmempool=10|g" /root/.lynx/lynx.conf
+	[ "$isPi" = "1" ] && sed -i "s|dbcache=450|dbcache=100|g" /root/.lynx/lynx.conf # Default is 450MB. Changed to 100MB on the Pi.
+	cp --remove-destination /root/.lynx/lynx.conf /root/.lynx/.lynx.conf && chmod 600 /root/.lynx/.lynx.conf # We are gonna create a backup of the initially created lynx.conf file.
 
-	# On the Pi, the dbcache param has value. The limited RAM environment of the Pi means we should
-	# store less data about the chainstate in RAM. We can reduce the about of RAM used my lynxd with
-	# this param. Default is 450MB. Changed to 100MB on the Pi.
+	if [ "$profil" = "compile" ]; then
 
-	[ "$isPi" = "1" ] && sed -i "s|dbcache=450|dbcache=100|g" /root/.lynx/lynx.conf
+		cd /root/lynx/ && ./autogen.sh # And finish the configure statement WITH the Berkeley DB parameters included.
 
-	# We are gonna create a backup of the initially created lynx.conf file. This file does not ever
-	# run, it is just created for backup purposes. Please leave it intact so you can refer to it in
-	# the future in case you need to restore a parameter or value you have previously edited.
+		# If a Pi device then set up the uPNP arguments.
 
-	cp --remove-destination /root/.lynx/lynx.conf /root/.lynx/.lynx.conf && chmod 600 /root/.lynx/.lynx.conf
+		[ "$isPi" = "1" ] && ./configure LDFLAGS="-L/root/lynx/db4/lib/" CPPFLAGS="-I/root/lynx/db4/include/ -O2" --enable-cxx --without-gui --disable-shared --with-miniupnpc --enable-upnp-default --disable-tests --disable-bench
+		[ "$isPi" = "0" ] && ./configure LDFLAGS="-L/root/lynx/db4/lib/" CPPFLAGS="-I/root/lynx/db4/include/ -O2" --enable-cxx --without-gui --disable-shared --disable-tests --disable-bench
 
-	cd /root/lynx/ && ./autogen.sh # And finish the configure statement WITH the Berkeley DB parameters included.
+		make
+		#make install
+		checkinstall -D --install=yes --pkgname=lynxd --pkgversion=$branch --include=/root/.lynx/lynx.conf --requires=libboost-all-dev,libevent-dev,libminiupnpc-dev
 
-	# If a Pi device then set up the uPNP arguments.
+		# Some VPS vendors are struggling with cryptocurrency daemons and miners running on their
+		# platforms. These applications and mining platforms waste resources on those platforms so it's
+		# understandable why they block those daemons from running. Testing has found that lynxd is
+		# killed occasionally on some VPS platforms, even though the avg server load for a LynxCI built
+		# is about 0.3 with 1 CPU and 1 GB of RAM. By copying the lynxd daemon and using the randomly
+		# generated name, we escape the daemon getting killed by some vendors. Of course, it is a cat
+		# and mouse game so this will be upgraded sometime in the future.
 
-	if [ "$isPi" = "1" ]; then
+		#cp --remove-destination /root/lynx/src/lynxd /root/lynx/src/$name
 
-		./configure LDFLAGS="-L/root/lynx/db4/lib/" CPPFLAGS="-I/root/lynx/db4/include/ -O2" --enable-cxx --without-gui --disable-shared --with-miniupnpc --enable-upnp-default --disable-tests --disable-bench
-
-	else
-
-		./configure LDFLAGS="-L/root/lynx/db4/lib/" CPPFLAGS="-I/root/lynx/db4/include/ -O2" --enable-cxx --without-gui --disable-shared --disable-tests --disable-bench
+		#sed -i "s|/root/lynx/src/lynxd|/root/lynx/src/${name}|g" /root/LynxCI/installers/systemd.sh
 
 	fi
 
-	make
-	#make install
-	checkinstall -D --install=yes --pkgname=lynxd --pkgversion=$branch --include=/root/.lynx/lynx.conf
+	if [ "$profil" = "install" ]; then
 
-	# Some VPS vendors are struggling with cryptocurrency daemons and miners running on their
-	# platforms. These applications and mining platforms waste resources on those platforms so it's
-	# understandable why they block those daemons from running. Testing has found that lynxd is
-	# killed occasionally on some VPS platforms, even though the avg server load for a LynxCI built
-	# is about 0.3 with 1 CPU and 1 GB of RAM. By copying the lynxd daemon and using the randomly
-	# generated name, we escape the daemon getting killed by some vendors. Of course, it is a cat
-	# and mouse game so this will be upgraded sometime in the future.
-
-	cp --remove-destination /root/lynx/src/lynxd /root/lynx/src/$name
-
-	sed -i "s|/root/lynx/src/lynxd|/root/lynx/src/${name}|g" /root/LynxCI/installers/systemd.sh
+		sed -i "s|/root/lynx/src/lynxd|/usr/local/bin/lynxd|g" /root/LynxCI/installers/systemd.sh
+		sed -i "s|/root/lynx/src/lynx-cli|/usr/local/bin/lynx-cli|g" /root/LynxCI/installers/systemd.sh
+	fi
 
 	# Below we are creating the default lynx.conf file. This file is created with the dynamically
 	# created RPC credentials and it sets up the networking with settings that testing has found to
 	# work well in the LynxCI build. Of course, you can edit it further if you like, but this
 	# default file is the recommended start point.
-
-	[ "$enviro" = "mainnet" ] && wget https://github.com/getlynx/Lynx/releases/download/v0.16.3.9-bootstrap.1/bootstrap.tar.gz -O - | tar -xz -C /root/.lynx/
-	[ "$enviro" = "testnet" ] && wget https://github.com/getlynx/Lynx/releases/download/v0.16.3.8/bootstrap.tar.gz -O - | tar -xz -C /root/.lynx/
 
 	# Be sure to reset the ownership of all files in the .lynx dir to root in case any process run
 	# previously changed the default ownership setting. More of a precautionary measure.
@@ -563,18 +592,6 @@ cpulimitforbuiltinminer=0.25
 	chmod 600 /root/.lynx/*.conf
 
 	echo "Lynx was installed."
-
-}
-
-config_firewall () {
-
-	sed -i "s/_port_/${port}/g" /root/LynxCI/installers/firewall.sh
-
-	sed -i "s/_rpcport_/${rpcport}/g" /root/LynxCI/installers/firewall.sh
-
-	crontab -r
-
-	crontab -l | { cat; echo "@daily		/root/LynxCI/installers/firewall.sh"; } | crontab -
 
 }
 
@@ -615,14 +632,12 @@ if [ -f /boot/lynxci ]; then
 
 else
 
-	set_network
 	manage_swap
 	/root/LynxCI/installers/account.sh
 	install_portcheck
 	install_lynx
 	/root/LynxCI/installers/nginx.sh
 	setup_nginx
-	config_firewall
 	/root/LynxCI/installers/systemd.sh
 	/root/LynxCI/installers/logrotate.sh
 	restart
