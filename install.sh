@@ -10,29 +10,29 @@ bootmai="https://github.com/getlynx/LynxBootstrap/releases/download/v1.0-mainnet
 bootdev="https://github.com/getlynx/LynxBootstrap/releases/download/v1.0-testnet/bootstrap.tar.gz"
 [ -z "$1" ] && enviro="mainnet" # Default is mainnet. 
 [ -z "$2" ] && branch="0.16.3.9"
-[ "$branch" == "master" ] && profil="compile" # Unless master branch is specified, the profile will install from a DEB file.
-[ "$enviro" == "testnet" ] && profil="compile" # Testnet build are always compiled then installed. No installer exists for testnet.
-[ "$enviro" == "mainnet" ] && { port="22566"; echo "The mainnet port is 22566."; } # The Lynx network uses this port when peers talk to each other.
-[ "$enviro" == "mainnet" ] && { rpcport="9332"; echo "The mainnet rpcport is 9332."; } # This is the netowork port for RPC communication with clients.
-[ "$enviro" == "testnet" ] && { port="44566"; echo "The testnet port is 44566."; } # The Lynx network uses this port when peers talk to each other.
-[ "$enviro" == "testnet" ] && { rpcport="19335"; echo "The testnet rpcport is 19335."; } # This is the netowork port for RPC communication with clients.
+[ "$branch" = "master" ] && profil="compile" # Unless master branch is specified, the profile will install from a DEB file.
+[ "$enviro" = "testnet" ] && profil="compile" # Testnet build are always compiled then installed. No installer exists for testnet.
+[ "$enviro" = "mainnet" ] && { port="22566"; echo "The mainnet port is 22566."; } # The Lynx network uses this port when peers talk to each other.
+[ "$enviro" = "mainnet" ] && { rpcport="9332"; echo "The mainnet rpcport is 9332."; } # This is the netowork port for RPC communication with clients.
+[ "$enviro" = "testnet" ] && { port="44566"; echo "The testnet port is 44566."; } # The Lynx network uses this port when peers talk to each other.
+[ "$enviro" = "testnet" ] && { rpcport="19335"; echo "The testnet rpcport is 19335."; } # This is the netowork port for RPC communication with clients.
 apt-get update -y >/dev/null 2>&1 # Before we begin, we need to update the local repo. For now, the update is all we need and the device will still function properly.
 apt-get remove -y apache2 pi-bluetooth postfix >/dev/null 2>&1
 #apt-get upgrade -y # Sometimes the upgrade generates an interactive prompt. This is best handled manually depending on the VPS vendor.
-[ "$profil" == "compile" ] && apt-get install -y apt-transport-https autoconf automake build-essential bzip2 ca-certificates checkinstall curl fail2ban g++ gcc git git-core htop libboost-all-dev libcurl4-openssl-dev libevent-dev libgmp-dev libjansson-dev libminiupnpc-dev libncurses5-dev libssl-dev libtool libz-dev logrotate lsb-release make nano pkg-config software-properties-common sudo unzip >/dev/null 2>&1
+[ "$profil" = "compile" ] && apt-get install -y apt-transport-https autoconf automake build-essential bzip2 ca-certificates checkinstall curl fail2ban g++ gcc git git-core htop libboost-all-dev libcurl4-openssl-dev libevent-dev libgmp-dev libjansson-dev libminiupnpc-dev libncurses5-dev libssl-dev libtool libz-dev logrotate lsb-release make nano pkg-config software-properties-common sudo unzip >/dev/null 2>&1
 #fix me
-[ "$profil" == "install" ] && apt-get install -y apt-transport-https autoconf automake build-essential bzip2 ca-certificates checkinstall curl fail2ban g++ gcc git git-core htop libboost-all-dev libcurl4-openssl-dev libevent-dev libgmp-dev libjansson-dev libminiupnpc-dev libncurses5-dev libssl-dev libtool libz-dev logrotate lsb-release make nano pkg-config software-properties-common sudo unzip >/dev/null 2>&1
+[ "$profil" = "install" ] && apt-get install -y apt-transport-https autoconf automake build-essential bzip2 ca-certificates checkinstall curl fail2ban g++ gcc git git-core htop libboost-all-dev libcurl4-openssl-dev libevent-dev libgmp-dev libjansson-dev libminiupnpc-dev libncurses5-dev libssl-dev libtool libz-dev logrotate lsb-release make nano pkg-config software-properties-common sudo unzip >/dev/null 2>&1
 echo "Required system packages have been installed."
 apt-get autoremove -y >/dev/null 2>&1 # Time for some cleanup work.
 rpcuser="$(shuf -i 1000000000-3999999999 -n 1)$(shuf -i 1000000000-3999999999 -n 1)$(shuf -i 1000000000-3999999999 -n 1)" # Lets generate some RPC credentials for this node.
 rpcpass="$(shuf -i 1000000000-3999999999 -n 1)$(shuf -i 1000000000-3999999999 -n 1)$(shuf -i 1000000000-3999999999 -n 1)" # Lets generate some RPC credentials for this node.
 isPi="0" && [ "$(cat /proc/cpuinfo | grep 'Revision')" != "" ] && { isPi="1"; echo "The target device is a Raspberry Pi."; } # Default to 0. If the value is 1, then we know the target device is a Pi.
-[ "$enviro" == "mainnet" -a "$isPi" = "1" ] && name="lynxpi$(shuf -i 200000000-999999999 -n 1)" # If the device is a Pi, the name is appended.
-[ "$enviro" == "mainnet" -a "$isPi" = "0" ] && name="lynx$(shuf -i 200000000-999999999 -n 1)" # If the device is running mainnet then the node id starts with 2-9.
-[ "$enviro" == "testnet" -a "$isPi" = "1" ] && name="lynxpi$(shuf -i 100000000-199999999 -n 1)" # If the device is a Pi, the name is appended.
-[ "$enviro" == "testnet" -a "$isPi" = "0" ] && name="lynx$(shuf -i 100000000-199999999 -n 1)" # If the device is running testnet then the node id starts with 1.
-[ "$isPi" == "1" ] && sed -i '/pi3-disable-bt/d' /boot/config.txt # Lets not assume that an entry already exists on the Pi, so purge any preexisting bluetooth variables.
-[ "$isPi" == "1" ] && echo "dtoverlay=pi3-disable-bt" >> /boot/config.txt # Now, append the variable and value to the end of the file for the Pi.
+[ "$enviro" = "mainnet" -a "$isPi" = "1" ] && name="lynxpi$(shuf -i 200000000-999999999 -n 1)" # If the device is a Pi, the name is appended.
+[ "$enviro" = "mainnet" -a "$isPi" = "0" ] && name="lynx$(shuf -i 200000000-999999999 -n 1)" # If the device is running mainnet then the node id starts with 2-9.
+[ "$enviro" = "testnet" -a "$isPi" = "1" ] && name="lynxpi$(shuf -i 100000000-199999999 -n 1)" # If the device is a Pi, the name is appended.
+[ "$enviro" = "testnet" -a "$isPi" = "0" ] && name="lynx$(shuf -i 100000000-199999999 -n 1)" # If the device is running testnet then the node id starts with 1.
+[ "$isPi" = "1" ] && sed -i '/pi3-disable-bt/d' /boot/config.txt # Lets not assume that an entry already exists on the Pi, so purge any preexisting bluetooth variables.
+[ "$isPi" = "1" ] && echo "dtoverlay=pi3-disable-bt" >> /boot/config.txt # Now, append the variable and value to the end of the file for the Pi.
 echo "#!/bin/bash
 IsRestricted=N # If the script has IsRestricted set to N, then let's open up port 22 for any IP address.
 iptables -F # Let's flush any existing iptables rules that might exist and start with a clean slate.
@@ -51,20 +51,20 @@ iptables -I INPUT 7 -p tcp --dport $rpcport -j ACCEPT # By default, the RPC port
 [ \"\$IsRestricted\" = \"Y\" ] && iptables -I INPUT 8 -p tcp -s 162.210.250.170 --dport 22 -j ACCEPT
 iptables -I INPUT 9 -j DROP # We add this last line to drop any other traffic that comes to this computer.
 [ -f /root/.lynx/bootstrap.dat.old ] && rm -rf /root/.lynx/bootstrap.dat.old # Lets delete it if it still exists on the drive." > /root/LynxCI/firewall.sh
-[ "$isPi" == "0" ] && echo "deluser lynx sudo >/dev/null 2>&1" >> /root/LynxCI/firewall.sh # Remove the lynx user from the sudo group, except if the host is a Pi. This is for security reasons.
+[ "$isPi" = "0" ] && echo "deluser lynx sudo >/dev/null 2>&1" >> /root/LynxCI/firewall.sh # Remove the lynx user from the sudo group, except if the host is a Pi. This is for security reasons.
 chmod 700 /root/LynxCI/firewall.sh # Need to make sure crontab can run the fire.
 crontab -r >/dev/null 2>&1 # Purge and set the firewall crontab
 crontab -l >/dev/null 2>&1 | { cat; echo "@daily		/root/LynxCI/firewall.sh"; } | crontab - # Purge and set the firewall crontab
 crontab -l >/dev/null 2>&1 | { cat; echo "@weekly		sed -i 's/IsRestricted=N/IsRestricted=Y/' /root/LynxCI/firewall.sh"; } | crontab - # Purge and set the firewall crontab
 echo "Firewall is built and scheduled to run daily."
-[ "$isPi" == "1" ] && { sed -i '/gpu_mem/d' /boot/config.txt; echo "gpu_mem=16" >> /boot/config.txt; echo "Pi GPU memory was reduced to 16MB on reboot."; }
+[ "$isPi" = "1" ] && { sed -i '/gpu_mem/d' /boot/config.txt; echo "gpu_mem=16" >> /boot/config.txt; echo "Pi GPU memory was reduced to 16MB on reboot."; }
 echo "Preparing to install Nginx."
 curl -ssL -o /etc/apt/trusted.gpg.d/php.gpg https://packages.sury.org/php/apt.gpg # To prep the install of Nginx, get the keys installed.
 sh -c 'echo "deb https://packages.sury.org/php/ $(lsb_release -sc) main" > /etc/apt/sources.list.d/php.list' # Add Nginx to the source list.
 apt-get -y update >/dev/null 2>&1 && apt-get -y install nginx php7.2 php7.2-common php7.2-bcmath php7.2-cli php7.2-fpm php7.2-opcache php7.2-xml php7.2-curl php7.2-mbstring php7.2-zip >/dev/null 2>&1 # Install the needed Nginx packages.
 echo "Nginx install is complete."
-[ "$enviro" == "mainnet" ] && wget $bootmai -O - | tar -xz -C /root/.lynx/
-[ "$enviro" == "testnet" ] && wget $bootdev -O - | tar -xz -C /root/.lynx/
+[ "$enviro" = "mainnet" ] && wget $bootmai -O - | tar -xz -C /root/.lynx/
+[ "$enviro" = "testnet" ] && wget $bootdev -O - | tar -xz -C /root/.lynx/
 
 manage_swap () {
 
@@ -96,7 +96,7 @@ manage_swap () {
 
 	fi
 
-	[ "$isPi" == "1" ] && { sed -i 's/CONF_SWAPSIZE=100/CONF_SWAPSIZE=2048/' /etc/dphys-swapfile; /etc/init.d/dphys-swapfile restart; } # On a Raspberry Pi, the default swap is 100MB. This is a little restrictive, so we are expanding it to a full 2GB of swap.
+	[ "$isPi" = "1" ] && { sed -i 's/CONF_SWAPSIZE=100/CONF_SWAPSIZE=2048/' /etc/dphys-swapfile; /etc/init.d/dphys-swapfile restart; } # On a Raspberry Pi, the default swap is 100MB. This is a little restrictive, so we are expanding it to a full 2GB of swap.
 
 }
 
@@ -238,7 +238,7 @@ setup_nginx () {
 
 install_lynx () {
 
-	if [ "$profil" == "compile" ]; then
+	if [ "$profil" = "compile" ]; then
 		rm -rf /root/lynx/ # Lets assume this directory already exists, so lets purge it first.
 		git clone -b "$branch" https://github.com/getlynx/Lynx.git /root/lynx/ # Pull down the specific branch version of Lynx source we arew planning to compile.
 		rm -rf /root/lynx/db4 && mkdir -p /root/lynx/db4 # We will need this db4 directory soon so let's delete and create it. Just in case.
@@ -248,7 +248,7 @@ install_lynx () {
 		make --quiet install # Compile the Berkeley DB 4.8 source
 	fi
 
-	if [ "$profil" == "install" ]; then
+	if [ "$profil" = "install" ]; then
 
 		wget -P /root https://github.com/getlynx/Lynx/releases/download/v0.16.3.9/lynxd_0.16.3.9-1_amd64.deb
 		dpkg -i /root/lynxd_0.16.3.9-1_amd64.deb
@@ -529,18 +529,18 @@ cpulimitforbuiltinminer=0.25
 
 " > /root/.lynx/lynx.conf
 
-	[ "$enviro" == "testnet" ] && { sed -i 's|testnet=0|testnet=1|g' /root/.lynx/lynx.conf; echo "This node is operating on the testnet environment and it's now set in the lynx.conf file."; }
-	[ "$enviro" == "mainnet" ] && { sed -i 's|testnet=1|testnet=0|g' /root/.lynx/lynx.conf; echo "This node is operating on the mainnet environment and it's now set in the lynx.conf file."; }
-	[ "$enviro" == "mainnet" ] && { sed -i '/mineraddress=m/d' /root/.lynx/lynx.conf; echo "Removed default testnet mining addresses (M) from the lynx.conf file."; }
-	[ "$enviro" == "mainnet" ] && { sed -i '/mineraddress=n/d' /root/.lynx/lynx.conf; echo "Removed default testnet mining addresses (N) from the lynx.conf file."; }
-	[ "$enviro" == "testnet" ] && { sed -i '/mineraddress=K/d' /root/.lynx/lynx.conf; echo "Removed default mainnet mining addresses (K) from the lynx.conf file."; }
-	[ "$enviro" == "mainnet" ] && { sed -i '/addnode=test/d' /root/.lynx/lynx.conf; echo "Removed default testnet nodes from the addnode list in the lynx.conf file."; }
-	[ "$enviro" == "testnet" ] && { sed -i '/addnode=node/d' /root/.lynx/lynx.conf; echo "Removed default mainnet nodes from the addnode list in the lynx.conf file."; }
-	[ "$isPi" == "1" ] && sed -i "s|maxmempool=100|maxmempool=10|g" /root/.lynx/lynx.conf
-	[ "$isPi" == "1" ] && sed -i "s|dbcache=450|dbcache=100|g" /root/.lynx/lynx.conf # Default is 450MB. Changed to 100MB on the Pi.
+	[ "$enviro" = "testnet" ] && { sed -i 's|testnet=0|testnet=1|g' /root/.lynx/lynx.conf; echo "This node is operating on the testnet environment and it's now set in the lynx.conf file."; }
+	[ "$enviro" = "mainnet" ] && { sed -i 's|testnet=1|testnet=0|g' /root/.lynx/lynx.conf; echo "This node is operating on the mainnet environment and it's now set in the lynx.conf file."; }
+	[ "$enviro" = "mainnet" ] && { sed -i '/mineraddress=m/d' /root/.lynx/lynx.conf; echo "Removed default testnet mining addresses (M) from the lynx.conf file."; }
+	[ "$enviro" = "mainnet" ] && { sed -i '/mineraddress=n/d' /root/.lynx/lynx.conf; echo "Removed default testnet mining addresses (N) from the lynx.conf file."; }
+	[ "$enviro" = "testnet" ] && { sed -i '/mineraddress=K/d' /root/.lynx/lynx.conf; echo "Removed default mainnet mining addresses (K) from the lynx.conf file."; }
+	[ "$enviro" = "mainnet" ] && { sed -i '/addnode=test/d' /root/.lynx/lynx.conf; echo "Removed default testnet nodes from the addnode list in the lynx.conf file."; }
+	[ "$enviro" = "testnet" ] && { sed -i '/addnode=node/d' /root/.lynx/lynx.conf; echo "Removed default mainnet nodes from the addnode list in the lynx.conf file."; }
+	[ "$isPi" = "1" ] && sed -i "s|maxmempool=100|maxmempool=10|g" /root/.lynx/lynx.conf
+	[ "$isPi" = "1" ] && sed -i "s|dbcache=450|dbcache=100|g" /root/.lynx/lynx.conf # Default is 450MB. Changed to 100MB on the Pi.
 	cp --remove-destination /root/.lynx/lynx.conf /root/.lynx/.lynx.conf && chmod 600 /root/.lynx/.lynx.conf # We are gonna create a backup of the initially created lynx.conf file.
 
-	if [ "$profil" == "compile" ]; then
+	if [ "$profil" = "compile" ]; then
 
 		cd /root/lynx/ && ./autogen.sh # And finish the configure statement WITH the Berkeley DB parameters included.
 
@@ -567,7 +567,7 @@ cpulimitforbuiltinminer=0.25
 
 	fi
 
-	if [ "$profil" == "install" ]; then
+	if [ "$profil" = "install" ]; then
 
 		sed -i "s|/root/lynx/src/lynxd|/usr/local/bin/lynxd|g" /root/LynxCI/installers/systemd.sh
 		sed -i "s|/root/lynx/src/lynx-cli|/usr/local/bin/lynx-cli|g" /root/LynxCI/installers/systemd.sh
