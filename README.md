@@ -6,7 +6,7 @@ Creates a Lynx cryptocurrency node that confirms and relays transactions, runs a
 
 This script supports the following Linux operating systems. [Raspbian for Raspberry Pi](https://www.raspberrypi.org/downloads/raspbian/), Debian 9 and Debian 8. The script is only recommended for a VPS or local server that has a freshly installed OS with no previously written data. Seriously, don't execute this script on a VPS that has data you care about. This precaution is for your own security.
 
-You can execute the following install script, as 'root', after your OS is installed. Just copy/paste and hit return. 
+You can execute the following install script, as 'root', after your OS is installed and updated. Just copy/paste and hit return. 
 ```
 wget -qO - https://getlynx.io/setup.sh | bash
 ```
@@ -14,7 +14,7 @@ The initial setup takes less then 1 minute (depending on the speed of your host)
 
 After the LynxCI node is built, the default user account is 'lynx' and the password will be 'lynx'. Please change the password immediately. You won't be able to log in as 'root' (or 'pi'), as the installer locks those user accounts for security reasons. The 'lynx' user account does get sudo, but at Midnight UTC it is removed for additional security. The last step of the build is to reboot the host, so you will know it's done when your host or Pi reboots itself. Some VPS vendors don't reboot well, so check the status of your VPS after about 45 minutes to make sure it came back up. 
 
-After the build finishes and the host reboots, you will have until 6:25am UTC to log in. This is a feature that results in a higher level of security for the host. Of course, the wallet functions of the host are not enabled by default too. If you can't log in with with the default password 'lynx', use the console feature of your VPS vendor (they all have it), access the root account and edit the 'IsRestricted' variable (change it from 'Y' to 'N') in the /root/LynxCI/installers/firewall.sh file, and then execute the /root/LynxCI/installers/firewall.sh file. Further details on this feature are available on our [Lynx FAQ](https://getlynx.io/faq/).
+After the build finishes and the host reboots, you will have until midnight UTC Saturday to log in via port 22. You can update /root/LynxCI/firewall.sh with your home or office IP to allow remote access. This is a feature that results in a higher level of security for the node. Of course, the wallet functions of the host are not enabled by default too. If you can't log in with with the default password 'lynx', use the console feature of your VPS vendor (they all have it), access the root account and edit the 'IsRestricted' variable (change it from 'Y' to 'N') in the /root/LynxCI/firewall.sh file, and then execute the /root/LynxCI/firewall.sh file. Further details on this feature are available on our [Lynx FAQ](https://getlynx.io/faq/).
 
 ## [LynxCI for Pi](http://cdn.getlynx.io/LynxCI.tar.gz)
 

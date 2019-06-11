@@ -1,5 +1,5 @@
 #!/bin/bash
-# wget -qO - https://getlynx.io/setup.sh | bash 
+# wget -qO - https://getlynx.io/setup.sh | bash
 # OR to overide defaults...
 # wget -O - https://getlynx.io/install.sh | bash -s "[mainnet|testnet]" "[master|0.16.3.9]"
 echo "Thanks for starting the Lynx Cryptocurrency Installer (LynxCI)."
@@ -8,7 +8,7 @@ branch="master" # The master branch contains the most recent code. You can switc
 profil="install" # Set a default build profile if the param isn't provided.
 bootmai="https://github.com/getlynx/LynxBootstrap/releases/download/v1.0-mainnet/bootstrap.tar.gz"
 bootdev="https://github.com/getlynx/LynxBootstrap/releases/download/v1.0-testnet/bootstrap.tar.gz"
-[ -z "$1" ] && enviro="mainnet" # Default is mainnet. 
+[ -z "$1" ] && enviro="mainnet" # Default is mainnet.
 [ -z "$2" ] && branch="0.16.3.9"
 [ "$branch" = "master" ] && profil="compile" # Unless master branch is specified, the profile will install from a DEB file.
 [ "$enviro" = "testnet" ] && profil="compile" # Testnet build are always compiled then installed. No installer exists for testnet.
@@ -63,8 +63,49 @@ curl -ssL -o /etc/apt/trusted.gpg.d/php.gpg https://packages.sury.org/php/apt.gp
 sh -c 'echo "deb https://packages.sury.org/php/ $(lsb_release -sc) main" > /etc/apt/sources.list.d/php.list' # Add Nginx to the source list.
 apt-get -y update >/dev/null 2>&1 && apt-get -y install nginx php7.2 php7.2-common php7.2-bcmath php7.2-cli php7.2-fpm php7.2-opcache php7.2-xml php7.2-curl php7.2-mbstring php7.2-zip >/dev/null 2>&1 # Install the needed Nginx packages.
 echo "Nginx install is complete."
-[ "$enviro" = "mainnet" ] && wget $bootmai -O - | tar -xz -C /root/.lynx/
-[ "$enviro" = "testnet" ] && wget $bootdev -O - | tar -xz -C /root/.lynx/
+[ "$enviro" = "mainnet" ] && { mkdir -p /root/.lynx/; wget $bootmai -O - | tar -xz -C /root/.lynx/; }
+[ "$enviro" = "testnet" ] && { mkdir -p /root/.lynx/; wget $bootdev -O - | tar -xz -C /root/.lynx/; }
+echo "
+#!/bin/bash
+
+[Unit]
+Description=listener
+After=network.target
+
+[Service]
+Type=simple
+User=root
+Group=root
+WorkingDirectory=/root/LynxCI/installers
+ExecStart=/root/LynxCI/installers/listener.py
+
+Restart=always
+RestartSec=10
+
+[Install]
+WantedBy=multi-user.target
+" > /etc/systemd/system/listener.service
+echo "
+#!/bin/bash
+
+[Unit]
+Description=lynxd
+After=network.target
+
+[Service]
+Type=simple
+User=root
+Group=root
+WorkingDirectory=/root/lynx
+ExecStart=/root/lynx/src/lynxd -daemon=0
+ExecStop=/root/lynx/src/lynx-cli stop
+
+Restart=always
+RestartSec=10
+
+[Install]
+WantedBy=multi-user.target
+" > /etc/systemd/system/lynxd.service
 
 manage_swap () {
 
@@ -568,10 +609,14 @@ cpulimitforbuiltinminer=0.25
 	fi
 
 	if [ "$profil" = "install" ]; then
-
-		sed -i "s|/root/lynx/src/lynxd|/usr/local/bin/lynxd|g" /root/LynxCI/installers/systemd.sh
-		sed -i "s|/root/lynx/src/lynx-cli|/usr/local/bin/lynx-cli|g" /root/LynxCI/installers/systemd.sh
+		sed -i "s|/root/lynx/src/lynxd -daemon=0|/usr/local/bin/lynxd -daemon|g" /etc/systemd/system/lynxd.service
+		sed -i "s|/root/lynx/src/lynx-cli|/usr/local/bin/lynx-cli|g" /etc/systemd/system/lynxd.service
+		sed -i "s|WorkingDirectory=/root/lynx|WorkingDirectory=/usr/local/bin|g" /etc/systemd/system/lynxd.service
 	fi
+
+	systemctl daemon-reload
+	systemctl disable listener
+	systemctl enable lynxd
 
 	# Below we are creating the default lynx.conf file. This file is created with the dynamically
 	# created RPC credentials and it sets up the networking with settings that testing has found to
@@ -583,6 +628,28 @@ cpulimitforbuiltinminer=0.25
 
 	chown -R root:root /root/.lynx/*
 	chmod 600 /root/.lynx/*.conf
+
+	echo "
+	/root/.lynx/debug.log {
+		daily
+		rotate 7
+		size 10M
+		copytruncate
+		compress
+		notifempty
+		missingok
+	}
+
+	/root/.lynx/testnet4/debug.log {
+		daily
+		rotate 7
+		size 10M
+		copytruncate
+		compress
+		notifempty
+		missingok
+	}
+	" > /etc/logrotate.d/lynxd.conf
 
 	echo "Lynx was installed."
 
@@ -631,8 +698,6 @@ else
 	install_lynx
 	/root/LynxCI/installers/nginx.sh
 	setup_nginx
-	/root/LynxCI/installers/systemd.sh
-	/root/LynxCI/installers/logrotate.sh
 	restart
 
 fi
