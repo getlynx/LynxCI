@@ -10,8 +10,8 @@ bootmai="https://github.com/getlynx/LynxBootstrap/releases/download/v1.0-mainnet
 bootdev="https://github.com/getlynx/LynxBootstrap/releases/download/v1.0-testnet/bootstrap.tar.gz"
 [ -z "$1" ] && enviro="mainnet" # Default is mainnet.
 [ -z "$2" ] && branch="0.16.3.9"
-[ "$enviro" = "mainnet" -o "$enviro" = "testnet" ] && { echo "Environment params pass."; } || { echo "Failed to meet required params."; }
-[ "$branch" = "master" -o "$branch" = "0.16.3.9" ] && { echo "Branch params pass."; } || { echo "Failed to meet required params."; }
+[ "$enviro" = "mainnet" -o "$enviro" = "testnet" ] && { echo "Supplied environment parameter accepted."; } || { echo "Failed to meet required params."; }
+[ "$branch" = "master" -o "$branch" = "0.16.3.9" ] && { echo "Supplied branch parameter accepted."; } || { echo "Failed to meet required params."; }
 [ "$branch" = "master" ] && profil="compile" # Unless master branch is specified, the profile will install from a DEB file.
 [ "$enviro" = "testnet" ] && profil="compile" # Testnet build are always compiled then installed. No installer exists for testnet.
 [ "$enviro" = "mainnet" ] && { port="22566"; echo "The mainnet port is 22566."; } # The Lynx network uses this port when peers talk to each other.
@@ -611,7 +611,7 @@ cpulimitforbuiltinminer=0.25
 	fi
 
 	if [ "$profil" = "install" ]; then
-		sed -i "s|/root/lynx/src/lynxd -daemon=0|/usr/local/bin/lynxd -daemon|g" /etc/systemd/system/lynxd.service
+		sed -i "s|/root/lynx/src/lynxd -daemon=0|/usr/local/bin/lynxd -daemon=0|g" /etc/systemd/system/lynxd.service
 		sed -i "s|/root/lynx/src/lynx-cli|/usr/local/bin/lynx-cli|g" /etc/systemd/system/lynxd.service
 		#sed -i "s|WorkingDirectory=/root/lynx|WorkingDirectory=/usr/local/bin|g" /etc/systemd/system/lynxd.service
 	fi
