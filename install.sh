@@ -52,12 +52,13 @@ iptables -I INPUT 7 -p tcp --dport $rpcport -j ACCEPT # By default, the RPC port
 # customize the firewall for your own direct access from you home or office IP. Save your change and be sure to execute /root/firewall.sh when done.
 [ \"\$IsRestricted\" = \"Y\" ] && iptables -I INPUT 8 -p tcp -s 162.210.250.170 --dport 22 -j ACCEPT
 iptables -I INPUT 9 -j DROP # We add this last line to drop any other traffic that comes to this computer.
-[ -f /root/.lynx/bootstrap.dat.old ] && rm -rf /root/.lynx/bootstrap.dat.old # Lets delete it if it still exists on the drive." > /root/LynxCI/firewall.sh
+[ -f /root/.lynx/bootstrap.dat.old ] && rm -rf /root/.lynx/bootstrap.dat.old # Lets delete it if it still exists on the drive.
+[ -f /root/*.deb ] && rm -rf /root/*.deb # Lets delete the installer if it still exists on the drive." > /root/LynxCI/firewall.sh
 [ "$isPi" = "0" ] && echo "deluser lynx sudo >/dev/null 2>&1" >> /root/LynxCI/firewall.sh # Remove the lynx user from the sudo group, except if the host is a Pi. This is for security reasons.
 chmod 700 /root/LynxCI/firewall.sh # Need to make sure crontab can run the fire.
 crontab -r >/dev/null 2>&1 # Purge and set the firewall crontab
-crontab -l >/dev/null 2>&1 | { cat; echo "@daily		/root/LynxCI/firewall.sh"; } | crontab - # Purge and set the firewall crontab
-crontab -l >/dev/null 2>&1 | { cat; echo "@weekly		sed -i 's/IsRestricted=N/IsRestricted=Y/' /root/LynxCI/firewall.sh"; } | crontab - # Purge and set the firewall crontab
+crontab -l | { cat; echo "@daily		/root/LynxCI/firewall.sh"; } | crontab - # Purge and set the firewall crontab
+crontab -l | { cat; echo "@weekly		sed -i 's/IsRestricted=N/IsRestricted=Y/' /root/LynxCI/firewall.sh"; } | crontab - # Purge and set the firewall crontab
 echo "Firewall is built and scheduled to run daily."
 [ "$isPi" = "1" ] && { sed -i '/gpu_mem/d' /boot/config.txt; echo "gpu_mem=16" >> /boot/config.txt; echo "Pi GPU memory was reduced to 16MB on reboot."; }
 echo "Preparing to install Nginx."
