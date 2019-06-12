@@ -168,18 +168,18 @@ install_portcheck () {
 	echo \"
  | To set up wifi, edit the '/etc/wpa_supplicant/wpa_supplicant.conf' file.    |
  '-----------------------------------------------------------------------------'
- | For local tools to play and learn, type 'sudo /root/lynx/src/lynx-cli help'.|
+ | For local tools to play and learn, type 'sudo lynx-cli help'.               |
  '-----------------------------------------------------------------------------'
  | For LYNX RPC credentials, type 'sudo nano /root/.lynx/lynx.conf'.           |
  '-----------------------------------------------------------------------------'\"
 
  		if [ \"\$(id -u)\" = \"0\" ]; then
-        if [ ! -z \"\$(/root/lynx/src/lynx-cli getblockcount)\" ]; then
+        if [ ! -z \"\$(lynx-cli getblockcount)\" ]; then
 
-        echo \" | The current block height on this LynxCI node is \$(/root/lynx/src/lynx-cli getblockcount).                    |
+        echo \" | The current block height on this LynxCI node is \$(lynx-cli getblockcount).                    |
  '-----------------------------------------------------------------------------'\"
 
- 		echo \" | Local version is \$(/root/lynx/src/lynx-cli -version).          |
+ 		echo \" | Local version is \$(lynx-cli -version).          |
  '-----------------------------------------------------------------------------'\"
 
         fi
@@ -335,9 +335,10 @@ debug=miner
 
 # By default, wallet functions in LynxCI are disabled. This is for security reasons. If you
 # would like to enable your wallet functions, change the value from '1' to '0' in the
-# 'disablewallet' parameter. Then restart lynxd to enact the change. Of course, you can do the
-# reverse action to disable wallet functions on this node. You can always check to see if
-# wallet functions are enabled with '$ /root/lynx/src/lynx-cli help', looking for the
+# 'disablewallet' parameter. Then restart lynxd to enact the change. You can gracefully stop lynxd
+# witht he command '$ systemctl stop lynxd', and start again with '$ systemctl start lynxd'. Of
+# course, you can do the reverse action to disable wallet functions on this node. You can always
+# check to see if wallet functions are enabled with '$ lynx-cli help', looking for the
 # '== Wallet ==' section at the bottom of the help file.
 #
 # If you change this value to '0' and someone knows your RPC username and password, all your 
@@ -348,17 +349,27 @@ debug=miner
 disablewallet=1
 
 addnode=node01.getlynx.io # The following list of peers are maintained by the Lynx
-addnode=node02.getlynx.io # Core Development team for faster detection of mainnet.
-addnode=node03.getlynx.io ########
-addnode=node04.getlynx.io #######
-addnode=node05.getlynx.io ######
-addnode=node06.getlynx.io #####
-addnode=node07.getlynx.io ####
-addnode=node08.getlynx.io ###
-addnode=node09.getlynx.io ##
-addnode=node10.getlynx.io #
+addnode=node02.getlynx.io # Core Development team for faster discovery on mainnet.
+addnode=node03.getlynx.io ##################
+addnode=node04.getlynx.io #################
+addnode=node05.getlynx.io ################
+addnode=node06.getlynx.io ###############
+addnode=node07.getlynx.io ##############
+addnode=node08.getlynx.io #############
+addnode=node09.getlynx.io ############
+addnode=node10.getlynx.io ###########
+addnode=node11.getlynx.io ##########
+addnode=node12.getlynx.io #########
+addnode=node13.getlynx.io ########
+addnode=node14.getlynx.io #######
+addnode=node15.getlynx.io ######
+addnode=node16.getlynx.io #####
+addnode=node17.getlynx.io ####
+addnode=node18.getlynx.io ###
+addnode=node19.getlynx.io ##
+addnode=node20.getlynx.io #
 addnode=test01.getlynx.io # The following list of peers are maintained by the Lynx
-addnode=test02.getlynx.io # Core Development team for faster detection of testnet.
+addnode=test02.getlynx.io # Core Development team for faster discovery on testnet.
 addnode=test03.getlynx.io ########
 addnode=test04.getlynx.io #######
 addnode=test05.getlynx.io ######
