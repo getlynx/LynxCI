@@ -10,8 +10,8 @@ bootmai="https://github.com/getlynx/LynxBootstrap/releases/download/v1.0-mainnet
 bootdev="https://github.com/getlynx/LynxBootstrap/releases/download/v1.0-testnet/bootstrap.tar.gz"
 [ -z "$1" ] && enviro="mainnet" # Default is mainnet.
 [ -z "$2" ] && branch="0.16.3.9"
-[ "$enviro" = "mainnet" -o "$enviro" = "testnet" ] && { echo "Supplied environment parameter accepted."; } || { echo "Failed to meet required params."; }
-[ "$branch" = "master" -o "$branch" = "0.16.3.9" ] && { echo "Supplied branch parameter accepted."; } || { echo "Failed to meet required params."; }
+[ "$enviro" = "mainnet" -o "$enviro" = "testnet" ] && { echo "Supplied environment parameter ($enviro) accepted."; } || { echo "Failed to meet required params."; }
+[ "$branch" = "master" -o "$branch" = "0.16.3.9" ] && { echo "Supplied branch parameter ($branch) accepted."; } || { echo "Failed to meet required params."; }
 [ "$branch" = "master" ] && profil="compile" # Unless master branch is specified, the profile will install from a DEB file.
 [ "$enviro" = "testnet" ] && profil="compile" # Testnet build are always compiled then installed. No installer exists for testnet.
 [ "$enviro" = "mainnet" ] && { port="22566"; echo "The mainnet port is 22566."; } # The Lynx network uses this port when peers talk to each other.
@@ -21,9 +21,7 @@ bootdev="https://github.com/getlynx/LynxBootstrap/releases/download/v1.0-testnet
 apt-get update -y >/dev/null 2>&1 # Before we begin, we need to update the local repo. For now, the update is all we need and the device will still function properly.
 apt-get remove -y apache2 pi-bluetooth postfix >/dev/null 2>&1
 #apt-get upgrade -y # Sometimes the upgrade generates an interactive prompt. This is best handled manually depending on the VPS vendor.
-[ "$profil" = "compile" ] && apt-get install -y apt-transport-https autoconf automake build-essential bzip2 ca-certificates checkinstall curl fail2ban g++ gcc git git-core htop libboost-all-dev libcurl4-openssl-dev libevent-dev libgmp-dev libjansson-dev libminiupnpc-dev libncurses5-dev libssl-dev libtool libz-dev logrotate lsb-release make nano pkg-config software-properties-common sudo unzip >/dev/null 2>&1
-#fix me
-[ "$profil" = "install" ] && apt-get install -y apt-transport-https autoconf automake build-essential bzip2 ca-certificates checkinstall curl fail2ban g++ gcc git git-core htop libboost-all-dev libcurl4-openssl-dev libevent-dev libgmp-dev libjansson-dev libminiupnpc-dev libncurses5-dev libssl-dev libtool libz-dev logrotate lsb-release make nano pkg-config software-properties-common sudo unzip >/dev/null 2>&1
+apt-get install -y apt-transport-https autoconf automake build-essential bzip2 ca-certificates checkinstall curl fail2ban g++ gcc git git-core htop libboost-all-dev libcurl4-openssl-dev libevent-dev libgmp-dev libjansson-dev libminiupnpc-dev libncurses5-dev libssl-dev libtool libz-dev logrotate lsb-release make nano pkg-config software-properties-common sudo unzip >/dev/null 2>&1
 echo "Required system packages have been installed."
 apt-get autoremove -y >/dev/null 2>&1 # Time for some cleanup work.
 rpcuser="$(shuf -i 1000000000-3999999999 -n 1)$(shuf -i 1000000000-3999999999 -n 1)$(shuf -i 1000000000-3999999999 -n 1)" # Lets generate some RPC credentials for this node.
@@ -294,8 +292,11 @@ install_lynx () {
 
 	if [ "$profil" = "install" ]; then
 
-		wget -P /root https://github.com/getlynx/Lynx/releases/download/v0.16.3.9/lynxd_0.16.3.9-1_amd64.deb
-		dpkg -i /root/lynxd_0.16.3.9-1_amd64.deb
+		[ "$isPi" = "0" ] && wget -P /root https://github.com/getlynx/Lynx/releases/download/v0.16.3.9/lynxd_0.16.3.9-1_amd64.deb
+		[ "$isPi" = "0" ] && dpkg -i /root/lynxd_0.16.3.9-1_amd64.deb
+
+		[ "$isPi" = "1" ] && wget -P /root https://github.com/getlynx/Lynx/releases/download/v0.16.3.9/lynxd_0.16.3.9-1_armhf.deb
+		[ "$isPi" = "1" ] && dpkg -i /root/lynxd_0.16.3.9-1_armhf.deb
 
 	fi
 
@@ -605,20 +606,8 @@ cpulimitforbuiltinminer=0.25
 		[ "$isPi" = "0" ] && ./configure LDFLAGS="-L/root/lynx/db4/lib/" CPPFLAGS="-I/root/lynx/db4/include/ -O2" --enable-cxx --without-gui --disable-shared --disable-tests --disable-bench
 
 		make
-		#make install
-		checkinstall -D --install=yes --pkgname=lynxd --pkgversion=$branch --include=/root/.lynx/lynx.conf --requires=libboost-all-dev,libevent-dev,libminiupnpc-dev
-
-		# Some VPS vendors are struggling with cryptocurrency daemons and miners running on their
-		# platforms. These applications and mining platforms waste resources on those platforms so it's
-		# understandable why they block those daemons from running. Testing has found that lynxd is
-		# killed occasionally on some VPS platforms, even though the avg server load for a LynxCI built
-		# is about 0.3 with 1 CPU and 1 GB of RAM. By copying the lynxd daemon and using the randomly
-		# generated name, we escape the daemon getting killed by some vendors. Of course, it is a cat
-		# and mouse game so this will be upgraded sometime in the future.
-
-		#cp --remove-destination /root/lynx/src/lynxd /root/lynx/src/$name
-
-		#sed -i "s|/root/lynx/src/lynxd|/root/lynx/src/${name}|g" /root/LynxCI/installers/systemd.sh
+		make install
+		#checkinstall -D --install=yes --pkgname=lynxd --pkgversion=$branch --include=/root/.lynx/lynx.conf --requires=libboost-all-dev,libevent-dev,libminiupnpc-dev
 
 	fi
 
