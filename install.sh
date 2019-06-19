@@ -58,6 +58,7 @@ crontab -r >/dev/null 2>&1 # Purge and set the firewall crontab
 crontab -l | { cat; echo "@daily		/root/LynxCI/firewall.sh"; } | crontab - # Purge and set the firewall crontab
 crontab -l | { cat; echo "@weekly		sed -i 's/IsRestricted=N/IsRestricted=Y/' /root/LynxCI/firewall.sh"; } | crontab - # Purge and set the firewall crontab
 echo "Firewall is built and scheduled to run daily."
+echo "$name" > /etc/hostname
 [ "$isPi" = "1" ] && { sed -i '/gpu_mem/d' /boot/config.txt; echo "gpu_mem=16" >> /boot/config.txt; echo "Pi GPU memory was reduced to 16MB on reboot."; }
 echo "Preparing to install Nginx."
 curl -ssL -o /etc/apt/trusted.gpg.d/php.gpg https://packages.sury.org/php/apt.gpg # To prep the install of Nginx, get the keys installed.
