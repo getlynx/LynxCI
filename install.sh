@@ -54,6 +54,8 @@ iptables -I INPUT 9 -j DROP # We add this last line to drop any other traffic th
 [ -f /root/*.deb ] && rm -rf /root/*.deb # Lets delete the installer if it still exists on the drive." > /root/LynxCI/firewall.sh
 [ "$isPi" = "0" ] && echo "deluser lynx sudo >/dev/null 2>&1" >> /root/LynxCI/firewall.sh # Remove the lynx user from the sudo group, except if the host is a Pi. This is for security reasons.
 chmod 700 /root/LynxCI/firewall.sh # Need to make sure crontab can run the fire.
+echo -e "alias lyc=\"nano /root/.lynx/lynx.conf\"\r" >> /root/.bashrc # Lets add an alias so accessing the lynx.conf file is faster.
+echo -e "alias lyl=\"tail -F /var/log/syslog\"\r" >> /root/.bashrc # Lets add an alias so accessing the debug file is faster.
 crontab -r >/dev/null 2>&1 # Purge and set the firewall crontab
 crontab -l | { cat; echo "@daily		/root/LynxCI/firewall.sh"; } | crontab - # Purge and set the firewall crontab
 crontab -l | { cat; echo "@weekly		sed -i 's/IsRestricted=N/IsRestricted=Y/' /root/LynxCI/firewall.sh"; } | crontab - # Purge and set the firewall crontab
