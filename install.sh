@@ -55,11 +55,11 @@ IsRestricted=N # If the script has IsRestricted set to N, then let's open up por
 /sbin/iptables -I INPUT 9 -j DROP # We add this last line to drop any other traffic that comes to this computer.
 [ -f /root/.lynx/bootstrap.dat.old ] && /bin/rm -rf /root/.lynx/bootstrap.dat.old # Lets delete it if it still exists on the drive.
 [ -f /root/*.deb ] && /bin/rm -rf /root/*.deb # Lets delete the installer if it still exists on the drive." > /root/LynxCI/firewall.sh
-[ "$isPi" = "0" ] && echo "deluser lynx sudo >/dev/null 2>&1" >> /root/LynxCI/firewall.sh # Remove the lynx user from the sudo group, except if the host is a Pi. This is for security reasons.
+[ "$isPi" = "0" ] && echo "/usr/sbin/deluser lynx sudo >/dev/null 2>&1" >> /root/LynxCI/firewall.sh # Remove the lynx user from the sudo group, except if the host is a Pi. This is for security reasons.
 chmod 700 /root/LynxCI/firewall.sh # Need to make sure crontab can run the fire.
 crontab -r >/dev/null 2>&1 # Purge and set the firewall crontab
 crontab -l | { cat; echo "@daily		/root/LynxCI/firewall.sh"; } | crontab - # Purge and set the firewall crontab
-crontab -l | { cat; echo "@weekly		sed -i 's/IsRestricted=N/IsRestricted=Y/' /root/LynxCI/firewall.sh"; } | crontab - # Purge and set the firewall crontab
+crontab -l | { cat; echo "@weekly		/bin/sed -i 's/IsRestricted=N/IsRestricted=Y/' /root/LynxCI/firewall.sh"; } | crontab - # Purge and set the firewall crontab
 echo "Firewall is built and scheduled to run daily."
 echo "$name" > /etc/hostname
 [ "$isPi" = "1" ] && { sed -i '/gpu_mem/d' /boot/config.txt; echo "gpu_mem=16" >> /boot/config.txt; echo "Pi GPU memory was reduced to 16MB on reboot."; }
