@@ -70,47 +70,43 @@ apt-get -y update >/dev/null 2>&1 && apt-get -y install nginx php7.2 php7.2-comm
 echo "Nginx install is complete."
 [ "$enviro" = "mainnet" ] && { mkdir -p /root/.lynx/; wget $bootmai -O - | tar -xz -C /root/.lynx/; }
 [ "$enviro" = "testnet" ] && { mkdir -p /root/.lynx/; wget $bootdev -O - | tar -xz -C /root/.lynx/; }
-echo "
-#!/bin/bash
-
-[Unit]
-Description=listener
-After=network.target
-
-[Service]
-Type=simple
-User=root
-Group=root
-WorkingDirectory=/root/LynxCI/installers
-ExecStart=/root/LynxCI/installers/listener.py
-
-Restart=always
-RestartSec=10
-
-[Install]
-WantedBy=multi-user.target
-" > /etc/systemd/system/listener.service
-echo "
-#!/bin/bash
-
-[Unit]
-Description=lynxd
-After=network.target
-
-[Service]
-Type=simple
-User=root
-Group=root
-#WorkingDirectory=/root/lynx
-ExecStart=/root/lynx/src/lynxd -daemon=0
-ExecStop=/root/lynx/src/lynx-cli stop
-
-Restart=always
-RestartSec=10
-
-[Install]
-WantedBy=multi-user.target
-" > /etc/systemd/system/lynxd.service
+listenerSer="/etc/systemd/system/listener.service"  
+while [ ! -f $listenerSer ] ; do # Only create the file if it doesn't already exist.
+	echo "#!/bin/bash
+	[Unit]
+	Description=listener
+	After=network.target
+	[Service]
+	Type=simple
+	User=root
+	Group=root
+	WorkingDirectory=/root/LynxCI/installers
+	ExecStart=/root/LynxCI/installers/listener.py
+	Restart=always
+	RestartSec=10
+	[Install]
+	WantedBy=multi-user.target" > $listenerSer
+	sleep 2
+done
+lynxdSer="/etc/systemd/system/lynxd.service"  
+while [ ! -f $lynxdSer ] ; do # Only create the file if it doesn't already exist.
+	echo "#!/bin/bash
+	[Unit]
+	Description=lynxd
+	After=network.target
+	[Service]
+	Type=simple
+	User=root
+	Group=root
+	#WorkingDirectory=/root/lynx
+	ExecStart=/root/lynx/src/lynxd -daemon=0
+	ExecStop=/root/lynx/src/lynx-cli stop
+	Restart=always
+	RestartSec=10
+	[Install]
+	WantedBy=multi-user.target" > $lynxdSer
+	sleep 2
+done
 
 manage_swap () {
 
