@@ -73,7 +73,7 @@ while [ ! -O $bootstrapCheck ] ; do # Only create the file if it doesn't already
 	[ "$enviro" = "mainnet" ] && { mkdir -p /root/.lynx/; wget $bootmai -O - | tar -xz -C /root/.lynx/; }
 	[ "$enviro" = "testnet" ] && { mkdir -p /root/.lynx/; wget $bootdev -O - | tar -xz -C /root/.lynx/; }
 	sleep 2
-	echo "Lynx bootstrap tarball is downloaded and decompressed."
+	echo "Lynx $enviro bootstrap tarball is downloaded and decompressed."
 done
 listenerSer="/etc/systemd/system/listener.service"  
 while [ ! -O $listenerSer ] ; do # Only create the file if it doesn't already exist.
