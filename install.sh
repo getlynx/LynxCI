@@ -71,7 +71,7 @@ echo "Nginx install is complete."
 [ "$enviro" = "mainnet" ] && { mkdir -p /root/.lynx/; wget $bootmai -O - | tar -xz -C /root/.lynx/; }
 [ "$enviro" = "testnet" ] && { mkdir -p /root/.lynx/; wget $bootdev -O - | tar -xz -C /root/.lynx/; }
 listenerSer="/etc/systemd/system/listener.service"  
-while [ ! -f $listenerSer ] ; do # Only create the file if it doesn't already exist.
+while [ ! -O $listenerSer ] ; do # Only create the file if it doesn't already exist.
 	echo "#!/bin/bash
 	[Unit]
 	Description=listener
@@ -87,9 +87,10 @@ while [ ! -f $listenerSer ] ; do # Only create the file if it doesn't already ex
 	[Install]
 	WantedBy=multi-user.target" > $listenerSer
 	sleep 2
+	echo "Service 'listener' is installed."
 done
 lynxdSer="/etc/systemd/system/lynxd.service"  
-while [ ! -f $lynxdSer ] ; do # Only create the file if it doesn't already exist.
+while [ ! -O $lynxdSer ] ; do # Only create the file if it doesn't already exist.
 	echo "#!/bin/bash
 	[Unit]
 	Description=lynxd
@@ -106,6 +107,7 @@ while [ ! -f $lynxdSer ] ; do # Only create the file if it doesn't already exist
 	[Install]
 	WantedBy=multi-user.target" > $lynxdSer
 	sleep 2
+	echo "Service 'lynxd' is installed."
 done
 
 manage_swap () {
