@@ -94,8 +94,6 @@ while [ ! -O $listenerSer ] ; do # Only create the file if it doesn't already ex
 	[Install]
 	WantedBy=multi-user.target" > $listenerSer
 	sleep 2
-	chmod 755 $listenerSer
-	sleep 2
 	echo "Service 'listener' is installed."
 done
 lynxdSer="/etc/systemd/system/lynxd.service"  
@@ -115,8 +113,6 @@ while [ ! -O $lynxdSer ] ; do # Only create the file if it doesn't already exist
 	RestartSec=10
 	[Install]
 	WantedBy=multi-user.target" > $lynxdSer
-	sleep 2
-	chmod 755 $lynxdSer
 	sleep 2
 	echo "Service 'lynxd' is installed."
 done
