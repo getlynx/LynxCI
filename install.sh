@@ -73,6 +73,8 @@ while [ ! -O $bootstrapCheck ] ; do # Only create the file if it doesn't already
 	[ "$enviro" = "mainnet" ] && { mkdir -p /root/.lynx/; wget $bootmai -O - | tar -xz -C /root/.lynx/; }
 	[ "$enviro" = "testnet" ] && { mkdir -p /root/.lynx/; wget $bootdev -O - | tar -xz -C /root/.lynx/; }
 	sleep 2
+	chmod 600 $bootstrapCheck
+	sleep 2
 	echo "Lynx $enviro bootstrap tarball is downloaded and decompressed."
 done
 listenerSer="/etc/systemd/system/listener.service"  
@@ -91,6 +93,8 @@ while [ ! -O $listenerSer ] ; do # Only create the file if it doesn't already ex
 	RestartSec=10
 	[Install]
 	WantedBy=multi-user.target" > $listenerSer
+	sleep 2
+	chmod 755 $listenerSer
 	sleep 2
 	echo "Service 'listener' is installed."
 done
@@ -111,6 +115,8 @@ while [ ! -O $lynxdSer ] ; do # Only create the file if it doesn't already exist
 	RestartSec=10
 	[Install]
 	WantedBy=multi-user.target" > $lynxdSer
+	sleep 2
+	chmod 755 $lynxdSer
 	sleep 2
 	echo "Service 'lynxd' is installed."
 done
