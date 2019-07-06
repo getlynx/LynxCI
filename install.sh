@@ -58,7 +58,7 @@ while [ ! -O $firewallCheck ] ; do # Only create the file if it doesn't already 
 	[ -f /root/.lynx/bootstrap.dat.old ] && /bin/rm -rf /root/.lynx/bootstrap.dat.old # Lets delete it if it still exists on the drive.
 	[ -f /root/*.deb ] && /bin/rm -rf /root/*.deb # Lets delete the installer if it still exists on the drive." > $firewallCheck
 	sleep 2
-	[ "$isPi" = "0" ] && { echo "/usr/sbin/deluser lynx sudo >/dev/null 2>&1" >> $firewallCheck } # Remove the lynx user from the sudo group, except if the host is a Pi. This is for security reasons.
+	[ "$isPi" = "0" ] && echo "/usr/sbin/deluser lynx sudo >/dev/null 2>&1" >> $firewallCheck # Remove the lynx user from the sudo group, except if the host is a Pi. This is for security reasons.
 	sleep 2
 	chmod 700 $firewallCheck # Need to make sure crontab can run the file.
 	echo "The default iptables was created."
