@@ -228,8 +228,6 @@ install_portcheck () {
 
 setup_nginx () {
 
-	/root/LynxCI/installers/nginx.sh
-
     rm -rf /etc/nginx/sites-enabled/default
 
     rm -rf /etc/nginx/sites-available/default
@@ -712,7 +710,6 @@ else
 	/root/LynxCI/installers/account.sh
 	install_portcheck
 	install_lynx
-	/root/LynxCI/installers/nginx.sh
 	setup_nginx
 	restart
 
