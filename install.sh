@@ -74,10 +74,11 @@ curl -ssL -o /etc/apt/trusted.gpg.d/php.gpg https://packages.sury.org/php/apt.gp
 sh -c 'echo "deb https://packages.sury.org/php/ $(lsb_release -sc) main" > /etc/apt/sources.list.d/php.list' # Add Nginx to the source list.
 apt-get -y update >/dev/null 2>&1 && apt-get -y install nginx php7.2 php7.2-common php7.2-bcmath php7.2-cli php7.2-fpm php7.2-opcache php7.2-xml php7.2-curl php7.2-mbstring php7.2-zip >/dev/null 2>&1 # Install the needed Nginx packages.
 echo "Nginx install is complete."
-bootstrapCheck="/root/.lynx/bootstrap.dat"  
+[ "$enviro" = "mainnet" ] && { bootstrapCheck="/root/.lynx/bootstrap.dat"; }
+[ "$enviro" = "testnet" ] && { bootstrapCheck="/root/.lynx/testnet4/bootstrap.dat"; }
 while [ ! -O $bootstrapCheck ] ; do # Only create the file if it doesn't already exist.
 	[ "$enviro" = "mainnet" ] && { mkdir -p /root/.lynx/; wget $bootmai -O - | tar -xz -C /root/.lynx/; }
-	[ "$enviro" = "testnet" ] && { mkdir -p /root/.lynx/; wget $bootdev -O - | tar -xz -C /root/.lynx/; }
+	[ "$enviro" = "testnet" ] && { mkdir -p /root/.lynx/testnet4/; wget $bootdev -O - | tar -xz -C /root/.lynx/testnet4/; }
 	sleep 2
 	chmod 600 $bootstrapCheck
 	sleep 2
