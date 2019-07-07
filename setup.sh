@@ -7,6 +7,10 @@
 # To get started, log into your VPS or Pi, and as root copy and paste the following line.
 
 # wget -qO - https://getlynx.io/setup.sh | bash
+#
+# OR
+#
+# wget -O - https://getlynx.io/setup.sh | bash -s "[mainnet|testnet]" "[master|0.16.3.9]"
 
 # This will start the intallation. You can now close the session window in your termial or putty
 # window. The script will run in the background without need for human interaction. Depending on the
@@ -17,7 +21,11 @@
 # SD card with the latest version of LynxCI, plugging it into your Pi and powering it one. This
 # script will support Pi 2 and 3 only please.
 
-checkForRaspbian=$(cat /proc/cpuinfo | grep 'Revision')
+enviro="$1" # For most rollouts, the two options are mainnet or testnet. Mainnet is the default 
+branch="$2" # The master branch contains the most recent code. 0.16.3.9 is the default.
+
+[ -z "$1" ] && enviro="mainnet"
+[ -z "$2" ] && branch="0.16.3.9"
 
 rm -rf /boot/ssh # Assume this is the first time this script is being run and purge the marker file if it exists.
 
@@ -36,19 +44,6 @@ printf "Lynx is 'CRYPTOCURRENCY WITHOUT THE CLIMATE CHANGE'\n\n\n\n\n"
 printf "Need help? Visit https://github.com/getlynx/LynxCI\n\n"
 
 printf "Assembling the latest code to install LynxCI.\n\n\n\n\n\n"
-
-if [ -z "$checkForRaspbian" ]; then
-
-	# In case the VPS vendor doesn't have the locale set up right, (I'm looking at you, HostBRZ), run
-	# this command to set the following values in a non-interactive manner. It should survive a reboot.
-
-	echo "locales locales/default_environment_locale select en_US.UTF-8" | debconf-set-selections
-	echo "locales locales/locales_to_be_generated multiselect en_US.UTF-8 UTF-8" | debconf-set-selections
-	rm -rf "/etc/locale.gen"
-	dpkg-reconfigure --frontend noninteractive locales &> /dev/null
-	#echo "Locale for the target host was set to en_US.UTF-8 UTF-8."
-
-fi
 
 # Before we begin, we need to update the local repo's. For now, the update is all we need and the
 # device will still function properly.
@@ -86,7 +81,7 @@ chmod 744 -R /root/LynxCI/
 # Since this is the first time the script is run, we will create a crontab to run it again
 # in a few minute, when a quarter of the hour rolls around.
 
-crontab -l &> /dev/null | { cat; echo "*/15 * * * *		PATH='/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin' /bin/sh /root/LynxCI/install.sh >> /var/log/syslog"; } | crontab - &> /dev/null
+crontab -l &> /dev/null | { cat; echo "*/15 * * * *		PATH='/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin' /bin/sh /root/LynxCI/install.sh $enviro $branch >> /var/log/syslog"; } | crontab - &> /dev/null
 
 # This file is created for the Pi. In order for SSH to work, this file must exist.
 
