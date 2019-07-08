@@ -618,8 +618,8 @@ cpulimitforbuiltinminer=0.25
 		[ "$isPi" = "0" ] && ./configure LDFLAGS="-L/root/lynx/db4/lib/" CPPFLAGS="-I/root/lynx/db4/include/ -O2" --enable-cxx --without-gui --disable-shared --disable-tests --disable-bench
 
 		make
-		make install
-		#checkinstall -D --install=yes --pkgname=lynxd --pkgversion=$branch --include=/root/.lynx/lynx.conf --requires=libboost-all-dev,libevent-dev,libminiupnpc-dev
+		#make install
+		checkinstall -D --install=yes --pkgname=lynxd --pkgversion=$branch --include=/root/.lynx/lynx.conf --requires=libboost-all-dev,libevent-dev,libminiupnpc-dev
 
 	fi
 
