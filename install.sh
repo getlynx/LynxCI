@@ -619,7 +619,7 @@ cpulimitforbuiltinminer=0.25
 
 		make
 		#make install
-		checkinstall -D --install=yes --pkgname=lynxd --pkgversion=$branch --include=/root/.lynx/lynx.conf --requires=libboost-all-dev,libevent-dev,libminiupnpc-dev
+		checkinstall -D --install=yes --pkgname=lynxd --pkgversion=0.16.3.9 --include=/root/.lynx/lynx.conf --requires=libboost-all-dev,libevent-dev,libminiupnpc-dev
 
 	fi
 
