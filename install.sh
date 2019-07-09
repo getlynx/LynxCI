@@ -306,8 +306,8 @@ install_lynx () {
 
 	if [ "$profil" = "install" ]; then
 
-		[ "$isPi" = "0" ] && wget -P /root https://github.com/getlynx/Lynx/releases/download/v0.16.3.9/lynxd_0.16.3.9-1_amd64.deb
-		[ "$isPi" = "0" ] && dpkg -i /root/lynxd_0.16.3.9-1_amd64.deb
+		[ "$isPi" = "0" ] && wget -P /root https://github.com/getlynx/Lynx/releases/download/v0.16.3.9/lynxd_0.16.3.9-2_amd64.deb
+		[ "$isPi" = "0" ] && dpkg -i /root/lynxd_0.16.3.9-2_amd64.deb
 
 		[ "$isPi" = "1" ] && wget -P /root https://github.com/getlynx/Lynx/releases/download/v0.16.3.9/lynxd_0.16.3.9-1_armhf.deb
 		[ "$isPi" = "1" ] && dpkg -i /root/lynxd_0.16.3.9-1_armhf.deb
