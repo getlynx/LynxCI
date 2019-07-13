@@ -4,7 +4,7 @@
 # disables) access to the node via port 80. If the Block Explorer isn't running, we might as well
 # close port 80 and remove that as a possible attack vector.
 
-sed -i 's/80 -j DROP/80 -j ACCEPT/' /root/LynxCI/installers/firewall.sh
+sed -i 's/80 -j DROP/80 -j ACCEPT/' /root/LynxCI/firewall.sh
 
 # If the crawler is running, it needs the disablewallet param of lynxd to be enabled.
 
@@ -30,4 +30,4 @@ systemctl start php7.2-fpm && systemctl enable php7.2-fpm
 
 # Since we just changed some settings in the firewall script, let's reset the firewall.
 
-/root/LynxCI/installers/firewall.sh
+/root/LynxCI/firewall.sh
