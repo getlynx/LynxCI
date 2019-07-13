@@ -57,8 +57,7 @@ while [ ! -O $firewallCheck ] ; do # Only create the file if it doesn't already 
 	/sbin/iptables -I INPUT 9 -j DROP # We add this last line to drop any other traffic that comes to this computer.
 	[ -f /root/.lynx/bootstrap.dat.old ] && /bin/rm -rf /root/.lynx/bootstrap.dat.old # Lets delete it if it still exists on the drive.
 	[ -f /root/*.deb ] && /bin/rm -rf /root/*.deb # Lets delete the installer if it still exists on the drive.
-	[ \"\$(/usr/local/bin/lynx-cli uptime)\" -gt \"604900\" ] && /bin/sed -i 's/IsRestricted=N/IsRestricted=Y/' /root/LynxCI/firewall.sh # Lock the firewall after 1 week
-	" > $firewallCheck
+	[ \"\$(/usr/local/bin/lynx-cli uptime)\" -gt \"604900\" ] && /bin/sed -i 's/IsRestricted=N/IsRestricted=Y/' /root/LynxCI/firewall.sh # Lock the firewall after 1 week" > $firewallCheck
 	sleep 2
 	sed -i 's/^[\t]*//' $firewallCheck # Remove the pesky tabs inserted by the 'echo' outputs.
 	sleep 2
