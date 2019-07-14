@@ -18,6 +18,7 @@ bootdev="https://github.com/getlynx/LynxBootstrap/releases/download/v1.0-testnet
 [ "$enviro" = "mainnet" ] && { rpcport="9332"; echo "The mainnet rpcport is 9332."; } # This is the netowork port for RPC communication with clients.
 [ "$enviro" = "testnet" ] && { port="44566"; echo "The testnet port is 44566."; } # The Lynx network uses this port when peers talk to each other.
 [ "$enviro" = "testnet" ] && { rpcport="19335"; echo "The testnet rpcport is 19335."; } # This is the netowork port for RPC communication with clients.
+echo "Updating the installed package list."
 systemctl disable lynxd >/dev/null 2>&1 # In case the install is taking place again, due to a failed previous install.
 systemctl stop lynxd >/dev/null 2>&1 # In case the install is taking place again, due to a failed previous install.
 systemctl daemon-reload >/dev/null 2>&1 # In case the install is taking place again, due to a failed previous install.
@@ -657,7 +658,7 @@ restart () {
 	verifylynxci="/boot/lynxci"
 	while [ ! -O $verifylynxci ] ; do # Only create the file if it doesn't already exist.
 		/usr/bin/touch $verifylynxci
-		echo "Post install  verification 'lynxci' file is installed."
+		echo "Post install verification 'lynxci' file is installed."
 	done
 
 	echo "LynxCI was installed. A reboot will occur 10 seconds."

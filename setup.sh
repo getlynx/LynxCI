@@ -85,7 +85,11 @@ crontab -l &> /dev/null | { cat; echo "*/15 * * * *		PATH='/usr/local/sbin:/usr/
 
 # This file is created for the Pi. In order for SSH to work, this file must exist.
 
-touch /boot/ssh
+verifyssh="/boot/ssh"
+
+while [ ! -O $verifyssh ] ; do # Only create the file if it doesn't already exist.
+	/usr/bin/touch $verifyssh
+done
 
 sed -i 's|/root/init.sh|#/root/init.sh|' /etc/rc.local &> /dev/null
 
