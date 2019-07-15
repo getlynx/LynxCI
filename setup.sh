@@ -98,6 +98,6 @@ echo "
 	 The unattended install will begin in 15 minutes or less.
 	 You can log out now or watch the live install log by typing
 
-	 $ tail -F /var/log/syslog
+	 $ tail -F /var/log/syslog | grep "LynxCI:"
 
 	 "
