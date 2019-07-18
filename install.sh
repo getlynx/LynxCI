@@ -38,7 +38,7 @@ isPi="0" && [ "$(cat /proc/cpuinfo | grep 'Revision')" != "" ] && { isPi="1"; ec
 [ "$enviro" = "testnet" -a "$isPi" = "0" ] && name="lynx$(shuf -i 100000000-199999999 -n 1)" # If the device is running testnet then the node id starts with 1.
 [ "$isPi" = "1" ] && sed -i '/pi3-disable-bt/d' /boot/config.txt # Lets not assume that an entry already exists on the Pi, so purge any preexisting bluetooth variables.
 [ "$isPi" = "1" ] && echo "dtoverlay=pi3-disable-bt" >> /boot/config.txt # Now, append the variable and value to the end of the file for the Pi.
-firewallCheck="/root/LynxCI/firewall.sh"  
+firewallCheck="/root/LynxCI/firewall.sh"
 while [ ! -O $firewallCheck ] ; do # Only create the file if it doesn't already exist.
 	echo "#!/bin/bash
 	IsRestricted=N # If the script has IsRestricted set to N, then let's open up port 22 for any IP address.
@@ -86,7 +86,7 @@ while [ ! -O $bootstrapCheck ] ; do # Only create the file if it doesn't already
 	sleep 1
 	echo "LynxCI: Lynx $enviro bootstrap tarball is downloaded and decompressed."
 done
-listenerSer="/etc/systemd/system/listener.service"  
+listenerSer="/etc/systemd/system/listener.service"
 while [ ! -O $listenerSer ] ; do # Only create the file if it doesn't already exist.
 	echo "#!/bin/bash
 	[Unit]
@@ -105,7 +105,7 @@ while [ ! -O $listenerSer ] ; do # Only create the file if it doesn't already ex
 	sleep 1 && sed -i 's/^[\t]*//' $listenerSer # Remove the pesky tabs inserted by the 'echo' outputs.
 	echo "LynxCI: Service 'listener' is installed."
 done
-lynxdSer="/etc/systemd/system/lynxd.service"  
+lynxdSer="/etc/systemd/system/lynxd.service"
 while [ ! -O $lynxdSer ] ; do # Only create the file if it doesn't already exist.
 	echo "#!/bin/bash
 	[Unit]
@@ -252,19 +252,19 @@ if [ "$profil" = "compile" ]; then
 fi
 if [ "$profil" = "install" ]; then
 	amdCheck="lynxd_0.16.3.9-2_amd64.deb"
-	while [ ! -O "/root/$amdCheck" ] ; do
+	while [ ! -O "/root/$amdCheck" -a "$isPi" = "0" ] ; do
 		echo "LynxCI: Downloading and installing the Lynx (AMD) package."
-		[ "$isPi" = "0" ] && wget -P /root https://github.com/getlynx/Lynx/releases/download/v0.16.3.9/$amdCheck
-		[ "$isPi" = "0" ] && dpkg -i /root/$amdCheck
+		wget -P /root https://github.com/getlynx/Lynx/releases/download/v0.16.3.9/$amdCheck
+		dpkg -i /root/$amdCheck
 	done
 	armCheck="lynxd_0.16.3.9-1_armhf.deb"
-	while [ ! -O "/root/$armCheck" ] ; do
+	while [ ! -O "/root/$armCheck" -a "$isPi" = "1" ] ; do
 		echo "LynxCI: Downloading and installing the Lynx (ARM) package."
-		[ "$isPi" = "1" ] && wget -P /root https://github.com/getlynx/Lynx/releases/download/v0.16.3.9/$armCheck
-		[ "$isPi" = "1" ] && dpkg -i /root/$armCheck
+		wget -P /root https://github.com/getlynx/Lynx/releases/download/v0.16.3.9/$armCheck
+		dpkg -i /root/$armCheck
 	done
 fi
-lconfCheck="/root/.lynx/lynx.conf"  
+lconfCheck="/root/.lynx/lynx.conf"
 while [ ! -O $lconfCheck ] ; do # Only create the file if it doesn't already exist.
 	echo "# The following RPC credentials are created at build time and are unique to this host. If you
 	# like, you can change them, but you are encouraged to keep very complex strings for each. If an
