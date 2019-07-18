@@ -172,39 +172,39 @@ echo \"\"
 cat /etc/profile.d/logo.txt
 
 echo \"
-  | To set up wifi, edit the '/etc/wpa_supplicant/wpa_supplicant.conf' file.    |
-  '-----------------------------------------------------------------------------'
-  | For local tools to play and learn, type 'sudo lynx-cli help'.               |
-  '-----------------------------------------------------------------------------'
-  | For LYNX RPC credentials, type 'sudo nano /root/.lynx/lynx.conf'.           |
-  '-----------------------------------------------------------------------------'\"
+ | To set up wifi, edit the '/etc/wpa_supplicant/wpa_supplicant.conf' file.    |
+ '-----------------------------------------------------------------------------'
+ | For local tools to play and learn, type 'sudo lynx-cli help'.               |
+ '-----------------------------------------------------------------------------'
+ | For LYNX RPC credentials, type 'sudo nano /root/.lynx/lynx.conf'.           |
+ '-----------------------------------------------------------------------------'\"
 
 if [ \"\$(id -u)\" = \"0\" ]; then
 if [ ! -z \"\$(lynx-cli getblockcount)\" ]; then
 
 echo \"  | The current block height on this LynxCI node is \$(lynx-cli getblockcount).                    |
-  '-----------------------------------------------------------------------------'\"
+ '-----------------------------------------------------------------------------'\"
 
 echo \"  | Local version is \$(lynx-cli -version).          |
-  '-----------------------------------------------------------------------------'\"
+ '-----------------------------------------------------------------------------'\"
 
 fi
 fi
 
 echo \"  | The unique identifier for this LynxCI node is $name.                |
-  '-----------------------------------------------------------------------------'\"
+ '-----------------------------------------------------------------------------'\"
 
 port=\"$port\"
 
 if [ \"\$port\" = \"44566\" ]; then
 
 echo \"  | This is a non-production 'testnet' environment of Lynx.                     |
-  '-----------------------------------------------------------------------------'\"
+ '-----------------------------------------------------------------------------'\"
 
 fi
 
 echo \"  | Visit https://getlynx.io/ for more information.                             |
-  '-----------------------------------------------------------------------------'\"
+ '-----------------------------------------------------------------------------'\"
 
 " > /etc/profile.d/portcheck.sh
 chmod 755 /etc/profile.d/portcheck.sh
