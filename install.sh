@@ -6,6 +6,7 @@
 enviro="$1" # For most rollouts, the two options are mainnet or testnet. Mainnet is the default 
 branch="$2" # The master branch contains the most recent code. You can switch out an alternate branch name for testing, but beware, branches may not operate as expected.
 profil="install" # Set a default build profile if the param isn't provided.
+[ "$(cat /etc/os-release | grep 'PRETTY_NAME')" = "PRETTY_NAME=\"Debian GNU/Linux 8 (jessie)\"" ] && profil="compile" # Since the latest installer isn't backwards compatible, if the target OS is older, then default to a compile/install receipe.
 bootmai="https://github.com/getlynx/LynxBootstrap/releases/download/v2.0-mainnet/bootstrap.tar.gz"
 bootdev="https://github.com/getlynx/LynxBootstrap/releases/download/v1.0-testnet/bootstrap.tar.gz"
 [ -z "$1" ] && enviro="mainnet" # Default is mainnet.
