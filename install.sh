@@ -269,10 +269,12 @@ if [ "$installationMethod" = "compile" ]; then
 	../dist/configure --enable-cxx --disable-shared --with-pic --prefix=/root/lynx/db4 # Configure the make file to compile the Berkeley DB 4.8 source.
 	make --quiet install # Compile the Berkeley DB 4.8 source
 fi
-while [ "$installationMethod" = "install" -a ! -O "/root/$installationFile" ] ; do
-	echo "LynxCI: Downloading and installing the Lynx installer package for the target OS."
-	wget -P /root $installationSource && dpkg -i /root/$installationFile
-done
+if [ "$installationMethod" = "install" ]; then
+	while [ ! -O "/root/$installationFile" ] ; do
+		echo "LynxCI: Downloading and installing the Lynx installer package for the target OS."
+		wget -P /root $installationSource && dpkg -i /root/$installationFile
+	done
+fi
 lconfCheck="/root/.lynx/lynx.conf"
 while [ ! -O $lconfCheck ] ; do # Only create the file if it doesn't already exist.
 	echo "# The following RPC credentials are created at build time and are unique to this host. If you
