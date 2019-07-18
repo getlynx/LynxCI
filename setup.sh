@@ -42,6 +42,10 @@ printf "The Lynx code discourages high-volume mining rigs because the code purpo
 printf "Lynx is 'CRYPTOCURRENCY WITHOUT THE CLIMATE CHANGE'\n\n\n\n\n"
 
 printf "Need help? Visit https://github.com/getlynx/LynxCI\n\n"
+printf "Read our latest FAQ! Visit https://getlynx.io/faq/\n\n"
+printf "Read our latest News! Visit https://getlynx.io/news/\n\n"
+printf "Follow us on Twitter! Visit https://twitter.com/GetlynxIo\n\n"
+printf "Join us on Reddit! Visit https://www.reddit.com/r/lynx\n\n"
 
 printf "Assembling the latest code to install LynxCI.\n\n\n\n\n\n"
 
