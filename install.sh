@@ -5,16 +5,34 @@
 [ -f /boot/lynxci ] && { echo "LynxCI: Previous LynxCI detected. Install aborted."; exit 5; } || { echo "LynxCI: Thanks for starting the Lynx Cryptocurrency Installer (LynxCI)."; }
 enviro="$1" # For most rollouts, the two options are mainnet or testnet. Mainnet is the default 
 branch="$2" # The master branch contains the most recent code. You can switch out an alternate branch name for testing, but beware, branches may not operate as expected.
-profil="compile" # Set a default build profile if the param isn't provided.
-[ "$(cat /etc/os-release | grep 'PRETTY_NAME')" = "PRETTY_NAME=\"Debian GNU/Linux 9 (stretch)\"" ] && profil="install" # Since the latest installer isn't backwards compatible, if the target OS is older, then default to a compile/install receipe.
+#
+# By default, all installations that occur with this script will compile Lynx.
+#
+installationMethod="compile"
+#
+# The idea here is to have at least one installer that can be used to build a
+# Lynx node very quickly. The current installer supports only Debian 9. If any
+# other target OS is detected, then the script will compile from source.
+#
+if [ "$(cat /etc/os-release | grep 'PRETTY_NAME')" = "PRETTY_NAME=\"Debian GNU/Linux 9 (stretch)\"" ]; then
+	installationMethod="install"
+	installationSource="https://github.com/getlynx/Lynx/releases/download/v0.16.3.9/lynxd_0.16.3.9-2_amd64.deb"
+	installationFile="${installationSource##*/}"
+fi
+if [ "$(cat /etc/os-release | grep 'PRETTY_NAME')" = "PRETTY_NAME=\"Raspbian GNU/Linux 9 (stretch)\"" ]; then
+	installationMethod="install"
+	installationSource="https://github.com/getlynx/Lynx/releases/download/v0.16.3.9/lynxd_0.16.3.9-1_armhf.deb"
+	installationFile="${installationSource##*/}"
+fi
+#
 bootmai="https://github.com/getlynx/LynxBootstrap/releases/download/v2.0-mainnet/bootstrap.tar.gz"
 bootdev="https://github.com/getlynx/LynxBootstrap/releases/download/v1.0-testnet/bootstrap.tar.gz"
 [ -z "$1" ] && enviro="mainnet" # Default is mainnet.
 [ -z "$2" ] && branch="0.16.3.9"
 [ "$enviro" = "mainnet" -o "$enviro" = "testnet" ] && { echo "LynxCI: Supplied environment parameter ($enviro) accepted."; } || { echo "LynxCI: Failed to meet required params."; }
 [ "$branch" = "master" -o "$branch" = "0.16.3.9" ] && { echo "LynxCI: Supplied branch parameter ($branch) accepted."; } || { echo "LynxCI: Failed to meet required params."; }
-[ "$branch" = "master" ] && profil="compile" # Unless master branch is specified, the profile will install from a DEB file.
-[ "$enviro" = "testnet" ] && profil="compile" # Testnet build are always compiled then installed. No installer exists for testnet.
+[ "$branch" = "master" ] && installationMethod="compile" # Unless master branch is specified, the profile will install from a DEB file.
+[ "$enviro" = "testnet" ] && installationMethod="compile" # Testnet build are always compiled then installed. No installer exists for testnet.
 [ "$enviro" = "mainnet" ] && { port="22566"; echo "LynxCI: The mainnet port is 22566."; } # The Lynx network uses this port when peers talk to each other.
 [ "$enviro" = "mainnet" ] && { rpcport="9332"; echo "LynxCI: The mainnet rpcport is 9332."; } # This is the netowork port for RPC communication with clients.
 [ "$enviro" = "testnet" ] && { port="44566"; echo "LynxCI: The testnet port is 44566."; } # The Lynx network uses this port when peers talk to each other.
@@ -242,7 +260,7 @@ git clone https://github.com/getlynx/LynxBlockCrawler.git /var/www/html/
 chmod 755 -R /var/www/html/
 chown www-data:www-data -R /var/www/html/
 echo "LynxCI: Block Crawler is installed."
-if [ "$profil" = "compile" ]; then
+if [ "$installationMethod" = "compile" ]; then
 	rm -rf /root/lynx/ # Lets assume this directory already exists, so lets purge it first.
 	git clone -b "$branch" https://github.com/getlynx/Lynx.git /root/lynx/ # Pull down the specific branch version of Lynx source we arew planning to compile.
 	rm -rf /root/lynx/db4 && mkdir -p /root/lynx/db4 # We will need this db4 directory soon so let's delete and create it. Just in case.
@@ -251,20 +269,10 @@ if [ "$profil" = "compile" ]; then
 	../dist/configure --enable-cxx --disable-shared --with-pic --prefix=/root/lynx/db4 # Configure the make file to compile the Berkeley DB 4.8 source.
 	make --quiet install # Compile the Berkeley DB 4.8 source
 fi
-if [ "$profil" = "install" ]; then
-	amdCheck="lynxd_0.16.3.9-2_amd64.deb"
-	while [ ! -O "/root/$amdCheck" -a "$isPi" = "0" ] ; do
-		echo "LynxCI: Downloading and installing the Lynx (AMD) package."
-		wget -P /root https://github.com/getlynx/Lynx/releases/download/v0.16.3.9/$amdCheck
-		dpkg -i /root/$amdCheck
-	done
-	armCheck="lynxd_0.16.3.9-1_armhf.deb"
-	while [ ! -O "/root/$armCheck" -a "$isPi" = "1" ] ; do
-		echo "LynxCI: Downloading and installing the Lynx (ARM) package."
-		wget -P /root https://github.com/getlynx/Lynx/releases/download/v0.16.3.9/$armCheck
-		dpkg -i /root/$armCheck
-	done
-fi
+while [ "$installationMethod" = "install" -a ! -O "/root/$installationFile" ] ; do
+	echo "LynxCI: Downloading and installing the Lynx installer package for the target OS."
+	wget -P /root $installationSource && dpkg -i /root/$installationFile
+done
 lconfCheck="/root/.lynx/lynx.conf"
 while [ ! -O $lconfCheck ] ; do # Only create the file if it doesn't already exist.
 	echo "# The following RPC credentials are created at build time and are unique to this host. If you
@@ -560,7 +568,7 @@ done
 [ "$isPi" = "1" ] && sed -i "s|maxmempool=100|maxmempool=10|g" $lconfCheck
 [ "$isPi" = "1" ] && sed -i "s|dbcache=450|dbcache=100|g" $lconfCheck # Default is 450MB. Changed to 100MB on the Pi.
 cp --remove-destination $lconfCheck /root/.lynx/.lynx.conf && chmod 600 /root/.lynx/.lynx.conf # We are gonna create a backup of the initially created lynx.conf file.
-if [ "$profil" = "compile" ]; then
+if [ "$installationMethod" = "compile" ]; then
 	cd /root/lynx/ && ./autogen.sh # And finish the configure statement WITH the Berkeley DB parameters included.
 	[ "$isPi" = "1" ] && ./configure LDFLAGS="-L/root/lynx/db4/lib/" CPPFLAGS="-I/root/lynx/db4/include/ -O2" --enable-cxx --without-gui --disable-shared --with-miniupnpc --enable-upnp-default --disable-tests --disable-bench
 	[ "$isPi" = "0" ] && ./configure LDFLAGS="-L/root/lynx/db4/lib/" CPPFLAGS="-I/root/lynx/db4/include/ -O2" --enable-cxx --without-gui --disable-shared --disable-tests --disable-bench
@@ -568,7 +576,7 @@ if [ "$profil" = "compile" ]; then
 	make install
 	#checkinstall -D --install=yes --pkgname=lynxd --pkgversion=0.16.3.9 --include=/root/.lynx/lynx.conf --requires=libboost-all-dev,libevent-dev,libminiupnpc-dev
 fi
-if [ "$profil" = "install" ]; then
+if [ "$installationMethod" = "install" ]; then
 	sed -i "s|/root/lynx/src/lynxd -daemon=0|/usr/local/bin/lynxd -daemon=0|g" /etc/systemd/system/lynxd.service
 	sed -i "s|/root/lynx/src/lynx-cli|/usr/local/bin/lynx-cli|g" /etc/systemd/system/lynxd.service
 fi
