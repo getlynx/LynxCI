@@ -19,15 +19,16 @@ bootdev="https://github.com/getlynx/LynxBootstrap/releases/download/v1.0-testnet
 [ "$enviro" = "testnet" ] && { port="44566"; echo "LynxCI: The testnet port is 44566."; } # The Lynx network uses this port when peers talk to each other.
 [ "$enviro" = "testnet" ] && { rpcport="19335"; echo "LynxCI: The testnet rpcport is 19335."; } # This is the netowork port for RPC communication with clients.
 echo "LynxCI: Updating the installed package list."
-systemctl disable lynxd >/dev/null 2>&1 # In case the install is taking place again, due to a failed previous install.
-systemctl stop lynxd >/dev/null 2>&1 # In case the install is taking place again, due to a failed previous install.
-systemctl daemon-reload >/dev/null 2>&1 # In case the install is taking place again, due to a failed previous install.
-apt-get update -y >/dev/null 2>&1 # Before we begin, we need to update the local repo. For now, the update is all we need and the device will still function properly.
-apt-get remove -y apache2 pi-bluetooth postfix >/dev/null 2>&1
+systemctl disable lynxd # In case the install is taking place again, due to a failed previous install.
+systemctl stop lynxd # In case the install is taking place again, due to a failed previous install.
+systemctl daemon-reload # In case the install is taking place again, due to a failed previous install.
+apt-get update -y # Before we begin, we need to update the local repo. For now, the update is all we need and the device will still function properly.
+apt-get remove -y apache2 pi-bluetooth postfix
 #apt-get upgrade -y # Sometimes the upgrade generates an interactive prompt. This is best handled manually depending on the VPS vendor.
-apt-get install -y apt-transport-https autoconf automake build-essential bzip2 ca-certificates checkinstall curl fail2ban g++ gcc git git-core htop libboost-all-dev libcurl4-openssl-dev libevent-dev libgmp-dev libjansson-dev libminiupnpc-dev libncurses5-dev libssl-dev libtool libz-dev logrotate lsb-release make nano pkg-config software-properties-common sudo unzip >/dev/null 2>&1
+apt-get install -y apt-transport-https autoconf automake build-essential bzip2 ca-certificates curl fail2ban g++ gcc git git-core htop libboost-all-dev libcurl4-openssl-dev libevent-dev libgmp-dev libjansson-dev libminiupnpc-dev libncurses5-dev libssl-dev libtool libz-dev logrotate lsb-release make nano pkg-config software-properties-common sudo unzip
+#apt-get install -y checkinstall
 echo "LynxCI: Required system packages have been installed."
-apt-get autoremove -y >/dev/null 2>&1 # Time for some cleanup work.
+apt-get autoremove -y # Time for some cleanup work.
 rpcuser="$(shuf -i 1000000000-3999999999 -n 1)$(shuf -i 1000000000-3999999999 -n 1)$(shuf -i 1000000000-3999999999 -n 1)" # Lets generate some RPC credentials for this node.
 rpcpass="$(shuf -i 1000000000-3999999999 -n 1)$(shuf -i 1000000000-3999999999 -n 1)$(shuf -i 1000000000-3999999999 -n 1)" # Lets generate some RPC credentials for this node.
 isPi="0" && [ "$(cat /proc/cpuinfo | grep 'Revision')" != "" ] && { isPi="1"; echo "LynxCI: The target device is a Raspberry Pi."; } # Default to 0. If the value is 1, then we know the target device is a Pi.
@@ -59,12 +60,12 @@ while [ ! -O $firewallCheck ] ; do # Only create the file if it doesn't already 
 	[ -f /root/.lynx/bootstrap.dat.old ] && /bin/rm -rf /root/.lynx/bootstrap.dat.old # Lets delete it if it still exists on the drive.
 	[ -f /root/*.deb ] && /bin/rm -rf /root/*.deb # Lets delete the installer if it still exists on the drive.
 	[ \"\$(/usr/local/bin/lynx-cli uptime)\" -gt \"604900\" ] && /bin/sed -i 's/IsRestricted=N/IsRestricted=Y/' /root/LynxCI/firewall.sh # Lock the firewall after 1 week" > $firewallCheck
-	sleep 2 && sed -i 's/^[\t]*//' $firewallCheck # Remove the pesky tabs inserted by the 'echo' outputs.
-	[ "$isPi" = "0" ] && echo "/usr/sbin/deluser lynx sudo >/dev/null 2>&1" >> $firewallCheck # Remove the lynx user from the sudo group, except if the host is a Pi. This is for security reasons.
-	sleep 2 && chmod 700 $firewallCheck # Need to make sure crontab can run the file.
+	sleep 1 && sed -i 's/^[\t]*//' $firewallCheck # Remove the pesky tabs inserted by the 'echo' outputs.
+	[ "$isPi" = "0" ] && { echo "/usr/sbin/deluser lynx sudo >/dev/null 2>&1" >> $firewallCheck; } # Remove the lynx user from the sudo group, except if the host is a Pi. This is for security reasons.
+	sleep 1 && chmod 700 $firewallCheck # Need to make sure crontab can run the file.
 	echo "LynxCI: The default iptables was created."
 done
-crontab -r >/dev/null 2>&1 # Purge and set the firewall crontab
+crontab -r # Purge and set the firewall crontab
 crontab -l | { cat; echo "@daily		/root/LynxCI/firewall.sh"; } | crontab - # Purge and set the firewall crontab
 echo "LynxCI: Firewall is built and scheduled to run daily."
 echo "$name" > /etc/hostname
@@ -72,7 +73,7 @@ echo "$name" > /etc/hostname
 echo "LynxCI: Preparing to install Nginx."
 curl -ssL -o /etc/apt/trusted.gpg.d/php.gpg https://packages.sury.org/php/apt.gpg # To prep the install of Nginx, get the keys installed.
 sh -c 'echo "deb https://packages.sury.org/php/ $(lsb_release -sc) main" > /etc/apt/sources.list.d/php.list' # Add Nginx to the source list.
-apt-get -y update >/dev/null 2>&1 && apt-get -y install nginx php7.2 php7.2-common php7.2-bcmath php7.2-cli php7.2-fpm php7.2-opcache php7.2-xml php7.2-curl php7.2-mbstring php7.2-zip >/dev/null 2>&1 # Install the needed Nginx packages.
+apt-get -y update && apt-get -y install nginx php7.2 php7.2-common php7.2-bcmath php7.2-cli php7.2-fpm php7.2-opcache php7.2-xml php7.2-curl php7.2-mbstring php7.2-zip # Install the needed Nginx packages.
 echo "LynxCI: Nginx install is complete."
 echo "LynxCI: Downloading the Lynx $enviro bootstrap file."
 [ "$enviro" = "mainnet" ] && { bootstrapCheck="/root/.lynx/bootstrap.dat"; }
@@ -80,9 +81,9 @@ echo "LynxCI: Downloading the Lynx $enviro bootstrap file."
 while [ ! -O $bootstrapCheck ] ; do # Only create the file if it doesn't already exist.
 	[ "$enviro" = "mainnet" ] && { mkdir -p /root/.lynx/; wget $bootmai -O - | tar -xz -C /root/.lynx/; }
 	[ "$enviro" = "testnet" ] && { mkdir -p /root/.lynx/testnet4/; wget $bootdev -O - | tar -xz -C /root/.lynx/testnet4/; }
-	sleep 2
+	sleep 1
 	chmod 600 $bootstrapCheck
-	sleep 2
+	sleep 1
 	echo "LynxCI: Lynx $enviro bootstrap tarball is downloaded and decompressed."
 done
 listenerSer="/etc/systemd/system/listener.service"  
@@ -101,7 +102,7 @@ while [ ! -O $listenerSer ] ; do # Only create the file if it doesn't already ex
 	RestartSec=10
 	[Install]
 	WantedBy=multi-user.target" > $listenerSer
-	sleep 2 && sed -i 's/^[\t]*//' $listenerSer # Remove the pesky tabs inserted by the 'echo' outputs.
+	sleep 1 && sed -i 's/^[\t]*//' $listenerSer # Remove the pesky tabs inserted by the 'echo' outputs.
 	echo "LynxCI: Service 'listener' is installed."
 done
 lynxdSer="/etc/systemd/system/lynxd.service"  
@@ -121,7 +122,7 @@ while [ ! -O $lynxdSer ] ; do # Only create the file if it doesn't already exist
 	RestartSec=10
 	[Install]
 	WantedBy=multi-user.target" > $lynxdSer
-	sleep 2 && sed -i 's/^[\t]*//' $lynxdSer # Remove the pesky tabs inserted by the 'echo' outputs.
+	sleep 1 && sed -i 's/^[\t]*//' $lynxdSer # Remove the pesky tabs inserted by the 'echo' outputs.
 	echo "LynxCI: Service 'lynxd' is installed."
 done
 [ "$isPi" = "1" ] && { sed -i 's/CONF_SWAPSIZE=100/CONF_SWAPSIZE=2048/' /etc/dphys-swapfile; /etc/init.d/dphys-swapfile restart; } # On a Raspberry Pi, the default swap is 100MB. This is a little restrictive, so we are expanding it to a full 2GB of swap.
@@ -152,39 +153,39 @@ echo \"\"
 cat /etc/profile.d/logo.txt
 
 echo \"
-| To set up wifi, edit the '/etc/wpa_supplicant/wpa_supplicant.conf' file.    |
-'-----------------------------------------------------------------------------'
-| For local tools to play and learn, type 'sudo lynx-cli help'.               |
-'-----------------------------------------------------------------------------'
-| For LYNX RPC credentials, type 'sudo nano /root/.lynx/lynx.conf'.           |
-'-----------------------------------------------------------------------------'\"
+  | To set up wifi, edit the '/etc/wpa_supplicant/wpa_supplicant.conf' file.    |
+  '-----------------------------------------------------------------------------'
+  | For local tools to play and learn, type 'sudo lynx-cli help'.               |
+  '-----------------------------------------------------------------------------'
+  | For LYNX RPC credentials, type 'sudo nano /root/.lynx/lynx.conf'.           |
+  '-----------------------------------------------------------------------------'\"
 
 if [ \"\$(id -u)\" = \"0\" ]; then
 if [ ! -z \"\$(lynx-cli getblockcount)\" ]; then
 
-echo \" | The current block height on this LynxCI node is \$(lynx-cli getblockcount).                    |
-'-----------------------------------------------------------------------------'\"
+echo \"  | The current block height on this LynxCI node is \$(lynx-cli getblockcount).                    |
+  '-----------------------------------------------------------------------------'\"
 
-echo \" | Local version is \$(lynx-cli -version).          |
-'-----------------------------------------------------------------------------'\"
+echo \"  | Local version is \$(lynx-cli -version).          |
+  '-----------------------------------------------------------------------------'\"
 
 fi
 fi
 
-echo \" | The unique identifier for this LynxCI node is $name.                |
-'-----------------------------------------------------------------------------'\"
+echo \"  | The unique identifier for this LynxCI node is $name.                |
+  '-----------------------------------------------------------------------------'\"
 
 port=\"$port\"
 
 if [ \"\$port\" = \"44566\" ]; then
 
-echo \" | This is a non-production 'testnet' environment of Lynx.                     |
-'-----------------------------------------------------------------------------'\"
+echo \"  | This is a non-production 'testnet' environment of Lynx.                     |
+  '-----------------------------------------------------------------------------'\"
 
 fi
 
-echo \" | Visit https://getlynx.io/ for more information.                             |
-'-----------------------------------------------------------------------------'\"
+echo \"  | Visit https://getlynx.io/ for more information.                             |
+  '-----------------------------------------------------------------------------'\"
 
 " > /etc/profile.d/portcheck.sh
 chmod 755 /etc/profile.d/portcheck.sh
@@ -250,10 +251,18 @@ if [ "$profil" = "compile" ]; then
 	make --quiet install # Compile the Berkeley DB 4.8 source
 fi
 if [ "$profil" = "install" ]; then
-	[ "$isPi" = "0" ] && wget -P /root https://github.com/getlynx/Lynx/releases/download/v0.16.3.9/lynxd_0.16.3.9-2_amd64.deb
-	[ "$isPi" = "0" ] && dpkg -i /root/lynxd_0.16.3.9-2_amd64.deb
-	[ "$isPi" = "1" ] && wget -P /root https://github.com/getlynx/Lynx/releases/download/v0.16.3.9/lynxd_0.16.3.9-1_armhf.deb
-	[ "$isPi" = "1" ] && dpkg -i /root/lynxd_0.16.3.9-1_armhf.deb
+	amdCheck="lynxd_0.16.3.9-2_amd64.deb"
+	while [ ! -O "/root/$amdCheck" ] ; do
+		echo "LynxCI: Downloading and installing the Lynx (AMD) package."
+		[ "$isPi" = "0" ] && wget -P /root https://github.com/getlynx/Lynx/releases/download/v0.16.3.9/$amdCheck
+		[ "$isPi" = "0" ] && dpkg -i /root/$amdCheck
+	done
+	armCheck="lynxd_0.16.3.9-1_armhf.deb"
+	while [ ! -O "/root/$armCheck" ] ; do
+		echo "LynxCI: Downloading and installing the Lynx (ARM) package."
+		[ "$isPi" = "1" ] && wget -P /root https://github.com/getlynx/Lynx/releases/download/v0.16.3.9/$armCheck
+		[ "$isPi" = "1" ] && dpkg -i /root/$armCheck
+	done
 fi
 lconfCheck="/root/.lynx/lynx.conf"  
 while [ ! -O $lconfCheck ] ; do # Only create the file if it doesn't already exist.
@@ -555,8 +564,8 @@ if [ "$profil" = "compile" ]; then
 	[ "$isPi" = "1" ] && ./configure LDFLAGS="-L/root/lynx/db4/lib/" CPPFLAGS="-I/root/lynx/db4/include/ -O2" --enable-cxx --without-gui --disable-shared --with-miniupnpc --enable-upnp-default --disable-tests --disable-bench
 	[ "$isPi" = "0" ] && ./configure LDFLAGS="-L/root/lynx/db4/lib/" CPPFLAGS="-I/root/lynx/db4/include/ -O2" --enable-cxx --without-gui --disable-shared --disable-tests --disable-bench
 	make
-	#make install
-	checkinstall -D --install=yes --pkgname=lynxd --pkgversion=0.16.3.9 --include=/root/.lynx/lynx.conf --requires=libboost-all-dev,libevent-dev,libminiupnpc-dev
+	make install
+	#checkinstall -D --install=yes --pkgname=lynxd --pkgversion=0.16.3.9 --include=/root/.lynx/lynx.conf --requires=libboost-all-dev,libevent-dev,libminiupnpc-dev
 fi
 if [ "$profil" = "install" ]; then
 	sed -i "s|/root/lynx/src/lynxd -daemon=0|/usr/local/bin/lynxd -daemon=0|g" /etc/systemd/system/lynxd.service
@@ -569,24 +578,25 @@ chown -R root:root /root/.lynx/* # Be sure to reset the ownership of all files i
 chmod 600 /root/.lynx/*.conf # previously changed the default ownership setting. More of a precautionary measure.
 verifyconf="/etc/logrotate.d/lynxd.conf"
 while [ ! -O $verifyssh ] ; do 	
-echo "/root/.lynx/debug.log {
-	daily
-	rotate 7
-	size 10M
-	copytruncate
-	compress
-	notifempty
-	missingok
-}
-/root/.lynx/testnet4/debug.log {
-	daily
-	rotate 7
-	size 10M
-	copytruncate
-	compress
-	notifempty
-	missingok
-}" > $verifyconf
+	echo "/root/.lynx/debug.log {
+		daily
+		rotate 7
+		size 10M
+		copytruncate
+		compress
+		notifempty
+		missingok
+	}
+	/root/.lynx/testnet4/debug.log {
+		daily
+		rotate 7
+		size 10M
+		copytruncate
+		compress
+		notifempty
+		missingok
+	}" > $verifyconf
+	sleep 1 && sed -i 's/^[\t]*//' $verifyconf # Remove the pesky tabs inserted by the 'echo' outputs.
 done
 echo "LynxCI: Lynx was installed."
 verifyssh="/boot/ssh" 											# We now write this empty file to the /boot dir. This file will persist after reboot so if
@@ -599,10 +609,10 @@ while [ ! -O $verifylynxci ] ; do
 	/usr/bin/touch $verifylynxci
 	echo "LynxCI: Post install tasks are complete."
 done
-echo "LynxCI: LynxCI was installed. A reboot will occur 10 seconds."
+echo "LynxCI: LynxCI was installed. A reboot will occur 2 seconds."
 /bin/rm -rf /root/setup.sh
 /bin/rm -rf /root/LynxCI/setup.sh
 /bin/rm -rf /root/LynxCI/init.sh
 /bin/rm -rf /root/LynxCI/README.md
 /bin/rm -rf /root/LynxCI/install.sh
-sleep 10 && reboot
+sleep 2 && reboot
