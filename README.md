@@ -4,7 +4,7 @@ Creates a Lynx cryptocurrency node that confirms and relays transactions, runs a
 
 ## One line install script
 
-This script supports the following Linux operating systems. [Raspbian for Raspberry Pi](https://www.raspberrypi.org/downloads/raspbian/), Debian 10, Debian 9 and Debian 8. The script is only recommended for a VPS or local server that has a freshly installed OS with no previously written data. Seriously, don't execute this script on a VPS that has data you care about. This precaution is for your own security.
+This script supports the following Linux operating systems. [Raspbian for Raspberry Pi](https://www.raspberrypi.org/downloads/raspbian/), Debian 9 and Debian 8. The script is only recommended for a VPS or local server that has a freshly installed OS with no previously written data. Seriously, don't execute this script on a VPS that has data you care about. This precaution is for your own security.
 
 You can execute the following install script, as 'root', after your OS is installed and updated. Just copy/paste and hit return. 
 ```
@@ -22,7 +22,7 @@ After the LynxCI node is built, the default user account is 'lynx' and the passw
 
 After the build finishes and the host reboots, you will have until midnight UTC Saturday to log in via port 22. You can update /root/LynxCI/firewall.sh with your home or office IP to allow remote access. This is a feature that results in a higher level of security for the node. Of course, the wallet functions of the host are not enabled by default too. If you can't log in with with the default password 'lynx', use the console feature of your VPS vendor (they all have it), access the root account and edit the 'IsRestricted' variable (change it from 'Y' to 'N') in the /root/LynxCI/firewall.sh file, and then execute the /root/LynxCI/firewall.sh file. Further details on this feature are available on our [Lynx FAQ](https://getlynx.io/faq/).
 
-## [LynxCI for Pi](http://cdn.getlynx.io/LynxCI.tar.gz)
+## [LynxCI for Pi](https://github.com/getlynx/LynxCI/releases/download/v26-ISO/LynxCI.tar.gz)
 
 The above instructions work fine for a Raspberry Pi 2 or 3 if you want to play, learn and do it manually. But if you want to get your Raspberry Pi up and running quick, the ISO is for you. Simply [download the LynxCI ISO from here](https://getlynx.io/downloads/) and then flash it to an SD card. We have found [Etcher](https://etcher.io) to be very easy to use. Then insert the card into the SD card slot on the bottom of the Raspberry Pi and power it on. No keyboard, mouse or monitor is required. You must plug in an ethernet cable connection to the device; maybe from your home router. That is it. It will be fully functional in about 15 hours. Here is a blog post and video of the [whole process](https://getlynx.io/can-non-techies-mine-lynx-crypto/).
 
@@ -52,20 +52,6 @@ According to a recent article in [Wired magazine](https://www.wired.com/story/bi
 
 Lynx is a cryptocurrency from the past re-designed for the future. We designed Lynx to have minimal environmental impact because we’re committed to creating global solutions and maintaining a small carbon footprint. Lynx business rules encourage the use of low-cost computing (like a Raspberry Pi which only consumes less than 3 watts of electricity) to mine the coin. As a result, the electrical cost to maintain the Lynx network is a fraction of a fraction which results in a low environmental impact. The emphasis on low-cost computing also creates a decentralized, broad miner base which also strengthens the stability and security of the currency.
 
-## Bootstrap File for Mainnet
+## Bootstrap File
 
-A bootstrap file for all blocks up to 2,500,000 can be downloaded [here](https://github.com/getlynx/Lynx/releases/tag/v0.16.3.5). Any remaining blocks will be synced automatically. The bootstrap is used automatically in the LynxCI install. No official bootstrap file exists for Testnet.
-
-## Discount VPS vendor recommendations
-
-While we love [Linode.com](https://www.linode.com) for their quality of service and ease of use, the following discount vendors allow for a very low monthly fee to build and run a Lynx node in the cloud. Again, we recommend Debian 9 OS. We strongly recommend you not modify the [CPU limit](https://getlynx.io/can-the-integrated-miner-in-lynx-be-disabled/) so the vendor doesn't ban your node for abuse.
-
-1. [SparkVPS](https://www.sparkvps.com/crm/cart.php?a=add&pid=180) 2GB KVM VPS is USD $25/year
-
-2. [DCNHost](https://my.dcnhost.com/cart.php?a=add&pid=150) 2GB KVM VPS is USD $25/year
-
-3. [SnowVPS](https://www.snowvps.com/portal/cart.php?a=add&pid=93) 2GB KVM VPS is USD $30/year
-
-4. [HostBrz](https://www.hostbrz.com/portal/cart.php?a=add&pid=137&billingcycle=triennially) 2GB KVM VPS is USD $35/year (Exception agreement for Lynx. No ban risk if load average stay under 1.0.)
-
-5. [KayHosting](https://clients.kayhosting.com/cart.php?a=add&pid=104) 2GB KVM VPS is USD $35/year
+A (relatively) current bootstrap file can be downloaded [here](https://github.com/getlynx/LynxBootstrap/releases). Any remaining blocks will be synced automatically. The bootstrap is used automatically in the LynxCI install.
