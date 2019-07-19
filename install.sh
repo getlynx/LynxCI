@@ -25,6 +25,14 @@ if [ "$(cat /etc/os-release | grep 'PRETTY_NAME')" = "PRETTY_NAME=\"Raspbian GNU
 	installationFile="${installationSource##*/}"
 fi
 #
+# We can't support every OS but we will try to update the script to support
+# more as time passes.
+#
+if [ "$(cat /etc/os-release | grep 'PRETTY_NAME')" = "PRETTY_NAME=\"Ubuntu 19.04\"" ]; then
+	echo "This script does not support Ubuntu 19.04. Build script quit."
+	exit 33;
+fi
+#
 bootmai="https://github.com/getlynx/LynxBootstrap/releases/download/v2.0-mainnet/bootstrap.tar.gz"
 bootdev="https://github.com/getlynx/LynxBootstrap/releases/download/v1.0-testnet/bootstrap.tar.gz"
 [ -z "$1" ] && enviro="mainnet" # Default is mainnet.
@@ -182,28 +190,28 @@ echo \"
 if [ \"\$(id -u)\" = \"0\" ]; then
 if [ ! -z \"\$(lynx-cli getblockcount)\" ]; then
 
-echo \"  | The current block height on this LynxCI node is \$(lynx-cli getblockcount).                    |
+echo \" | The current block height on this LynxCI node is \$(lynx-cli getblockcount).                    |
  '-----------------------------------------------------------------------------'\"
 
-echo \"  | Local version is \$(lynx-cli -version).          |
+echo \" | Local version is \$(lynx-cli -version).          |
  '-----------------------------------------------------------------------------'\"
 
 fi
 fi
 
-echo \"  | The unique identifier for this LynxCI node is $name.                |
+echo \" | The unique identifier for this LynxCI node is $name.                |
  '-----------------------------------------------------------------------------'\"
 
 port=\"$port\"
 
 if [ \"\$port\" = \"44566\" ]; then
 
-echo \"  | This is a non-production 'testnet' environment of Lynx.                     |
+echo \" | This is a non-production 'testnet' environment of Lynx.                     |
  '-----------------------------------------------------------------------------'\"
 
 fi
 
-echo \"  | Visit https://getlynx.io/ for more information.                             |
+echo \" | Visit https://getlynx.io/ for more information.                             |
  '-----------------------------------------------------------------------------'\"
 
 " > /etc/profile.d/portcheck.sh
