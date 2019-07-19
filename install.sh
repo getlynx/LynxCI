@@ -1,10 +1,45 @@
 #!/bin/bash
+#
+#
 # wget -qO - https://getlynx.io/setup.sh | bash
-# OR to overide defaults...
+#		OR to overide defaults...
+# wget -qO - https://getlynx.io/setup.sh | bash -s "[mainnet|testnet]" "[master|0.16.3.9]"
+#		OR ...
 # wget -O - https://getlynx.io/install.sh | bash -s "[mainnet|testnet]" "[master|0.16.3.9]"
-[ -f /boot/lynxci ] && { echo "LynxCI: Previous LynxCI detected. Install aborted."; exit 5; } || { echo "LynxCI: Thanks for starting the Lynx Cryptocurrency Installer (LynxCI)."; }
-enviro="$1" # For most rollouts, the two options are mainnet or testnet. Mainnet is the default 
-branch="$2" # The master branch contains the most recent code. You can switch out an alternate branch name for testing, but beware, branches may not operate as expected.
+#
+#
+# A junk file is stored to dtermine if the script has already run. It's created
+# at the end of this script, so if it's discovered, we know this script already
+# ran.
+#
+if [ -f /boot/lynxci ]; then
+	echo "LynxCI: Previous LynxCI detected. Install aborted."
+	exit 5
+else
+	echo "LynxCI: Thanks for starting the Lynx Cryptocurrency Installer (LynxCI)."
+fi
+#
+# There are only two options allowed, mainnet or testnet. Mainnet is default. 
+#
+networkEnvironment="$1"
+[ -z "$1" ] && networkEnvironment="mainnet"
+if [ "$networkEnvironment" = "mainnet" -o "$networkEnvironment" = "testnet" ]; then
+	echo "LynxCI: Supplied environment parameter ($networkEnvironment) accepted."
+else 
+	echo "LynxCI: Failed to meet required network environment param. The only two accepted values are 'mainnet' and 'testnet'."
+	exit 14
+fi
+#
+# There are only two options allowed, master or 0.16.3.9. 0.16.3.9 is default. 
+#
+lynxBranch="$2"
+[ -z "$2" ] && lynxBranch="0.16.3.9"
+if [ "$lynxBranch" = "master" -o "$lynxBranch" = "0.16.3.9" ]; then
+	echo "LynxCI: Supplied branch parameter ($branch) accepted."
+else
+	echo "LynxCI: Failed to meet required repository branch name param."
+	exit 24
+fi
 #
 # By default, all installations that occur with this script will compile Lynx.
 #
@@ -29,22 +64,30 @@ fi
 # more as time passes.
 #
 if [ "$(cat /etc/os-release | grep 'PRETTY_NAME')" = "PRETTY_NAME=\"Ubuntu 19.04\"" ]; then
-	echo "This script does not support Ubuntu 19.04. Build script quit."
-	exit 33;
+	echo "LynxCI: This script does not support Ubuntu 19.04. Build script quit."
+	exit 53;
+fi
+if [ "$(cat /etc/os-release | grep 'PRETTY_NAME')" = "PRETTY_NAME=\"Ubuntu 18.10\"" ]; then
+	echo "LynxCI: This script does not support Ubuntu 18.10. Build script quit."
+	exit 57;
+fi
+if [ "$(cat /etc/os-release | grep 'VERSION_ID')" = "VERSION_ID=\"18.04\"" ]; then
+	echo "LynxCI: This script does not support Ubuntu 18.04 LTS. Build script quit."
+	exit 61;
+fi
+if [ "$(cat /etc/os-release | grep 'PRETTY_NAME')" = "PRETTY_NAME=\"Debian GNU/Linux 10 (buster)\"" ]; then
+	echo "LynxCI: This script does not support Debian 10. Build script quit."
+	exit 65;
 fi
 #
 bootmai="https://github.com/getlynx/LynxBootstrap/releases/download/v2.0-mainnet/bootstrap.tar.gz"
 bootdev="https://github.com/getlynx/LynxBootstrap/releases/download/v1.0-testnet/bootstrap.tar.gz"
-[ -z "$1" ] && enviro="mainnet" # Default is mainnet.
-[ -z "$2" ] && branch="0.16.3.9"
-[ "$enviro" = "mainnet" -o "$enviro" = "testnet" ] && { echo "LynxCI: Supplied environment parameter ($enviro) accepted."; } || { echo "LynxCI: Failed to meet required params."; }
-[ "$branch" = "master" -o "$branch" = "0.16.3.9" ] && { echo "LynxCI: Supplied branch parameter ($branch) accepted."; } || { echo "LynxCI: Failed to meet required params."; }
-[ "$branch" = "master" ] && installationMethod="compile" # Unless master branch is specified, the profile will install from a DEB file.
-[ "$enviro" = "testnet" ] && installationMethod="compile" # Testnet build are always compiled then installed. No installer exists for testnet.
-[ "$enviro" = "mainnet" ] && { port="22566"; echo "LynxCI: The mainnet port is 22566."; } # The Lynx network uses this port when peers talk to each other.
-[ "$enviro" = "mainnet" ] && { rpcport="9332"; echo "LynxCI: The mainnet rpcport is 9332."; } # This is the netowork port for RPC communication with clients.
-[ "$enviro" = "testnet" ] && { port="44566"; echo "LynxCI: The testnet port is 44566."; } # The Lynx network uses this port when peers talk to each other.
-[ "$enviro" = "testnet" ] && { rpcport="19335"; echo "LynxCI: The testnet rpcport is 19335."; } # This is the netowork port for RPC communication with clients.
+[ "$lynxBranch" = "master" ] && installationMethod="compile" # Unless master branch is specified, the profile will install from a DEB file.
+[ "$networkEnvironment" = "testnet" ] && installationMethod="compile" # Testnet build are always compiled then installed. No installer exists for testnet.
+[ "$networkEnvironment" = "mainnet" ] && { port="22566"; echo "LynxCI: The mainnet port is 22566."; } # The Lynx network uses this port when peers talk to each other.
+[ "$networkEnvironment" = "mainnet" ] && { rpcport="9332"; echo "LynxCI: The mainnet rpcport is 9332."; } # This is the netowork port for RPC communication with clients.
+[ "$networkEnvironment" = "testnet" ] && { port="44566"; echo "LynxCI: The testnet port is 44566."; } # The Lynx network uses this port when peers talk to each other.
+[ "$networkEnvironment" = "testnet" ] && { rpcport="19335"; echo "LynxCI: The testnet rpcport is 19335."; } # This is the netowork port for RPC communication with clients.
 echo "LynxCI: Updating the installed package list."
 systemctl disable lynxd # In case the install is taking place again, due to a failed previous install.
 systemctl stop lynxd # In case the install is taking place again, due to a failed previous install.
@@ -59,10 +102,10 @@ apt-get autoremove -y # Time for some cleanup work.
 rpcuser="$(shuf -i 1000000000-3999999999 -n 1)$(shuf -i 1000000000-3999999999 -n 1)$(shuf -i 1000000000-3999999999 -n 1)" # Lets generate some RPC credentials for this node.
 rpcpass="$(shuf -i 1000000000-3999999999 -n 1)$(shuf -i 1000000000-3999999999 -n 1)$(shuf -i 1000000000-3999999999 -n 1)" # Lets generate some RPC credentials for this node.
 isPi="0" && [ "$(cat /proc/cpuinfo | grep 'Revision')" != "" ] && { isPi="1"; echo "LynxCI: The target device is a Raspberry Pi."; } # Default to 0. If the value is 1, then we know the target device is a Pi.
-[ "$enviro" = "mainnet" -a "$isPi" = "1" ] && name="lynxpi$(shuf -i 200000000-999999999 -n 1)" # If the device is a Pi, the name is appended.
-[ "$enviro" = "mainnet" -a "$isPi" = "0" ] && name="lynx$(shuf -i 200000000-999999999 -n 1)" # If the device is running mainnet then the node id starts with 2-9.
-[ "$enviro" = "testnet" -a "$isPi" = "1" ] && name="lynxpi$(shuf -i 100000000-199999999 -n 1)" # If the device is a Pi, the name is appended.
-[ "$enviro" = "testnet" -a "$isPi" = "0" ] && name="lynx$(shuf -i 100000000-199999999 -n 1)" # If the device is running testnet then the node id starts with 1.
+[ "$networkEnvironment" = "mainnet" -a "$isPi" = "1" ] && name="lynxpi$(shuf -i 200000000-999999999 -n 1)" # If the device is a Pi, the name is appended.
+[ "$networkEnvironment" = "mainnet" -a "$isPi" = "0" ] && name="lynx$(shuf -i 200000000-999999999 -n 1)" # If the device is running mainnet then the node id starts with 2-9.
+[ "$networkEnvironment" = "testnet" -a "$isPi" = "1" ] && name="lynxpi$(shuf -i 100000000-199999999 -n 1)" # If the device is a Pi, the name is appended.
+[ "$networkEnvironment" = "testnet" -a "$isPi" = "0" ] && name="lynx$(shuf -i 100000000-199999999 -n 1)" # If the device is running testnet then the node id starts with 1.
 [ "$isPi" = "1" ] && sed -i '/pi3-disable-bt/d' /boot/config.txt # Lets not assume that an entry already exists on the Pi, so purge any preexisting bluetooth variables.
 [ "$isPi" = "1" ] && echo "dtoverlay=pi3-disable-bt" >> /boot/config.txt # Now, append the variable and value to the end of the file for the Pi.
 firewallCheck="/root/LynxCI/firewall.sh"
@@ -102,16 +145,16 @@ curl -ssL -o /etc/apt/trusted.gpg.d/php.gpg https://packages.sury.org/php/apt.gp
 sh -c 'echo "deb https://packages.sury.org/php/ $(lsb_release -sc) main" > /etc/apt/sources.list.d/php.list' # Add Nginx to the source list.
 apt-get -y update && apt-get -y install nginx php7.2 php7.2-common php7.2-bcmath php7.2-cli php7.2-fpm php7.2-opcache php7.2-xml php7.2-curl php7.2-mbstring php7.2-zip # Install the needed Nginx packages.
 echo "LynxCI: Nginx install is complete."
-echo "LynxCI: Downloading the Lynx $enviro bootstrap file."
-[ "$enviro" = "mainnet" ] && { bootstrapCheck="/root/.lynx/bootstrap.dat"; }
-[ "$enviro" = "testnet" ] && { bootstrapCheck="/root/.lynx/testnet4/bootstrap.dat"; }
+echo "LynxCI: Downloading the Lynx $networkEnvironment bootstrap file."
+[ "$networkEnvironment" = "mainnet" ] && { bootstrapCheck="/root/.lynx/bootstrap.dat"; }
+[ "$networkEnvironment" = "testnet" ] && { bootstrapCheck="/root/.lynx/testnet4/bootstrap.dat"; }
 while [ ! -O $bootstrapCheck ] ; do # Only create the file if it doesn't already exist.
-	[ "$enviro" = "mainnet" ] && { mkdir -p /root/.lynx/; wget $bootmai -O - | tar -xz -C /root/.lynx/; }
-	[ "$enviro" = "testnet" ] && { mkdir -p /root/.lynx/testnet4/; wget $bootdev -O - | tar -xz -C /root/.lynx/testnet4/; }
+	[ "$networkEnvironment" = "mainnet" ] && { mkdir -p /root/.lynx/; wget $bootmai -O - | tar -xz -C /root/.lynx/; }
+	[ "$networkEnvironment" = "testnet" ] && { mkdir -p /root/.lynx/testnet4/; wget $bootdev -O - | tar -xz -C /root/.lynx/testnet4/; }
 	sleep 1
 	chmod 600 $bootstrapCheck
 	sleep 1
-	echo "LynxCI: Lynx $enviro bootstrap tarball is downloaded and decompressed."
+	echo "LynxCI: Lynx $networkEnvironment bootstrap tarball is downloaded and decompressed."
 done
 listenerSer="/etc/systemd/system/listener.service"
 while [ ! -O $listenerSer ] ; do # Only create the file if it doesn't already exist.
@@ -270,7 +313,7 @@ chown www-data:www-data -R /var/www/html/
 echo "LynxCI: Block Crawler is installed."
 if [ "$installationMethod" = "compile" ]; then
 	rm -rf /root/lynx/ # Lets assume this directory already exists, so lets purge it first.
-	git clone -b "$branch" https://github.com/getlynx/Lynx.git /root/lynx/ # Pull down the specific branch version of Lynx source we arew planning to compile.
+	git clone -b "$lynxBranch" https://github.com/getlynx/Lynx.git /root/lynx/ # Pull down the specific branch version of Lynx source we arew planning to compile.
 	rm -rf /root/lynx/db4 && mkdir -p /root/lynx/db4 # We will need this db4 directory soon so let's delete and create it. Just in case.
 	cd /root/lynx/ && wget http://download.oracle.com/berkeley-db/db-4.8.30.NC.tar.gz # Pull down the Berkeley DB 4.8 source tarball.
 	tar -xzf db-4.8.30.NC.tar.gz && cd db-4.8.30.NC/build_unix/ # Unpack the tarball and hop into the directory.
@@ -568,13 +611,13 @@ while [ ! -O $lconfCheck ] ; do # Only create the file if it doesn't already exi
 	sleep 2 && sed -i 's/^[\t]*//' $lconfCheck # Remove the pesky tabs inserted by the 'echo' outputs.
 	echo "LynxCI: Lynx default configuration file, '$lconfCheck' was created."
 done
-[ "$enviro" = "testnet" ] && { sed -i 's|testnet=0|testnet=1|g' $lconfCheck; echo "LynxCI: This node is operating on the testnet environment and it's now set in the lynx.conf file."; }
-[ "$enviro" = "mainnet" ] && { sed -i 's|testnet=1|testnet=0|g' $lconfCheck; echo "LynxCI: This node is operating on the mainnet environment and it's now set in the lynx.conf file."; }
-[ "$enviro" = "mainnet" ] && { sed -i '/mineraddress=m/d' $lconfCheck; echo "LynxCI: Removed default testnet mining addresses (M) from the lynx.conf file."; }
-[ "$enviro" = "mainnet" ] && { sed -i '/mineraddress=n/d' $lconfCheck; echo "LynxCI: Removed default testnet mining addresses (N) from the lynx.conf file."; }
-[ "$enviro" = "testnet" ] && { sed -i '/mineraddress=K/d' $lconfCheck; echo "LynxCI: Removed default mainnet mining addresses (K) from the lynx.conf file."; }
-[ "$enviro" = "mainnet" ] && { sed -i '/addnode=test/d' $lconfCheck; echo "LynxCI: Removed default testnet nodes from the addnode list in the lynx.conf file."; }
-[ "$enviro" = "testnet" ] && { sed -i '/addnode=node/d' $lconfCheck; echo "LynxCI: Removed default mainnet nodes from the addnode list in the lynx.conf file."; }
+[ "$networkEnvironment" = "testnet" ] && { sed -i 's|testnet=0|testnet=1|g' $lconfCheck; echo "LynxCI: This node is operating on the testnet environment and it's now set in the lynx.conf file."; }
+[ "$networkEnvironment" = "mainnet" ] && { sed -i 's|testnet=1|testnet=0|g' $lconfCheck; echo "LynxCI: This node is operating on the mainnet environment and it's now set in the lynx.conf file."; }
+[ "$networkEnvironment" = "mainnet" ] && { sed -i '/mineraddress=m/d' $lconfCheck; echo "LynxCI: Removed default testnet mining addresses (M) from the lynx.conf file."; }
+[ "$networkEnvironment" = "mainnet" ] && { sed -i '/mineraddress=n/d' $lconfCheck; echo "LynxCI: Removed default testnet mining addresses (N) from the lynx.conf file."; }
+[ "$networkEnvironment" = "testnet" ] && { sed -i '/mineraddress=K/d' $lconfCheck; echo "LynxCI: Removed default mainnet mining addresses (K) from the lynx.conf file."; }
+[ "$networkEnvironment" = "mainnet" ] && { sed -i '/addnode=test/d' $lconfCheck; echo "LynxCI: Removed default testnet nodes from the addnode list in the lynx.conf file."; }
+[ "$networkEnvironment" = "testnet" ] && { sed -i '/addnode=node/d' $lconfCheck; echo "LynxCI: Removed default mainnet nodes from the addnode list in the lynx.conf file."; }
 [ "$isPi" = "1" ] && sed -i "s|maxmempool=100|maxmempool=10|g" $lconfCheck
 [ "$isPi" = "1" ] && sed -i "s|dbcache=450|dbcache=100|g" $lconfCheck # Default is 450MB. Changed to 100MB on the Pi.
 cp --remove-destination $lconfCheck /root/.lynx/.lynx.conf && chmod 600 /root/.lynx/.lynx.conf # We are gonna create a backup of the initially created lynx.conf file.
