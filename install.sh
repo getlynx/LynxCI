@@ -7,6 +7,7 @@
 #		OR ...
 # wget -O - https://getlynx.io/install.sh | bash -s "[mainnet|testnet]" "[master|0.16.3.9]"
 #
+operatingSystem="$(cat /etc/os-release | grep 'PRETTY_NAME')"
 #
 # A junk file is stored to dtermine if the script has already run. It's created
 # at the end of this script, so if it's discovered, we know this script already
@@ -51,12 +52,12 @@ if [ "$projectBranch" != "master" ];
 	# Lynx node very quickly. The current installer supports only Debian 9. If any
 	# other target OS is detected, then the script will compile from source.
 	#
-	if [ "$(cat /etc/os-release | grep 'PRETTY_NAME')" = "PRETTY_NAME=\"Debian GNU/Linux 9 (stretch)\"" ]; then
+	if [ "$operatingSystem" = "PRETTY_NAME=\"Debian GNU/Linux 9 (stretch)\"" ]; then
 		installationMethod="install"
 		installationSource="https://github.com/getlynx/Lynx/releases/download/v0.16.3.9/lynxd_0.16.3.9-2_amd64.deb"
 		installationFile="${installationSource##*/}"
 	fi
-	if [ "$(cat /etc/os-release | grep 'PRETTY_NAME')" = "PRETTY_NAME=\"Raspbian GNU/Linux 9 (stretch)\"" ]; then
+	if [ "$operatingSystem" = "PRETTY_NAME=\"Raspbian GNU/Linux 9 (stretch)\"" ]; then
 		installationMethod="install"
 		installationSource="https://github.com/getlynx/Lynx/releases/download/v0.16.3.9/lynxd_0.16.3.9-1_armhf.deb"
 		installationFile="${installationSource##*/}"
@@ -66,19 +67,19 @@ fi
 # We can't support every OS but we will try to update the script to support
 # more as time passes.
 #
-if [ "$(cat /etc/os-release | grep 'PRETTY_NAME')" = "PRETTY_NAME=\"Ubuntu 19.04\"" ]; then
+if [ "$operatingSystem" = "PRETTY_NAME=\"Ubuntu 19.04\"" ]; then
 	echo "LynxCI: This script does not support Ubuntu 19.04. Build script quit."
 	exit 68;
 fi
-if [ "$(cat /etc/os-release | grep 'PRETTY_NAME')" = "PRETTY_NAME=\"Ubuntu 18.10\"" ]; then
+if [ "$operatingSystem" = "PRETTY_NAME=\"Ubuntu 18.10\"" ]; then
 	echo "LynxCI: This script does not support Ubuntu 18.10. Build script quit."
 	exit 72;
 fi
-if [ "$(cat /etc/os-release | grep 'VERSION_ID')" = "VERSION_ID=\"18.04\"" ]; then
+if [ "$operatingSystem" = "PRETTY_NAME=\"Ubuntu 18.04.02 LTS\"" ]; then
 	echo "LynxCI: This script does not support Ubuntu 18.04 LTS. Build script quit."
 	exit 76;
 fi
-if [ "$(cat /etc/os-release | grep 'PRETTY_NAME')" = "PRETTY_NAME=\"Debian GNU/Linux 10 (buster)\"" ]; then
+if [ "$operatingSystem" = "PRETTY_NAME=\"Debian GNU/Linux 10 (buster)\"" ]; then
 	echo "LynxCI: This script does not support Debian 10. Build script quit."
 	exit 80;
 fi
