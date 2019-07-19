@@ -14,7 +14,7 @@
 #
 if [ -f /boot/lynxci ]; then
 	echo "LynxCI: Previous LynxCI detected. Install aborted."
-	exit 5
+	exit 17
 else
 	echo "LynxCI: Thanks for starting the Lynx Cryptocurrency Installer (LynxCI)."
 fi
@@ -27,37 +27,40 @@ if [ "$networkEnvironment" = "mainnet" -o "$networkEnvironment" = "testnet" ]; t
 	echo "LynxCI: Supplied environment parameter ($networkEnvironment) accepted."
 else 
 	echo "LynxCI: Failed to meet required network environment param. The only two accepted values are 'mainnet' and 'testnet'."
-	exit 14
+	exit 30
 fi
 #
 # There are only two options allowed, master or 0.16.3.9. 0.16.3.9 is default. 
 #
-lynxBranch="$2"
-[ -z "$2" ] && lynxBranch="0.16.3.9"
-if [ "$lynxBranch" = "master" -o "$lynxBranch" = "0.16.3.9" ]; then
+projectBranch="$2"
+[ -z "$2" ] && projectBranch="0.16.3.9"
+if [ "$projectBranch" = "master" -o "$projectBranch" = "0.16.3.9" ]; then
 	echo "LynxCI: Supplied branch parameter ($branch) accepted."
 else
 	echo "LynxCI: Failed to meet required repository branch name param."
-	exit 24
+	exit 41
 fi
 #
 # By default, all installations that occur with this script will compile Lynx.
+# Also if the script is set to build from master, it will compile.
 #
 installationMethod="compile"
-#
-# The idea here is to have at least one installer that can be used to build a
-# Lynx node very quickly. The current installer supports only Debian 9. If any
-# other target OS is detected, then the script will compile from source.
-#
-if [ "$(cat /etc/os-release | grep 'PRETTY_NAME')" = "PRETTY_NAME=\"Debian GNU/Linux 9 (stretch)\"" ]; then
-	installationMethod="install"
-	installationSource="https://github.com/getlynx/Lynx/releases/download/v0.16.3.9/lynxd_0.16.3.9-2_amd64.deb"
-	installationFile="${installationSource##*/}"
-fi
-if [ "$(cat /etc/os-release | grep 'PRETTY_NAME')" = "PRETTY_NAME=\"Raspbian GNU/Linux 9 (stretch)\"" ]; then
-	installationMethod="install"
-	installationSource="https://github.com/getlynx/Lynx/releases/download/v0.16.3.9/lynxd_0.16.3.9-1_armhf.deb"
-	installationFile="${installationSource##*/}"
+if [ "$projectBranch" != "master" ];
+	#
+	# The idea here is to have at least one installer that can be used to build a
+	# Lynx node very quickly. The current installer supports only Debian 9. If any
+	# other target OS is detected, then the script will compile from source.
+	#
+	if [ "$(cat /etc/os-release | grep 'PRETTY_NAME')" = "PRETTY_NAME=\"Debian GNU/Linux 9 (stretch)\"" ]; then
+		installationMethod="install"
+		installationSource="https://github.com/getlynx/Lynx/releases/download/v0.16.3.9/lynxd_0.16.3.9-2_amd64.deb"
+		installationFile="${installationSource##*/}"
+	fi
+	if [ "$(cat /etc/os-release | grep 'PRETTY_NAME')" = "PRETTY_NAME=\"Raspbian GNU/Linux 9 (stretch)\"" ]; then
+		installationMethod="install"
+		installationSource="https://github.com/getlynx/Lynx/releases/download/v0.16.3.9/lynxd_0.16.3.9-1_armhf.deb"
+		installationFile="${installationSource##*/}"
+	fi
 fi
 #
 # We can't support every OS but we will try to update the script to support
@@ -65,24 +68,23 @@ fi
 #
 if [ "$(cat /etc/os-release | grep 'PRETTY_NAME')" = "PRETTY_NAME=\"Ubuntu 19.04\"" ]; then
 	echo "LynxCI: This script does not support Ubuntu 19.04. Build script quit."
-	exit 53;
+	exit 68;
 fi
 if [ "$(cat /etc/os-release | grep 'PRETTY_NAME')" = "PRETTY_NAME=\"Ubuntu 18.10\"" ]; then
 	echo "LynxCI: This script does not support Ubuntu 18.10. Build script quit."
-	exit 57;
+	exit 72;
 fi
 if [ "$(cat /etc/os-release | grep 'VERSION_ID')" = "VERSION_ID=\"18.04\"" ]; then
 	echo "LynxCI: This script does not support Ubuntu 18.04 LTS. Build script quit."
-	exit 61;
+	exit 76;
 fi
 if [ "$(cat /etc/os-release | grep 'PRETTY_NAME')" = "PRETTY_NAME=\"Debian GNU/Linux 10 (buster)\"" ]; then
 	echo "LynxCI: This script does not support Debian 10. Build script quit."
-	exit 65;
+	exit 80;
 fi
 #
 bootmai="https://github.com/getlynx/LynxBootstrap/releases/download/v2.0-mainnet/bootstrap.tar.gz"
 bootdev="https://github.com/getlynx/LynxBootstrap/releases/download/v1.0-testnet/bootstrap.tar.gz"
-[ "$lynxBranch" = "master" ] && installationMethod="compile" # Unless master branch is specified, the profile will install from a DEB file.
 [ "$networkEnvironment" = "testnet" ] && installationMethod="compile" # Testnet build are always compiled then installed. No installer exists for testnet.
 [ "$networkEnvironment" = "mainnet" ] && { port="22566"; echo "LynxCI: The mainnet port is 22566."; } # The Lynx network uses this port when peers talk to each other.
 [ "$networkEnvironment" = "mainnet" ] && { rpcport="9332"; echo "LynxCI: The mainnet rpcport is 9332."; } # This is the netowork port for RPC communication with clients.
@@ -136,6 +138,7 @@ while [ ! -O $firewallCheck ] ; do # Only create the file if it doesn't already 
 	echo "LynxCI: The default iptables was created."
 done
 crontab -r # Purge and set the firewall crontab
+crontab -l | { cat; echo "mailto=\"\""; } | crontab -
 crontab -l | { cat; echo "@daily		/root/LynxCI/firewall.sh"; } | crontab - # Purge and set the firewall crontab
 echo "LynxCI: Firewall is built and scheduled to run daily."
 echo "$name" > /etc/hostname
@@ -313,7 +316,7 @@ chown www-data:www-data -R /var/www/html/
 echo "LynxCI: Block Crawler is installed."
 if [ "$installationMethod" = "compile" ]; then
 	rm -rf /root/lynx/ # Lets assume this directory already exists, so lets purge it first.
-	git clone -b "$lynxBranch" https://github.com/getlynx/Lynx.git /root/lynx/ # Pull down the specific branch version of Lynx source we arew planning to compile.
+	git clone -b "$projectBranch" https://github.com/getlynx/Lynx.git /root/lynx/ # Pull down the specific branch version of Lynx source we arew planning to compile.
 	rm -rf /root/lynx/db4 && mkdir -p /root/lynx/db4 # We will need this db4 directory soon so let's delete and create it. Just in case.
 	cd /root/lynx/ && wget http://download.oracle.com/berkeley-db/db-4.8.30.NC.tar.gz # Pull down the Berkeley DB 4.8 source tarball.
 	tar -xzf db-4.8.30.NC.tar.gz && cd db-4.8.30.NC/build_unix/ # Unpack the tarball and hop into the directory.
