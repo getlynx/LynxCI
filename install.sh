@@ -7,6 +7,7 @@
 #		OR ...
 # wget -O - https://getlynx.io/install.sh | bash -s "[mainnet|testnet]" "[master|0.16.3.9]"
 #
+#
 operatingSystem="$(cat /etc/os-release | grep 'PRETTY_NAME')"
 #
 # A junk file is stored to dtermine if the script has already run. It's created
@@ -36,7 +37,7 @@ fi
 projectBranch="$2"
 [ -z "$2" ] && projectBranch="0.16.3.9"
 if [ "$projectBranch" = "master" -o "$projectBranch" = "0.16.3.9" ]; then
-	echo "LynxCI: Supplied branch parameter ($branch) accepted."
+	echo "LynxCI: Supplied branch parameter ($projectBranch) accepted."
 else
 	echo "LynxCI: Failed to meet required repository branch name param."
 	exit 41
@@ -46,7 +47,7 @@ fi
 # Also if the script is set to build from master, it will compile.
 #
 installationMethod="compile"
-if [ "$projectBranch" != "master" ];
+if [ "$projectBranch" != "master" ]; then
 	#
 	# The idea here is to have at least one installer that can be used to build a
 	# Lynx node very quickly. The current installer supports only Debian 9. If any
@@ -75,7 +76,7 @@ if [ "$operatingSystem" = "PRETTY_NAME=\"Ubuntu 18.10\"" ]; then
 	echo "LynxCI: This script does not support Ubuntu 18.10. Build script quit."
 	exit 72;
 fi
-if [ "$operatingSystem" = "PRETTY_NAME=\"Ubuntu 18.04.02 LTS\"" ]; then
+if [ "$operatingSystem" = "PRETTY_NAME=\"Ubuntu 18.04.2 LTS\"" ]; then
 	echo "LynxCI: This script does not support Ubuntu 18.04 LTS. Build script quit."
 	exit 76;
 fi
