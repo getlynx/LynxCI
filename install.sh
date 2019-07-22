@@ -8,7 +8,19 @@
 # wget -O - https://getlynx.io/install.sh | bash -s "[mainnet|testnet]" "[master|0.16.3.9]"
 #
 #
+# Many conditions in the script act on these params. They are needed to ensure
+# the correct version is dynamically installed or compiled.
+#
 operatingSystem="$(cat /etc/os-release | grep 'PRETTY_NAME')"
+systemArchitecture="$(dpkg --print-architecture)"
+#
+# Default to 0. If the value is 1, then we know the target device is a Pi.
+#
+isPi="0"
+if [ "$(cat /proc/cpuinfo | grep 'Revision')" != "" ]; then
+	isPi="1"
+	echo "LynxCI: The target device is a Raspberry Pi."
+fi
 #
 # A junk file is stored to dtermine if the script has already run. It's created
 # at the end of this script, so if it's discovered, we know this script already
@@ -16,7 +28,7 @@ operatingSystem="$(cat /etc/os-release | grep 'PRETTY_NAME')"
 #
 if [ -f /boot/lynxci ]; then
 	echo "LynxCI: Previous LynxCI detected. Install aborted."
-	exit 17
+	exit 31
 else
 	echo "LynxCI: Thanks for starting the Lynx Cryptocurrency Installer (LynxCI)."
 fi
@@ -29,7 +41,7 @@ if [ "$networkEnvironment" = "mainnet" -o "$networkEnvironment" = "testnet" ]; t
 	echo "LynxCI: Supplied environment parameter ($networkEnvironment) accepted."
 else 
 	echo "LynxCI: Failed to meet required network environment param. The only two accepted values are 'mainnet' and 'testnet'."
-	exit 30
+	exit 44
 fi
 #
 # There are only two options allowed, master or 0.16.3.9. 0.16.3.9 is default. 
@@ -40,7 +52,37 @@ if [ "$projectBranch" = "master" -o "$projectBranch" = "0.16.3.9" ]; then
 	echo "LynxCI: Supplied branch parameter ($projectBranch) accepted."
 else
 	echo "LynxCI: Failed to meet required repository branch name param."
-	exit 41
+	exit 55
+fi
+#
+# We can't support every OS and architecture but we will try to update the
+# script to support more as time passes.
+#
+if [ "$systemArchitecture" = "amd64" ]; then
+	echo "LynxCI: Architecture amd64 detected."
+elif [ "$systemArchitecture" = "arm64" ]
+	echo "LynxCI: Architecture arm64 detected."
+elif [ "$isPi" = "1" ]
+	echo "LynxCI: Architecture for Raspberry Pi detected."
+else
+	echo "LynxCI: Unsupporteed system architecture detected. Build script quit."
+	exit 69;
+fi
+if [ "$operatingSystem" = "PRETTY_NAME=\"Ubuntu 19.04\"" ]; then
+	echo "LynxCI: This script does not support Ubuntu 19.04. Build script quit."
+	exit 73;
+fi
+if [ "$operatingSystem" = "PRETTY_NAME=\"Ubuntu 18.10\"" ]; then
+	echo "LynxCI: This script does not support Ubuntu 18.10. Build script quit."
+	exit 77;
+fi
+if [ "$operatingSystem" = "PRETTY_NAME=\"Ubuntu 18.04.2 LTS\"" ]; then
+	echo "LynxCI: This script does not support Ubuntu 18.04 LTS. Build script quit."
+	exit 81;
+fi
+if [ "$operatingSystem" = "PRETTY_NAME=\"Debian GNU/Linux 10 (buster)\"" ]; then
+	echo "LynxCI: This script does not support Debian 10. Build script quit."
+	exit 85;
 fi
 #
 # By default, all installations that occur with this script will compile Lynx.
@@ -53,36 +95,16 @@ if [ "$projectBranch" != "master" ]; then
 	# Lynx node very quickly. The current installer supports only Debian 9. If any
 	# other target OS is detected, then the script will compile from source.
 	#
-	if [ "$operatingSystem" = "PRETTY_NAME=\"Debian GNU/Linux 9 (stretch)\"" ]; then
+	if [ "$operatingSystem" = "PRETTY_NAME=\"Debian GNU/Linux 9 (stretch)\"" -a "$systemArchitecture" = "amd64" ]; then
 		installationMethod="install"
 		installationSource="https://github.com/getlynx/Lynx/releases/download/v0.16.3.9/lynxd_0.16.3.9-2_amd64.deb"
 		installationFile="${installationSource##*/}"
 	fi
-	if [ "$operatingSystem" = "PRETTY_NAME=\"Raspbian GNU/Linux 9 (stretch)\"" ]; then
+	if [ "$operatingSystem" = "PRETTY_NAME=\"Raspbian GNU/Linux 9 (stretch)\"" -a "$isPi" = "1" ]; then
 		installationMethod="install"
 		installationSource="https://github.com/getlynx/Lynx/releases/download/v0.16.3.9/lynxd_0.16.3.9-1_armhf.deb"
 		installationFile="${installationSource##*/}"
 	fi
-fi
-#
-# We can't support every OS but we will try to update the script to support
-# more as time passes.
-#
-if [ "$operatingSystem" = "PRETTY_NAME=\"Ubuntu 19.04\"" ]; then
-	echo "LynxCI: This script does not support Ubuntu 19.04. Build script quit."
-	exit 68;
-fi
-if [ "$operatingSystem" = "PRETTY_NAME=\"Ubuntu 18.10\"" ]; then
-	echo "LynxCI: This script does not support Ubuntu 18.10. Build script quit."
-	exit 72;
-fi
-if [ "$operatingSystem" = "PRETTY_NAME=\"Ubuntu 18.04.2 LTS\"" ]; then
-	echo "LynxCI: This script does not support Ubuntu 18.04 LTS. Build script quit."
-	exit 76;
-fi
-if [ "$operatingSystem" = "PRETTY_NAME=\"Debian GNU/Linux 10 (buster)\"" ]; then
-	echo "LynxCI: This script does not support Debian 10. Build script quit."
-	exit 80;
 fi
 #
 bootmai="https://github.com/getlynx/LynxBootstrap/releases/download/v2.0-mainnet/bootstrap.tar.gz"
@@ -105,7 +127,6 @@ echo "LynxCI: Required system packages have been installed."
 apt-get autoremove -y # Time for some cleanup work.
 rpcuser="$(shuf -i 1000000000-3999999999 -n 1)$(shuf -i 1000000000-3999999999 -n 1)$(shuf -i 1000000000-3999999999 -n 1)" # Lets generate some RPC credentials for this node.
 rpcpass="$(shuf -i 1000000000-3999999999 -n 1)$(shuf -i 1000000000-3999999999 -n 1)$(shuf -i 1000000000-3999999999 -n 1)" # Lets generate some RPC credentials for this node.
-isPi="0" && [ "$(cat /proc/cpuinfo | grep 'Revision')" != "" ] && { isPi="1"; echo "LynxCI: The target device is a Raspberry Pi."; } # Default to 0. If the value is 1, then we know the target device is a Pi.
 [ "$networkEnvironment" = "mainnet" -a "$isPi" = "1" ] && name="lynxpi$(shuf -i 200000000-999999999 -n 1)" # If the device is a Pi, the name is appended.
 [ "$networkEnvironment" = "mainnet" -a "$isPi" = "0" ] && name="lynx$(shuf -i 200000000-999999999 -n 1)" # If the device is running mainnet then the node id starts with 2-9.
 [ "$networkEnvironment" = "testnet" -a "$isPi" = "1" ] && name="lynxpi$(shuf -i 100000000-199999999 -n 1)" # If the device is a Pi, the name is appended.
