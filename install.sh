@@ -60,9 +60,9 @@ fi
 #
 if [ "$systemArchitecture" = "amd64" ]; then
 	echo "LynxCI: Architecture amd64 detected."
-elif [ "$systemArchitecture" = "arm64" ]
+elif [ "$systemArchitecture" = "arm64" ]; then
 	echo "LynxCI: Architecture arm64 detected."
-elif [ "$isPi" = "1" ]
+elif [ "$isPi" = "1" ]; then
 	echo "LynxCI: Architecture for Raspberry Pi detected."
 else
 	echo "LynxCI: Unsupporteed system architecture detected. Build script quit."
