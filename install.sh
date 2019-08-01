@@ -8,6 +8,13 @@
 # wget -O - https://getlynx.io/install.sh | bash -s "[mainnet|testnet]" "[master|0.16.3.9]"
 #
 #
+# The latest links for the boostrap files used by both environments.
+#
+mainnetBootstrap="https://github.com/getlynx/LynxBootstrap/releases/download/v2.0-mainnet/bootstrap.tar.gz" # 2b55dc14c562b862ab20aa8793666215cb6f56e63e73617f6764e442af275fb2
+testnetBootstrap="https://github.com/getlynx/LynxBootstrap/releases/download/v1.0-testnet/bootstrap.tar.gz" # f0a3212f23a399de460a5dfa3d2d8fb207c3b1cbda17e5f10fa591bb97f0d35c
+touchSSHInstallCompleteFile="/boot/ssh"
+touchLynxCIInstallCompleteFile="/boot/lynxci"
+#
 # Many conditions in the script act on these params. They are needed to ensure
 # the correct version is dynamically installed or compiled.
 #
@@ -26,9 +33,9 @@ fi
 # at the end of this script, so if it's discovered, we know this script already
 # ran.
 #
-if [ -f /boot/lynxci ]; then
+if [ -f $touchLynxCIInstallCompleteFile ]; then
 	echo "LynxCI: Previous LynxCI detected. Install aborted."
-	exit 31
+	exit
 else
 	echo "LynxCI: Thanks for starting the Lynx Cryptocurrency Installer (LynxCI)."
 fi
@@ -41,8 +48,13 @@ if [ "$networkEnvironment" = "mainnet" -o "$networkEnvironment" = "testnet" ]; t
 	echo "LynxCI: Supplied environment parameter ($networkEnvironment) accepted."
 else 
 	echo "LynxCI: Failed to meet required network environment param. The only two accepted values are 'mainnet' and 'testnet'."
-	exit 44
+	exit
 fi
+#
+[ "$networkEnvironment" = "mainnet" ] && { port="22566"; echo "LynxCI: The mainnet port is 22566."; }
+[ "$networkEnvironment" = "mainnet" ] && { rpcport="9332"; echo "LynxCI: The mainnet rpcport is 9332."; }
+[ "$networkEnvironment" = "testnet" ] && { port="44566"; echo "LynxCI: The testnet port is 44566."; }
+[ "$networkEnvironment" = "testnet" ] && { rpcport="19335"; echo "LynxCI: The testnet rpcport is 19335."; }
 #
 # There are only two options allowed, master or 0.16.3.9. 0.16.3.9 is default. 
 #
@@ -52,7 +64,7 @@ if [ "$projectBranch" = "master" -o "$projectBranch" = "0.16.3.9" ]; then
 	echo "LynxCI: Supplied branch parameter ($projectBranch) accepted."
 else
 	echo "LynxCI: Failed to meet required repository branch name param."
-	exit 55
+	exit
 fi
 #
 # We can't support every OS and architecture but we will try to update the
@@ -107,13 +119,7 @@ if [ "$projectBranch" != "master" ]; then
 	fi
 fi
 #
-bootmai="https://github.com/getlynx/LynxBootstrap/releases/download/v2.0-mainnet/bootstrap.tar.gz"
-bootdev="https://github.com/getlynx/LynxBootstrap/releases/download/v1.0-testnet/bootstrap.tar.gz"
 [ "$networkEnvironment" = "testnet" ] && installationMethod="compile" # Testnet build are always compiled then installed. No installer exists for testnet.
-[ "$networkEnvironment" = "mainnet" ] && { port="22566"; echo "LynxCI: The mainnet port is 22566."; } # The Lynx network uses this port when peers talk to each other.
-[ "$networkEnvironment" = "mainnet" ] && { rpcport="9332"; echo "LynxCI: The mainnet rpcport is 9332."; } # This is the netowork port for RPC communication with clients.
-[ "$networkEnvironment" = "testnet" ] && { port="44566"; echo "LynxCI: The testnet port is 44566."; } # The Lynx network uses this port when peers talk to each other.
-[ "$networkEnvironment" = "testnet" ] && { rpcport="19335"; echo "LynxCI: The testnet rpcport is 19335."; } # This is the netowork port for RPC communication with clients.
 echo "LynxCI: Updating the installed package list."
 systemctl disable lynxd # In case the install is taking place again, due to a failed previous install.
 systemctl stop lynxd # In case the install is taking place again, due to a failed previous install.
@@ -161,29 +167,43 @@ while [ ! -O $firewallCheck ] ; do # Only create the file if it doesn't already 
 	echo "LynxCI: The default iptables was created."
 done
 crontab -r # Purge and set the firewall crontab
-crontab -l | { cat; echo "mailto=\"\""; } | crontab -
+crontab -l | { cat; echo "MAILTO=\"\""; } | crontab -
 crontab -l | { cat; echo "@daily		/root/LynxCI/firewall.sh"; } | crontab - # Purge and set the firewall crontab
 echo "LynxCI: Firewall is built and scheduled to run daily."
 echo "$name" > /etc/hostname
 [ "$isPi" = "1" ] && { sed -i '/gpu_mem/d' /boot/config.txt; echo "gpu_mem=16" >> /boot/config.txt; echo "LynxCI: Pi GPU memory was reduced to 16MB on reboot."; }
+#
+# We are using Nginx for run the built-in block crawler. Nginx is disabled on
+# start by default. Since it's inefficient and isn't always used, seesm odd to
+# turn it on by default.
+#
 echo "LynxCI: Preparing to install Nginx."
 curl -ssL -o /etc/apt/trusted.gpg.d/php.gpg https://packages.sury.org/php/apt.gpg # To prep the install of Nginx, get the keys installed.
 sh -c 'echo "deb https://packages.sury.org/php/ $(lsb_release -sc) main" > /etc/apt/sources.list.d/php.list' # Add Nginx to the source list.
 apt-get -y update && apt-get -y install nginx php7.2 php7.2-common php7.2-bcmath php7.2-cli php7.2-fpm php7.2-opcache php7.2-xml php7.2-curl php7.2-mbstring php7.2-zip # Install the needed Nginx packages.
 echo "LynxCI: Nginx install is complete."
+#
+# To make the installation go a little faster and reduce Lynx network chatter,
+# let's prep the install with the latest copy of the chain. On first start, the
+# lynxd will index the bootstrap.dat fle and import it.
+#
 echo "LynxCI: Downloading the Lynx $networkEnvironment bootstrap file."
-[ "$networkEnvironment" = "mainnet" ] && { bootstrapCheck="/root/.lynx/bootstrap.dat"; }
-[ "$networkEnvironment" = "testnet" ] && { bootstrapCheck="/root/.lynx/testnet4/bootstrap.dat"; }
-while [ ! -O $bootstrapCheck ] ; do # Only create the file if it doesn't already exist.
-	[ "$networkEnvironment" = "mainnet" ] && { mkdir -p /root/.lynx/; wget $bootmai -O - | tar -xz -C /root/.lynx/; }
-	[ "$networkEnvironment" = "testnet" ] && { mkdir -p /root/.lynx/testnet4/; wget $bootdev -O - | tar -xz -C /root/.lynx/testnet4/; }
+[ "$networkEnvironment" = "mainnet" ] && { bootstrapFile="/root/.lynx/bootstrap.dat"; }
+[ "$networkEnvironment" = "testnet" ] && { bootstrapFile="/root/.lynx/testnet4/bootstrap.dat"; }
+while [ ! -O $bootstrapFile ] ; do # Only create the file if it doesn't already exist.
+	[ "$networkEnvironment" = "mainnet" ] && { mkdir -p /root/.lynx/; wget $mainnetBootstrap -O - | tar -xz -C /root/.lynx/; }
+	[ "$networkEnvironment" = "testnet" ] && { mkdir -p /root/.lynx/testnet4/; wget $testnetBootstrap -O - | tar -xz -C /root/.lynx/testnet4/; }
 	sleep 1
-	chmod 600 $bootstrapCheck
+	chmod 600 $bootstrapFile
 	sleep 1
 	echo "LynxCI: Lynx $networkEnvironment bootstrap tarball is downloaded and decompressed."
 done
-listenerSer="/etc/systemd/system/listener.service"
-while [ ! -O $listenerSer ] ; do # Only create the file if it doesn't already exist.
+#
+# The listener is for data collection, but only on activated nodes. This is
+# done via DNS. For almost all users this service is unused. 
+#
+listenerService="/etc/systemd/system/listener.service"
+while [ ! -O $listenerService ] ; do # Only create the file if it doesn't already exist.
 	echo "#!/bin/bash
 	[Unit]
 	Description=listener
@@ -197,12 +217,16 @@ while [ ! -O $listenerSer ] ; do # Only create the file if it doesn't already ex
 	Restart=always
 	RestartSec=10
 	[Install]
-	WantedBy=multi-user.target" > $listenerSer
-	sleep 1 && sed -i 's/^[\t]*//' $listenerSer # Remove the pesky tabs inserted by the 'echo' outputs.
+	WantedBy=multi-user.target" > $listenerService
+	sleep 1 && sed -i 's/^[\t]*//' $listenerService # Remove the pesky tabs inserted by the 'echo' outputs.
 	echo "LynxCI: Service 'listener' is installed."
 done
-lynxdSer="/etc/systemd/system/lynxd.service"
-while [ ! -O $lynxdSer ] ; do # Only create the file if it doesn't already exist.
+#
+# If lynxd daemon is found to not be running, this service resolves that. Only
+# create the file if it doesn't already exist.
+#
+lynxService="/etc/systemd/system/lynxd.service"
+while [ ! -O $lynxService ] ; do
 	echo "#!/bin/bash
 	[Unit]
 	Description=lynxd
@@ -217,11 +241,17 @@ while [ ! -O $lynxdSer ] ; do # Only create the file if it doesn't already exist
 	Restart=always
 	RestartSec=10
 	[Install]
-	WantedBy=multi-user.target" > $lynxdSer
-	sleep 1 && sed -i 's/^[\t]*//' $lynxdSer # Remove the pesky tabs inserted by the 'echo' outputs.
+	WantedBy=multi-user.target" > $lynxService
+	sleep 1 && sed -i 's/^[\t]*//' $lynxService # Remove the pesky tabs inserted by the 'echo' outputs.
 	echo "LynxCI: Service 'lynxd' is installed."
 done
+#
+#
+#
 [ "$isPi" = "1" ] && { sed -i 's/CONF_SWAPSIZE=100/CONF_SWAPSIZE=2048/' /etc/dphys-swapfile; /etc/init.d/dphys-swapfile restart; } # On a Raspberry Pi, the default swap is 100MB. This is a little restrictive, so we are expanding it to a full 2GB of swap.
+#
+#
+#
 sed -i 's/PermitRootLogin yes/PermitRootLogin no/' /etc/ssh/sshd_config # We don't ever want a user to login directly to the root account, even if they know the correct password.
 sed -i 's/PermitRootLogin without-password/PermitRootLogin no/' /etc/ssh/sshd_config # We don't ever want a user to login directly to the root account, even if they know the correct password.
 adduser lynx --disabled-password --gecos "" # Create the user account 'lynx' and skip the prompts for additional information.
@@ -231,6 +261,9 @@ adduser lynx sudo # We don't always know the root password of the target device,
 echo "LynxCI: The user account 'lynx' was given sudo rights." # account. When the firewall resets automatically, the user will be removed from the sudo group, for security reasons.
 [ "$isPi" = "1" ] && usermod -L -e 1 pi # If the target device is a Raspberry Pi, then let's assume the Pi account exists. Look for it and lock it if we find one. Otherwise skip this 
 [ "$isPi" = "1" ] && echo "LynxCI: For security purposes, the 'pi' account was locked and is no longer accessible." # step if the Pi account is not found.
+#
+#
+#
 rm -rf /etc/profile.d/portcheck.sh
 rm -rf /etc/profile.d/logo.txt
 cp -rf /root/LynxCI/logo.txt /etc/profile.d/logo.txt
@@ -288,6 +321,9 @@ chmod 755 /etc/profile.d/portcheck.sh
 chmod 755 /etc/profile.d/logo.txt
 chown root:root /etc/profile.d/portcheck.sh
 chown root:root /etc/profile.d/logo.txt
+#
+#
+#
 rm -rf /etc/nginx/sites-enabled/default
 rm -rf /etc/nginx/sites-available/default
 echo "server {
@@ -304,7 +340,7 @@ echo "server {
 	location / {
 		try_files \$uri \$uri/ =404;
 	}
-
+	# TEST ME - does this \$ need to be escaped?
 	location ~ \.php$ {
 		include snippets/fastcgi-php.conf;
 		fastcgi_pass unix:/run/php/php7.2-fpm.sock;
@@ -329,14 +365,25 @@ echo "server {
 }" > /etc/nginx/sites-available/default
 ln -s /etc/nginx/sites-available/default /etc/nginx/sites-enabled/           # Manually creating the site profile link in Nginx.
 sed -i 's/;cgi.fix_pathinfo=1/cgi.fix_pathinfo=0/' /etc/php/7.2/fpm/php.ini  # Normal cgi pathinfo fix.
+#
+#
+#
 systemctl stop nginx && systemctl disable nginx && echo "LynxCI: Nginx service was gracefully stopped and also disabled on boot."
 systemctl stop php7.2-fpm && systemctl disable php7.2-fpm && echo "LynxCI: PHP-FPM service was gracefully stopped and also disabled on boot."
 echo "LynxCI: Nginx is installed, but it's disabled on boot."
+#
+# If the Block Crawler is already installed, we are purging those directories
+# first. Then we clone the repo and set permissions. It's best to do this since
+# the site profile hasn't been activated yet and Nginx is still disabled.
+#
 rm -rf /var/www/html/
 git clone https://github.com/getlynx/LynxBlockCrawler.git /var/www/html/
 chmod 755 -R /var/www/html/
 chown www-data:www-data -R /var/www/html/
 echo "LynxCI: Block Crawler is installed."
+#
+#
+#
 if [ "$installationMethod" = "compile" ]; then
 	rm -rf /root/lynx/ # Lets assume this directory already exists, so lets purge it first.
 	git clone -b "$projectBranch" https://github.com/getlynx/Lynx.git /root/lynx/ # Pull down the specific branch version of Lynx source we arew planning to compile.
@@ -352,8 +399,8 @@ if [ "$installationMethod" = "install" ]; then
 		wget -P /root $installationSource && dpkg -i /root/$installationFile
 	done
 fi
-lconfCheck="/root/.lynx/lynx.conf"
-while [ ! -O $lconfCheck ] ; do # Only create the file if it doesn't already exist.
+lynxConfigurationFile="/root/.lynx/lynx.conf"
+while [ ! -O $lynxConfigurationFile ] ; do # Only create the file if it doesn't already exist.
 	echo "# The following RPC credentials are created at build time and are unique to this host. If you
 	# like, you can change them, but you are encouraged to keep very complex strings for each. If an
 	# attacker gains RPC access to this host they will steal your Lynx. Understanding that, the
@@ -633,20 +680,20 @@ while [ ! -O $lconfCheck ] ; do # Only create the file if it doesn't already exi
 	testnet=0
 	disablebuiltinminer=0
 	cpulimitforbuiltinminer=0.25
-	" > $lconfCheck
-	sleep 2 && sed -i 's/^[\t]*//' $lconfCheck # Remove the pesky tabs inserted by the 'echo' outputs.
-	echo "LynxCI: Lynx default configuration file, '$lconfCheck' was created."
+	" > $lynxConfigurationFile
+	sleep 2 && sed -i 's/^[\t]*//' $lynxConfigurationFile # Remove the pesky tabs inserted by the 'echo' outputs.
+	echo "LynxCI: Lynx default configuration file, '$lynxConfigurationFile' was created."
 done
-[ "$networkEnvironment" = "testnet" ] && { sed -i 's|testnet=0|testnet=1|g' $lconfCheck; echo "LynxCI: This node is operating on the testnet environment and it's now set in the lynx.conf file."; }
-[ "$networkEnvironment" = "mainnet" ] && { sed -i 's|testnet=1|testnet=0|g' $lconfCheck; echo "LynxCI: This node is operating on the mainnet environment and it's now set in the lynx.conf file."; }
-[ "$networkEnvironment" = "mainnet" ] && { sed -i '/mineraddress=m/d' $lconfCheck; echo "LynxCI: Removed default testnet mining addresses (M) from the lynx.conf file."; }
-[ "$networkEnvironment" = "mainnet" ] && { sed -i '/mineraddress=n/d' $lconfCheck; echo "LynxCI: Removed default testnet mining addresses (N) from the lynx.conf file."; }
-[ "$networkEnvironment" = "testnet" ] && { sed -i '/mineraddress=K/d' $lconfCheck; echo "LynxCI: Removed default mainnet mining addresses (K) from the lynx.conf file."; }
-[ "$networkEnvironment" = "mainnet" ] && { sed -i '/addnode=test/d' $lconfCheck; echo "LynxCI: Removed default testnet nodes from the addnode list in the lynx.conf file."; }
-[ "$networkEnvironment" = "testnet" ] && { sed -i '/addnode=node/d' $lconfCheck; echo "LynxCI: Removed default mainnet nodes from the addnode list in the lynx.conf file."; }
-[ "$isPi" = "1" ] && sed -i "s|maxmempool=100|maxmempool=10|g" $lconfCheck
-[ "$isPi" = "1" ] && sed -i "s|dbcache=450|dbcache=100|g" $lconfCheck # Default is 450MB. Changed to 100MB on the Pi.
-cp --remove-destination $lconfCheck /root/.lynx/.lynx.conf && chmod 600 /root/.lynx/.lynx.conf # We are gonna create a backup of the initially created lynx.conf file.
+[ "$networkEnvironment" = "testnet" ] && { sed -i 's|testnet=0|testnet=1|g' $lynxConfigurationFile; echo "LynxCI: This node is operating on the testnet environment and it's now set in the lynx.conf file."; }
+[ "$networkEnvironment" = "mainnet" ] && { sed -i 's|testnet=1|testnet=0|g' $lynxConfigurationFile; echo "LynxCI: This node is operating on the mainnet environment and it's now set in the lynx.conf file."; }
+[ "$networkEnvironment" = "mainnet" ] && { sed -i '/mineraddress=m/d' $lynxConfigurationFile; echo "LynxCI: Removed default testnet mining addresses (M) from the lynx.conf file."; }
+[ "$networkEnvironment" = "mainnet" ] && { sed -i '/mineraddress=n/d' $lynxConfigurationFile; echo "LynxCI: Removed default testnet mining addresses (N) from the lynx.conf file."; }
+[ "$networkEnvironment" = "testnet" ] && { sed -i '/mineraddress=K/d' $lynxConfigurationFile; echo "LynxCI: Removed default mainnet mining addresses (K) from the lynx.conf file."; }
+[ "$networkEnvironment" = "mainnet" ] && { sed -i '/addnode=test/d' $lynxConfigurationFile; echo "LynxCI: Removed default testnet nodes from the addnode list in the lynx.conf file."; }
+[ "$networkEnvironment" = "testnet" ] && { sed -i '/addnode=node/d' $lynxConfigurationFile; echo "LynxCI: Removed default mainnet nodes from the addnode list in the lynx.conf file."; }
+[ "$isPi" = "1" ] && sed -i "s|maxmempool=100|maxmempool=10|g" $lynxConfigurationFile
+[ "$isPi" = "1" ] && sed -i "s|dbcache=450|dbcache=100|g" $lynxConfigurationFile # Default is 450MB. Changed to 100MB on the Pi.
+cp --remove-destination $lynxConfigurationFile /root/.lynx/.lynx.conf && chmod 600 /root/.lynx/.lynx.conf # We are gonna create a backup of the initially created lynx.conf file.
 if [ "$installationMethod" = "compile" ]; then
 	cd /root/lynx/ && ./autogen.sh # And finish the configure statement WITH the Berkeley DB parameters included.
 	[ "$isPi" = "1" ] && ./configure LDFLAGS="-L/root/lynx/db4/lib/" CPPFLAGS="-I/root/lynx/db4/include/ -O2" --enable-cxx --without-gui --disable-shared --with-miniupnpc --enable-upnp-default --disable-tests --disable-bench
@@ -664,8 +711,13 @@ systemctl disable listener
 systemctl enable lynxd # lynxd will start automatically after reboot.
 chown -R root:root /root/.lynx/* # Be sure to reset the ownership of all files in the .lynx dir to root in case any process run
 chmod 600 /root/.lynx/*.conf # previously changed the default ownership setting. More of a precautionary measure.
-verifyconf="/etc/logrotate.d/lynxd.conf"
-while [ ! -O $verifyssh ] ; do 	
+#
+# Since the lynxd debug log can be rather sizable over time, we are doing a
+# weekly rotate. Since the script fails gracefully for both environments we are
+# setting bother up to run.
+#
+lynxLogrotateConfiguration="/etc/logrotate.d/lynxd.conf"
+while [ ! -O $lynxLogrotateConfiguration ] ; do 	
 	echo "/root/.lynx/debug.log {
 		daily
 		rotate 7
@@ -683,20 +735,34 @@ while [ ! -O $verifyssh ] ; do
 		compress
 		notifempty
 		missingok
-	}" > $verifyconf
-	sleep 1 && sed -i 's/^[\t]*//' $verifyconf # Remove the pesky tabs inserted by the 'echo' outputs.
+	}" > $lynxLogrotateConfiguration
+	# Wait a second before we remove the pesky tabs inserted by the 'echo' outputs.
+	sleep 1 && sed -i 's/^[\t]*//' $lynxLogrotateConfiguration
 done
+#
 echo "LynxCI: Lynx was installed."
-verifyssh="/boot/ssh" 											# We now write this empty file to the /boot dir. This file will persist after reboot so if
-while [ ! -O $verifyssh ] ; do 									# this script were to run again, it would abort because it would know it already ran sometime
-	/usr/bin/touch $verifyssh 									# in the past. This is another way to prevent a loop if something bad happens during the install
-	echo "LynxCI: Post install 'ssh' file is installed."  		# process. At least it will fail and the machine won't be looping a reboot/install over and
-done 															# over. This helps if we have to debug a problem in the future.
-verifylynxci="/boot/lynxci"
-while [ ! -O $verifylynxci ] ; do 
-	/usr/bin/touch $verifylynxci
+#
+# We now write this empty file to the /boot dir. This file will persist after
+# reboot so if this script were to run again, it would abort because it would
+# know it already ran sometime in the past. This is another way to prevent a
+# loop if something bad happens during the install process. At least it will
+# fail and the machine won't be looping a reboot/install over and over. This
+# helps if we have to debug a problem in the future.
+#
+while [ ! -O $touchSSHInstallCompleteFile ] ; do
+	/usr/bin/touch $touchSSHInstallCompleteFile
+	echo "LynxCI: Post install 'ssh' file is installed."
+done
+#
+#
+#
+while [ ! -O $touchLynxCIInstallCompleteFile ] ; do 
+	/usr/bin/touch $touchLynxCIInstallCompleteFile
 	echo "LynxCI: Post install tasks are complete."
 done
+#
+#
+#
 echo "LynxCI: LynxCI was installed. A reboot will occur 2 seconds."
 /bin/rm -rf /root/setup.sh
 /bin/rm -rf /root/LynxCI/setup.sh
