@@ -34,7 +34,7 @@ fi
 # ran.
 #
 if [ -f $touchLynxCIInstallCompleteFile ]; then
-	echo "LynxCI: Previous LynxCI detected. Install aborted."
+	echo "LynxCI: Previous LynxCI detected. An update will occur."
 	exit
 else
 	echo "LynxCI: Thanks for starting the Lynx Cryptocurrency Installer (LynxCI)."
@@ -121,9 +121,13 @@ fi
 #
 [ "$networkEnvironment" = "testnet" ] && installationMethod="compile" # Testnet build are always compiled then installed. No installer exists for testnet.
 echo "LynxCI: Updating the installed package list."
-systemctl disable lynxd # In case the install is taking place again, due to a failed previous install.
-systemctl stop lynxd # In case the install is taking place again, due to a failed previous install.
-systemctl daemon-reload # In case the install is taking place again, due to a failed previous install.
+#
+# In case the install is taking place again, due to a failed previous install.
+#
+systemctl disable lynxd
+systemctl stop lynxd
+systemctl daemon-reload
+#
 apt-get update -y # Before we begin, we need to update the local repo. For now, the update is all we need and the device will still function properly.
 apt-get remove -y apache2 pi-bluetooth postfix
 #apt-get upgrade -y # Sometimes the upgrade generates an interactive prompt. This is best handled manually depending on the VPS vendor.
@@ -139,31 +143,108 @@ rpcpass="$(shuf -i 1000000000-3999999999 -n 1)$(shuf -i 1000000000-3999999999 -n
 [ "$networkEnvironment" = "testnet" -a "$isPi" = "0" ] && name="lynx$(shuf -i 100000000-199999999 -n 1)" # If the device is running testnet then the node id starts with 1.
 [ "$isPi" = "1" ] && sed -i '/pi3-disable-bt/d' /boot/config.txt # Lets not assume that an entry already exists on the Pi, so purge any preexisting bluetooth variables.
 [ "$isPi" = "1" ] && echo "dtoverlay=pi3-disable-bt" >> /boot/config.txt # Now, append the variable and value to the end of the file for the Pi.
+#
+# Only create the file if it doesn't already exist.
+#
 firewallCheck="/root/LynxCI/firewall.sh"
-while [ ! -O $firewallCheck ] ; do # Only create the file if it doesn't already exist.
+while [ ! -O $firewallCheck ]; do
 	echo "#!/bin/bash
-	IsRestricted=N # If the script has IsRestricted set to N, then let's open up port 22 for any IP address.
-	/sbin/iptables -F # Let's flush any existing iptables rules that might exist and start with a clean slate.
-	/sbin/iptables -I INPUT 1 -i lo -j ACCEPT # We should always allow loopback traffic.
-	/sbin/iptables -I INPUT 2 -m conntrack --ctstate ESTABLISHED,RELATED -j ACCEPT # If we are already authenticated, then ACCEPT further traffic from that IP address.
-	/sbin/iptables -I INPUT 3 -p tcp --dport 80 -j DROP # Because the Block Crawler is available via port 80 we MIGHT open up port 80 for that traffic, later.
-	/sbin/iptables -I INPUT 4 -p tcp -s 10.0.0.0/8 --dport 22 -j ACCEPT # Always allow local LAN access.
-	/sbin/iptables -I INPUT 5 -p tcp -s 192.168.0.0/16 --dport 22 -j ACCEPT # Always allow local LAN access.
-	/sbin/iptables -I INPUT 6 -p tcp --dport $port -j ACCEPT # This node listens for other Lynx nodes on port $port, so we need to open that port.
-	/sbin/iptables -I INPUT 7 -p tcp --dport $rpcport -j ACCEPT # By default, the RPC port $rpcport is opened to the public.
-	[ \"\$IsRestricted\" = \"N\" ] && /sbin/iptables -I INPUT 8 -p tcp --dport 22 -j ACCEPT
-	# Secure access from your home/office IP. Customize as you like. [VPN 10 N-West] This is NOT a backdoor into your LynxCI node for the Lynx Developers. You still
-	# control the access credentials for your LynxCI node. The only account available is the _lynx_ user account and you control the password for it. The root user
-	# account is locked (don't trust us, verify yourself). This firewall entry is for convenience of the Lynx dev team, but also a convenient example of how you can
-	# customize the firewall for your own direct access from you home or office IP. Save your change and be sure to execute /root/firewall.sh when done.
-	[ \"\$IsRestricted\" = \"Y\" ] && /sbin/iptables -I INPUT 8 -p tcp -s 162.210.250.170 --dport 22 -j ACCEPT
-	/sbin/iptables -I INPUT 9 -j DROP # We add this last line to drop any other traffic that comes to this computer.
-	[ -f /root/.lynx/bootstrap.dat.old ] && /bin/rm -rf /root/.lynx/bootstrap.dat.old # Lets delete it if it still exists on the drive.
-	[ -f /root/*.deb ] && /bin/rm -rf /root/*.deb # Lets delete the installer if it still exists on the drive.
-	[ \"\$(/usr/local/bin/lynx-cli uptime)\" -gt \"604900\" ] && /bin/sed -i 's/IsRestricted=N/IsRestricted=Y/' /root/LynxCI/firewall.sh # Lock the firewall after 1 week" > $firewallCheck
-	sleep 1 && sed -i 's/^[\t]*//' $firewallCheck # Remove the pesky tabs inserted by the 'echo' outputs.
-	[ "$isPi" = "0" ] && { echo "/usr/sbin/deluser lynx sudo >/dev/null 2>&1" >> $firewallCheck; } # Remove the lynx user from the sudo group, except if the host is a Pi. This is for security reasons.
-	sleep 1 && chmod 700 $firewallCheck # Need to make sure crontab can run the file.
+	#
+	# Determines if port 22 will accept a connection from any IP address or a
+	# restricted IP address. By default, the node is NOT restricted and will
+	# accept a connection from ANY IP. This is good, it allows you to log into
+	# the node easily for post build tuning. But after about a a week of
+	# consistent lynxd process uptime, the node will automatically set this
+	# param value to 'Y'. Be sure to set the
+	#
+	IsRestricted=\"N\"
+	#
+	# And what single IP will we use to allow SSH and Block Crawler traffic?
+	#
+	WhitelistIP=\"162.210.250.170\"
+	#
+	# If you want to use the built in Block Crawler, change this value to 'Y'.
+	#
+	IsBlockCrawlerEnabled=\"N\"
+	#
+	# Let's flush any existing iptables rules that might exist and start with a
+	# clean slate. We should always allow loopback traffic. If we are already
+	# authenticated, then ACCEPT further traffic from that IP address.
+	#
+	/sbin/iptables -F
+	/sbin/iptables -I INPUT 1 -i lo -j ACCEPT 
+	/sbin/iptables -I INPUT 2 -m conntrack --ctstate ESTABLISHED,RELATED -j ACCEPT
+	#
+	# If the Block Crawler is enabled, then open port 80, otherwise drop that
+	# traffic.
+	#
+	if [ \"\$IsBlockCrawlerEnabled\" = \"Y\" ]; then
+		/sbin/iptables -I INPUT 3 -p tcp -s \$WhitelistIP --dport 80 -j ACCEPT
+	else
+		/sbin/iptables -I INPUT 3 -p tcp --dport 80 -j DROP
+	fi
+	#
+	# Always allow local LAN access.
+	#
+	/sbin/iptables -I INPUT 4 -p tcp -s 10.0.0.0/8 --dport 22 -j ACCEPT
+	/sbin/iptables -I INPUT 5 -p tcp -s 192.168.0.0/16 --dport 22 -j ACCEPT
+	#
+	# This node listens for other Lynx nodes on port $port, so we need to open
+	# that port. By default, the RPC port $rpcport is opened to the public.
+	#
+	/sbin/iptables -I INPUT 6 -p tcp --dport $port -j ACCEPT
+	/sbin/iptables -I INPUT 7 -p tcp --dport $rpcport -j ACCEPT
+	#
+	# Secure access from your home/office IP. Customize as you like.
+	# [VPN 10 N-West] This is NOT a backdoor into your LynxCI node for the Lynx
+	# Developers. You still control the access credentials for your LynxCI node.
+	# The only account available is the _lynx_ user account and you control the
+	# password for it. The root user account is locked (don't trust us, verify
+	# yourself). This firewall entry is for convenience of the Lynx dev team,
+	# but also a convenient example of how you can customize the firewall for
+	# your own direct access from you home or office IP. Save your change and be
+	# sure to execute /root/firewall.sh when done.
+	#
+	if [ \"\$IsRestricted\" = \"Y\" ]; then
+		/sbin/iptables -I INPUT 8 -p tcp -s \$WhitelistIP --dport 22 -j ACCEPT
+	else
+		/sbin/iptables -I INPUT 8 -p tcp --dport 22 -j ACCEPT
+	fi
+	#
+	# We add this last line to drop any other traffic that comes to this computer.
+	#
+	/sbin/iptables -I INPUT 9 -j DROP
+	#
+	# Lets delete some install process leftovers if they still exists on the drive.
+	#
+	[ -f /root/.lynx/bootstrap.dat.old ] && /bin/rm -rf /root/.lynx/bootstrap.dat.old
+	[ -f /root/*.deb ] && /bin/rm -rf /root/*.deb
+	#
+	if [ \"\$IsBlockCrawlerEnabled\" = \"Y\" ]; then
+		cp --remove-destination /root/.lynx/lynx.conf /var/www/crawler.conf
+		chmod 644 /var/www/crawler.conf
+		sed -i '10,$ d' /var/www/crawler.conf
+		systemctl enable php7.2-fpm
+		systemctl start php7.2-fpm
+		systemctl enable nginx
+		systemctl start nginx
+	fi
+	#
+	# Lock the firewall after 1 week of consistent lynxd process uptime.
+	#
+	[ \"\$(/usr/local/bin/lynx-cli uptime)\" -gt \"604900\" ] && /bin/sed -i 's/IsRestricted=N/IsRestricted=Y/' /root/LynxCI/firewall.sh
+	#" > $firewallCheck
+	#
+	# Remove the lynx user from the sudo group, except if the host is a Pi. This is for security reasons.
+	#
+	if [ "$isPi" = "0" ]; then
+		echo "/usr/sbin/deluser lynx sudo >/dev/null 2>&1" >> $firewallCheck;
+	fi
+	#
+	# Need to make sure crontab can run the file.
+	#
+	sleep 1 && chmod 700 $firewallCheck
+	#
 	echo "LynxCI: The default iptables was created."
 done
 crontab -r # Purge and set the firewall crontab
