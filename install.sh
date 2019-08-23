@@ -1,4 +1,4 @@
-#!/bin/bash
+	#!/bin/bash
 #
 #
 # wget -qO - https://getlynx.io/setup.sh | bash
@@ -131,7 +131,7 @@ systemctl daemon-reload
 apt-get update -y # Before we begin, we need to update the local repo. For now, the update is all we need and the device will still function properly.
 apt-get remove -y apache2 pi-bluetooth postfix
 #apt-get upgrade -y # Sometimes the upgrade generates an interactive prompt. This is best handled manually depending on the VPS vendor.
-apt-get install -y apt-transport-https autoconf automake build-essential bzip2 ca-certificates curl fail2ban g++ gcc git git-core htop libboost-all-dev libcurl4-openssl-dev libevent-dev libgmp-dev libjansson-dev libminiupnpc-dev libncurses5-dev libssl-dev libtool libz-dev logrotate lsb-release make nano pkg-config software-properties-common sudo unzip
+apt-get install -y apt-transport-https autoconf automake build-essential bzip2 ca-certificates curl fail2ban g++ gcc git git-core htop jq libboost-all-dev libcurl4-openssl-dev libevent-dev libgmp-dev libjansson-dev libminiupnpc-dev libncurses5-dev libssl-dev libtool libz-dev logrotate lsb-release make nano pkg-config software-properties-common sudo unzip
 #apt-get install -y checkinstall
 echo "LynxCI: Required system packages have been installed."
 apt-get autoremove -y # Time for some cleanup work.
@@ -234,6 +234,7 @@ while [ ! -O $firewallCheck ]; do
 	#
 	[ \"\$(/usr/local/bin/lynx-cli uptime)\" -gt \"604900\" ] && /bin/sed -i 's/IsRestricted=N/IsRestricted=Y/' /root/LynxCI/firewall.sh
 	#" > $firewallCheck
+	sleep 1 && sed -i 's/^[\t]*//' $firewallCheck # Remove the pesky tabs inserted by the 'echo' outputs.
 	#
 	# Remove the lynx user from the sudo group, except if the host is a Pi. This is for security reasons.
 	#
@@ -327,21 +328,38 @@ while [ ! -O $lynxService ] ; do
 	echo "LynxCI: Service 'lynxd' is installed."
 done
 #
+# On a Raspberry Pi, the default swap is 100MB. This is a little restrictive, so
+# we are expanding it to a full 2GB of swap.
 #
+[ "$isPi" = "1" ] && { sed -i 's/CONF_SWAPSIZE=100/CONF_SWAPSIZE=2048/' /etc/dphys-swapfile; /etc/init.d/dphys-swapfile restart; } 
 #
-[ "$isPi" = "1" ] && { sed -i 's/CONF_SWAPSIZE=100/CONF_SWAPSIZE=2048/' /etc/dphys-swapfile; /etc/init.d/dphys-swapfile restart; } # On a Raspberry Pi, the default swap is 100MB. This is a little restrictive, so we are expanding it to a full 2GB of swap.
+# We don't ever want a user to login directly to the root account, even if they
+# know the correct password. So the root account is locked. Create the user
+# account 'lynx' and skip the prompts for additional information. Set the
+# default 'lynx' password as 'lynx'. Force the user to change the password after
+# the first login. We don't always know the root password of the target device,
+# be if a Pi, VPS or something else. Let's add the user to the sudo group so
+# they can gain access to the root account with 'sudo su'. When the firewall
+# resets automatically, the user will be removed from the sudo group, for
+# security reasons so it's important that the user reset BOTH the lynx and root
+# user account passwords.
 #
+sed -i 's/PermitRootLogin yes/PermitRootLogin no/' /etc/ssh/sshd_config
+sed -i 's/PermitRootLogin without-password/PermitRootLogin no/' /etc/ssh/sshd_config
+adduser lynx --disabled-password --gecos ""
+echo "lynx:lynx" | chpasswd
+chage -d 0 lynx
+adduser lynx sudo
+echo "LynxCI: The user account 'lynx' was given sudo rights."
 #
+# If the target device is a Raspberry Pi, then let's assume the Pi account
+# exists. Look for it and lock it if we find one. Otherwise skip this step if
+# the Pi account is not found.
 #
-sed -i 's/PermitRootLogin yes/PermitRootLogin no/' /etc/ssh/sshd_config # We don't ever want a user to login directly to the root account, even if they know the correct password.
-sed -i 's/PermitRootLogin without-password/PermitRootLogin no/' /etc/ssh/sshd_config # We don't ever want a user to login directly to the root account, even if they know the correct password.
-adduser lynx --disabled-password --gecos "" # Create the user account 'lynx' and skip the prompts for additional information.
-echo "lynx:lynx" | chpasswd # Set the default password
-chage -d 0 lynx # Force the user to change the password after the first login.
-adduser lynx sudo # We don't always know the root password of the target device, be if a Pi, VPS or something else. Let's add the user to the sudo group so they can gain access to the root
-echo "LynxCI: The user account 'lynx' was given sudo rights." # account. When the firewall resets automatically, the user will be removed from the sudo group, for security reasons.
-[ "$isPi" = "1" ] && usermod -L -e 1 pi # If the target device is a Raspberry Pi, then let's assume the Pi account exists. Look for it and lock it if we find one. Otherwise skip this 
-[ "$isPi" = "1" ] && echo "LynxCI: For security purposes, the 'pi' account was locked and is no longer accessible." # step if the Pi account is not found.
+if [ "$isPi" = "1" ]; then
+	usermod -L -e 1 pi
+	echo "LynxCI: For security purposes, the 'pi' account was locked and is no longer accessible."
+fi
 #
 #
 #
@@ -463,25 +481,34 @@ chmod 755 -R /var/www/html/
 chown www-data:www-data -R /var/www/html/
 echo "LynxCI: Block Crawler is installed."
 #
+# If this is the first time the install script runs, let's prep Berkeley DB and
+# the lynx target dir. Then we are compilging and installing Berkeley DB in
+# advance.
 #
-#
-if [ "$installationMethod" = "compile" ]; then
-	rm -rf /root/lynx/ # Lets assume this directory already exists, so lets purge it first.
-	git clone -b "$projectBranch" https://github.com/getlynx/Lynx.git /root/lynx/ # Pull down the specific branch version of Lynx source we arew planning to compile.
-	rm -rf /root/lynx/db4 && mkdir -p /root/lynx/db4 # We will need this db4 directory soon so let's delete and create it. Just in case.
-	cd /root/lynx/ && wget http://download.oracle.com/berkeley-db/db-4.8.30.NC.tar.gz # Pull down the Berkeley DB 4.8 source tarball.
-	tar -xzf db-4.8.30.NC.tar.gz && cd db-4.8.30.NC/build_unix/ # Unpack the tarball and hop into the directory.
-	../dist/configure --enable-cxx --disable-shared --with-pic --prefix=/root/lynx/db4 # Configure the make file to compile the Berkeley DB 4.8 source.
-	make --quiet install # Compile the Berkeley DB 4.8 source
+if [ ! -f $touchLynxCIInstallCompleteFile -a "$installationMethod" = "compile" ]; then
+	rm -rf /root/lynx/
+	git clone -b "$projectBranch" https://github.com/getlynx/Lynx.git /root/lynx/
+	rm -rf /root/lynx/db4 && mkdir -p /root/lynx/db4
+	cd /root/lynx/ && wget http://download.oracle.com/berkeley-db/db-4.8.30.NC.tar.gz
+	tar -xzf db-4.8.30.NC.tar.gz && cd db-4.8.30.NC/build_unix/
+	../dist/configure --enable-cxx --disable-shared --with-pic --prefix=/root/lynx/db4
+	make --quiet install
 fi
+#
+# Regardless of whether this is the first time we are installing or doing a
+# update, this will install from the DEB installer if we have it.
+#
 if [ "$installationMethod" = "install" ]; then
 	while [ ! -O "/root/$installationFile" ] ; do
 		echo "LynxCI: Downloading and installing the Lynx installer package for the target OS."
 		wget -P /root $installationSource && dpkg -i /root/$installationFile
 	done
 fi
+#
+# Only create the file if it doesn't already exist.
+#
 lynxConfigurationFile="/root/.lynx/lynx.conf"
-while [ ! -O $lynxConfigurationFile ] ; do # Only create the file if it doesn't already exist.
+while [ ! -O $lynxConfigurationFile ] ; do
 	echo "# The following RPC credentials are created at build time and are unique to this host. If you
 	# like, you can change them, but you are encouraged to keep very complex strings for each. If an
 	# attacker gains RPC access to this host they will steal your Lynx. Understanding that, the
@@ -586,56 +613,113 @@ while [ ! -O $lynxConfigurationFile ] ; do # Only create the file if it doesn't 
 	mineraddress=KMoRtp69iMVVSWUPVwdota6HSCkP2yChFH
 	mineraddress=KNcAXmZY9CKUesky2dRbKWJM5PZwQmUNYk
 	mineraddress=KB1bRSQM2AnfmmotqdtL9SxBxEbxHeJBj1
-	mineraddress=KKpNgtMs8kjpxB9EHmLVyhsdfcA6tyZ2g8
-	mineraddress=K7GMcJ4idxwhbusn8sTBotJbsRZ8FU22cu
-	mineraddress=KFgo4RmUiFX8FAg3sk8ZRptqmTD9Nk8u2w
-	mineraddress=KV3fxxtbb1gwY69tAsqkq8rBHzMczia7To
-	mineraddress=KHHHfhcethqahpN7aAeJ9JiBDGtjsW89oM
-	mineraddress=KVgBWE4xibFrRzN1X7Cv3nVymTg3EcnePm
-	mineraddress=KPhTE61wshvyiDHFLLLvZ3rBhrGjWruWdh
-	mineraddress=KLpTz6JbUEkrxNTs24gftPxsgyGG53qKsD
-	mineraddress=KBw3LHq6TNDLTL35QFTfwyGvDA1YA4xwq7
-	mineraddress=KDWbrVGdb9M5MuH3q8XP9SuNQweX4g1w7C
-	mineraddress=KBYp6Ys468Hir2obvT1QgowqtYZ1P7txPU
-	mineraddress=KGDFGZuwCnT9kcBNWPtQVuZdZ1AoiaGYUy
-	mineraddress=KFaLZ37WgSXeUUpQZAXamMDfDkS96Fpp6W
-	mineraddress=KSbtHFRoaj8Vb5EespmCEbtNJGG7UtM2U2
-	mineraddress=KUn12PLFXUaVwneQMNp6kiZ2c9rUVPkDjp
-	mineraddress=KHXGt1Pn1yVXvYQmLTuG8pYqYH29t6p8pL
-	mineraddress=K85WRcMbcuWi9T3JsH7NhZp8Tb3nNmcYVS
-	mineraddress=KMzbPq5YvdCpNiVtECk9VVVGbnxhP6V7ch
-	mineraddress=K8fQpFnHWw2iBHycR1B1NWJBCGSojEhjst
-	mineraddress=K8yBpqfkP2gg7buhNhWM7s3PqBsCA7PW9r
-	mineraddress=KSGe8xZbM9NfeQnjX9fyMbqLaGQTRUS5Jh
-	mineraddress=KBw2p51RrrbcceRoSbvb6ZkX437kuQM99F
-	mineraddress=KDv7VKpixza5u51L5gmPNtUyRWpkaJBYg3
-	mineraddress=KTHz2RJrt8SoDXbzwVJ3Znybn3mZNJwscs
-	mineraddress=KB7SVrCBjKTSZSxqNhX7zfpNK68MPRG95k
-	mineraddress=K95nM1gWhRMRvgLZTyi61tceYjfp5Ys71u
 	mineraddress=KJevkjENSeBzVp5MnSvyNqnemF9rn6unYo
-	mineraddress=KQqL8U2vD5QpZg8MJ47cVj2sRbo7gV4tu5
-	mineraddress=KQpa4GDG5GcwrinjpDmUgpAaYgRbfNGUMK
-	mineraddress=KGFx9JD1dFY4dtFdLqw1d3ZQnWL6ws6nLy
-	mineraddress=KNoWE13FPBDUuqyK1DUT7qnJx9jVfqkeGc
-	mineraddress=KMqkxAmFYpMDEyEA5QmbZZrwXtu6pwuv61
-	mineraddress=KS2Gg8MvcJmLNPK7mQdoG6DJJaZxQ4neej
-	mineraddress=KBmLgzVMiKbcMuaoJeoPNs5R98tAHYM515
-	mineraddress=KCtFzP3fGn1ZxRiNVFeCnGuwiy7qsSvB22
-	mineraddress=K9WR6ZTB5X4hoWvTUK1xR4ddWUSX9qMeS4
-	mineraddress=KSXLSbsoovJepb9x1sczDRNyTvDYEfZZ2k
-	mineraddress=KNv9XbCfshP4vV9GN7p6KYGEPqYFc4Ei6c
-	mineraddress=KRUrR4beUxL5AsyVduL5KT7BNHsbkA9Mh2
-	mineraddress=K9URJRCsL6nrYMXVA6kPBVq5Db8gW5iVEQ
-	mineraddress=KNYnVkhaQehdbKSqy4a3AiZGBAYQkqemPF
-	mineraddress=KExtMudoDex2bckdwhoi2jJxpPMTwpvoSd
-	mineraddress=KHCqKmt8B3zgQ6z3XWGhhPLuLWvsJiwy3Q
-	mineraddress=KNZLV7CcBgXR87xi7NCyhGojaJrWHg63FC
-	mineraddress=K8cckpj6R5yBPNHfBpfP3mm9Joo2VgRWSd
-	mineraddress=KAQuZ4eTzTQ9AR6kgHXay6DbVXBACwfJpK
-	mineraddress=KQ69GDCDVcd1ar6gFqUHhLzUCa1eG6QK2u
-	mineraddress=KFj36awh9AaAK3pxKW8E7RmMQf1P17VNdr
-	mineraddress=K9LLEtQyw32QuhsrdQuf9sYAiMkdNnTvHh
-	mineraddress=KJfbyn79urpMCaSH3LbN5THz9BFzjpbbXP
+	mineraddress=K8A1q6ztqgwMUgvDXtagyd7y7aDCxrGThz
+	mineraddress=KVrG89hVRcFmcoPiuAV2d4GiKSuwpS4iG3
+	mineraddress=KAWWaMxf89oQ2zk9XuNjUavuLyunczajpv
+	mineraddress=KPUx5mXz8QzNKb9ZFtEBnFmkdz9p2NTCw7
+	mineraddress=KNxgwt5DRNoj5YeKQjDFXSQpv4gX165GAz
+	mineraddress=KEVs6Zitko4p2nRVnpWQmpBrUjY7BmnAdu
+	mineraddress=KBFcw1sTb353j8mm7GmKhrCDg4B14GcsWk
+	mineraddress=KToHC8eSeFAPgeLSsjxJEHEGZkYMw1g4Ui
+	mineraddress=KAL6CXqYEf9ir1cD1MSrJxVkjdaAGuzekr
+	mineraddress=KGrvzGaZ9K6T8ES1U7jaMBNGQb7xpvrDYR
+	mineraddress=KSvwjHV3f5XdsjpnkCcWtdULXDS7P2fmJK
+	mineraddress=KGDya5ywb6R7ngEnyKYe43eVA4wXeRpSqb
+	mineraddress=K8RJg8Th8t7LB9QYwksKmKJ82TGaT6qF21
+	mineraddress=KQHFp6C4egbM8ekxpVSAjU27XHrEVXuUtc
+	mineraddress=KHQ1S8xjSKGYhy8JdQXUqmU5QfjNBFKQHt
+	mineraddress=KHM4giaQz1tSjw2nB3qNagqXqygLJ5PgWv
+	mineraddress=KQVgWNsE8RvoCusiEmHbvRVD1Pp494TCo3
+	mineraddress=KD1mmbM39oJGRVXQ4zXqpMt3tyv7tYnSVN
+	mineraddress=KKAYDA2XR9gJTsgDT4XNNqRdibqDVtN4YN
+	mineraddress=KDjThi2BGU7YTXaUV2QXxtFNBV8Aj3bHMK
+	mineraddress=KM6yeD6CgAmtt9NpPnvexYVnQR7GmN8XYs
+	mineraddress=KTSSYdLUzKRAuebZoWWm6unLb6HYNa5k8z
+	mineraddress=KD4HSV5aY3EMy4yyZHpM4CFqzNo78aVAd6
+	mineraddress=KFyJ8omd9ekxtMd7x65XCaDN8a93d5NKZi
+	mineraddress=KK5ywBJXMaA2H1UfnkX2VH4awg7HMAkAPk
+	mineraddress=KR99fzAsCj5PybQEf4C4kRDtXz76AnH2Rt
+	mineraddress=KKhbEqkJWJYAfi8PdJKR5yyoLEE5dcB876
+	mineraddress=KDkeBiDtHiWApgTxCBXn4HPL4wibHNZmtC
+	mineraddress=KTS8aLqMtcGMn7T34viR3bj9ZJ1zZGoGJG
+	mineraddress=KMmLUaRXmtBbxTFC4HHVbM4HhFUJWET9oB
+	mineraddress=KD6rYRkyevp34zKykNrK9gwBAEUbv2cNFV
+	mineraddress=K89ccyMVZXzRzUXWq1RfuY9PCvUZDqgoik
+	mineraddress=KSJvNWgrPSMFbCY94j3kNsAZg1FWhrm5t8
+	mineraddress=KUtN69HpY5GUnkCrqnbAxf7mFWun8kQhq2
+	mineraddress=KA2TYbdm4hWCk8DqUo2LAQqJTSm5mWAwzC
+	mineraddress=K88VygQjnVfsMS16hCHkjfK7GkA42qqJjg
+	mineraddress=KDKykmrGJiQUxiK2aE75xxo1krqUreuUAM
+	mineraddress=KGyh6t7eoXnf7P3GGRF1enfxpAGcdYPt89
+	mineraddress=KKgt23EhjwKLM2D1A42vgSpjcnnAPQgMvn
+	mineraddress=KFno7q6cKU2V8t6Y3oDMsXrm1Qnh42X8dQ
+	mineraddress=KQnReh3XBkr5ATyHi5NfX7x98jGqPUC56m
+	mineraddress=KQ5dTLSpnrNgHJMbdmWFoTrVJJ7FHcPe4a
+	mineraddress=KAHVEkbLMMjYbbGnSKp19G7b8KtAVQQVpn
+	mineraddress=K8mEAGxz3S28iBKTJ1DkpamaA87vAYFa7w
+	mineraddress=KSvTeEMK4LiQQ6XGHyzRyAcbbywtGfMwK7
+	mineraddress=KKgcn8PbKeFNWMNUUdYgR4PhUGjEMA7YsZ
+	mineraddress=KAjmGxrFjSS5FyNR6eeRGddzGQfpKtDBFm
+	mineraddress=K8pRb6spT88mEPH7m4RPUpBJoVjTSywgxD
+	mineraddress=KM6gViox4G9DxhGy45HfJSbJj5wpTZPyYa
+	mineraddress=KGif3PDPHas53jWY4V8XFKEWJvW8LrkNSF
+	mineraddress=KFjzxA9F7ShGE5KQRa199eqHc8ruBf582Q
+	mineraddress=KM5XRg276NcSrJVyxqAKPsPgc77p4FGvwD
+	mineraddress=KUdqcraqpJwtkxtzQ67adHhFoNNY7ShePU
+	mineraddress=KUFmGQsv2mYt9Dfgh2wfo88NwsyThkTZPu
+	mineraddress=KMNeHWHtUa54NKJ1WmGSNrb1Gw5FNBeZbV
+	mineraddress=KEag3pWyuyNv3ykX8PJ4SLrVGU7wd4qUD9
+	mineraddress=KL8bG3BfRwvbG68h7rSntohTowGfv7gRdF
+	mineraddress=K8yUTWqqaHxrRbqRhYCTGytWZZH7kCmMDQ
+	mineraddress=KEbvuZFQEhfsK7URgKqC5MiAwMHdyKSmeA
+	mineraddress=KDR8kSTHY2fcQNgKNzmCrav5h3STnYYi5H
+	mineraddress=K7rADXJTtKdUKAQSJJgA8mSseBorqh2Njd
+	mineraddress=KRn36kX4JrMRBwC8c3mH1gA6P5o3hHedgW
+	mineraddress=KCxZYLds8SsGRf77tpy9hfRsv72fuy4Fv3
+	mineraddress=KUt129J5RHjBfSSEUh7bB4PgWo7HrKdSFa
+	mineraddress=KVrUAE2c4nezo7LGyxV4nQxzTFUHExer6L
+	mineraddress=KFWnE9kJCarSj665ptkR2RP8Emf2CeeBZL
+	mineraddress=KS7pFonJdAjhw5XfNge3Z374S7tNbNmVbJ
+	mineraddress=KW6iBcDBJR5FDHZbid1cGVLv9VKZUMLQ47
+	mineraddress=KKTYH3fznPBcw6rGQmkmJ15ZoCHcjBU1r6
+	mineraddress=KNvcKwbwtdjSzNJDG4KkfW3ND392yvqZ3T
+	mineraddress=KFu97mQX5ayKD6pUYMEnLLwK9hdyLGtccG
+	mineraddress=K9wn3Kd8GxubmVWfNqsf8yDvA6NiAhgftQ
+	mineraddress=KENTd6NxSStcWrh2NC3Rtqq4GDcDSdsDUK
+	mineraddress=KVBWFVzGMkVqZM1tjBgv7wu2rdHGP61uUc
+	mineraddress=KSTjT3x3xKL8TUMKCMr9VEaSsYfXAtoJmo
+	mineraddress=KCw1zJd2hFixtSpPCakmxwNhxkcDTw4iFh
+	mineraddress=KRxuSE3Bpgv2RG5otdM7zrRwm2fusywPbt
+	mineraddress=KQ4gZ16JTwWpAF8Fue54xqJ7JfFV3iBKih
+	mineraddress=KEELjLwyhHv2fPJTEwfbLURoFrcGv4Ursx
+	mineraddress=KE5qRzFFnYghujhtuSs1ccKartyr6Uu6GD
+	mineraddress=KEsyQkFWGLA8fxjjogEuAfjgymwocpwWCU
+	mineraddress=KPgoGJrYD8cNogTjo1ZLFhCzNkegCcekKM
+	mineraddress=KChFEg95jkxevxaunGCdNrpQHJHpVgETUL
+	mineraddress=KPVzCf733JLS5S81wwsfodgjQLPwP9nUew
+	mineraddress=K7Gignm6JW4TJH1vnN21f9LA3gyzEVcBvS
+	mineraddress=KT3KTvdZdcL58Zdj9tGMXQBJj18Vq2xxyT
+	mineraddress=KTHp1ks6H19wAcMHi1Lbtsusva4eSmG433
+	mineraddress=KM72k3AtL3U3TrcmepWDJVyqxbF2q2GX3B
+	mineraddress=KB5itZ8EauWSDn7XcakUywj1Uq97Z3RNGC
+	mineraddress=KDBCJbnGxGhaB4wok31N5JE41QZBPdx2BA
+	mineraddress=KRfwHBL4A1nyMHjBLSbX5SLuVp6FgjBiWw
+	mineraddress=KCrBjpQV5qioXVW7PpfbpbMjWCo88gyNi3
+	mineraddress=KW2VEsTgSbSsv5DXpMupqoYKpLyoQrtcpm
+	mineraddress=KG168WUnYeUExbTUJ8AjLH3T5xSYSnbqmq
+	mineraddress=KGizkmStn2P86YR9hWKDSFyocGWJSdxHPc
+	mineraddress=KM9Vb3mS3NbHkxSK9teL1pynPSHkY4NohS
+	mineraddress=KFsgQqcCGMPPuC72QqUzrsFNLUhUozHLhJ
+	mineraddress=KAFxBVH6hdZDxMAmyKdkygdKWSJmbBv4Xi
+	mineraddress=K9Pu4mokyREUEnKNT7cwinTkjHPtrzxpyg
+	mineraddress=K9XYJGQenr7pBfYS35NPEGtPC5JHePv213	
+	mineraddress=K8bBNy1fsA4HKRk7pWqFUAogs37nrGzvxG
+	mineraddress=KTgZLgbvGLAZdSkzM2oVhyDcWx3dKKpkrX
+	mineraddress=KGt6qUHLcNN4eUYstoACc8UyMAdNm7muqW
+	mineraddress=KEsTQLmSBTLkuUzMgiwPkV3h1k3JrRsety
+	mineraddress=K9erq5SRXoP1GVGZUkvoBcP21E7XBUmUCC
+	mineraddress=KEgf7H3yJUAcucAiXbKRYB3PdRRHCWWdFB
 	mineraddress=KJeTy4YpEB4vfACi8hTDhha8XREkNwfCo5
 	mineraddress=KVe8M69xcaciUx2stEYPXCvfEBouJPLVCa
 	mineraddress=K7h1XerggVEGXLSMMxfmHPgL7FbHH2rq3V
@@ -651,12 +735,33 @@ while [ ! -O $lynxConfigurationFile ] ; do # Only create the file if it doesn't 
 	mineraddress=KBxpSv3tDPEq2NdiayWu6mLKaJCLR3bESu
 	mineraddress=KM1VcC7ppY7fmHD8BGoyoyLeR9bTiuQXsY
 	mineraddress=KVm5auwacM2BRKmtftgPu4wqQyiG56Gsmx
+	mineraddress=KQwEGMTE8hxubAxwih3U7oykW186y8eijX
+	mineraddress=KUXn3vFAZhYe2jjpQFVDUTuEbS5WhhR4f1
+	mineraddress=K8rYuPyAQ7jzKHYNyFeMQpu7fFFbw5pjZR
+	mineraddress=KEhEeLfxffCXA7aLj45W7zpVPdMncytZQ9
+	mineraddress=KCSzsxDA48uMf4ULofJu2RZuR12X9erHpi
+	mineraddress=K9MwMzSGVbhR2ewjA6s4r558BccToogeSM
+	mineraddress=KUH3G3oPUVK3vs6LLVygB1eXreewcSAcgf
+	mineraddress=KDekJvk6M9nmN4VX69nYPP6DDrdWimQ5MA
+	mineraddress=KWQYg24werdqs6SYeYv5V4Pm169kSQopar
+	mineraddress=KTuEfaeefRiK8ANRErd4oEMX1hZ61KrZdr
+	mineraddress=KPfLtLwwvu5c2Fb3WyUGVqrsy63joMYmi1
+	mineraddress=KSt8zsD7gGnkBi3VfauVf7zcio3wnmes44
+	mineraddress=KGYU9FjX8M4MqheuQHPjQBh5R35iJW4bGU
+	mineraddress=KAZBiAoL3oqdcMudR9pYtaVkq7Gx7g6F3E
+	mineraddress=K8A1q6ztqgwMUgvDXtagyd7y7aDCxrGThz
+	mineraddress=KVrG89hVRcFmcoPiuAV2d4GiKSuwpS4iG3
 	mineraddress=KBp7DvcmhonVqy3Es73dQFTtjCPGrNkPDk
 	mineraddress=KKuxb5KQCF13D7kDL6rMPx5hNTtDGvqiTV
 	mineraddress=KC4GBFAbsgRGvdrY9aQgU4XNX85mAFmHHU
 	mineraddress=KGC3UkcLS2Yq5ZojhuHu5T7XBpf3DJKJKp
 	mineraddress=KEM9dV7pP1YZkTA3gYpfydSqQUyFzfmwrm
 	mineraddress=K9JgSJZW6koYKQ4rPmZ7FwRH6dpy7SHVUD
+	mineraddress=KS9n6R6K9BsNn3Mz3P2QxpNNdPJhDPvLnB
+	mineraddress=KSK7RkAez3h4myywCiBWANdqsYrRtzdRrb
+	mineraddress=KEUNaT5m2Qi1kiDBwTG5rVgJQtaRzYpYhD
+	mineraddress=KEAgADFYmy5tVggXx8kcHBD1WiLcEnQvXs
+	mineraddress=KK2ZLgKFuv8k8ZtohjHbXTBXutsSoieVfN
 	mineraddress=KCeHBX64PT1WvuV4mrSnS7DoyLvpmZ5XXK
 	mineraddress=KCEtXtUd3H8bG7Jn7FCLuEhNdVvD5AbDVf
 	mineraddress=K9aVTZzPRwuVD7k3oELGh2aDKcF95kjEN1
