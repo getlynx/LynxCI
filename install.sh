@@ -172,7 +172,7 @@ while [ ! -O $firewallCheck ]; do
 	# authenticated, then ACCEPT further traffic from that IP address.
 	#
 	/sbin/iptables -F
-	/sbin/iptables -I INPUT 1 -i lo -j ACCEPT 
+	/sbin/iptables -I INPUT 1 -i lo -j ACCEPT
 	/sbin/iptables -I INPUT 2 -m conntrack --ctstate ESTABLISHED,RELATED -j ACCEPT
 	#
 	# If the Block Crawler is enabled, then open port 80, otherwise drop that
