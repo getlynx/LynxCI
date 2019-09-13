@@ -10,8 +10,8 @@
 #
 # The latest links for the boostrap files used by both environments.
 #
-mainnetBootstrap="https://github.com/getlynx/LynxBootstrap/releases/download/v2.0-mainnet/bootstrap.tar.gz" # 2b55dc14c562b862ab20aa8793666215cb6f56e63e73617f6764e442af275fb2
-testnetBootstrap="https://github.com/getlynx/LynxBootstrap/releases/download/v1.0-testnet/bootstrap.tar.gz" # f0a3212f23a399de460a5dfa3d2d8fb207c3b1cbda17e5f10fa591bb97f0d35c
+mainnetBootstrap="https://github.com/getlynx/LynxBootstrap/releases/download/v3.0-mainnet/bootstrap.tar.gz"
+testnetBootstrap="https://github.com/getlynx/LynxBootstrap/releases/download/v1.0-testnet/bootstrap.tar.gz"
 touchSSHInstallCompleteFile="/boot/ssh"
 touchLynxCIInstallCompleteFile="/boot/lynxci"
 #
