@@ -570,8 +570,8 @@ echo "
 # and 100,000,000 Lynx) and the miner will ignore the following miner address values.
 " >> $lynxConfigurationFile
 
-[ "$networkEnvironment" = "mainnet" ] && for address in $(cat address-mainnet.txt); do echo "mineraddress=$address" >> $lynxConfigurationFile; done
-[ "$networkEnvironment" = "testnet" ] && for address in $(cat address-testnet.txt); do echo "mineraddress=$address" >> $lynxConfigurationFile; done
+[ "$networkEnvironment" = "mainnet" ] && for address in $(cat /root/LynxCI/address-mainnet.txt); do echo "mineraddress=$address" >> $lynxConfigurationFile; done
+[ "$networkEnvironment" = "testnet" ] && for address in $(cat /root/LynxCI/address-testnet.txt); do echo "mineraddress=$address" >> $lynxConfigurationFile; done
 
 echo "
 listen=1                      # It is highly unlikely you need to change any of the following values unless you are tinkering with the node. If you decide to
