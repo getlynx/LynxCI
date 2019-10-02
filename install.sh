@@ -557,34 +557,35 @@ while [ ! -O $lynxConfigurationFile ] ; do
 	# risk, but make sure you know what you are doing.
 
 	disablewallet=1
+	" > $lynxConfigurationFile
 
-	$([ \"$networkEnvironment\" = \"mainnet\" ] && while read i; do echo \"addnode=node$i.getlynx.io\"; done < <( shuf -i 10-50 -n 40 ))
-	$([ \"$networkEnvironment\" = \"testnet\" ] && while read j; do echo \"addnode=test0$j.getlynx.io\"; done < <( shuf -j 1-9 -n 9 ))
+	[ "$networkEnvironment" = "mainnet" ] && while read i; do echo "addnode=node$i.getlynx.io" >> $lynxConfigurationFile; done < <( shuf -i 10-50 -n 40 )
+	[ "$networkEnvironment" = "testnet" ] && while read j; do echo "addnode=test0$j.getlynx.io" >> $lynxConfigurationFile; done < <( shuf -j 1-9 -n 9 )
 
-	# The following addresses are known to pass the validation requirements for HPoW. If you would
+	echo "# The following addresses are known to pass the validation requirements for HPoW. If you would
 	# like to earn your own mining rewards, you can add/edit/delete this list with your own
 	# addresses (more is better). You must have a balance of between 1,000 and 100,000,000 Lynx in
 	# each of the Lynx addresses in order to win the block reward. Alternatively, you can enable
 	# wallet functions on this node (above), deposit Lynx to the local wallet (again, between 1,000
-	# and 100,000,000 Lynx) and the miner will ignore the following miner address values.
-	
-	$([ \"$networkEnvironment\" = \"mainnet\" ] && for address in $(cat address-mainnet.txt); do echo \"mineraddress=$address\"; done)
-	$([ \"$networkEnvironment\" = \"testnet\" ] && for address in $(cat address-testnet.txt); do echo \"mineraddress=$address\"; done)
+	# and 100,000,000 Lynx) and the miner will ignore the following miner address values." >> $lynxConfigurationFile
 
-	listen=1                      # It is highly unlikely you need to change any of the following values unless you are tinkering with the node. If you decide to
+	[ "$networkEnvironment" = "mainnet" ] && for address in $(cat address-mainnet.txt); do echo "mineraddress=$address"; done >> $lynxConfigurationFile
+	[ "$networkEnvironment" = "testnet" ] && for address in $(cat address-testnet.txt); do echo "mineraddress=$address"; done >> $lynxConfigurationFile
+
+	echo "listen=1                      # It is highly unlikely you need to change any of the following values unless you are tinkering with the node. If you decide to
 	daemon=1                      # tinker, know that a backup of this file already exists as /root/.lynx/.lynx.conf.
 	port=$port
 	rpcworkqueue=64               # Our exchange and SPV wallet partners might want to disable the built in miner. This can be easily done with the 'disablebuiltinminer'
 	listenonion=0                 # parameter below. As for our miners who are looking to tune their devices, we recommend the default 0.25 (25%), but if you insist on
 	upnp=1                        # increasing the 'cpulimitforbuiltinminer' amount, we recommend you not tune it past using 50% of your CPU load. Remember, with HPoW
-	dbcache=450                   # increasing the mining speed does not mean you will win more blocks. You are are just generating heat, not blocks. Also, if you are 
-	txindex=1                     # using a VPS, increasing 'cpulimitforbuiltinminer' too high might get you banned from the the VPS vendors platform. You've been warned.
+	dbcache=450                   # increasing the mining speed does not mean you will win more blocks. You are just generating heat, not blocks. Also, if you are using
+	txindex=1                     # a VPS, increasing 'cpulimitforbuiltinminer' too high might get you banned from the the VPS vendors platform. You've been warned.
 	host=$name
 	maxmempool=100
 	testnet=0
 	disablebuiltinminer=0
 	cpulimitforbuiltinminer=0.25
-	" > $lynxConfigurationFile
+	" >> $lynxConfigurationFile
 	sleep 2 && sed -i 's/^[\t]*//' $lynxConfigurationFile # Remove the pesky tabs inserted by the 'echo' outputs.
 	echo "LynxCI: Lynx default configuration file, '$lynxConfigurationFile' was created."
 done
@@ -615,7 +616,7 @@ chmod 600 /root/.lynx/*.conf # previously changed the default ownership setting.
 # setting bother up to run.
 #
 lynxLogrotateConfiguration="/etc/logrotate.d/lynxd.conf"
-while [ ! -O $lynxLogrotateConfiguration ] ; do 	
+while [ ! -O $lynxLogrotateConfiguration ] ; do
 	echo "/root/.lynx/debug.log {
 		daily
 		rotate 7
