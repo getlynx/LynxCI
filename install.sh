@@ -508,7 +508,7 @@ fi
 # Only create the file if it doesn't already exist and is complete.
 #
 lynxConfigurationFile="/root/.lynx/lynx.conf"
-while [ ! -O $lynxConfigurationFile -a grep -q host "$lynxConfigurationFile" ] ; do
+while [ ! -O $lynxConfigurationFile ] && [ grep -q host $lynxConfigurationFile ] ; do
 	echo "# The following RPC credentials are created at build time and are unique to this host. If you
 	# like, you can change them, but you are encouraged to keep very complex strings for each. If an
 	# attacker gains RPC access to this host they will steal your Lynx. Understanding that, the
