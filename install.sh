@@ -508,87 +508,89 @@ fi
 # Create the default lynx.conf file
 #
 lynxConfigurationFile="/root/.lynx/lynx.conf"
-echo "# The following RPC credentials are created at build time and are unique to this host. If you
-# like, you can change them, but you are encouraged to keep very complex strings for each. If an
-# attacker gains RPC access to this host they will steal your Lynx. Understanding that, the
-# wallet is disabled by default so the risk of loss is lowest with the default configuration.
+while [ ! -O $lynxConfigurationFile ] && [ grep -q host $lynxConfigurationFile ]; do
+	echo "# The following RPC credentials are created at build time and are unique to this host. If you
+	# like, you can change them, but you are encouraged to keep very complex strings for each. If an
+	# attacker gains RPC access to this host they will steal your Lynx. Understanding that, the
+	# wallet is disabled by default so the risk of loss is lowest with the default configuration.
 
-rpcuser=$rpcuser
-rpcpassword=$rpcpass
-rpcport=$rpcport
+	rpcuser=$rpcuser
+	rpcpassword=$rpcpass
+	rpcport=$rpcport
 
-# The following settings will allow a connection from ANY external host. The two entries
-# define that any IPv4 or IPv6 address will be allowed to connect. The default firewall settings
-# also allow the traffic because the RPC port is open by default. If you are setting up a remote
-# connection, all you will need is the above RPC credentials. No further network configuration
-# is needed. To secure the node from repeated connection attempts or to restrict connections to
-# your IP's only, change the following values as needed. The following example will work 
-# locally, on this machine. You can try this curl example from another computer, just change the
-# '$name' value to the IP of this node.
+	# The following settings will allow a connection from ANY external host. The two entries
+	# define that any IPv4 or IPv6 address will be allowed to connect. The default firewall settings
+	# also allow the traffic because the RPC port is open by default. If you are setting up a remote
+	# connection, all you will need is the above RPC credentials. No further network configuration
+	# is needed. To secure the node from repeated connection attempts or to restrict connections to
+	# your IP's only, change the following values as needed. The following example will work 
+	# locally, on this machine. You can try this curl example from another computer, just change the
+	# '$name' value to the IP of this node.
 
-rpcallowip=0.0.0.0/24
-rpcallowip=::/0
+	rpcallowip=0.0.0.0/24
+	rpcallowip=::/0
 
-# The debug log (/root/.lynx/debug.log) is capable of outputing a massive amount of data. If you
-# are chasing a bug, set the argument to 'debug=1'. It isn't recommended to leave that log level
-# intact though. The default state of this build is to output the BuiltinMiner info, so if you
-# don't want to see it, you can change the argument to 'debug=0'. We think the BuiltinMiner info
-# is fun though, but on a Pi, to reduce SD card writes, it might be most efficient to go with
-# the least amount of debug info, so change it to 'debug=0'.
+	# The debug log (/root/.lynx/debug.log) is capable of outputing a massive amount of data. If you
+	# are chasing a bug, set the argument to 'debug=1'. It isn't recommended to leave that log level
+	# intact though. The default state of this build is to output the BuiltinMiner info, so if you
+	# don't want to see it, you can change the argument to 'debug=0'. We think the BuiltinMiner info
+	# is fun though, but on a Pi, to reduce SD card writes, it might be most efficient to go with
+	# the least amount of debug info, so change it to 'debug=0'.
 
-#debug=1
-debug=miner
-#debug=mempool
-#debug=rpc
-#debug=0
+	#debug=1
+	debug=miner
+	#debug=mempool
+	#debug=rpc
+	#debug=0
 
-# By default, wallet functions in LynxCI are disabled. This is for security reasons. If you
-# would like to enable your wallet functions, change the value from '1' to '0' in the
-# 'disablewallet' parameter. Then restart lynxd to enact the change. You can gracefully stop lynxd
-# witht he command '$ systemctl stop lynxd', and start again with '$ systemctl start lynxd'. Of
-# course, you can do the reverse action to disable wallet functions on this node. You can always
-# check to see if wallet functions are enabled with '$ lynx-cli help', looking for the
-# '== Wallet ==' section at the bottom of the help file.
-#
-# If you change this value to '0' and someone knows your RPC username and password, all your 
-# Lynx coins in this wallet will probably be stolen. The Lynx development team can not get your
-# stolen coins back. You are responsible for your coins. If the wallet is empty, it's not a
-# risk, but make sure you know what you are doing.
+	# By default, wallet functions in LynxCI are disabled. This is for security reasons. If you
+	# would like to enable your wallet functions, change the value from '1' to '0' in the
+	# 'disablewallet' parameter. Then restart lynxd to enact the change. You can gracefully stop lynxd
+	# witht he command '$ systemctl stop lynxd', and start again with '$ systemctl start lynxd'. Of
+	# course, you can do the reverse action to disable wallet functions on this node. You can always
+	# check to see if wallet functions are enabled with '$ lynx-cli help', looking for the
+	# '== Wallet ==' section at the bottom of the help file.
+	#
+	# If you change this value to '0' and someone knows your RPC username and password, all your 
+	# Lynx coins in this wallet will probably be stolen. The Lynx development team can not get your
+	# stolen coins back. You are responsible for your coins. If the wallet is empty, it's not a
+	# risk, but make sure you know what you are doing.
 
-disablewallet=1
-" > $lynxConfigurationFile
+	disablewallet=1
+	" > $lynxConfigurationFile
 
-[ "$networkEnvironment" = "mainnet" ] && for i in $(shuf -i 10-50 -n 40); do echo "addnode=node$i.getlynx.io" >> $lynxConfigurationFile; done
-[ "$networkEnvironment" = "testnet" ] && for j in $(shuf -j 1-9 -n 9); do echo "addnode=test0$j.getlynx.io" >> $lynxConfigurationFile; done
+	[ "$networkEnvironment" = "mainnet" ] && for i in $(shuf -i 10-50 -n 40); do echo "addnode=node$i.getlynx.io" >> $lynxConfigurationFile; done
+	[ "$networkEnvironment" = "testnet" ] && for j in $(shuf -j 1-9 -n 9); do echo "addnode=test0$j.getlynx.io" >> $lynxConfigurationFile; done
 
-echo "
-# The following addresses are known to pass the validation requirements for HPoW. If you would
-# like to earn your own mining rewards, you can add/edit/delete this list with your own
-# addresses (more is better). You must have a balance of between 1,000 and 100,000,000 Lynx in
-# each of the Lynx addresses in order to win the block reward. Alternatively, you can enable
-# wallet functions on this node (above), deposit Lynx to the local wallet (again, between 1,000
-# and 100,000,000 Lynx) and the miner will ignore the following miner address values.
-" >> $lynxConfigurationFile
+	echo "
+	# The following addresses are known to pass the validation requirements for HPoW. If you would
+	# like to earn your own mining rewards, you can add/edit/delete this list with your own
+	# addresses (more is better). You must have a balance of between 1,000 and 100,000,000 Lynx in
+	# each of the Lynx addresses in order to win the block reward. Alternatively, you can enable
+	# wallet functions on this node (above), deposit Lynx to the local wallet (again, between 1,000
+	# and 100,000,000 Lynx) and the miner will ignore the following miner address values.
+	" >> $lynxConfigurationFile
 
-[ "$networkEnvironment" = "mainnet" ] && for address in $(cat /root/LynxCI/address-mainnet.txt); do echo "mineraddress=$address" >> $lynxConfigurationFile; done
-[ "$networkEnvironment" = "testnet" ] && for address in $(cat /root/LynxCI/address-testnet.txt); do echo "mineraddress=$address" >> $lynxConfigurationFile; done
+	[ "$networkEnvironment" = "mainnet" ] && for address in $(cat /root/LynxCI/address-mainnet.txt); do echo "mineraddress=$address" >> $lynxConfigurationFile; done
+	[ "$networkEnvironment" = "testnet" ] && for address in $(cat /root/LynxCI/address-testnet.txt); do echo "mineraddress=$address" >> $lynxConfigurationFile; done
 
-echo "
-listen=1                      # It is highly unlikely you need to change any of the following values unless you are tinkering with the node. If you decide to
-daemon=1                      # tinker, know that a backup of this file already exists as /root/.lynx/.lynx.conf.
-port=$port
-rpcworkqueue=64               # Our exchange and SPV wallet partners might want to disable the built in miner. This can be easily done with the 'disablebuiltinminer'
-listenonion=0                 # parameter below. As for our miners who are looking to tune their devices, we recommend the default 0.25 (25%), but if you insist on
-upnp=1                        # increasing the 'cpulimitforbuiltinminer' amount, we recommend you not tune it past using 50% of your CPU load. Remember, with HPoW
-dbcache=450                   # increasing the mining speed does not mean you will win more blocks. You are just generating heat, not blocks. Also, if you are using
-txindex=1                     # a VPS, increasing 'cpulimitforbuiltinminer' too high might get you banned from the the VPS vendors platform. You've been warned.
-host=$name
-maxmempool=100
-testnet=0
-disablebuiltinminer=0
-cpulimitforbuiltinminer=0.25
-" >> $lynxConfigurationFile
-
+	echo "
+	listen=1                      # It is highly unlikely you need to change any of the following values unless you are tinkering with the node. If you decide to
+	daemon=1                      # tinker, know that a backup of this file already exists as /root/.lynx/.lynx.conf.
+	port=$port
+	rpcworkqueue=64               # Our exchange and SPV wallet partners might want to disable the built in miner. This can be easily done with the 'disablebuiltinminer'
+	listenonion=0                 # parameter below. As for our miners who are looking to tune their devices, we recommend the default 0.25 (25%), but if you insist on
+	upnp=1                        # increasing the 'cpulimitforbuiltinminer' amount, we recommend you not tune it past using 50% of your CPU load. Remember, with HPoW
+	dbcache=450                   # increasing the mining speed does not mean you will win more blocks. You are just generating heat, not blocks. Also, if you are using
+	txindex=1                     # a VPS, increasing 'cpulimitforbuiltinminer' too high might get you banned from the the VPS vendors platform. You've been warned.
+	host=$name
+	maxmempool=100
+	testnet=0
+	disablebuiltinminer=0
+	cpulimitforbuiltinminer=0.25
+	" >> $lynxConfigurationFile
+done
+sleep 2 && sed -i 's/^[\t]*//' $lynxConfigurationFile # Remove the pesky tabs inserted by the 'echo' outputs.
 echo "LynxCI: Lynx default configuration file, '$lynxConfigurationFile' was created."
 
 [ "$networkEnvironment" = "testnet" ] && { sed -i 's|testnet=0|testnet=1|g' $lynxConfigurationFile; echo "LynxCI: This node is operating on the testnet environment and it's now set in the lynx.conf file."; }
