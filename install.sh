@@ -562,17 +562,20 @@ while [ ! -O $lynxConfigurationFile ] ; do
 	[ "$networkEnvironment" = "mainnet" ] && while read i; do echo "addnode=node$i.getlynx.io" >> $lynxConfigurationFile; done < <( shuf -i 10-50 -n 40 )
 	[ "$networkEnvironment" = "testnet" ] && while read j; do echo "addnode=test0$j.getlynx.io" >> $lynxConfigurationFile; done < <( shuf -j 1-9 -n 9 )
 
-	echo "# The following addresses are known to pass the validation requirements for HPoW. If you would
+	echo "
+	# The following addresses are known to pass the validation requirements for HPoW. If you would
 	# like to earn your own mining rewards, you can add/edit/delete this list with your own
 	# addresses (more is better). You must have a balance of between 1,000 and 100,000,000 Lynx in
 	# each of the Lynx addresses in order to win the block reward. Alternatively, you can enable
 	# wallet functions on this node (above), deposit Lynx to the local wallet (again, between 1,000
-	# and 100,000,000 Lynx) and the miner will ignore the following miner address values." >> $lynxConfigurationFile
+	# and 100,000,000 Lynx) and the miner will ignore the following miner address values.
+	" >> $lynxConfigurationFile
 
 	[ "$networkEnvironment" = "mainnet" ] && for address in $(cat address-mainnet.txt); do echo "mineraddress=$address"; done >> $lynxConfigurationFile
 	[ "$networkEnvironment" = "testnet" ] && for address in $(cat address-testnet.txt); do echo "mineraddress=$address"; done >> $lynxConfigurationFile
 
-	echo "listen=1                      # It is highly unlikely you need to change any of the following values unless you are tinkering with the node. If you decide to
+	echo "
+	listen=1                      # It is highly unlikely you need to change any of the following values unless you are tinkering with the node. If you decide to
 	daemon=1                      # tinker, know that a backup of this file already exists as /root/.lynx/.lynx.conf.
 	port=$port
 	rpcworkqueue=64               # Our exchange and SPV wallet partners might want to disable the built in miner. This can be easily done with the 'disablebuiltinminer'
