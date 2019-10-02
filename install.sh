@@ -558,8 +558,8 @@ while [ ! -O $lynxConfigurationFile ] ; do
 
 	disablewallet=1
 
-	[ \"$networkEnvironment\" = \"mainnet\" ] && while read i; do echo \"addnode=node$i.getlynx.io\"; done < <( shuf -i 10-50 -n 40 )
-	[ \"$networkEnvironment\" = \"testnet\" ] && while read j; do echo \"addnode=test0$j.getlynx.io\"; done < <( shuf -j 1-9 -n 9 )
+	$([ \"$networkEnvironment\" = \"mainnet\" ] && while read i; do echo \"addnode=node$i.getlynx.io\"; done < <( shuf -i 10-50 -n 40 ))
+	$([ \"$networkEnvironment\" = \"testnet\" ] && while read j; do echo \"addnode=test0$j.getlynx.io\"; done < <( shuf -j 1-9 -n 9 ))
 
 	# The following addresses are known to pass the validation requirements for HPoW. If you would
 	# like to earn your own mining rewards, you can add/edit/delete this list with your own
@@ -568,8 +568,8 @@ while [ ! -O $lynxConfigurationFile ] ; do
 	# wallet functions on this node (above), deposit Lynx to the local wallet (again, between 1,000
 	# and 100,000,000 Lynx) and the miner will ignore the following miner address values.
 	
-	[ \"$networkEnvironment\" = \"mainnet\" ] && for address in $(cat address-mainnet.txt); do echo \"mineraddress=$address\"; done
-	[ \"$networkEnvironment\" = \"testnet\" ] && for address in $(cat address-testnet.txt); do echo \"mineraddress=$address\"; done
+	$([ \"$networkEnvironment\" = \"mainnet\" ] && for address in $(cat address-mainnet.txt); do echo \"mineraddress=$address\"; done)
+	$([ \"$networkEnvironment\" = \"testnet\" ] && for address in $(cat address-testnet.txt); do echo \"mineraddress=$address\"; done)
 
 	listen=1                      # It is highly unlikely you need to change any of the following values unless you are tinkering with the node. If you decide to
 	daemon=1                      # tinker, know that a backup of this file already exists as /root/.lynx/.lynx.conf.
