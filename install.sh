@@ -40,13 +40,13 @@ else
 	echo "LynxCI: Thanks for starting the Lynx Cryptocurrency Installer (LynxCI)."
 fi
 #
-# There are only two options allowed, mainnet or testnet. Mainnet is default. 
+# There are only two options allowed, mainnet or testnet. Mainnet is default.
 #
 networkEnvironment="$1"
 [ -z "$1" ] && networkEnvironment="mainnet"
 if [ "$networkEnvironment" = "mainnet" -o "$networkEnvironment" = "testnet" ]; then
 	echo "LynxCI: Supplied environment parameter ($networkEnvironment) accepted."
-else 
+else
 	echo "LynxCI: Failed to meet required network environment param. The only two accepted values are 'mainnet' and 'testnet'."
 	exit
 fi
@@ -56,7 +56,7 @@ fi
 [ "$networkEnvironment" = "testnet" ] && { port="44566"; echo "LynxCI: The testnet port is 44566."; }
 [ "$networkEnvironment" = "testnet" ] && { rpcport="19335"; echo "LynxCI: The testnet rpcport is 19335."; }
 #
-# There are only two options allowed, master or 0.16.3.9. 0.16.3.9 is default. 
+# There are only two options allowed, master or 0.16.3.9. 0.16.3.9 is default.
 #
 projectBranch="$2"
 [ -z "$2" ] && projectBranch="0.16.3.9"
@@ -109,7 +109,7 @@ if [ "$projectBranch" != "master" ]; then
 	#
 	if [ "$operatingSystem" = "PRETTY_NAME=\"Debian GNU/Linux 9 (stretch)\"" -a "$systemArchitecture" = "amd64" ]; then
 		installationMethod="install"
-		installationSource="https://github.com/getlynx/Lynx/releases/download/v0.16.3.9/lynxd_0.16.3.9-2_amd64.deb"
+		installationSource="https://github.com/getlynx/Lynx/releases/download/v0.16.3.9/lynxd_0.16.3.9-3_amd64.deb"
 		installationFile="${installationSource##*/}"
 	fi
 	if [ "$operatingSystem" = "PRETTY_NAME=\"Raspbian GNU/Linux 9 (stretch)\"" -a "$isPi" = "1" ]; then
@@ -224,8 +224,8 @@ while [ ! -O $firewallCheck ]; do
 		cp --remove-destination /root/.lynx/lynx.conf /var/www/crawler.conf
 		chmod 644 /var/www/crawler.conf
 		sed -i '10,$ d' /var/www/crawler.conf
-		systemctl enable php7.2-fpm
-		systemctl start php7.2-fpm
+		systemctl enable php7.3-fpm
+		systemctl start php7.3-fpm
 		systemctl enable nginx
 		systemctl start nginx
 	fi
@@ -262,7 +262,10 @@ echo "$name" > /etc/hostname
 echo "LynxCI: Preparing to install Nginx."
 curl -ssL -o /etc/apt/trusted.gpg.d/php.gpg https://packages.sury.org/php/apt.gpg # To prep the install of Nginx, get the keys installed.
 sh -c 'echo "deb https://packages.sury.org/php/ $(lsb_release -sc) main" > /etc/apt/sources.list.d/php.list' # Add Nginx to the source list.
-apt-get -y update && apt-get -y install nginx php7.2 php7.2-common php7.2-bcmath php7.2-cli php7.2-fpm php7.2-opcache php7.2-xml php7.2-curl php7.2-mbstring php7.2-zip # Install the needed Nginx packages.
+apt-get -y update && apt-get -y install nginx php7.3 php7.3-common php7.3-bcmath php7.3-cli php7.3-fpm php7.3-opcache php7.3-xml php7.3-curl php7.3-mbstring php7.3-zip # Install the needed Nginx packages.
+
+  
+
 echo "LynxCI: Nginx install is complete."
 #
 # To make the installation go a little faster and reduce Lynx network chatter,
@@ -442,7 +445,7 @@ echo "server {
 	# TEST ME - does this \$ need to be escaped?
 	location ~ \.php$ {
 		include snippets/fastcgi-php.conf;
-		fastcgi_pass unix:/run/php/php7.2-fpm.sock;
+		fastcgi_pass unix:/run/php/php7.3-fpm.sock;
 	}
 
 	location /tx {
@@ -463,12 +466,12 @@ echo "server {
 
 }" > /etc/nginx/sites-available/default
 ln -s /etc/nginx/sites-available/default /etc/nginx/sites-enabled/           # Manually creating the site profile link in Nginx.
-sed -i 's/;cgi.fix_pathinfo=1/cgi.fix_pathinfo=0/' /etc/php/7.2/fpm/php.ini  # Normal cgi pathinfo fix.
+sed -i 's/;cgi.fix_pathinfo=1/cgi.fix_pathinfo=0/' /etc/php/7.3/fpm/php.ini  # Normal cgi pathinfo fix.
 #
 #
 #
 systemctl stop nginx && systemctl disable nginx && echo "LynxCI: Nginx service was gracefully stopped and also disabled on boot."
-systemctl stop php7.2-fpm && systemctl disable php7.2-fpm && echo "LynxCI: PHP-FPM service was gracefully stopped and also disabled on boot."
+systemctl stop php7.3-fpm && systemctl disable php7.3-fpm && echo "LynxCI: PHP-FPM service was gracefully stopped and also disabled on boot."
 echo "LynxCI: Nginx is installed, but it's disabled on boot."
 #
 # If the Block Crawler is already installed, we are purging those directories
