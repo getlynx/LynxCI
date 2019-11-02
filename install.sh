@@ -508,6 +508,7 @@ fi
 # Create the default lynx.conf file
 #
 lynxConfigurationFile="/root/.lynx/lynx.conf"
+rm -rf $lynxConfigurationFile
 while [ ! -O $lynxConfigurationFile ]; do
 	echo "# The following RPC credentials are created at build time and are unique to this host. If you
 	# like, you can change them, but you are encouraged to keep very complex strings for each. If an
