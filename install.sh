@@ -563,8 +563,8 @@ while [ ! -O $lynxConfigurationFile ]; do
 	disablewallet=1
 	" > $lynxConfigurationFile
 
-	[ "$networkEnvironment" = "mainnet" ] && for i in $(shuf -i 10-50 -n 40); do echo "addnode=node$i.getlynx.io" >> $lynxConfigurationFile; done
-	[ "$networkEnvironment" = "testnet" ] && for i in $(shuf -i 1-9 -n 9); do echo "addnode=test0$i.getlynx.io" >> $lynxConfigurationFile; done
+	[ "$networkEnvironment" = "mainnet" ] && for i in $(shuf -i 10-40 -n 30); do echo "addnode=node$i.getlynx.io" >> $lynxConfigurationFile; done
+	[ "$networkEnvironment" = "testnet" ] && for i in $(shuf -i 1-6 -n 6); do echo "addnode=test0$i.getlynx.io" >> $lynxConfigurationFile; done
 
 	echo "
 	# The following addresses are known to pass the validation requirements for HPoW. If you would
