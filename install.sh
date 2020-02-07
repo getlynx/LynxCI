@@ -494,6 +494,7 @@ if [ ! -f $touchLynxCIInstallCompleteFile -a "$installationMethod" = "compile" ]
 	rm -rf /root/lynx/db4 && mkdir -p /root/lynx/db4
 	cd /root/lynx/ && wget http://download.oracle.com/berkeley-db/db-4.8.30.NC.tar.gz
 	tar -xzf db-4.8.30.NC.tar.gz && cd db-4.8.30.NC/build_unix/
+	#yum groupinstall -y "Development Tools" - https://github.com/dashpay/dash/issues/1442
 	../dist/configure --enable-cxx --disable-shared --with-pic --prefix=/root/lynx/db4
 	make --quiet install
 fi
@@ -604,6 +605,12 @@ cp --remove-destination $lynxConfigurationFile /root/.lynx/.lynx.conf && chmod 6
 if [ "$installationMethod" = "compile" ]; then
 	cd /root/lynx/ && ./autogen.sh # And finish the configure statement WITH the Berkeley DB parameters included.
 	[ "$isPi" = "1" ] && ./configure LDFLAGS="-L/root/lynx/db4/lib/" CPPFLAGS="-I/root/lynx/db4/include/ -O2" --enable-cxx --without-gui --disable-shared --with-miniupnpc --enable-upnp-default --disable-tests --disable-bench
+	#yum install git boost boost-devel autoconf automake gcc-c++ libtool openssl openssl-devel libevent libevent-devel - http://blog.domenech.org/2016/04/how-to-install-bitcoin-classic-on-amazon-linux-aws-ec2.html
+	#dd if=/dev/zero of=/swapfile bs=500MB count=4
+	#chmod 600 /swapfile
+	#mkswap /swapfile
+	#swapon /swapfile
+	#swapon -s    -Does't survive a reboot. That is fine
 	[ "$isPi" = "0" ] && ./configure LDFLAGS="-L/root/lynx/db4/lib/" CPPFLAGS="-I/root/lynx/db4/include/ -O2" --enable-cxx --without-gui --disable-shared --disable-tests --disable-bench
 	make
 	make install

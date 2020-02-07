@@ -26,7 +26,7 @@ systemctl start nginx && systemctl enable nginx
 
 # The first command starts PHP-FPM and the second makes sure it starts after a reboot.
 
-systemctl start php7.2-fpm && systemctl enable php7.2-fpm
+systemctl start php7.3-fpm && systemctl enable php7.3-fpm
 
 # Since we just changed some settings in the firewall script, let's reset the firewall.
 

@@ -6,7 +6,7 @@ systemctl stop nginx && systemctl disable nginx
 
 # The first command stops PHP-FPM and the second makes sure it doesn't start after a reboot.
 
-systemctl stop php7.2-fpm && systemctl disable php7.2-fpm
+systemctl stop php7.3-fpm && systemctl disable php7.3-fpm
 
 # The following line is a search and replace for the string in the firewall script that enabled (or
 # disables) access to the node via port 80. If the Block Explorer isn't running, we might as well
