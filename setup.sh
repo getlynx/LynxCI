@@ -2,7 +2,7 @@
 
 # This script will setup the host OS, install all dependencies for Lynx and then execute the install
 # script after a short wait time of 15 minutes. Some hosting vendors might require a manual reboot
-# (i.e. HostBRZ) after the whole installation is complete.
+# after the whole installation is complete.
 
 # To get started, log into your VPS or Pi, and as root copy and paste the following line.
 
@@ -14,12 +14,12 @@
 
 # This will start the intallation. You can now close the session window in your termial or putty
 # window. The script will run in the background without need for human interaction. Depending on the
-# speed of your VPS or Pi2 or Pi3, the process will be complete anywhere from 45 minutes to 4 hours.
+# speed of your VPS or Pi2, Pi3, or Pi4, the process will be complete anywhere from 45 minutes to 4 hours.
 
 # For Pi users. If you are using LynxCI, this script is already installed so simply powering on
 # your Pi is enough to start the process. No further interaction is needed after flashing your Micro
-# SD card with the latest version of LynxCI, plugging it into your Pi and powering it one. This
-# script will support Pi 2 and 3 only please.
+# SD card with the latest version of LynxCI, plugging it into your Pi and powering it on. This
+# script will support Pi 2, 3, and 4 only please.
 
 enviro="$1" # For most rollouts, the two options are mainnet or testnet. Mainnet is the default 
 branch="$2" # The master branch contains the most recent code. 0.16.3.9 is the default.
@@ -46,6 +46,7 @@ printf "Read our latest FAQ! Visit https://getlynx.io/faq/\n\n"
 printf "Read our latest News! Visit https://getlynx.io/news/\n\n"
 printf "Follow us on Twitter! Visit https://twitter.com/GetlynxIo\n\n"
 printf "Join us on Reddit! Visit https://www.reddit.com/r/lynx\n\n"
+printf "Read our articles on Medium! Visit https://medium.com/lynx-blockchain\n\n"
 
 printf "Assembling the latest code to install LynxCI.\n\n\n\n\n\n"
 
