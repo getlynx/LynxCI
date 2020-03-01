@@ -92,10 +92,10 @@ if [ "$operatingSystem" = "PRETTY_NAME=\"Ubuntu 18.04.2 LTS\"" ]; then
 	echo "LynxCI: This script does not support Ubuntu 18.04 LTS. Build script quit."
 	exit 81;
 fi
-if [ "$operatingSystem" = "PRETTY_NAME=\"Debian GNU/Linux 10 (buster)\"" ]; then
-	echo "LynxCI: This script does not support Debian 10. Build script quit."
-	exit 85;
-fi
+#if [ "$operatingSystem" = "PRETTY_NAME=\"Debian GNU/Linux 10 (buster)\"" ]; then
+#	echo "LynxCI: This script does not support Debian 10. Build script quit."
+#	exit 85;
+#fi
 #
 # By default, all installations that occur with this script will compile Lynx.
 # Also if the script is set to build from master, it will compile.
@@ -131,8 +131,8 @@ systemctl daemon-reload
 apt-get update -y # Before we begin, we need to update the local repo. For now, the update is all we need and the device will still function properly.
 apt-get remove -y apache2 pi-bluetooth postfix
 #apt-get upgrade -y # Sometimes the upgrade generates an interactive prompt. This is best handled manually depending on the VPS vendor.
-apt-get install -y apt-transport-https autoconf automake build-essential bzip2 ca-certificates curl fail2ban g++ gcc git git-core htop jq libboost-all-dev libcurl4-openssl-dev libevent-dev libgmp-dev libjansson-dev libminiupnpc-dev libncurses5-dev libssl-dev libtool libz-dev logrotate lsb-release make nano pkg-config software-properties-common sudo unzip
-#apt-get install -y checkinstall
+apt-get install -y apt-transport-https autoconf automake build-essential bzip2 ca-certificates curl g++ gcc git git-core htop jq libboost-all-dev libcurl4-openssl-dev libevent-dev libgmp-dev libjansson-dev libminiupnpc-dev libncurses5-dev libssl-dev libtool libz-dev logrotate lsb-release make nano pkg-config software-properties-common sudo unzip
+apt-get install -y checkinstall
 echo "LynxCI: Required system packages have been installed."
 apt-get autoremove -y # Time for some cleanup work.
 rpcuser="$(shuf -i 1000000000-3999999999 -n 1)$(shuf -i 1000000000-3999999999 -n 1)$(shuf -i 1000000000-3999999999 -n 1)" # Lets generate some RPC credentials for this node.
@@ -492,8 +492,12 @@ if [ ! -f $touchLynxCIInstallCompleteFile -a "$installationMethod" = "compile" ]
 	rm -rf /root/lynx/
 	git clone -b "$projectBranch" https://github.com/getlynx/Lynx.git /root/lynx/
 	rm -rf /root/lynx/db4 && mkdir -p /root/lynx/db4
-	cd /root/lynx/ && wget http://download.oracle.com/berkeley-db/db-4.8.30.NC.tar.gz
+	cd /root/lynx/ && wget https://download.oracle.com/berkeley-db/db-4.8.30.NC.tar.gz
 	tar -xzf db-4.8.30.NC.tar.gz && cd db-4.8.30.NC/build_unix/
+
+	# https://www.fsanmartin.co/compiling-berkeley-db-4-8-30-in-ubuntu-19/
+	sed -i 's/__atomic_compare_exchange/__atomic_compare_exchange_db/g' /root/lynx/db-4.8.30.NC/dbinc/atomic.h
+
 	#yum groupinstall -y "Development Tools" - https://github.com/dashpay/dash/issues/1442
 	../dist/configure --enable-cxx --disable-shared --with-pic --prefix=/root/lynx/db4
 	make --quiet install
@@ -613,8 +617,8 @@ if [ "$installationMethod" = "compile" ]; then
 	#swapon -s    -Does't survive a reboot. That is fine
 	[ "$isPi" = "0" ] && ./configure LDFLAGS="-L/root/lynx/db4/lib/" CPPFLAGS="-I/root/lynx/db4/include/ -O2" --enable-cxx --without-gui --disable-shared --disable-tests --disable-bench
 	make
-	make install
-	#checkinstall -D --install=yes --pkgname=lynxd --pkgversion=0.16.3.9 --include=/root/.lynx/lynx.conf --requires=libboost-all-dev,libevent-dev,libminiupnpc-dev
+	#make install
+	checkinstall -D --install=yes --pkgname=lynxd --pkgversion=0.16.3.9 --include=/root/.lynx/lynx.conf --requires=libboost-all-dev,libevent-dev,libminiupnpc-dev
 fi
 if [ "$installationMethod" = "install" ]; then
 	sed -i "s|/root/lynx/src/lynxd -daemon=0|/usr/local/bin/lynxd -daemon=0|g" /etc/systemd/system/lynxd.service
