@@ -92,10 +92,6 @@ if [ "$operatingSystem" = "PRETTY_NAME=\"Ubuntu 18.04.2 LTS\"" ]; then
 	echo "LynxCI: This script does not support Ubuntu 18.04 LTS. Build script quit."
 	exit 81;
 fi
-#if [ "$operatingSystem" = "PRETTY_NAME=\"Debian GNU/Linux 10 (buster)\"" ]; then
-#	echo "LynxCI: This script does not support Debian 10. Build script quit."
-#	exit 85;
-#fi
 #
 # By default, all installations that occur with this script will compile Lynx.
 # Also if the script is set to build from master, it will compile.
@@ -110,6 +106,11 @@ if [ "$projectBranch" != "master" ]; then
 	if [ "$operatingSystem" = "PRETTY_NAME=\"Debian GNU/Linux 9 (stretch)\"" -a "$systemArchitecture" = "amd64" ]; then
 		installationMethod="install"
 		installationSource="https://github.com/getlynx/Lynx/releases/download/v0.16.3.9/lynxd_0.16.3.9-3_amd64.deb"
+		installationFile="${installationSource##*/}"
+	fi
+	if [ "$operatingSystem" = "PRETTY_NAME=\"Debian GNU/Linux 10 (buster)\"" -a "$systemArchitecture" = "amd64" ]; then
+		installationMethod="install"
+		installationSource="https://github.com/getlynx/Lynx/releases/download/v0.16.3.9/lynxd_0.16.3.9-4_amd64.deb"
 		installationFile="${installationSource##*/}"
 	fi
 	if [ "$operatingSystem" = "PRETTY_NAME=\"Raspbian GNU/Linux 9 (stretch)\"" -a "$isPi" = "1" ]; then
