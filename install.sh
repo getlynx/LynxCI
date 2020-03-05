@@ -653,10 +653,10 @@ while [ ! -O $lynxLogrotateConfiguration ] ; do
 	sleep 1 && sed -i 's/^[\t]*//' $lynxLogrotateConfiguration
 done
 #
-swapon --show
+/sbin/swapon --show
 if [ $? -eq 0 ]; then
 	echo "LynxCI: Setting up 1GB swap file."
-	fallocate -l 1G /swapfile
+	/usr/bin/fallocate -l 1G /swapfile
 	chmod 600 /swapfile
 	mkswap /swapfile
 	swapon /swapfile
