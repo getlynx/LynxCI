@@ -610,12 +610,6 @@ cp --remove-destination $lynxConfigurationFile /root/.lynx/.lynx.conf && chmod 6
 if [ "$installationMethod" = "compile" ]; then
 	cd /root/lynx/ && ./autogen.sh # And finish the configure statement WITH the Berkeley DB parameters included.
 	[ "$isPi" = "1" ] && ./configure LDFLAGS="-L/root/lynx/db4/lib/" CPPFLAGS="-I/root/lynx/db4/include/ -O2" --enable-cxx --without-gui --disable-shared --with-miniupnpc --enable-upnp-default --disable-tests --disable-bench
-	#yum install git boost boost-devel autoconf automake gcc-c++ libtool openssl openssl-devel libevent libevent-devel - http://blog.domenech.org/2016/04/how-to-install-bitcoin-classic-on-amazon-linux-aws-ec2.html
-	#dd if=/dev/zero of=/swapfile bs=500MB count=4
-	#chmod 600 /swapfile
-	#mkswap /swapfile
-	#swapon /swapfile
-	#swapon -s    -Does't survive a reboot. That is fine
 	[ "$isPi" = "0" ] && ./configure LDFLAGS="-L/root/lynx/db4/lib/" CPPFLAGS="-I/root/lynx/db4/include/ -O2" --enable-cxx --without-gui --disable-shared --disable-tests --disable-bench
 	make
 	make install
@@ -658,6 +652,16 @@ while [ ! -O $lynxLogrotateConfiguration ] ; do
 	# Wait a second before we remove the pesky tabs inserted by the 'echo' outputs.
 	sleep 1 && sed -i 's/^[\t]*//' $lynxLogrotateConfiguration
 done
+#
+swapon --show
+if [ $? -eq 0 ]; then
+	echo "LynxCI: Setting up 1GB swap file."
+	fallocate -l 1G /swapfile
+	chmod 600 /swapfile
+	mkswap /swapfile
+	swapon /swapfile
+	echo '/swapfile none swap sw 0 0' | tee -a /etc/fstab
+fi
 #
 echo "LynxCI: Lynx was installed."
 #
