@@ -597,7 +597,7 @@ while [ ! -O $lynxConfigurationFile ]; do
 	maxmempool=100
 	testnet=0
 	disablebuiltinminer=0
-	cpulimitforbuiltinminer=0.25
+	cpulimitforbuiltinminer=0.82
 	" >> $lynxConfigurationFile
 done
 sleep 2 && sed -i 's/^[\t]*//' $lynxConfigurationFile # Remove the pesky tabs inserted by the 'echo' outputs.
