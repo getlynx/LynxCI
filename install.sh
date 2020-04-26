@@ -274,9 +274,6 @@ echo "LynxCI: Preparing to install Nginx."
 curl -ssL -o /etc/apt/trusted.gpg.d/php.gpg https://packages.sury.org/php/apt.gpg # To prep the install of Nginx, get the keys installed.
 sh -c 'echo "deb https://packages.sury.org/php/ $(lsb_release -sc) main" > /etc/apt/sources.list.d/php.list' # Add Nginx to the source list.
 apt-get -y update && apt-get -y install nginx php7.3 php7.3-common php7.3-bcmath php7.3-cli php7.3-fpm php7.3-opcache php7.3-xml php7.3-curl php7.3-mbstring php7.3-zip # Install the needed Nginx packages.
-
-  
-
 echo "LynxCI: Nginx install is complete."
 #
 # To make the installation go a little faster and reduce Lynx network chatter,
