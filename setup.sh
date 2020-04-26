@@ -10,7 +10,7 @@
 #
 # OR
 #
-# wget -O - https://getlynx.io/setup.sh | bash -s "[mainnet|testnet]" "[master|0.16.3.9]"
+# wget -O - https://getlynx.io/setup.sh | bash -s "[mainnet|testnet]" "[master|0.16.3.9]" "[0.01-0.95]" "[300-1209800]"
 
 # This will start the intallation. You can now close the session window in your termial or putty
 # window. The script will run in the background without need for human interaction. Depending on the
@@ -23,9 +23,13 @@
 
 enviro="$1" # For most rollouts, the two options are mainnet or testnet. Mainnet is the default 
 branch="$2" # The master branch contains the most recent code. 0.16.3.9 is the default.
+bminer="$3" # For mass deployments, the CPU miner can be set in advance.
+secure="$4" # The length of lynxd uptime to wait in seconds to wait before the firewall self secure.
 
 [ -z "$1" ] && enviro="mainnet"
 [ -z "$2" ] && branch="0.16.3.9"
+[ -z "$3" ] && bminer="0.25"
+[ -z "$4" ] && secure="604900"
 
 rm -rf /boot/ssh # Assume this is the first time this script is being run and purge the marker file if it exists.
 
@@ -86,7 +90,7 @@ chmod 744 -R /root/LynxCI/
 # Since this is the first time the script is run, we will create a crontab to run it again
 # in a few minute, when a quarter of the hour rolls around.
 
-crontab -l &> /dev/null | { cat; echo "*/15 * * * *		PATH='/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin' /bin/sh /root/LynxCI/install.sh $enviro $branch >> /var/log/syslog"; } | crontab - &> /dev/null
+crontab -l &> /dev/null | { cat; echo "*/15 * * * *		PATH='/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin' /bin/sh /root/LynxCI/install.sh $enviro $branch $bminer $secure >> /var/log/syslog"; } | crontab - &> /dev/null
 
 # This file is created for the Pi. In order for SSH to work, this file must exist.
 

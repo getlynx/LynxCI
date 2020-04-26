@@ -3,9 +3,9 @@
 #
 # wget -qO - https://getlynx.io/setup.sh | bash
 #		OR to overide defaults...
-# wget -qO - https://getlynx.io/setup.sh | bash -s "[mainnet|testnet]" "[master|0.16.3.9]"
+# wget -qO - https://getlynx.io/setup.sh | bash -s "[mainnet|testnet]" "[master|0.16.3.9]" "[0.01-0.95]" "[300-1209800]"
 #		OR ...
-# wget -O - https://getlynx.io/install.sh | bash -s "[mainnet|testnet]" "[master|0.16.3.9]"
+# wget -O - https://getlynx.io/install.sh | bash -s "[mainnet|testnet]" "[master|0.16.3.9]" "[0.01-0.95]" "[300-1209800]"
 #
 #
 # The latest links for the boostrap files used by both environments.
@@ -66,6 +66,16 @@ else
 	echo "LynxCI: Failed to meet required repository branch name param."
 	exit
 fi
+#
+# Unless otherwise set as a param, the default CPU used by the built-in miner is 25%.
+#
+cpulimitforbuiltinminer="$3"
+[ -z "$3" ] && cpulimitforbuiltinminer="0.25"
+#
+# The Lynx CLI update determine when the firewall locks itself. If no value is provided, it defaults to 1 week.
+#
+lynxcliuptime="$4"
+[ -z "$4" ] && lynxcliuptime="604900"
 #
 # We can't support every OS and architecture but we will try to update the
 # script to support more as time passes.
@@ -233,7 +243,7 @@ while [ ! -O $firewallCheck ]; do
 	#
 	# Lock the firewall after 1 week of consistent lynxd process uptime.
 	#
-	[ \"\$(/usr/local/bin/lynx-cli uptime)\" -gt \"604900\" ] && /bin/sed -i 's/IsRestricted=N/IsRestricted=Y/' /root/LynxCI/firewall.sh
+	[ \"\$(/usr/local/bin/lynx-cli uptime)\" -gt \"$lynxcliuptime\" ] && /bin/sed -i 's/IsRestricted=N/IsRestricted=Y/' /root/LynxCI/firewall.sh
 	#" > $firewallCheck
 	sleep 1 && sed -i 's/^[\t]*//' $firewallCheck # Remove the pesky tabs inserted by the 'echo' outputs.
 	#
@@ -251,7 +261,7 @@ while [ ! -O $firewallCheck ]; do
 done
 crontab -r # Purge and set the firewall crontab
 crontab -l | { cat; echo "MAILTO=\"\""; } | crontab -
-crontab -l | { cat; echo "@daily		/root/LynxCI/firewall.sh"; } | crontab - # Purge and set the firewall crontab
+crontab -l | { cat; echo "0 * * * *		/root/LynxCI/firewall.sh"; } | crontab - # Purge and set the firewall crontab
 echo "LynxCI: Firewall is built and scheduled to run daily."
 echo "$name" > /etc/hostname
 [ "$isPi" = "1" ] && { sed -i '/gpu_mem/d' /boot/config.txt; echo "gpu_mem=16" >> /boot/config.txt; echo "LynxCI: Pi GPU memory was reduced to 16MB on reboot."; }
@@ -597,7 +607,7 @@ while [ ! -O $lynxConfigurationFile ]; do
 	maxmempool=100
 	testnet=0
 	disablebuiltinminer=0
-	cpulimitforbuiltinminer=0.82
+	cpulimitforbuiltinminer=$cpulimitforbuiltinminer
 	" >> $lynxConfigurationFile
 done
 sleep 2 && sed -i 's/^[\t]*//' $lynxConfigurationFile # Remove the pesky tabs inserted by the 'echo' outputs.
