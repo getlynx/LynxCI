@@ -247,12 +247,6 @@ while [ ! -O $firewallCheck ]; do
 	#" > $firewallCheck
 	sleep 1 && sed -i 's/^[\t]*//' $firewallCheck # Remove the pesky tabs inserted by the 'echo' outputs.
 	#
-	# Remove the lynx user from the sudo group, except if the host is a Pi. This is for security reasons.
-	#
-	#if [ "$isPi" = "0" ]; then
-	#	echo "/usr/sbin/deluser lynx sudo >/dev/null 2>&1" >> $firewallCheck;
-	#fi
-	#
 	# Need to make sure crontab can run the file.
 	#
 	sleep 1 && chmod 700 $firewallCheck
