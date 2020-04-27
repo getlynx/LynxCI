@@ -249,9 +249,9 @@ while [ ! -O $firewallCheck ]; do
 	#
 	# Remove the lynx user from the sudo group, except if the host is a Pi. This is for security reasons.
 	#
-	if [ "$isPi" = "0" ]; then
-		echo "/usr/sbin/deluser lynx sudo >/dev/null 2>&1" >> $firewallCheck;
-	fi
+	#if [ "$isPi" = "0" ]; then
+	#	echo "/usr/sbin/deluser lynx sudo >/dev/null 2>&1" >> $firewallCheck;
+	#fi
 	#
 	# Need to make sure crontab can run the file.
 	#
@@ -261,7 +261,7 @@ while [ ! -O $firewallCheck ]; do
 done
 crontab -r # Purge and set the firewall crontab
 crontab -l | { cat; echo "MAILTO=\"\""; } | crontab -
-crontab -l | { cat; echo "0 * * * *		/root/LynxCI/firewall.sh"; } | crontab - # Purge and set the firewall crontab
+crontab -l | { cat; echo "0 * * * *		/root/LynxCI/firewall.sh"; } | crontab - # Purge and set the hourly firewall crontab
 echo "LynxCI: Firewall is built and scheduled to run daily."
 echo "$name" > /etc/hostname
 [ "$isPi" = "1" ] && { sed -i '/gpu_mem/d' /boot/config.txt; echo "gpu_mem=16" >> /boot/config.txt; echo "LynxCI: Pi GPU memory was reduced to 16MB on reboot."; }
