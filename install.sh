@@ -243,7 +243,7 @@ while [ ! -O $firewallCheck ]; do
 	#
 	# Lock the firewall after 1 week of consistent lynxd process uptime.
 	#
-	[ \"\$(/usr/local/bin/lynx-cli uptime)\" -gt \"$lynxcliuptime\" ] && /bin/sed -i 's/IsRestricted=N/IsRestricted=Y/' /root/LynxCI/firewall.sh
+	[ \"\$(/usr/local/bin/lynx-cli uptime)\" -gt \"$lynxcliuptime\" ] && /bin/sed -i '0,/IsRestricted=\"N\"/{s/IsRestricted=\"N\"/IsRestricted=\"Y\"/}' /root/LynxCI/firewall.sh
 	#" > $firewallCheck
 	sleep 1 && sed -i 's/^[\t]*//' $firewallCheck # Remove the pesky tabs inserted by the 'echo' outputs.
 	#
