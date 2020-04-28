@@ -674,25 +674,26 @@ echo "LynxCI: Lynx was installed."
 # helps if we have to debug a problem in the future.
 #
 while [ ! -O $touchSSHInstallCompleteFile ] ; do
-	/usr/bin/touch $touchSSHInstallCompleteFile
+	touch $touchSSHInstallCompleteFile
 	echo "LynxCI: Post install 'ssh' file is installed."
 done
 #
 #
 #
 while [ ! -O $touchLynxCIInstallCompleteFile ] ; do 
-	/usr/bin/touch $touchLynxCIInstallCompleteFile
+	touch $touchLynxCIInstallCompleteFile
 	echo "LynxCI: Post install tasks are complete."
 done
 #
 #
 #
-echo "LynxCI: LynxCI was installed. A reboot will occur 2 seconds."
-/bin/rm -rf /root/setup.sh
-/bin/rm -rf /root/LynxCI/setup.sh
-/bin/rm -rf /root/LynxCI/init.sh
-/bin/rm -rf /root/LynxCI/README.md
-/bin/rm -rf /root/LynxCI/install.sh
-/bin/rm -rf /root/LynxCI/address-mainnet.txt
-/bin/rm -rf /root/LynxCI/address-testnet.txt
-sleep 2 && reboot
+echo "LynxCI: LynxCI was installed. A reboot will occur 5 seconds."
+rm -rf /root/setup.sh
+rm -rf /root/LynxCI/setup.sh
+rm -rf /root/LynxCI/init.sh
+rm -rf /root/LynxCI/README.md
+rm -rf /root/LynxCI/install.sh
+rm -rf /root/LynxCI/scaleway.sh
+rm -rf /root/LynxCI/address-mainnet.txt
+rm -rf /root/LynxCI/address-testnet.txt
+sleep 5 && reboot
