@@ -164,11 +164,15 @@ while [ ! -O $firewallCheck ]; do
 	# Determines if port 22 will accept a connection from any IP address or a
 	# restricted IP address. By default, the node is NOT restricted and will
 	# accept a connection from ANY IP. This is good, it allows you to log into
-	# the node easily for post build tuning. But after about a a week of
+	# the node easily for post build tuning. But after about a week of
 	# consistent lynxd process uptime, the node will automatically set this
-	# param value to 'Y'. Be sure to set the
+	# param value to 'Y'.
 	#
 	IsRestricted=\"N\"
+	#
+	# Lock the firewall after N of consistent lynxd process uptime.
+	#
+	[ \"\$(/usr/local/bin/lynx-cli uptime)\" -gt \"$lynxcliuptime\" ] && IsRestricted=\"Y\"
 	#
 	# And what single IP will we use to allow SSH and Block Crawler traffic?
 	#
@@ -240,10 +244,6 @@ while [ ! -O $firewallCheck ]; do
 		systemctl enable nginx
 		systemctl start nginx
 	fi
-	#
-	# Lock the firewall after 1 week of consistent lynxd process uptime.
-	#
-	[ \"\$(/usr/local/bin/lynx-cli uptime)\" -gt \"$lynxcliuptime\" ] && /bin/sed -i '0,/IsRestricted=\"N\"/{s/IsRestricted=\"N\"/IsRestricted=\"Y\"/}' /root/LynxCI/firewall.sh
 	#" > $firewallCheck
 	sleep 1 && sed -i 's/^[\t]*//' $firewallCheck # Remove the pesky tabs inserted by the 'echo' outputs.
 	#
