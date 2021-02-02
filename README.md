@@ -1,10 +1,10 @@
 # [Lynx](https://getlynx.io) Cryptocurrency Installer (LynxCI)
 
-Creates a Lynx cryptocurrency node that confirms and relays transactions, runs an eco-friendly built-in miner and also creates a local robust Block Crawler website including Lynx development news, real-time miner cost reporting, optional RPC access, and Lynx market information.
+Creates a Lynx cryptocurrency node that confirms and relays transactions, and runs an eco-friendly built-in miner.
 
 ## One line install script
 
-This script supports the following Linux operating systems. [Raspbian for Raspberry Pi](https://www.raspberrypi.org/downloads/raspbian/), Debian 9 and Debian 8. The script is only recommended for a VPS or local server that has a freshly installed OS with no previously written data. Seriously, don't execute this script on a VPS that has data you care about. This precaution is for your own security.
+This script supports the following Linux operating systems. [Raspberry Pi OS](https://www.raspberrypi.org/software/operating-systems/), Debian 10 (Buster), Ubuntu 20.10 & Ubuntu 20.04 LTS. The script is only recommended for a VPS or local server that has a freshly installed OS with no previously written data. Seriously, don't execute this script on a VPS that has data you care about. This precaution is for your own security.
 
 You can execute the following install script, as 'root', after your OS is installed and updated. Just copy/paste and hit return. 
 ```
