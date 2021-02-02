@@ -8,23 +8,23 @@ This script supports the following Linux operating systems. [Raspbian for Raspbe
 
 You can execute the following install script, as 'root', after your OS is installed and updated. Just copy/paste and hit return. 
 ```
-wget -qO - https://getlynx.io/setup.sh | bash
+wget -qO - https://getlynx.io/install.sh | bash
 ```
 
-Alternatively, the following install script can be adjusted to quickly build a node on testnet or build a node with the latest cutting edge code (master). If you are noob, we recommend the above line instead.
+Alternatively, the following install script can be adjusted to quickly build a node on testnet or mainnet, an alternate CPU mining default, and finally the reset time of the built-in firewall. If you are noob, we recommend the above line instead.
 ```
-wget -O - https://getlynx.io/setup.sh | bash -s "[mainnet|testnet]" "[master|0.16.3.9]"
+wget -O - https://getlynx.io/install.sh | bash -s "[mainnet|testnet]" "[0.01-0.95]" "[300-604900]"
 ```
 
-The initial setup takes less then 1 minute (depending on the speed of your host), so keep your terminal open until it tells you it's done. The rest of the install will run in the background, so no need to stay logged in or keep the terminal window open after it tells you it's done. You can watch it build if you like. The full installation log is saved to /var/log/syslog.
+The initial setup takes less then 1 minute (depending on the speed of your host), so keep your terminal open until it tells you it's done. The script will reboot the target device when it is done executing. The full installation log is saved to /var/log/syslog.
 
 After the LynxCI node is built, the default user account is 'lynx' and the password will be 'lynx'. You won't be able to log in as 'root' (or 'pi'), as the installer locks those user accounts for security reasons. The 'lynx' user account does get sudo, but after a few days it is removed for additional security. The last step of the build is to reboot the host, so you will know it's done when your host or Pi reboots itself. Some VPS vendors don't reboot well, so check the status of your VPS after about 45 minutes to make sure it came back up. 
 
-After the build finishes and the host reboots, you will have until midnight UTC Saturday to log in via port 22. You can update /root/LynxCI/firewall.sh with your home or office IP to allow remote access. This is a feature that results in a higher level of security for the node. Of course, the wallet functions of the host are not enabled by default too. If you can't log in with with the default password 'lynx', use the console feature of your VPS vendor (they all have it), access the root account and edit the 'IsRestricted' variable (change it from 'Y' to 'N') in the /root/LynxCI/firewall.sh file, and then execute the /root/LynxCI/firewall.sh file. Further details on this feature are available on our [Lynx FAQ](https://getlynx.io/faq/).
+After you log into the 'lynx' user account, type 'doc' for a complete built-in set of command options..
 
 ## [LynxCI for Pi](https://github.com/getlynx/LynxCI/releases/download/v26-ISO/LynxCI.tar.gz)
 
-The above instructions work fine for a Raspberry Pi 2 or 3 if you want to play, learn and do it manually. But if you want to get your Raspberry Pi up and running quick, the ISO is for you. Simply [download the LynxCI ISO from here](https://getlynx.io/downloads/) and then flash it to an SD card. We have found [Etcher](https://etcher.io) to be very easy to use. Then insert the card into the SD card slot on the bottom of the Raspberry Pi and power it on. No keyboard, mouse or monitor is required. You must plug in an ethernet cable connection to the device; maybe from your home router. That is it. It will be fully functional in about 15 hours. Here is a blog post and video of the [whole process](https://getlynx.io/can-non-techies-mine-lynx-crypto/).
+The above instructions work fine for a Raspberry Pi 3 or 4 if you want to play, learn and do it manually. But if you want to get your Raspberry Pi up and running quick, the ISO is for you. Simply [download the LynxCI ISO from here](https://getlynx.io/downloads/) and then flash it to an SD card. We have found [the Raspberry Pi Imager](https://www.raspberrypi.org/software/) to be very easy to use. Then insert the card into the SD card slot on the bottom of the Raspberry Pi and power it on. No keyboard, mouse or monitor is required. You must plug in an ethernet cable connection to the device; maybe from your home router. That is it. It will be fully functional in about 15 hours. Here is a blog post and video of the [whole process](https://getlynx.io/can-non-techies-mine-lynx-crypto/).
 
 ## Help
 
