@@ -4,6 +4,8 @@ Creates a Lynx cryptocurrency node that confirms and relays transactions, and ru
 
 ## One line install script
 
+**THIS SCRIPT IS ONLY FOR dedicated computers, VPS or Raspberry Pi. If you have data or user accounts on your computer, DO NOT USE THIS SCRIPT. It is only to be used after a freshly installed operating system.**
+
 This script supports the following Linux operating systems. [Raspberry Pi OS](https://www.raspberrypi.org/software/operating-systems/), Debian 10 (Buster), Ubuntu 20.10 & Ubuntu 20.04 LTS. The script is only recommended for a VPS or local server that has a freshly installed OS with no previously written data. Seriously, don't execute this script on a VPS that has data you care about. This precaution is for your own security.
 
 You can execute the following install script, as 'root', after your OS is installed and updated. Just copy/paste and hit return. 
@@ -18,7 +20,7 @@ wget -O - https://getlynx.io/install.sh | bash -s "[mainnet|testnet]" "[0.01-0.9
 
 The initial setup takes less then 1 minute (depending on the speed of your host), so keep your terminal open until it tells you it's done. The script will reboot the target device when it is done executing. The full installation log is saved to /var/log/syslog.
 
-After the LynxCI node is built, the default user account is 'lynx' and the password will be 'lynx'. You won't be able to log in as 'root' (or 'pi'), as the installer locks those user accounts for security reasons. The 'lynx' user account does get sudo, but after a few days it is removed for additional security. The last step of the build is to reboot the host, so you will know it's done when your host or Pi reboots itself. Some VPS vendors don't reboot well, so check the status of your VPS after about 45 minutes to make sure it came back up. 
+After the LynxCI node is built, the default user account is 'lynx' and the password will be 'lynx'. You won't be able to log in as 'root' (or 'pi'), as the installer locks those user accounts for security reasons. The 'lynx' user account does get sudo. The last step of the build is to reboot the host, so you will know it's done when your host or Pi reboots itself. Some VPS vendors don't reboot well, so check the status of your VPS after about 45 minutes to make sure it came back up. 
 
 After you log into the 'lynx' user account, type 'doc' for a complete built-in set of command options..
 
