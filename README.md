@@ -9,6 +9,7 @@ Creates a Lynx cryptocurrency node that confirms and relays transactions, and ru
 This script supports the following Linux operating systems. [Raspberry Pi OS][2], Debian 10 (Buster), Ubuntu 20.10 & Ubuntu 20.04 LTS. The script is only recommended for a VPS or local server that has a freshly installed OS with no previously written data. Seriously, don't execute this script on a VPS that has data you care about. This precaution is for your own security.
 
 You can execute the following install script, as 'root', after your OS is installed and updated. Just copy/paste and hit return. 
+
 	wget -qO - https://getlynx.io/install.sh | bash
 
 The initial setup takes less than 1 minute (depending on the speed of your host), so keep your terminal open until it tells you it's done. The script will reboot the target device when it is done executing. The full installation log is saved to /var/log/syslog.
