@@ -75,23 +75,41 @@ lyf="/usr/local/bin/lyf.sh" # LynxCI firewall file path.
 rm -rf $lyf # If the file already exists, delete it so it can be recreated.
 echo "#!/bin/bash
 PATH=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin
-echo \"lyf.service: Starting LynxCI Firewall\" | systemd-cat -p info
 while : # This shell script runs an endless loop.
 do
-	whiteList=\"162.210.250.170,192.168.0.0/16,10.0.0.0/8\" # Default IPs allowed SSH access.
+	#
+	#
+	# For the period of 7 days of computer uptime (or 7 days since last reboot), the computer will
+	# accept an SSH connection from any IP address on port 22. After the 7 days has passed, the
+	# firewall will lock itself to only allow access from the list of IP addresses below. The list
+	# can contain as many IP addresses as you like, but they must be comma separated, no spaces.
+	# CIDR format addresses are accepted. If you forget to change the IP address list, you can cycle
+	# the power of your computer or Raspberry Pi or force a reboot of your VPS. This will give you
+	# unrestricted access via SSH for 7 days. Note: regular reboot of a computer with unplanned
+	# cycling of the power is not ideal and over time might damage component parts of the hardware
+	# or promote decay of the hard drive, SSD drive or SD memory card.
+	#
+	#
+	allow=\"162.210.250.170,185.216.33.98,173.209.51.2\"
+	#
+	#
 	iptables -F # Clear all the current rules, so we can then recreate new rules.
 	iptables -A INPUT -i lo -j ACCEPT
 	iptables -A INPUT -m conntrack --ctstate ESTABLISHED,RELATED -j ACCEPT
 	iptables -A INPUT -p tcp --dport $port -j ACCEPT # Required public Lynx port.
 	#
+	#
 	# Lynx RPC port $rpcport. Only allow the RPC port when you need to remotely access the RPC
 	# commands of this node. The RPC credentials are stored in the lynx.conf file. Never release
 	# your RPC credentials unless you know exactly what you are doing.
 	#
+	#
 	#iptables -A INPUT -p tcp --dport $rpcport -j ACCEPT # Port $rpcport is restricted by default.
 	#
+	#
+	full=\"\${allow},192.168.0.0/16,10.0.0.0/8\";
 	if [ \"\$(cat /proc/uptime | grep -o '^[0-9]\+')\" -gt \"$ttl\" ]; then # (1 week = ~604800 sec)
-		for val in \${whiteList//,/ }
+		for val in \${full//,/ }
 		do
 			iptables -A INPUT -p tcp -s \$val --dport 22 -j ACCEPT # Restrict SSH traffic.
 		done
@@ -99,13 +117,25 @@ do
 		iptables -A INPUT -p tcp --dport 22 -j ACCEPT # Allow all SSH traffic.
 	fi
 	iptables -A INPUT -j DROP # Drop any other incoming traffic.
-	echo \"lyf.service: Reset LynxCI Firewall\" | systemd-cat -p info
+	echo \"lyf.service: LynxCI Firewall Reset - \${full}\" | systemd-cat -p info
+	#
+	#
+	# View the LynxCI Firewall Service activity with the following command
+	#
+	# $ sudo tail -F -n 5000 /var/log/syslog | grep lyf.service
+	#
+	#
+	# View the current firewall state with the following command
+	#
+	# $ lyf
+	#
+	#
 	rm -rf $dir/.lynx/bootstrap.dat.old # Free up some space by removing the old bootstrap file.
 	sleep 3600 # Every 1 hour, the script wakes up and runs again. (1 hour = 3600 seconds)
 done
 #
-# Do not go where the path may lead, go instead where there
-# is no path and leave a trail. -Ralph Waldo Emerson
+# \"The trouble with the world is that the stupid
+# are cocksure and the intelligent are full of doubt.\" -Bertrand Russell
 #
 " > $lyf && chmod +x $lyf # Create the file and set the execution permissions on it.
 #
@@ -375,20 +405,25 @@ fi
 echo "LynxCI: Lynx was installed."
 #
 touch $dir/.bashrc # If this file doesn't already exist, create it.
+echo "tail -n 25 $dir/.lynx/debug.log | grep -a \"BuiltinMiner\|UpdateTip\|Pre-allocating\"" >> $dir/.bashrc
+#
 sed -i '/alias lyc=/d' $dir/.bashrc # If the alias 'lyc' already exists in this file, delete it.
 echo "alias lyc='nano $dir/.lynx/lynx.conf'" >> $dir/.bashrc # Create the alias 'lyc'.
 sed -i '/alias lyl=/d' $dir/.bashrc # If the alias 'lyl' already exists in this file, delete it too.
 echo "alias lyl='tail -n 1000 -F $dir/.lynx/debug.log | grep -a \"BuiltinMiner\|UpdateTip\|Pre-allocating\"'" >> $dir/.bashrc
-echo "tail -n 25 $dir/.lynx/debug.log | grep -a \"BuiltinMiner\|UpdateTip\|Pre-allocating\"" >> $dir/.bashrc
+#
 sed -i '/alias lyi=/d' $dir/.bashrc # If the alias 'lyi' already exists, delete it.
 echo "alias lyi='sudo nano /usr/local/bin/lyf.sh'" >> $dir/.bashrc # Create the alias 'lyi'.
+#
 sed -i '/alias lyf=/d' $dir/.bashrc # If the alias 'lyf' already exists, delete it.
 echo "alias lyf='sudo iptables -L -vn'" >> $dir/.bashrc # Create the alias 'lyf'.
+#
 sed -i '/alias lyw=/d' $dir/.bashrc # If the alias 'lyw' already exists, delete it.
+sed -i '/alias lyt=/d' $dir/.bashrc # If the alias 'lyt' already exists, delete it.
 if [ "$isPi" = "1" ]; then # We only need wifi config if the target is a Pi.
-	echo "alias lyw='sudo nano /etc/wpa_supplicant/wpa_supplicant.conf'
-alias lyt='head -n 1 /sys/class/thermal/thermal_zone0/temp'" >> $dir/.bashrc
-else
+	echo "alias lyw='sudo nano /etc/wpa_supplicant/wpa_supplicant.conf'" >> $dir/.bashrc
+	echo "alias lyt='head -n 1 /sys/class/thermal/thermal_zone0/temp'" >> $dir/.bashrc
+else # Since the target is not a Pi, gracefully excuse.
 	echo "alias lyw='echo \"It appears you are not running a Raspberry Pi, so no wireless to be configured.\"'" >> $dir/.bashrc
 	echo "alias lyt='echo \"It appears you are not running a Raspberry Pi, so no temperature to be seen.\"'" >> $dir/.bashrc
 fi
