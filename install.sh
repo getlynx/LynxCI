@@ -405,27 +405,42 @@ fi
 echo "LynxCI: Lynx was installed."
 #
 touch $dir/.bashrc # If this file doesn't already exist, create it.
+touch /root/.bashrc # If this file doesn't already exist, create it.
 echo "tail -n 25 $dir/.lynx/debug.log | grep -a \"BuiltinMiner\|UpdateTip\|Pre-allocating\"" >> $dir/.bashrc
 #
 sed -i '/alias lyc=/d' $dir/.bashrc # If the alias 'lyc' already exists in this file, delete it.
+sed -i '/alias lyc=/d' /root/.bashrc # If the alias 'lyc' already exists in this file, delete it.
 echo "alias lyc='nano $dir/.lynx/lynx.conf'" >> $dir/.bashrc # Create the alias 'lyc'.
+echo "alias lyc='echo \"This command only works when logged in under the lynx user account.\"'" >> /root/.bashrc # Create the alias 'lyc'.
 sed -i '/alias lyl=/d' $dir/.bashrc # If the alias 'lyl' already exists in this file, delete it too.
+sed -i '/alias lyl=/d' /root/.bashrc # If the alias 'lyl' already exists in this file, delete it too.
 echo "alias lyl='tail -n 1000 -F $dir/.lynx/debug.log | grep -a \"BuiltinMiner\|UpdateTip\|Pre-allocating\"'" >> $dir/.bashrc
+echo "alias lyl='echo \"This command only works when logged in under the lynx user account.\"'" >> /root/.bashrc
 #
 sed -i '/alias lyi=/d' $dir/.bashrc # If the alias 'lyi' already exists, delete it.
+sed -i '/alias lyi=/d' /root/.bashrc # If the alias 'lyi' already exists, delete it.
 echo "alias lyi='sudo nano /usr/local/bin/lyf.sh'" >> $dir/.bashrc # Create the alias 'lyi'.
+echo "alias lyi='echo \"This command only works when logged in under the lynx user account.\"'" >> /root/.bashrc # Create the alias 'lyi'.
 #
 sed -i '/alias lyf=/d' $dir/.bashrc # If the alias 'lyf' already exists, delete it.
+sed -i '/alias lyf=/d' /root/.bashrc # If the alias 'lyf' already exists, delete it.
 echo "alias lyf='sudo iptables -L -vn'" >> $dir/.bashrc # Create the alias 'lyf'.
+echo "alias lyf='echo \"This command only works when logged in under the lynx user account.\"'" >> /root/.bashrc # Create the alias 'lyf'.
 #
 sed -i '/alias lyw=/d' $dir/.bashrc # If the alias 'lyw' already exists, delete it.
+sed -i '/alias lyw=/d' /root/.bashrc # If the alias 'lyw' already exists, delete it.
 sed -i '/alias lyt=/d' $dir/.bashrc # If the alias 'lyt' already exists, delete it.
+sed -i '/alias lyt=/d' /root/.bashrc # If the alias 'lyt' already exists, delete it.
 if [ "$isPi" = "1" ]; then # We only need wifi config if the target is a Pi.
 	echo "alias lyw='sudo nano /etc/wpa_supplicant/wpa_supplicant.conf'" >> $dir/.bashrc
+	echo "alias lyw='echo \"This command only works when logged in under the lynx user account.\"'" >> /root/.bashrc
 	echo "alias lyt='head -n 1 /sys/class/thermal/thermal_zone0/temp'" >> $dir/.bashrc
+	echo "alias lyt='echo \"This command only works when logged in under the lynx user account.\"'" >> /root/.bashrc
 else # Since the target is not a Pi, gracefully excuse.
 	echo "alias lyw='echo \"It appears you are not running a Raspberry Pi, so no wireless to be configured.\"'" >> $dir/.bashrc
+	echo "alias lyw='echo \"This command only works when logged in under the lynx user account.\"'" >> /root/.bashrc
 	echo "alias lyt='echo \"It appears you are not running a Raspberry Pi, so no temperature to be seen.\"'" >> $dir/.bashrc
+	echo "alias lyt='echo \"This command only works when logged in under the lynx user account.\"'" >> /root/.bashrc
 fi
 #
 # Part of the TipsyLynx integration, we are setting up a custom command
@@ -433,6 +448,7 @@ fi
 # Discord account.
 #
 sed -i '/function tipsy/Q' $dir/.bashrc # Remove any previously set 'tipsy' function first.
+sed -i '/function tipsy/Q' /root/.bashrc # Remove any previously set 'tipsy' function first.
 #
 # Install the Tipsy function to be used.
 #
@@ -502,10 +518,12 @@ function tipsy ()
 	fi
 }
 " >> $dir/.bashrc
+echo "alias tipsy='echo \"This command only works when logged in under the lynx user account.\"'" >> /root/.bashrc
 #
 # Let's include some documentation for CLI users.
 #
 sed -i '/function doc/Q' $dir/.bashrc # Remove any previously set 'doc' function first.
+sed -i '/function doc/Q' /root/.bashrc # Remove any previously set 'doc' function first.
 #
 # Install the Doc function to be used.
 #
@@ -613,8 +631,8 @@ function doc ()
 	echo \"\"
 }
 " >> $dir/.bashrc
-
-
+echo "alias doc='echo \"This command only works when logged in under the lynx user account.\"'" >> /root/.bashrc
+echo "LynxCI: The 'doc' command was installed. When logged in, type 'doc'."
 #
 if [ "$isPi" = "1" ]; then
 	#
@@ -659,21 +677,28 @@ if [ "$isPi" = "1" ]; then
 	 key_mgmt=WPA-PSK
 	}
 	#
-	# Tell me and I forget. Teach me and I remember.
-	# Involve me and I learn. -Benjamin Franklin
+	# \"The fact that an opinion has been widely held is no evidence
+	# whatever that it is not utterly absurd. -Bertrand Russell\"
 	#
 	" > /etc/wpa_supplicant/wpa_supplicant.conf
 	#
 	echo "
 	#!/bin/sh -e
 	# This file was reset by the LynxCI installer.
-	# 'What we achieve inwardly will change outer reality.' —Plutarch
+	#
+	# \"The most valuable things in life are not measured in monetary terms. The really important
+	# things are not houses and lands, stocks and bonds, automobiles and real state, but
+	# friendships, trust, confidence, empathy, mercy, love and faith.\" —Bertrand Russell
+	#
 	exit 0
 	"> /etc/rc.local
 	#
 fi
 #
 echo "LynxCI: Installation complete. A reboot will occur 5 seconds."
+echo ""
+echo "LynxCI: After reboot is complete, log into the 'lynx' user account with the password 'lynx'."
+echo ""
 #
 rm -rf $dir/install.sh
 rm -rf /root/install.sh
