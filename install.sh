@@ -113,11 +113,12 @@ do
 		do
 			iptables -A INPUT -p tcp -s \$val --dport 22 -j ACCEPT # Restrict SSH traffic.
 		done
+		echo \"lyf.service: LynxCI Firewall Reset - \${full}\" | systemd-cat -p info
 	else
 		iptables -A INPUT -p tcp --dport 22 -j ACCEPT # Allow all SSH traffic.
+		echo \"lyf.service: LynxCI Firewall Reset - 0.0.0.0/24\" | systemd-cat -p info
 	fi
 	iptables -A INPUT -j DROP # Drop any other incoming traffic.
-	echo \"lyf.service: LynxCI Firewall Reset - \${full}\" | systemd-cat -p info
 	#
 	#
 	# View the LynxCI Firewall Service activity with the following command
@@ -442,6 +443,31 @@ else # Since the target is not a Pi, gracefully excuse.
 	echo "alias lyt='echo \"It appears you are not running a Raspberry Pi, so no temperature to be seen.\"'" >> $dir/.bashrc
 	echo "alias lyt='echo \"This command only works when logged in under the lynx user account.\"'" >> /root/.bashrc
 fi
+#
+# We are alerting the user to change the firewall settings from the default state.
+#
+echo "
+file=\"/usr/local/bin/lyf.sh\"
+fileHash=(\$(sha256sum \$file))
+targetHash=\"a631c7980765fa0e02ed6bbb26d637672f2f27b9e3a7589177bcdabecbe1117b\"
+if [ \$targetHash = \$fileHash ] && [ \"\$(cat /proc/uptime | grep -o '^[0-9]\+')\" -lt \"$ttl\" ];
+then
+	echo \"\"
+	echo \"\"
+	echo \"--- Please customize your firewall ---\"
+	echo \"\"
+	echo \"Type 'lyi' now and customize the IP addresses in the 'allow' list. Type 'control-o'\"
+	echo \"to save the file after updating it and then 'control-x' to quit the edit session. We\"
+	echo \"recommend adding several IP addresses, just for safety. Using your home or office IP\"
+	echo \"as well as a VPN IP can work well. If you have a Raspberry Pi, you can most likely\"
+	echo \"skip this task. Also, you can skip this task if your computer has an IP address in\"
+	echo \"the format 192.168.x.x or 10.0.x.x.\"
+	echo \"\"
+	echo \"-This message will go away after 7 days or when the 'allow' list is customized.-\"
+	echo \"\"
+	echo \"\"
+fi
+" >> $dir/.bashrc
 #
 # Part of the TipsyLynx integration, we are setting up a custom command
 # that can be used to connect the local miner rewards to their Tipsy
