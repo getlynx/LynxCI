@@ -12,7 +12,13 @@ echo "LynxCI: Thanks for starting the Lynx Cryptocurrency Installer (LynxCI)."
 [ "$(cat /proc/cpuinfo | grep 'Revision')" != "" ] && isPi="1" || isPi="0" # Detect if Pi target?
 [ -z "$1" ] && env="mainnet" || env="$1" # Mainnet is default.
 [[ "$env" != "mainnet" && "$env" != "testnet" ]] && echo "LynxCI: Invalid first argument." && exit
-[ "$env" = "mainnet" ] && { port="22566"; rpcport="9332"; } || { port="44566"; rpcport="19335"; }
+if [ "$env" = "mainnet" ]; then
+	port="22566"
+	rpcport="9332"
+else
+	port="44566"
+	rpcport="19335"
+fi
 if [ "$isPi" = "1" ]; then # If the target device is a Raspberry Pi.
 	[ -z "$2" ] && cpu="0.80" || cpu="$2" # Default CPU for headless Pi installs
 else # If it's not a Raspberry Pi, then this value is good for everything else.
@@ -65,7 +71,7 @@ adduser $user --disabled-password --gecos "" >/dev/null 2>&1 # User is required 
 echo "$user:$user" | chpasswd >/dev/null 2>&1
 chage -d 0 $user >/dev/null 2>&1
 adduser $user sudo >/dev/null 2>&1 # Give this user sudo access for higher level access.
-dir="$(echo -n $(bash -c "cd ~${user} && pwd"))"
+dir="$(echo -n "$(bash -c "cd ~${user} && pwd")")"
 echo "LynxCI: The user account '$user' was given sudo rights."
 #
 if [ "$isPi" = "1" ]; then # If the target device is a Raspberry Pi
@@ -168,9 +174,9 @@ testnetBootstrap="https://github.com/getlynx/LynxBootstrap/releases/download/v3.
 echo "LynxCI: Downloading the Lynx $env bootstrap file."
 [ "$env" = "mainnet" ] && { bootstrapFile="$dir/.lynx/bootstrap.dat"; }
 [ "$env" = "testnet" ] && { bootstrapFile="$dir/.lynx/testnet4/bootstrap.dat"; }
-rm -rf $bootstrapFile
+rm -rf "$bootstrapFile"
 #
-if [ ! -O $bootstrapFile ]; then # Only create the file if it doesn't already exist.
+if [ ! -O "$bootstrapFile" ]; then # Only create the file if it doesn't already exist.
 	[ "$env" = "mainnet" ] && { mkdir -p $dir/.lynx/; chown $user:$user $dir/.lynx/; wget -q $mainnetBootstrap -O - | tar -xz -C $dir/.lynx/; }
 	[ "$env" = "testnet" ] && { mkdir -p $dir/.lynx/testnet4/; chown $user:$user $dir/.lynx/; wget -q $testnetBootstrap -O - | tar -xz -C $dir/.lynx/testnet4/; }
 	sleep 1
@@ -467,7 +473,7 @@ sed -i '/alias lyt=/d' /root/.bashrc # If the alias 'lyt' already exists, delete
 if [ "$isPi" = "1" ]; then # We only need wifi config if the target is a Pi.
 	echo "alias lyw='sudo nano /etc/wpa_supplicant/wpa_supplicant.conf'" >> $dir/.bashrc
 	echo "alias lyw='echo \"This command only works when logged in under the lynx user account.\"'" >> /root/.bashrc
-	echo "alias lyt='sudo tail -n 500 -F /var/log/syslog | grep lyt" >> $dir/.bashrc
+	echo "alias lyt='sudo tail -n 500 -F /var/log/syslog | grep lyt'" >> $dir/.bashrc
 	echo "alias lyt='echo \"This command only works when logged in under the lynx user account.\"'" >> /root/.bashrc
 else # Since the target is not a Pi, gracefully excuse.
 	echo "alias lyw='echo \"It appears you are not running a Raspberry Pi, so no wireless to be configured.\"'" >> $dir/.bashrc
@@ -550,7 +556,9 @@ then
 	echo \"skip this task. Also, you can skip this task if your computer has an IP address in\"
 	echo \"the format 192.168.x.x or 10.0.x.x.\"
 	echo \"\"
-	echo \"-This message will go away after 7 days or when the 'allow' list is customized.-\"
+	echo \"-This message will go away after 7 days or when the 'allow' list is customized. If you\"
+	echo \"fail to customize your firewall and get locked out from your computer, manually reboot\"
+	echo \"and you will have another 7 days to login. -\"
 	echo \"\"
 	echo \"\"
 fi
