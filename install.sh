@@ -88,65 +88,61 @@ lyf="/usr/local/bin/lyf.sh" # LynxCI firewall file path.
 rm -rf $lyf # If the file already exists, delete it so it can be recreated.
 echo "#!/bin/bash
 PATH=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin
-while : # This shell script runs an endless loop.
-do
-	#
-	#
-	# For the period of 7 days of computer uptime (or 7 days since last reboot), the computer will
-	# accept an SSH connection from any IP address on port 22. After the 7 days has passed, the
-	# firewall will lock itself to only allow access from the list of IP addresses below. The list
-	# can contain as many IP addresses as you like, but they must be comma separated, no spaces.
-	# CIDR format addresses are accepted. If you forget to change the IP address list, you can cycle
-	# the power of your computer or Raspberry Pi or force a reboot of your VPS. This will give you
-	# unrestricted access via SSH for 7 days. Note: regular reboot of a computer with unplanned
-	# cycling of the power is not ideal and over time might damage component parts of the hardware
-	# or promote decay of the hard drive, SSD drive or SD memory card.
-	#
-	#
-	allow=\"162.210.250.170,185.216.33.98,173.209.51.2\"
-	#
-	#
-	iptables -F # Clear all the current rules, so we can then recreate new rules.
-	iptables -A INPUT -i lo -j ACCEPT
-	iptables -A INPUT -m conntrack --ctstate ESTABLISHED,RELATED -j ACCEPT
-	iptables -A INPUT -p tcp --dport $port -j ACCEPT # Required public Lynx port.
-	#
-	#
-	# Lynx RPC port $rpcport. Only allow the RPC port when you need to remotely access the RPC
-	# commands of this node. The RPC credentials are stored in the lynx.conf file. Never release
-	# your RPC credentials unless you know exactly what you are doing.
-	#
-	#
-	#iptables -A INPUT -p tcp --dport $rpcport -j ACCEPT # Port $rpcport is restricted by default.
-	#
-	#
-	full=\"\${allow},192.168.0.0/16,10.0.0.0/8\";
-	if [ \"\$(cat /proc/uptime | grep -o '^[0-9]\+')\" -gt \"$ttl\" ]; then # (1 week = ~604800 sec)
-		for val in \${full//,/ }
-		do
-			iptables -A INPUT -p tcp -s \$val --dport 22 -j ACCEPT # Restrict SSH traffic.
-		done
-		echo \"lyf.service: LynxCI Firewall Reset - \${full}\" | systemd-cat -p info
-	else
-		iptables -A INPUT -p tcp --dport 22 -j ACCEPT # Allow all SSH traffic.
-		echo \"lyf.service: LynxCI Firewall Reset - 0.0.0.0/24\" | systemd-cat -p info
-	fi
-	iptables -A INPUT -j DROP # Drop any other incoming traffic.
-	#
-	#
-	# View the LynxCI Firewall Service activity with the following command
-	#
-	# $ sudo tail -n 5000 /var/log/syslog | grep lyf.service
-	#
-	#
-	# View the current firewall state with the following command
-	#
-	# $ lyf
-	#
-	#
-	rm -rf $dir/.lynx/bootstrap.dat.old # Free up some space by removing the old bootstrap file.
-	sleep 3600 # Every 1 hour, the script wakes up and runs again. (1 hour = 3600 seconds)
-done
+#
+#
+# For the period of 7 days of computer uptime (or 7 days since last reboot), the computer will
+# accept an SSH connection from any IP address on port 22. After the 7 days has passed, the
+# firewall will lock itself to only allow access from the list of IP addresses below. The list
+# can contain as many IP addresses as you like, but they must be comma separated, no spaces.
+# CIDR format addresses are accepted. If you forget to change the IP address list, you can cycle
+# the power of your computer or Raspberry Pi or force a reboot of your VPS. This will give you
+# unrestricted access via SSH for 7 days. Note: regular reboot of a computer with unplanned
+# cycling of the power is not ideal and over time might damage component parts of the hardware
+# or promote decay of the hard drive, SSD drive or SD memory card.
+#
+#
+allow=\"162.210.250.170,185.216.33.98,173.209.51.2\"
+#
+#
+iptables -F # Clear all the current rules, so we can then recreate new rules.
+iptables -A INPUT -i lo -j ACCEPT
+iptables -A INPUT -m conntrack --ctstate ESTABLISHED,RELATED -j ACCEPT
+iptables -A INPUT -p tcp --dport $port -j ACCEPT # Required public Lynx port.
+#
+#
+# Lynx RPC port $rpcport. Only allow the RPC port when you need to remotely access the RPC
+# commands of this node. The RPC credentials are stored in the lynx.conf file. Never release
+# your RPC credentials unless you know exactly what you are doing.
+#
+#
+#iptables -A INPUT -p tcp --dport $rpcport -j ACCEPT # Port $rpcport is restricted by default.
+#
+#
+full=\"\${allow},192.168.0.0/16,10.0.0.0/8\";
+if [ \"\$(cat /proc/uptime | grep -o '^[0-9]\+')\" -gt \"$ttl\" ]; then # (1 week = ~604800 sec)
+	for val in \${full//,/ }
+	do
+		iptables -A INPUT -p tcp -s \$val --dport 22 -j ACCEPT # Restrict SSH traffic.
+	done
+	echo \"lyf.service: LynxCI Firewall Reset - \${full}\" | systemd-cat -p info
+else
+	iptables -A INPUT -p tcp --dport 22 -j ACCEPT # Allow all SSH traffic.
+	echo \"lyf.service: LynxCI Firewall Reset - 0.0.0.0/24\" | systemd-cat -p info
+fi
+iptables -A INPUT -j DROP # Drop any other incoming traffic.
+#
+#
+# View the LynxCI Firewall Service activity with the following command
+#
+# $ sudo tail -n 5000 /var/log/syslog | grep lyf.service
+#
+#
+# View the current firewall state with the following command
+#
+# $ lyf
+#
+#
+rm -rf $dir/.lynx/bootstrap.dat.old # Free up some space by removing the old bootstrap file.
 #
 # \"The trouble with the world is that the stupid
 # are cocksure and the intelligent are full of doubt.\" -Bertrand Russell
@@ -228,7 +224,7 @@ User=root
 Group=root
 ExecStart=/usr/local/bin/lyf.sh
 Restart=always
-RestartSec=30
+RestartSec=3600
 KillMode=mixed
 [Install]
 WantedBy=multi-user.target
@@ -252,7 +248,7 @@ User=root
 Group=root
 ExecStart=/usr/local/bin/lyt.sh
 Restart=always
-RestartSec=30
+RestartSec=3600
 KillMode=mixed
 [Install]
 WantedBy=multi-user.target
@@ -490,51 +486,47 @@ PATH=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin
 # In order for CPU to change, the temperature must fall out of a preset range. Raise CPU by 1% if 
 # temp is too low, Lower CPU 5% if temp is too high.
 #
-while : # This shell script runs an endless loop.
-do
-	seconds=\"300\" # The time span in seconds to check for avg temp
-	sum=\"0\" # Some defaults for the iterations
-	avg=\"0\" # Some defaults for the iterations
-	floor=\"53000\" # If the avg temp is below this value, change the CPU
-	ceiling=\"60000\" # If the avg temp is above this value, change the CPU
-	max=\"92\" # Don't allow the CPU to ever run faster than this value, regardless of temp
-	lconf=\"$dir/.lynx/lynx.conf\" # The default location of the lynx.conf file
-	cpu=\"\$(sed -ne 's|[\t]*cpulimitforbuiltinminer=0.[\t]*||p' \$lconf)\" # Grab the current CPU value
-	# Iterate for a time period to get an average temp
-	#echo \"Starting \$seconds second test\" # Display the rounded value
-	i=1; while [ \"\$i\" -le \"\$seconds\" ]; do
-	    temp=\"\$(head -n 1 /sys/class/thermal/thermal_zone0/temp)\"
-	    #echo \"\$i: \$((temp/1000))°\" # Output to the screen the running test
-	    sum=\"\$sum\"+\"\$temp\"
-	    i=\$((i+1))
-	    sleep 1
-	done
-	avg=\"\$((sum/seconds))\" # Generate the average amount
-	#echo \"\$seconds second average: \$((avg/1000))°\" # Display the rounded value
-	echo \"lyt.service: \$seconds second average: \$((avg/1000))°\" | systemd-cat -p info # Log to syslog
-	# If the temp it too low, raise the CPU value and restart lynxd
-	if [ \"\$avg\" -le \"\$floor\" ]; then # Only if the average temp is lower then floor, then increase CPU
-	    newcpu=\"\$((cpu+1))\" # Increment the CPU usage of lynxd by 1%
-	    #echo \"New incremented CPU value: \$newcpu\"
-	    newcpuformat=\"0.\"\$newcpu # Increment the CPU usage of lynxd by 1%
-	    if [ \"\$newcpu\" -le \"\$max\" ]; then # A hard cap of CPU usage by lynxd
-	        sed -i '/cpulimitforbuiltinminer=/d' \$lconf # Delete the old param from the file
-	        echo \"cpulimitforbuiltinminer=\$newcpuformat\" >> \$lconf # Append the updated param value to the file
-	        echo \"lyt.service: lynxd CPU changed to \${newcpu}%\" | systemd-cat -p info
-	        [ \"\$(lynx-cli -conf=\$lconf getblockcount)\" -gt \"2964695\" ] && systemctl restart lynxd
-	    fi
-	fi
-	# If the temp it too high, lower the CPU value and restart lynxd
-	if [ \"\$avg\" -gt \"\$ceiling\" ]; then # Only if the average temp is higher then ceiling, then decrease CPU
-	    newcpu=\"\$((cpu-5))\" # Increment the CPU usage of lynxd by 1%
-	    newcpuformat=\"0.\"\$newcpu # Increment the CPU usage of lynxd by 1%
-	    sed -i '/cpulimitforbuiltinminer=/d' \$lconf # Delete the old param from the file
-	    echo \"cpulimitforbuiltinminer=\$newcpuformat\" >> \$lconf # Append the updated param value to the file
-	    echo \"lyt.service: lynxd CPU changed to - \${newcpu}%\" | systemd-cat -p info
-	    [ \"\$(lynx-cli -conf=\$lconf getblockcount)\" -gt \"2964695\" ] && systemctl restart lynxd
-	fi
-	sleep 3600 # Every 1 hour, the script wakes up and runs again. (1 hour = 3600 seconds)
+seconds=\"300\" # The time span in seconds to check for avg temp
+sum=\"0\" # Some defaults for the iterations
+avg=\"0\" # Some defaults for the iterations
+floor=\"53000\" # If the avg temp is below this value, change the CPU
+ceiling=\"60000\" # If the avg temp is above this value, change the CPU
+max=\"92\" # Don't allow the CPU to ever run faster than this value, regardless of temp
+lconf=\"$dir/.lynx/lynx.conf\" # The default location of the lynx.conf file
+cpu=\"\$(sed -ne 's|[\t]*cpulimitforbuiltinminer=0.[\t]*||p' \$lconf)\" # Grab the current CPU value
+# Iterate for a time period to get an average temp
+#echo \"Starting \$seconds second test\" # Display the rounded value
+i=1; while [ \"\$i\" -le \"\$seconds\" ]; do
+    temp=\"\$(head -n 1 /sys/class/thermal/thermal_zone0/temp)\"
+    #echo \"\$i: \$((temp/1000))°\" # Output to the screen the running test
+    sum=\"\$sum\"+\"\$temp\"
+    i=\$((i+1))
+    sleep 1
 done
+avg=\"\$((sum/seconds))\" # Generate the average amount
+#echo \"\$seconds second average: \$((avg/1000))°\" # Display the rounded value
+echo \"lyt.service: \$seconds second average: \$((avg/1000))°\" | systemd-cat -p info # Log to syslog
+# If the temp it too low, raise the CPU value and restart lynxd
+if [ \"\$avg\" -le \"\$floor\" ]; then # Only if the average temp is lower then floor, then increase CPU
+    newcpu=\"\$((cpu+1))\" # Increment the CPU usage of lynxd by 1%
+    #echo \"New incremented CPU value: \$newcpu\"
+    newcpuformat=\"0.\"\$newcpu # Increment the CPU usage of lynxd by 1%
+    if [ \"\$newcpu\" -le \"\$max\" ]; then # A hard cap of CPU usage by lynxd
+        sed -i '/cpulimitforbuiltinminer=/d' \$lconf # Delete the old param from the file
+        echo \"cpulimitforbuiltinminer=\$newcpuformat\" >> \$lconf # Append the updated param value to the file
+        echo \"lyt.service: lynxd CPU changed to \${newcpu}%\" | systemd-cat -p info
+        [ \"\$(lynx-cli -conf=\$lconf getblockcount)\" -gt \"2964695\" ] && systemctl restart lynxd
+    fi
+fi
+# If the temp it too high, lower the CPU value and restart lynxd
+if [ \"\$avg\" -gt \"\$ceiling\" ]; then # Only if the average temp is higher then ceiling, then decrease CPU
+    newcpu=\"\$((cpu-5))\" # Increment the CPU usage of lynxd by 1%
+    newcpuformat=\"0.\"\$newcpu # Increment the CPU usage of lynxd by 1%
+    sed -i '/cpulimitforbuiltinminer=/d' \$lconf # Delete the old param from the file
+    echo \"cpulimitforbuiltinminer=\$newcpuformat\" >> \$lconf # Append the updated param value to the file
+    echo \"lyt.service: lynxd CPU changed to - \${newcpu}%\" | systemd-cat -p info
+    [ \"\$(lynx-cli -conf=\$lconf getblockcount)\" -gt \"2964695\" ] && systemctl restart lynxd
+fi
 " > /usr/local/bin/lyt.sh && chmod +x /usr/local/bin/lyt.sh # Create the file and set the execution permissions on it.
 #
 # We are alerting the user to change the firewall settings from the default state.
