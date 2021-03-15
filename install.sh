@@ -536,7 +536,7 @@ fi
 echo "
 file=\"/usr/local/bin/lyf.sh\"
 fileHash=(\$(sha256sum \$file))
-targetHash=\"d8168d721b76a53c55f44bbd7b0c8636680cd56792c70a901b74d3406ad31002\"
+targetHash=\"XXXX\"
 if [ \$targetHash = \$fileHash ] && [ \"\$(cat /proc/uptime | grep -o '^[0-9]\+')\" -lt \"$ttl\" ];
 then
 	echo \"\"
@@ -557,6 +557,8 @@ then
 	echo \"\"
 fi
 " >> "$dir"/.bashrc
+tmpTargetHash=$(sha256sum /usr/local/bin/lyf.sh)
+sed -i "s/XXXX/'${tmpTargetHash[0]}'/" "$dir"/.bashrc
 #
 # Part of the TipsyLynx integration, we are setting up a custom command
 # that can be used to connect the local miner rewards to their Tipsy
