@@ -218,6 +218,7 @@ echo "#!/bin/bash
 [Unit]
 Description=lyf
 After=network.target
+StartLimitIntervalSec=0
 [Service]
 Type=simple
 User=root
@@ -242,6 +243,7 @@ echo "#!/bin/bash
 [Unit]
 Description=lyt
 After=network.target
+StartLimitIntervalSec=0
 [Service]
 Type=simple
 User=root
