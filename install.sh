@@ -136,7 +136,7 @@ do
 	#
 	# View the LynxCI Firewall Service activity with the following command
 	#
-	# $ sudo tail -F -n 5000 /var/log/syslog | grep lyf.service
+	# $ sudo tail -n 5000 /var/log/syslog | grep lyf.service
 	#
 	#
 	# View the current firewall state with the following command
@@ -311,13 +311,13 @@ if [ "$isPi" = "1" ]; then
 	rm -rf /usr/local/bin/lynx*
 	wget https://github.com/getlynx/Lynx/releases/download/v0.16.3.11/lynx-arm32-wallet-0.16.3.11.tar.gz -qO - | tar -xz -C /usr/local/bin/
 	cd /usr/local/bin/lynx-arm32-wallet-0.16.3.11/ || exit
-	mv * .. && cd && rm -rf /usr/local/bin/lynx-arm32-wallet-0.16.3.11/
+	mv -- * .. && cd && rm -rf /usr/local/bin/lynx-arm32-wallet-0.16.3.11/
 else
 	# Supported OS's: Debian 10 (Buster), Ubuntu 20.10 & Ubuntu 20.04 LTS
 	rm -rf /usr/local/bin/lynx*
 	wget https://github.com/getlynx/Lynx/releases/download/v0.16.3.11/lynx-linux64-wallet-0.16.3.11.tar.gz -qO - | tar -xz -C /usr/local/bin/
 	cd /usr/local/bin/lynx-linux64-wallet-0.16.3.11/ || exit
-	mv * .. && cd && rm -rf /usr/local/bin/lynx-linux64-wallet-0.16.3.11/
+	mv -- * .. && cd && rm -rf /usr/local/bin/lynx-linux64-wallet-0.16.3.11/
 fi
 #
 chown root:root /usr/local/bin/lynx*
