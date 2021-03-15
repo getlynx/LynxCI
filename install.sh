@@ -177,16 +177,16 @@ echo "LynxCI: Downloading the Lynx $env bootstrap file."
 rm -rf "$bootstrapFile"
 #
 if [ ! -O "$bootstrapFile" ]; then # Only create the file if it doesn't already exist.
-	[ "$env" = "mainnet" ] && { mkdir -p $dir/.lynx/; chown $user:$user $dir/.lynx/; wget -q $mainnetBootstrap -O - | tar -xz -C $dir/.lynx/; }
-	[ "$env" = "testnet" ] && { mkdir -p $dir/.lynx/testnet4/; chown $user:$user $dir/.lynx/; wget -q $testnetBootstrap -O - | tar -xz -C $dir/.lynx/testnet4/; }
+	[ "$env" = "mainnet" ] && { mkdir -p "$dir"/.lynx/; chown $user:$user "$dir"/.lynx/; wget -q $mainnetBootstrap -O - | tar -xz -C "$dir"/.lynx/; }
+	[ "$env" = "testnet" ] && { mkdir -p "$dir"/.lynx/testnet4/; chown $user:$user "$dir"/.lynx/; wget -q $testnetBootstrap -O - | tar -xz -C "$dir"/.lynx/testnet4/; }
 	sleep 1
-	chmod 600 $bootstrapFile
+	chmod 600 "$bootstrapFile"
 	sleep 1
 	echo "LynxCI: Lynx $env bootstrap is downloaded and decompressed."
 fi
 #
-[ "$env" = "mainnet" ] && { cd /tmp/; wget -q https://raw.githubusercontent.com/getlynx/LynxCI/master/address-mainnet.txt; }
-[ "$env" = "testnet" ] && { cd /tmp/; wget -q https://raw.githubusercontent.com/getlynx/LynxCI/master/address-testnet.txt; }
+[ "$env" = "mainnet" ] && { cd /tmp/ || exit; wget -q https://raw.githubusercontent.com/getlynx/LynxCI/master/address-mainnet.txt; }
+[ "$env" = "testnet" ] && { cd /tmp/ || exit; wget -q https://raw.githubusercontent.com/getlynx/LynxCI/master/address-testnet.txt; }
 #
 # If lynxd daemon is found to not be running, this service resolves that. Only
 # create the file if it doesn't already exist.
@@ -310,13 +310,13 @@ if [ "$isPi" = "1" ]; then
 	# Pi 3 and Pi 4 on latest Raspbian OS Lite
 	rm -rf /usr/local/bin/lynx*
 	wget https://github.com/getlynx/Lynx/releases/download/v0.16.3.11/lynx-arm32-wallet-0.16.3.11.tar.gz -qO - | tar -xz -C /usr/local/bin/
-	cd /usr/local/bin/lynx-arm32-wallet-0.16.3.11/
+	cd /usr/local/bin/lynx-arm32-wallet-0.16.3.11/ || exit
 	mv * .. && cd && rm -rf /usr/local/bin/lynx-arm32-wallet-0.16.3.11/
 else
 	# Supported OS's: Debian 10 (Buster), Ubuntu 20.10 & Ubuntu 20.04 LTS
 	rm -rf /usr/local/bin/lynx*
 	wget https://github.com/getlynx/Lynx/releases/download/v0.16.3.11/lynx-linux64-wallet-0.16.3.11.tar.gz -qO - | tar -xz -C /usr/local/bin/
-	cd /usr/local/bin/lynx-linux64-wallet-0.16.3.11/
+	cd /usr/local/bin/lynx-linux64-wallet-0.16.3.11/ || exit
 	mv * .. && cd && rm -rf /usr/local/bin/lynx-linux64-wallet-0.16.3.11/
 fi
 #
@@ -325,8 +325,8 @@ chown root:root /usr/local/bin/lynx*
 # Create the default lynx.conf file
 #
 lynxConfigurationFile="$dir/.lynx/lynx.conf"
-rm -rf $lynxConfigurationFile
-if [ ! -O $lynxConfigurationFile ]; then
+rm -rf "$lynxConfigurationFile"
+if [ ! -O "$lynxConfigurationFile" ]; then
 	echo "# The following RPC credentials are created at build time and are unique to this host. If you
 	# like, you can change them, but you are encouraged to keep very complex strings for each. If an
 	# attacker gains RPC access to this host they will steal your Lynx. Understanding that, the
@@ -365,10 +365,10 @@ if [ ! -O $lynxConfigurationFile ]; then
 	# risk, but make sure you know what you are doing.
 
 	disablewallet=1
-	" > $lynxConfigurationFile
+	" > "$lynxConfigurationFile"
 
-	[ "$env" = "mainnet" ] && for i in $(shuf -i 1-5 -n 5); do echo "addnode=node0$i.getlynx.io" >> $lynxConfigurationFile; done
-	[ "$env" = "testnet" ] && for i in $(shuf -i 1-5 -n 5); do echo "addnode=test0$i.getlynx.io" >> $lynxConfigurationFile; done
+	[ "$env" = "mainnet" ] && for i in $(shuf -i 1-5 -n 5); do echo "addnode=node0$i.getlynx.io" >> "$lynxConfigurationFile"; done
+	[ "$env" = "testnet" ] && for i in $(shuf -i 1-5 -n 5); do echo "addnode=test0$i.getlynx.io" >> "$lynxConfigurationFile"; done
 
 	echo "
 	# The following addresses are known to pass the validation requirements for HPoW. If you would
@@ -377,12 +377,12 @@ if [ ! -O $lynxConfigurationFile ]; then
 	# each of the Lynx addresses in order to win the block reward. Alternatively, you can enable
 	# wallet functions on this node (above), deposit Lynx to the local wallet (again, between 1,000
 	# and 100,000,000 Lynx) and the miner will ignore the following miner address values.
-	" >> $lynxConfigurationFile
+	" >> "$lynxConfigurationFile"
 
 	# Order the items in the address file randomly, then select the top 100 from the list.
 	[ "$env" = "mainnet" ] && sort -R /tmp/address-mainnet.txt | head -n 100 > /tmp/random.txt
 	[ "$env" = "testnet" ] && sort -R /tmp/address-testnet.txt | head -n 200 > /tmp/random.txt
-	for address in $(cat /tmp/random.txt); do echo "mineraddress=$address" >> $lynxConfigurationFile; done
+	for address in $(cat /tmp/random.txt); do echo "mineraddress=$address" >> "$lynxConfigurationFile"; done
 
 	echo "
 	listen=1                      # It is highly unlikely you need to change any of the following values unless you are tinkering with the node. If you decide to
@@ -398,16 +398,16 @@ if [ ! -O $lynxConfigurationFile ]; then
 	testnet=0
 	disablebuiltinminer=0
 	cpulimitforbuiltinminer=$cpu
-	" >> $lynxConfigurationFile
-	chmod 770 $lynxConfigurationFile
+	" >> "$lynxConfigurationFile"
+	chmod 770 "$lynxConfigurationFile"
 fi
-sleep 2 && sed -i 's/^[\t]*//' $lynxConfigurationFile # Remove the pesky tabs inserted by the 'echo' outputs.
+sleep 2 && sed -i 's/^[\t]*//' "$lynxConfigurationFile" # Remove the pesky tabs inserted by the 'echo' outputs.
 echo "LynxCI: Lynx default configuration file, '$lynxConfigurationFile' was created."
 
-[ "$env" = "testnet" ] && { sed -i 's|testnet=0|testnet=1|g' $lynxConfigurationFile; echo "LynxCI: This node is operating on the testnet environment and it's now set in the lynx.conf file."; }
-[ "$env" = "mainnet" ] && { sed -i 's|testnet=1|testnet=0|g' $lynxConfigurationFile; echo "LynxCI: This node is operating on the mainnet environment and it's now set in the lynx.conf file."; }
-[ "$isPi" = "1" ] && sed -i "s|dbcache=450|dbcache=100|g" $lynxConfigurationFile # Default is 450MB. Changed to 100MB on the Pi.
-cp --remove-destination $lynxConfigurationFile $dir/.lynx/sample-lynx.conf && chmod 600 $dir/.lynx/sample-lynx.conf # We are gonna create a backup of the initially created lynx.conf file.
+[ "$env" = "testnet" ] && { sed -i 's|testnet=0|testnet=1|g' "$lynxConfigurationFile"; echo "LynxCI: This node is operating on the testnet environment and it's now set in the lynx.conf file."; }
+[ "$env" = "mainnet" ] && { sed -i 's|testnet=1|testnet=0|g' "$lynxConfigurationFile"; echo "LynxCI: This node is operating on the mainnet environment and it's now set in the lynx.conf file."; }
+[ "$isPi" = "1" ] && sed -i "s|dbcache=450|dbcache=100|g" "$lynxConfigurationFile" # Default is 450MB. Changed to 100MB on the Pi.
+cp --remove-destination "$lynxConfigurationFile" "$dir"/.lynx/sample-lynx.conf && chmod 600 "$dir"/.lynx/sample-lynx.conf # We are gonna create a backup of the initially created lynx.conf file.
 #
 systemctl daemon-reload
 if [ "$isPi" = "1" ]; then # Temp service only used if Pi
@@ -415,8 +415,8 @@ if [ "$isPi" = "1" ]; then # Temp service only used if Pi
 fi
 systemctl enable lyf >/dev/null 2>&1
 systemctl enable lynxd >/dev/null 2>&1 # lynxd will start automatically after reboot.
-chown -R $user:$user $dir/ # Be sure to reset the ownership of all files in the .lynx dir to root in case any process run
-chmod 770 $dir/.lynx/*.conf # previously changed the default ownership setting. More of a precautionary measure.
+chown -R $user:$user "$dir"/ # Be sure to reset the ownership of all files in the .lynx dir to root in case any process run
+chmod 770 "$dir"/.lynx/*.conf # previously changed the default ownership setting. More of a precautionary measure.
 #
 lynxLogrotateConfiguration="/etc/logrotate.d/lynxd.conf"
 if [ ! -O $lynxLogrotateConfiguration ]; then
@@ -443,42 +443,42 @@ fi
 #
 echo "LynxCI: Lynx was installed."
 #
-touch $dir/.bashrc # If this file doesn't already exist, create it.
+touch "$dir"/.bashrc # If this file doesn't already exist, create it.
 touch /root/.bashrc # If this file doesn't already exist, create it.
-echo "tail -n 25 $dir/.lynx/debug.log | grep -a \"BuiltinMiner\|UpdateTip\|Pre-allocating\"" >> $dir/.bashrc
+echo "tail -n 25 $dir/.lynx/debug.log | grep -a \"BuiltinMiner\|UpdateTip\|Pre-allocating\"" >> "$dir"/.bashrc
 #
-sed -i '/alias lyc=/d' $dir/.bashrc # If the alias 'lyc' already exists in this file, delete it.
+sed -i '/alias lyc=/d' "$dir"/.bashrc # If the alias 'lyc' already exists in this file, delete it.
 sed -i '/alias lyc=/d' /root/.bashrc # If the alias 'lyc' already exists in this file, delete it.
-echo "alias lyc='nano $dir/.lynx/lynx.conf'" >> $dir/.bashrc # Create the alias 'lyc'.
+echo "alias lyc='nano $dir/.lynx/lynx.conf'" >> "$dir"/.bashrc # Create the alias 'lyc'.
 echo "alias lyc='echo \"This command only works when logged in under the lynx user account.\"'" >> /root/.bashrc # Create the alias 'lyc'.
-sed -i '/alias lyl=/d' $dir/.bashrc # If the alias 'lyl' already exists in this file, delete it too.
+sed -i '/alias lyl=/d' "$dir"/.bashrc # If the alias 'lyl' already exists in this file, delete it too.
 sed -i '/alias lyl=/d' /root/.bashrc # If the alias 'lyl' already exists in this file, delete it too.
-echo "alias lyl='tail -n 1000 -F $dir/.lynx/debug.log | grep -a \"BuiltinMiner\|UpdateTip\|Pre-allocating\"'" >> $dir/.bashrc
+echo "alias lyl='tail -n 1000 -F $dir/.lynx/debug.log | grep -a \"BuiltinMiner\|UpdateTip\|Pre-allocating\"'" >> "$dir"/.bashrc
 echo "alias lyl='echo \"This command only works when logged in under the lynx user account.\"'" >> /root/.bashrc
 #
-sed -i '/alias lyi=/d' $dir/.bashrc # If the alias 'lyi' already exists, delete it.
+sed -i '/alias lyi=/d' "$dir"/.bashrc # If the alias 'lyi' already exists, delete it.
 sed -i '/alias lyi=/d' /root/.bashrc # If the alias 'lyi' already exists, delete it.
-echo "alias lyi='sudo nano /usr/local/bin/lyf.sh'" >> $dir/.bashrc # Create the alias 'lyi'.
+echo "alias lyi='sudo nano /usr/local/bin/lyf.sh'" >> "$dir"/.bashrc # Create the alias 'lyi'.
 echo "alias lyi='echo \"This command only works when logged in under the lynx user account.\"'" >> /root/.bashrc # Create the alias 'lyi'.
 #
-sed -i '/alias lyf=/d' $dir/.bashrc # If the alias 'lyf' already exists, delete it.
+sed -i '/alias lyf=/d' "$dir"/.bashrc # If the alias 'lyf' already exists, delete it.
 sed -i '/alias lyf=/d' /root/.bashrc # If the alias 'lyf' already exists, delete it.
-echo "alias lyf='sudo iptables -L -vn'" >> $dir/.bashrc # Create the alias 'lyf'.
+echo "alias lyf='sudo iptables -L -vn'" >> "$dir"/.bashrc # Create the alias 'lyf'.
 echo "alias lyf='echo \"This command only works when logged in under the lynx user account.\"'" >> /root/.bashrc # Create the alias 'lyf'.
 #
-sed -i '/alias lyw=/d' $dir/.bashrc # If the alias 'lyw' already exists, delete it.
+sed -i '/alias lyw=/d' "$dir"/.bashrc # If the alias 'lyw' already exists, delete it.
 sed -i '/alias lyw=/d' /root/.bashrc # If the alias 'lyw' already exists, delete it.
-sed -i '/alias lyt=/d' $dir/.bashrc # If the alias 'lyt' already exists, delete it.
+sed -i '/alias lyt=/d' "$dir"/.bashrc # If the alias 'lyt' already exists, delete it.
 sed -i '/alias lyt=/d' /root/.bashrc # If the alias 'lyt' already exists, delete it.
 if [ "$isPi" = "1" ]; then # We only need wifi config if the target is a Pi.
-	echo "alias lyw='sudo nano /etc/wpa_supplicant/wpa_supplicant.conf'" >> $dir/.bashrc
+	echo "alias lyw='sudo nano /etc/wpa_supplicant/wpa_supplicant.conf'" >> "$dir"/.bashrc
 	echo "alias lyw='echo \"This command only works when logged in under the lynx user account.\"'" >> /root/.bashrc
-	echo "alias lyt='sudo tail -n 500 -F /var/log/syslog | grep lyt'" >> $dir/.bashrc
+	echo "alias lyt='sudo tail -n 500 /var/log/syslog | grep lyt'" >> "$dir"/.bashrc
 	echo "alias lyt='echo \"This command only works when logged in under the lynx user account.\"'" >> /root/.bashrc
 else # Since the target is not a Pi, gracefully excuse.
-	echo "alias lyw='echo \"It appears you are not running a Raspberry Pi, so no wireless to be configured.\"'" >> $dir/.bashrc
+	echo "alias lyw='echo \"It appears you are not running a Raspberry Pi, so no wireless to be configured.\"'" >> "$dir"/.bashrc
 	echo "alias lyw='echo \"This command only works when logged in under the lynx user account.\"'" >> /root/.bashrc
-	echo "alias lyt='echo \"It appears you are not running a Raspberry Pi, so no temperature to be seen.\"'" >> $dir/.bashrc
+	echo "alias lyt='echo \"It appears you are not running a Raspberry Pi, so no temperature to be seen.\"'" >> "$dir"/.bashrc
 	echo "alias lyt='echo \"This command only works when logged in under the lynx user account.\"'" >> /root/.bashrc
 fi
 #
@@ -521,7 +521,7 @@ do
 	        sed -i '/cpulimitforbuiltinminer=/d' \$lconf # Delete the old param from the file
 	        echo \"cpulimitforbuiltinminer=\$newcpuformat\" >> \$lconf # Append the updated param value to the file
 	        echo \"lyt.service: lynxd CPU changed to \${newcpu}%\" | systemd-cat -p info
-	        [ \"\$(lynx-cli getblockcount)\" -gt \"2964695\" ] && systemctl restart lynxd
+	        [ \"\$(lynx-cli -conf=\$lconf getblockcount)\" -gt \"2964695\" ] && systemctl restart lynxd
 	    fi
 	fi
 	# If the temp it too high, lower the CPU value and restart lynxd
@@ -531,7 +531,7 @@ do
 	    sed -i '/cpulimitforbuiltinminer=/d' \$lconf # Delete the old param from the file
 	    echo \"cpulimitforbuiltinminer=\$newcpuformat\" >> \$lconf # Append the updated param value to the file
 	    echo \"lyt.service: lynxd CPU changed to - \${newcpu}%\" | systemd-cat -p info
-	    [ \"\$(lynx-cli getblockcount)\" -gt \"2964695\" ] && systemctl restart lynxd
+	    [ \"\$(lynx-cli -conf=\$lconf getblockcount)\" -gt \"2964695\" ] && systemctl restart lynxd
 	fi
 	sleep 3600 # Every 1 hour, the script wakes up and runs again. (1 hour = 3600 seconds)
 done
@@ -562,13 +562,13 @@ then
 	echo \"\"
 	echo \"\"
 fi
-" >> $dir/.bashrc
+" >> "$dir"/.bashrc
 #
 # Part of the TipsyLynx integration, we are setting up a custom command
 # that can be used to connect the local miner rewards to their Tipsy
 # Discord account.
 #
-sed -i '/function tipsy/Q' $dir/.bashrc # Remove any previously set 'tipsy' function first.
+sed -i '/function tipsy/Q' "$dir"/.bashrc # Remove any previously set 'tipsy' function first.
 sed -i '/function tipsy/Q' /root/.bashrc # Remove any previously set 'tipsy' function first.
 #
 # Install the Tipsy function to be used.
@@ -638,12 +638,12 @@ function tipsy ()
 		echo \"Lynx was restarted. All done!\"
 	fi
 }
-" >> $dir/.bashrc
+" >> "$dir"/.bashrc
 echo "alias tipsy='echo \"This command only works when logged in under the lynx user account.\"'" >> /root/.bashrc
 #
 # Let's include some documentation for CLI users.
 #
-sed -i '/function doc/Q' $dir/.bashrc # Remove any previously set 'doc' function first.
+sed -i '/function doc/Q' "$dir"/.bashrc # Remove any previously set 'doc' function first.
 sed -i '/function doc/Q' /root/.bashrc # Remove any previously set 'doc' function first.
 #
 # Install the Doc function to be used.
@@ -757,7 +757,7 @@ function doc ()
 	echo \"\"
 	echo \"\"
 }
-" >> $dir/.bashrc
+" >> "$dir"/.bashrc
 echo "alias doc='echo \"This command only works when logged in under the lynx user account.\"'" >> /root/.bashrc
 echo "LynxCI: The 'doc' command was installed. When logged in, type 'doc'."
 #
@@ -827,6 +827,6 @@ echo ""
 echo "LynxCI: After reboot is complete, log into the 'lynx' user account with the password 'lynx'."
 echo ""
 #
-rm -rf $dir/install.sh
+rm -rf "$dir"/install.sh
 rm -rf /root/install.sh
 sleep 5 && reboot
