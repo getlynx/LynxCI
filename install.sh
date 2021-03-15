@@ -22,7 +22,7 @@ fi
 #
 os="$(cat /etc/os-release | grep 'PRETTY_NAME' | cut -d'=' -f2)" # Get the full OS of the target.
 arch="$(dpkg --print-architecture)" # Get the chip architecture of the target device.
-echo "LynxCI: Architecture \"$arch\", Operating System $os detected."
+echo "LynxCI: Architecture \"$arch\", Operating system $os detected."
 #
 apt -y update >/dev/null 2>&1 # Update the package list on the target and don't display any output.
 apt -y install htop >/dev/null 2>&1 # Install only one package. Let's keep the changes simple.
@@ -41,12 +41,19 @@ if [ -O $firewallService ]; then # In case of a re-install. Only do this stuff i
 	systemctl daemon-reload # Give systemd a kick to save the recent changes.
 fi
 #
-# We don't ever want a user to login directly to the root account, even if they know the correct 
+tempService="/etc/systemd/system/lyt.service" # Standard systemd file placement.
+if [ -O $tempService ]; then # In case of a re-install. Only do this stuff if the file exists.
+	systemctl stop lyt # If the "LYnx Firewall service" is already running, then stop it.
+	systemctl disable lyt # Also disable the firewall service if it was already installed.
+	systemctl daemon-reload # Give systemd a kick to save the recent changes.
+fi
+#
+# We don't ever want a user to login directly to the root account, even if they know the correct
 # password. So the root account is locked. Access requires using 'sudo' in the 'lynx' account.
 #
 sed -i 's/PermitRootLogin yes/PermitRootLogin no/' /etc/ssh/sshd_config
 sed -i 's/PermitRootLogin without-password/PermitRootLogin no/' /etc/ssh/sshd_config
-echo "LynxCI: The root user account was locked."
+echo "LynxCI: For security purposes, the 'root' account was locked."
 #
 # Create the user account 'lynx' and skip the prompts for additional information. Set the default
 # 'lynx' password as 'lynx'. Force the user to change the password after the first login. We don't
@@ -63,7 +70,7 @@ echo "LynxCI: The user account '$user' was given sudo rights."
 #
 if [ "$isPi" = "1" ]; then # If the target device is a Raspberry Pi
 	usermod -L -e 1 pi # Then lock the Pi user account
-	echo "LynxCI: For security purposes, the 'pi' account was locked and is no longer accessible."
+	echo "LynxCI: For security purposes, the 'pi' account was locked."
 fi
 #
 rpcuser="$(sha256sum /var/log/syslog | awk '{print $1}')" # Generate a random Lynx RPC username.
@@ -192,7 +199,7 @@ Group=lynx
 ExecStart=/usr/local/bin/lynxd -daemon=0 -conf=$dir/.lynx/lynx.conf -datadir=$dir/.lynx/ -debuglogfile=$dir/.lynx/debug.log
 ExecStop=/usr/local/bin/lynx-cli stop
 Restart=always
-RestartSec=10
+RestartSec=30
 [Install]
 WantedBy=multi-user.target
 #
@@ -226,8 +233,30 @@ WantedBy=multi-user.target
 echo "LynxCI: LynxCI firewall service is installed."
 fi
 #
+tempService="/etc/systemd/system/lyt.service" # This service resets the CPU based on temp
+rm -rf $tempService
+if [ ! -O $tempService ]; then
+echo "#!/bin/bash
+[Unit]
+Description=lyt
+After=network.target
+[Service]
+Type=simple
+User=root
+Group=root
+ExecStart=/usr/local/bin/lyt.sh
+Restart=always
+RestartSec=30
+KillMode=mixed
+[Install]
+WantedBy=multi-user.target
+#" > $tempService
+echo "LynxCI: LynxCI temperature service is installed."
+fi
+#
 if [ "$isPi" = "0" ]; then # Expand swap on target devices
 	swapon --show >/dev/null 2>&1
+	###if [ "$(swapon --show)" ]; then
 	if [ $? -eq 0 ]; then
 		echo "LynxCI: Setting up 2GB swap file."
 		fallocate -l 2G /swapfile >/dev/null 2>&1
@@ -302,7 +331,7 @@ if [ ! -O $lynxConfigurationFile ]; then
 	rpcport=$rpcport
 
 	rpcallowip=0.0.0.0/24         # The RPC settings will allow a connection from ANY external host. These
-	rpcallowip=::/0               # two entries define that any IPv4 or IPv6 address will be allowed to 
+	rpcallowip=::/0               # two entries define that any IPv4 or IPv6 address will be allowed to
 	# connect. But, the operating system firewall settings block the RPC traffic because the RPC
 	# port is closed by default. If you are setting up a remote connection, all you will need are
 	# the above RPC credentials and to unblock the operating system firewall. As the 'lynx' user,
@@ -324,7 +353,7 @@ if [ ! -O $lynxConfigurationFile ]; then
 	# check to see if wallet functions are enabled with '$ lynx-cli help', looking for the
 	# '== Wallet ==' section at the bottom of the help file.
 	#
-	# If you change this value to '0' and someone knows your RPC username and password, all your 
+	# If you change this value to '0' and someone knows your RPC username and password, all your
 	# Lynx coins in this wallet will probably be stolen. The Lynx development team can not get your
 	# stolen coins back. You are responsible for your coins. If the wallet is empty, it's not a
 	# risk, but make sure you know what you are doing.
@@ -375,6 +404,9 @@ echo "LynxCI: Lynx default configuration file, '$lynxConfigurationFile' was crea
 cp --remove-destination $lynxConfigurationFile $dir/.lynx/sample-lynx.conf && chmod 600 $dir/.lynx/sample-lynx.conf # We are gonna create a backup of the initially created lynx.conf file.
 #
 systemctl daemon-reload
+if [ "$isPi" = "1" ]; then # Temp service only used if Pi
+	systemctl enable lyt >/dev/null 2>&1
+fi
 systemctl enable lyf >/dev/null 2>&1
 systemctl enable lynxd >/dev/null 2>&1 # lynxd will start automatically after reboot.
 chown -R $user:$user $dir/ # Be sure to reset the ownership of all files in the .lynx dir to root in case any process run
@@ -435,7 +467,7 @@ sed -i '/alias lyt=/d' /root/.bashrc # If the alias 'lyt' already exists, delete
 if [ "$isPi" = "1" ]; then # We only need wifi config if the target is a Pi.
 	echo "alias lyw='sudo nano /etc/wpa_supplicant/wpa_supplicant.conf'" >> $dir/.bashrc
 	echo "alias lyw='echo \"This command only works when logged in under the lynx user account.\"'" >> /root/.bashrc
-	echo "alias lyt='head -n 1 /sys/class/thermal/thermal_zone0/temp'" >> $dir/.bashrc
+	echo "alias lyt='sudo tail -n 500 -F /var/log/syslog | grep lyt" >> $dir/.bashrc
 	echo "alias lyt='echo \"This command only works when logged in under the lynx user account.\"'" >> /root/.bashrc
 else # Since the target is not a Pi, gracefully excuse.
 	echo "alias lyw='echo \"It appears you are not running a Raspberry Pi, so no wireless to be configured.\"'" >> $dir/.bashrc
@@ -443,6 +475,61 @@ else # Since the target is not a Pi, gracefully excuse.
 	echo "alias lyt='echo \"It appears you are not running a Raspberry Pi, so no temperature to be seen.\"'" >> $dir/.bashrc
 	echo "alias lyt='echo \"This command only works when logged in under the lynx user account.\"'" >> /root/.bashrc
 fi
+#
+# Install the Lynx temperature service code
+#
+echo "#!/bin/bash
+PATH=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin
+#
+# In order for CPU to change, the temperature must fall out of a preset range. Raise CPU by 1% if 
+# temp is too low, Lower CPU 5% if temp is too high.
+#
+while : # This shell script runs an endless loop.
+do
+	seconds=\"300\" # The time span in seconds to check for avg temp
+	sum=\"0\" # Some defaults for the iterations
+	avg=\"0\" # Some defaults for the iterations
+	floor=\"53000\" # If the avg temp is below this value, change the CPU
+	ceiling=\"60000\" # If the avg temp is above this value, change the CPU
+	max=\"92\" # Don't allow the CPU to ever run faster than this value, regardless of temp
+	lconf=\"$dir/.lynx/lynx.conf\" # The default location of the lynx.conf file
+	cpu=\"\$(sed -ne 's|[\t]*cpulimitforbuiltinminer=0.[\t]*||p' \$lconf)\" # Grab the current CPU value
+	# Iterate for a time period to get an average temp
+	#echo \"Starting \$seconds second test\" # Display the rounded value
+	i=1; while [ \"\$i\" -le \"\$seconds\" ]; do
+	    temp=\"\$(head -n 1 /sys/class/thermal/thermal_zone0/temp)\"
+	    #echo \"\$i: \$((temp/1000))°\" # Output to the screen the running test
+	    sum=\"\$sum\"+\"\$temp\"
+	    i=\$((i+1))
+	    sleep 1
+	done
+	avg=\"\$((sum/seconds))\" # Generate the average amount
+	#echo \"\$seconds second average: \$((avg/1000))°\" # Display the rounded value
+	echo \"lyt.service: \$seconds second average: \$((avg/1000))°\" | systemd-cat -p info # Log to syslog
+	# If the temp it too low, raise the CPU value and restart lynxd
+	if [ \"\$avg\" -le \"\$floor\" ]; then # Only if the average temp is lower then floor, then increase CPU
+	    newcpu=\"\$((cpu+1))\" # Increment the CPU usage of lynxd by 1%
+	    #echo \"New incremented CPU value: \$newcpu\"
+	    newcpuformat=\"0.\"\$newcpu # Increment the CPU usage of lynxd by 1%
+	    if [ \"\$newcpu\" -le \"\$max\" ]; then # A hard cap of CPU usage by lynxd
+	        sed -i '/cpulimitforbuiltinminer=/d' \$lconf # Delete the old param from the file
+	        echo \"cpulimitforbuiltinminer=\$newcpuformat\" >> \$lconf # Append the updated param value to the file
+	        echo \"lyt.service: lynxd CPU changed to \${newcpu}%\" | systemd-cat -p info
+	        [ \"\$(lynx-cli getblockcount)\" -gt \"2964695\" ] && systemctl restart lynxd
+	    fi
+	fi
+	# If the temp it too high, lower the CPU value and restart lynxd
+	if [ \"\$avg\" -gt \"\$ceiling\" ]; then # Only if the average temp is higher then ceiling, then decrease CPU
+	    newcpu=\"\$((cpu-5))\" # Increment the CPU usage of lynxd by 1%
+	    newcpuformat=\"0.\"\$newcpu # Increment the CPU usage of lynxd by 1%
+	    sed -i '/cpulimitforbuiltinminer=/d' \$lconf # Delete the old param from the file
+	    echo \"cpulimitforbuiltinminer=\$newcpuformat\" >> \$lconf # Append the updated param value to the file
+	    echo \"lyt.service: lynxd CPU changed to - \${newcpu}%\" | systemd-cat -p info
+	    [ \"\$(lynx-cli getblockcount)\" -gt \"2964695\" ] && systemctl restart lynxd
+	fi
+	sleep 3600 # Every 1 hour, the script wakes up and runs again. (1 hour = 3600 seconds)
+done
+" > /usr/local/bin/lyt.sh && chmod +x /usr/local/bin/lyt.sh # Create the file and set the execution permissions on it.
 #
 # We are alerting the user to change the firewall settings from the default state.
 #
@@ -609,14 +696,20 @@ function doc ()
 	echo \"\"
 	echo \"[Abbreviation for ‘lynx temperature’]\"
 	echo \"\"
-	echo \"Displays the temperature of your Raspberry Pi. This command only works for Raspberry Pi.\"
-	echo \"The objective is to keep the Pi temperature below the maximum operating temperature\"
-	echo \"threshold of 85 C. This command is often invoked after you change the\"
-	echo \"‘cpulimitforbuiltinminer‘ value in the lynx.conf file. Be sure to keep the same decimal\"
-	echo \"format and monitor your temperature and CPU thread usage closely. Rarely is a value over\"
-	echo \"‘0.75’ a good idea. If you are changing values in this file, be sure to check out the\"
-	echo \"'lynxci-raspberrypi' channel of the Lynx Discord for expert advice from our community.\"
-	echo \"Be sure to save your changes. If you make any changes, you must restart Lynx.\"
+	echo \"Displays the temperature of your Raspberry Pi and hourly changes made to the lynx.conf\"
+	echo \"'cpulimitforbuiltinminer' parameter. This command only works for Raspberry Pi.\"
+	echo \"The temperature service automatically adjusts the CPU mining capacity of the device. When\"
+	echo \"the Pi is running 'cool', the miner will be ramped up, and when the miner is running\"
+	echo \"'hot' the miner is tuned down. The objective is to keep the Pi temperature below the\"
+	echo \"maximum operating temperature threshold of 85 C. If you would like to turn off the\"
+	echo \"service and manually tune your miner with the 'cpulimitforbuiltinminer' parameter, use\"
+	echo \"the following service command.\"
+	echo \"\"
+	echo \"\"
+	echo \"$ sudo systemctl stop lyt\"
+	echo \"\"
+	echo \"Turns off the temperature service. Only used on a Raspberry Pi. You are required to\"
+	echo \"modify the 'cpulimitforbuiltinminer' parameter manually if you turn this off.\"
 	echo \"\"
 	echo \"\"
 	echo \"$ sudo systemctl restart lynxd\"
@@ -670,10 +763,10 @@ if [ "$isPi" = "1" ]; then
 	#
 	echo "
 	#
-	# For non-US users, making sure you have the correct country code is important. Consult the 
+	# For non-US users, making sure you have the correct country code is important. Consult the
 	# wireless section of https://www.raspberrypi.org/blog/working-from-home-with-your-raspberry-pi/
 	# for details and for your specific country code. After you change the country code, a full
-	# reboot of the Pi is required. Yes, you can use both wifi and an eth cable connection at the 
+	# reboot of the Pi is required. Yes, you can use both wifi and an eth cable connection at the
 	# same time, if you like.
 	#
 	country=US
@@ -686,10 +779,10 @@ if [ "$isPi" = "1" ]; then
 	 key_mgmt=WPA-PSK
 	}
 	#
-	# The double quotes around the SSID and psk value must remain. Make sure you leave the quotes 
-	# intact. If you have more then one wifi network (like for home and office), having 
-	# more then one SSID in the file is helpful. The order of the SSID is important. If the first 
-	# SSID is not found, the Pi will look for the next SSID on the list. Order them as you like. 
+	# The double quotes around the SSID and psk value must remain. Make sure you leave the quotes
+	# intact. If you have more then one wifi network (like for home and office), having
+	# more then one SSID in the file is helpful. The order of the SSID is important. If the first
+	# SSID is not found, the Pi will look for the next SSID on the list. Order them as you like.
 	# Having multiple SSID's is also nice in the case your primary wifi network goes down.
 	#
 	network={
