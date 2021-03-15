@@ -542,7 +542,7 @@ done
 echo "
 file=\"/usr/local/bin/lyf.sh\"
 fileHash=(\$(sha256sum \$file))
-targetHash=\"a631c7980765fa0e02ed6bbb26d637672f2f27b9e3a7589177bcdabecbe1117b\"
+targetHash=\"d8168d721b76a53c55f44bbd7b0c8636680cd56792c70a901b74d3406ad31002\"
 if [ \$targetHash = \$fileHash ] && [ \"\$(cat /proc/uptime | grep -o '^[0-9]\+')\" -lt \"$ttl\" ];
 then
 	echo \"\"
