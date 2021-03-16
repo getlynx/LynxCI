@@ -476,9 +476,9 @@ do
 	avg=\"\$((sum/seconds))\" # Generate the average amount
 	#echo \"\$seconds second average: \$((avg/1000))°\" # Display the rounded value
 	echo \"lyt.service: \$seconds second average: \$((avg/1000))°\" | systemd-cat -p info # Log to syslog
-	count=\$(lynx-cli getblockcount) # Get the the local blockcount total
-	hash=\$(lynx-cli getblockhash \"\$count\") # Get the hash of the newest known local block
-	t=\$(lynx-cli getblock \"\$hash\" | grep '\"time\"' | awk '{print \$2}' | sed -e 's/,\$//g') # Get it's time
+	count=\$(lynx-cli -conf=\$lconf getblockcount) # Get the the local blockcount total
+	hash=\$(lynx-cli -conf=\$lconf getblockhash \"\$count\") # Get the hash of the newest known local block
+	t=\$(lynx-cli -conf=\$lconf getblock \"\$hash\" | grep '\"time\"' | awk '{print \$2}' | sed -e 's/,\$//g') # Get it's time
 	cur_t=\$(date +%s) # Get current time
 	diff_t=\$[\$cur_t - \$t] # Difference the current time with the latest known block. 
 	# If the temp it too low, raise the CPU value and restart lynxd
@@ -494,7 +494,7 @@ do
 				systemctl restart lynxd
 				echo \"lyt.service: Lynx daemon restarted to commit change.\" | systemd-cat -p info # Log to syslog
 			else
-				echo \"lyt.service: Initial chain sync not completed (\$diff_t). Restart skipped.\" | systemd-cat -p info # Log to syslog
+				echo \"lyt.service: Initial chain sync not completed. \$diff_t diff. Restart skipped.\" | systemd-cat -p info # Log to syslog
 			fi
 	    fi
 	fi
@@ -509,7 +509,7 @@ do
 			systemctl restart lynxd
 			echo \"lyt.service: Lynx daemon restarted to commit change.\" | systemd-cat -p info # Log to syslog
 		else
-			echo \"lyt.service: Initial chain sync not completed (\$diff_t). Restart skipped.\" | systemd-cat -p info # Log to syslog
+			echo \"lyt.service: Initial chain sync not completed. \$diff_t diff. Restart skipped.\" | systemd-cat -p info # Log to syslog
 		fi
 	fi
 	sleep 3600 # Every 1 hour, the script wakes up and runs again. (1 hour = 3600 seconds)
