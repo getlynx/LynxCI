@@ -26,7 +26,7 @@ else # If it's not a Raspberry Pi, then this value is good for everything else.
 fi
 [ -z "$3" ] && ttl="604900" || ttl="$3" # Firewall blocks WAN access after 1 week (~604800 seconds).
 #
-os="$(cat /etc/os-release | grep 'PRETTY_NAME' | cut -d'=' -f2)" # Get the full OS of the target.
+os="$(grep 'PRETTY_NAME' /etc/os-release | cut -d'=' -f2)" # Get the full OS of the target.
 arch="$(dpkg --print-architecture)" # Get the chip architecture of the target device.
 echo "LynxCI: Architecture \"$arch\", Operating system $os detected."
 #
@@ -240,16 +240,12 @@ WantedBy=multi-user.target
 echo "LynxCI: LynxCI temperature service is installed."
 #
 if [ "$isPi" = "0" ]; then # Expand swap on target devices
-	swapon --show >/dev/null 2>&1
-	###if [ "$(swapon --show)" ]; then
-	if [ $? -eq 0 ]; then
-		echo "LynxCI: Setting up 2GB swap file."
-		fallocate -l 2G /swapfile >/dev/null 2>&1
-		chmod 600 /swapfile
-		mkswap /swapfile >/dev/null 2>&1
-		swapon /swapfile >/dev/null 2>&1
-		echo '/swapfile none swap sw 0 0' | tee -a /etc/fstab >/dev/null 2>&1
-	fi
+	echo "LynxCI: Setting up 2GB swap file."
+	fallocate -l 2G /swapfile >/dev/null 2>&1
+	chmod 600 /swapfile
+	mkswap /swapfile >/dev/null 2>&1
+	swapon /swapfile >/dev/null 2>&1
+	echo '/swapfile none swap sw 0 0' | tee -a /etc/fstab >/dev/null 2>&1
 else # Expand on the Pi's 100MB to 2GB
 	sed -i 's/CONF_SWAPSIZE=100/CONF_SWAPSIZE=2048/' /etc/dphys-swapfile
 	/etc/init.d/dphys-swapfile restart >/dev/null 2>&1;
@@ -361,7 +357,7 @@ if [ ! -O "$lynxConfigurationFile" ]; then
 	# Order the items in the address file randomly, then select the top 100 from the list.
 	[ "$env" = "mainnet" ] && sort -R /tmp/address-mainnet.txt | head -n 100 > /tmp/random.txt
 	[ "$env" = "testnet" ] && sort -R /tmp/address-testnet.txt | head -n 200 > /tmp/random.txt
-	for address in $(cat /tmp/random.txt); do echo "mineraddress=$address" >> "$lynxConfigurationFile"; done
+	grep -v '^ *#' < /tmp/random.txt | while IFS= read -r address; do echo "mineraddress=$address" >> "$lynxConfigurationFile"; done
 
 	echo "
 	listen=1                      # It is highly unlikely you need to change any of the following values unless you are tinkering with the node. If you decide to
@@ -422,52 +418,41 @@ fi
 #
 echo "LynxCI: Lynx was installed."
 #
-touch "$dir"/.bashrc # If this file doesn't already exist, create it.
-touch /root/.bashrc # If this file doesn't already exist, create it.
-echo "tail -n 25 $dir/.lynx/debug.log | grep -a \"BuiltinMiner\|UpdateTip\|Pre-allocating\"" >> "$dir"/.bashrc
+localLocale="$dir"/.bashrc && touch "$localLocale" # If this file doesn't already exist, create it.
+rootLocale=/root/.bashrc && touch "$rootLocale" # If this file doesn't already exist, create it.
+echo "tail -n 25 $dir/.lynx/debug.log | grep -a \"BuiltinMiner\|UpdateTip\|Pre-allocating\"" >> "$localLocale"
 #
-sed -i '/alias lyc=/d' "$dir"/.bashrc # If the alias 'lyc' already exists in this file, delete it.
-sed -i '/alias lyc=/d' /root/.bashrc # If the alias 'lyc' already exists in this file, delete it.
-echo "alias lyc='nano $dir/.lynx/lynx.conf'" >> "$dir"/.bashrc # Create the alias 'lyc'.
-echo "alias lyc='echo \"This command only works when logged in under the lynx user account.\"'" >> /root/.bashrc # Create the alias 'lyc'.
-sed -i '/alias lyl=/d' "$dir"/.bashrc # If the alias 'lyl' already exists in this file, delete it too.
-sed -i '/alias lyl=/d' /root/.bashrc # If the alias 'lyl' already exists in this file, delete it too.
-echo "alias lyl='tail -n 1000 -F $dir/.lynx/debug.log | grep -a \"BuiltinMiner\|UpdateTip\|Pre-allocating\"'" >> "$dir"/.bashrc
-echo "alias lyl='echo \"This command only works when logged in under the lynx user account.\"'" >> /root/.bashrc
+echo "alias lyc='nano $dir/.lynx/lynx.conf'" >> "$localLocale" # Create the alias lyc.
+echo "alias lyc='echo \"This command only works when logged in under the lynx user account.\"'" >> "$rootLocale" # Create the alias lyc.
 #
-sed -i '/alias lyi=/d' "$dir"/.bashrc # If the alias 'lyi' already exists, delete it.
-sed -i '/alias lyi=/d' /root/.bashrc # If the alias 'lyi' already exists, delete it.
-echo "alias lyi='sudo nano /usr/local/bin/lyf.sh'" >> "$dir"/.bashrc # Create the alias 'lyi'.
-echo "alias lyi='echo \"This command only works when logged in under the lynx user account.\"'" >> /root/.bashrc # Create the alias 'lyi'.
+echo "alias lyl='tail -n 1000 -F $dir/.lynx/debug.log | grep -a \"BuiltinMiner\|UpdateTip\|Pre-allocating\"'" >> "$localLocale"
+echo "alias lyl='echo \"This command only works when logged in under the lynx user account.\"'" >> "$rootLocale"
 #
-sed -i '/alias lyf=/d' "$dir"/.bashrc # If the alias 'lyf' already exists, delete it.
-sed -i '/alias lyf=/d' /root/.bashrc # If the alias 'lyf' already exists, delete it.
-echo "alias lyf='sudo iptables -L -vn'" >> "$dir"/.bashrc # Create the alias 'lyf'.
-echo "alias lyf='echo \"This command only works when logged in under the lynx user account.\"'" >> /root/.bashrc # Create the alias 'lyf'.
+echo "alias lyi='sudo nano /usr/local/bin/lyf.sh'" >> "$localLocale" # Create the alias 'lyi'.
+echo "alias lyi='echo \"This command only works when logged in under the lynx user account.\"'" >> "$rootLocale" # Create the alias 'lyi'.
 #
-sed -i '/alias lyw=/d' "$dir"/.bashrc # If the alias 'lyw' already exists, delete it.
-sed -i '/alias lyw=/d' /root/.bashrc # If the alias 'lyw' already exists, delete it.
-sed -i '/alias lyt=/d' "$dir"/.bashrc # If the alias 'lyt' already exists, delete it.
-sed -i '/alias lyt=/d' /root/.bashrc # If the alias 'lyt' already exists, delete it.
+echo "alias lyf='sudo iptables -L -vn'" >> "$localLocale" # Create the alias 'lyf'.
+echo "alias lyf='echo \"This command only works when logged in under the lynx user account.\"'" >> "$rootLocale" # Create the alias 'lyf'.
+#
 if [ "$isPi" = "1" ]; then # We only need wifi config if the target is a Pi.
-	echo "alias lyw='sudo nano /etc/wpa_supplicant/wpa_supplicant.conf'" >> "$dir"/.bashrc
-	echo "alias lyw='echo \"This command only works when logged in under the lynx user account.\"'" >> /root/.bashrc
-	echo "alias lyt='sudo tail -n 500 /var/log/syslog | grep lyt'" >> "$dir"/.bashrc
-	echo "alias lyt='echo \"This command only works when logged in under the lynx user account.\"'" >> /root/.bashrc
+	echo "alias lyw='sudo nano /etc/wpa_supplicant/wpa_supplicant.conf'" >> "$localLocale"
+	echo "alias lyw='echo \"This command only works when logged in under the lynx user account.\"'" >> "$rootLocale"
+	echo "alias lyt='sudo tail -n 500 /var/log/syslog | grep lyt'" >> "$localLocale"
+	echo "alias lyt='echo \"This command only works when logged in under the lynx user account.\"'" >> "$rootLocale"
 else # Since the target is not a Pi, gracefully excuse.
-	echo "alias lyw='echo \"It appears you are not running a Raspberry Pi, so no wireless to be configured.\"'" >> "$dir"/.bashrc
-	echo "alias lyw='echo \"This command only works when logged in under the lynx user account.\"'" >> /root/.bashrc
-	echo "alias lyt='echo \"It appears you are not running a Raspberry Pi, so no temperature to be seen.\"'" >> "$dir"/.bashrc
-	echo "alias lyt='echo \"This command only works when logged in under the lynx user account.\"'" >> /root/.bashrc
+	echo "alias lyw='echo \"It appears you are not running a Raspberry Pi, so no wireless to be configured.\"'" >> "$localLocale"
+	echo "alias lyw='echo \"This command only works when logged in under the lynx user account.\"'" >> "$rootLocale"
+	echo "alias lyt='echo \"It appears you are not running a Raspberry Pi, so no temperature to be seen.\"'" >> "$localLocale"
+	echo "alias lyt='echo \"This command only works when logged in under the lynx user account.\"'" >> "$rootLocale"
 fi
 #
 # Install the Lynx temperature service code
 #
-echo "#!/bin/bash
+echo -e "#!/bin/bash
 PATH=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin
 #
 # In order for CPU to change, the temperature must fall out of a preset range. Raise CPU by 1% if 
-# temp is too low, Lower CPU 5% if temp is too high.
+# temp is too low. Lower CPU 5% if temp is too high.
 #
 while : # This shell script runs an endless loop.
 do
@@ -500,7 +485,16 @@ do
 	        sed -i '/cpulimitforbuiltinminer=/d' \$lconf # Delete the old param from the file
 	        echo \"cpulimitforbuiltinminer=\$newcpuformat\" >> \$lconf # Append the updated param value to the file
 	        echo \"lyt.service: lynxd CPU changed to \${newcpu}%\" | systemd-cat -p info
-	        [ \"\$(lynx-cli -conf=\$lconf getblockcount)\" -gt \"2964695\" ] && systemctl restart lynxd
+			if [ ! -O $dir/.lynx/bootstrap.dat ]; then # If the bootstrap.dat file exists, we dont' want to restart
+				if [ ! -O $dir/.lynx/bootstrap.dat.old ]; then # If the bootstrap.dat.old file exists, we dont' want to restart
+					systemctl restart lynxd
+					echo \"lyt.service: Lynx daemon restarted to commit change.\" | systemd-cat -p info # Log to syslog
+				else
+					echo \"lyt.service: Initial chain sync not completed. Restart skipped.\" | systemd-cat -p info # Log to syslog
+				fi
+			else
+				echo \"lyt.service: Initial chain sync not completed. Restart skipped.\" | systemd-cat -p info # Log to syslog
+			fi
 	    fi
 	fi
 	# If the temp it too high, lower the CPU value and restart lynxd
@@ -510,7 +504,16 @@ do
 	    sed -i '/cpulimitforbuiltinminer=/d' \$lconf # Delete the old param from the file
 	    echo \"cpulimitforbuiltinminer=\$newcpuformat\" >> \$lconf # Append the updated param value to the file
 	    echo \"lyt.service: lynxd CPU changed to - \${newcpu}%\" | systemd-cat -p info
-	    [ \"\$(lynx-cli -conf=\$lconf getblockcount)\" -gt \"2964695\" ] && systemctl restart lynxd
+		if [ ! -O $dir/.lynx/bootstrap.dat ]; then # If the bootstrap.dat file exists, we dont' want to restart
+			if [ ! -O $dir/.lynx/bootstrap.dat.old ]; then # If the bootstrap.dat.old file exists, we dont' want to restart
+				systemctl restart lynxd
+				echo \"lyt.service: Lynx daemon restarted to commit change.\" | systemd-cat -p info # Log to syslog
+			else
+				echo \"lyt.service: Initial chain sync not completed. Restart skipped.\" | systemd-cat -p info # Log to syslog
+			fi
+		else
+			echo \"lyt.service: Initial chain sync not completed. Restart skipped.\" | systemd-cat -p info # Log to syslog
+		fi
 	fi
 	sleep 3600 # Every 1 hour, the script wakes up and runs again. (1 hour = 3600 seconds)
 done
@@ -518,10 +521,11 @@ done
 #
 # We are alerting the user to change the firewall settings from the default state.
 #
+tmpTargetHash=$(sha256sum /usr/local/bin/lyf.sh)
 echo "
 file=\"/usr/local/bin/lyf.sh\"
 fileHash=(\$(sha256sum \$file))
-targetHash=\"XXXX\"
+targetHash=\"${tmpTargetHash[0]}\"
 if [ \$targetHash = \$fileHash ] && [ \"\$(cat /proc/uptime | grep -o '^[0-9]\+')\" -lt \"$ttl\" ];
 then
 	echo \"\"
@@ -542,8 +546,6 @@ then
 	echo \"\"
 fi
 " >> "$dir"/.bashrc
-tmpTargetHash=$(sha256sum /usr/local/bin/lyf.sh)
-sed -i "s/XXXX/'${tmpTargetHash[0]}'/" "$dir"/.bashrc
 #
 # Part of the TipsyLynx integration, we are setting up a custom command
 # that can be used to connect the local miner rewards to their Tipsy
@@ -554,12 +556,10 @@ sed -i '/function tipsy/Q' /root/.bashrc # Remove any previously set 'tipsy' fun
 #
 # Install the Tipsy function to be used.
 #
-echo "
+echo -e "
 function tipsy ()
 {
 	if [ -z \"\$1\" ]; then
-		echo \"\"
-		[ \"\$(sed -n 's|[\t]*tipsyid=[\t]*||p' $dir/.lynx/lynx.conf)\" != \"\" ] && echo \"Your current TipsyLynx Id is \$(sed -n 's|[\t]*tipsyid=[\t]*||p' $dir/.lynx/lynx.conf)\"
 		echo \"\"
 		echo \"\"
 		echo \"Welcome to TipsyLynx, the easiest way to begin mining Lynx!\"
@@ -615,7 +615,7 @@ function tipsy ()
 	echo \"\"
 	if ! [ -z \"\$1\" ]; then
 		echo \"Restarting Lynx to save settings...\"
-		[ \"\$(lynx-cli getblockcount)\" -gt \"2000000\" ] && sudo systemctl restart lynxd
+		[ \"\$(lynx-cli getblockcount)\" -gt \"2900000\" ] && sudo systemctl restart lynxd
 		echo \"Lynx was restarted. All done!\"
 	fi
 }
