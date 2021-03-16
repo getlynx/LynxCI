@@ -521,11 +521,10 @@ done
 #
 # We are alerting the user to change the firewall settings from the default state.
 #
-tmpTargetHash=$(sha256sum /usr/local/bin/lyf.sh)
 echo "
 file=\"/usr/local/bin/lyf.sh\"
 fileHash=(\$(sha256sum \$file))
-targetHash=\"${tmpTargetHash[0]}\"
+targetHash=\"$(sha256sum /usr/local/bin/lyf.sh | awk '{print $1}')\"
 if [ \$targetHash = \$fileHash ] && [ \"\$(cat /proc/uptime | grep -o '^[0-9]\+')\" -lt \"$ttl\" ];
 then
 	echo \"\"
