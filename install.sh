@@ -484,32 +484,33 @@ do
 	# If the temp it too low, raise the CPU value and restart lynxd
 	if [ \"\$avg\" -le \"\$floor\" ]; then # Only if the average temp is lower then floor, then increase CPU
 	    newcpu=\"\$((cpu+1))\" # Increment the CPU usage of lynxd by 1%
-	    #echo \"New incremented CPU value: \$newcpu\"
 	    newcpuformat=\"0.\"\$newcpu # Increment the CPU usage of lynxd by 1%
 	    if [ \"\$newcpu\" -le \"\$max\" ]; then # A hard cap of CPU usage by lynxd
-	        sed -i '/cpulimitforbuiltinminer=/d' \$lconf # Delete the old param from the file
-	        echo \"cpulimitforbuiltinminer=\$newcpuformat\" >> \$lconf # Append the updated param value to the file
-	        echo \"lyt.service: lynxd CPU changed to \${newcpu}%\" | systemd-cat -p info
 			if [ \"\$diff_t\" -lt \"15000\" ]; then
+				sed -i '/cpulimitforbuiltinminer=/d' \$lconf # Delete the old param from the file
+		        echo \"cpulimitforbuiltinminer=\$newcpuformat\" >> \$lconf # Append the updated param value to the file
+		        echo \"lyt.service: lynxd CPU changed to \${newcpu}%\" | systemd-cat -p info
 				systemctl restart lynxd
 				echo \"lyt.service: Lynx daemon restarted to commit change.\" | systemd-cat -p info # Log to syslog
 			else
-				echo \"lyt.service: Initial chain sync not completed. \$diff_t diff. Restart skipped.\" | systemd-cat -p info # Log to syslog
+				echo \"lyt.service: Initial chain sync not completed. \$diff_t diff. No change to built-in miner.\" | systemd-cat -p info # Log to syslog
 			fi
+		else
+			echo \"Built-in miner maximum of \$max% reached. No change.\"
 	    fi
 	fi
 	# If the temp it too high, lower the CPU value and restart lynxd
 	if [ \"\$avg\" -gt \"\$ceiling\" ]; then # Only if the average temp is higher then ceiling, then decrease CPU
-	    newcpu=\"\$((cpu-5))\" # Increment the CPU usage of lynxd by 1%
-	    newcpuformat=\"0.\"\$newcpu # Increment the CPU usage of lynxd by 1%
-	    sed -i '/cpulimitforbuiltinminer=/d' \$lconf # Delete the old param from the file
-	    echo \"cpulimitforbuiltinminer=\$newcpuformat\" >> \$lconf # Append the updated param value to the file
-	    echo \"lyt.service: lynxd CPU changed to - \${newcpu}%\" | systemd-cat -p info
+	    newcpu=\"\$((cpu-5))\" # Decrement the CPU usage of lynxd by 5%
+	    newcpuformat=\"0.\"\$newcpu # Decrement the CPU usage of lynxd by 5%
 		if [ \"\$diff_t\" -lt \"15000\" ]; then
+			sed -i '/cpulimitforbuiltinminer=/d' \$lconf # Delete the old param from the file
+	    	echo \"cpulimitforbuiltinminer=\$newcpuformat\" >> \$lconf # Append the updated param value to the file
+	    	echo \"lyt.service: lynxd CPU changed to - \${newcpu}%\" | systemd-cat -p info
 			systemctl restart lynxd
 			echo \"lyt.service: Lynx daemon restarted to commit change.\" | systemd-cat -p info # Log to syslog
 		else
-			echo \"lyt.service: Initial chain sync not completed. \$diff_t diff. Restart skipped.\" | systemd-cat -p info # Log to syslog
+			echo \"lyt.service: Initial chain sync not completed. \$diff_t diff. No change to built-in miner.\" | systemd-cat -p info # Log to syslog
 		fi
 	fi
 	sleep 3600 # Every 1 hour, the script wakes up and runs again. (1 hour = 3600 seconds)
@@ -611,7 +612,14 @@ function tipsy ()
 	echo \"\"
 	if ! [ -z \"\$1\" ]; then
 		echo \"Restarting Lynx to save settings...\"
-		[ \"\$(lynx-cli getblockcount)\" -gt \"2964000\" ] && sudo systemctl restart lynxd
+		count=\$(lynx-cli -conf=\$lconf getblockcount) # Get the the local blockcount total
+		hash=\$(lynx-cli -conf=\$lconf getblockhash \"\$count\") # Get the hash of the newest known local block
+		t=\$(lynx-cli -conf=\$lconf getblock \"\$hash\" | grep '\"time\"' | awk '{print \$2}' | sed -e 's/,\$//g') # Get it's time
+		cur_t=\$(date +%s) # Get current time
+		diff_t=\$[\$cur_t - \$t] # Difference the current time with the latest known block. 
+		if [ \"\$diff_t\" -lt \"15000\" ]; then
+			sudo systemctl restart lynxd
+		fi
 		echo \"Lynx was restarted. All done!\"
 	fi
 }
