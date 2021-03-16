@@ -476,6 +476,11 @@ do
 	avg=\"\$((sum/seconds))\" # Generate the average amount
 	#echo \"\$seconds second average: \$((avg/1000))°\" # Display the rounded value
 	echo \"lyt.service: \$seconds second average: \$((avg/1000))°\" | systemd-cat -p info # Log to syslog
+	count=\$(lynx-cli getblockcount) # Get the the local blockcount total
+	hash=\$(lynx-cli getblockhash \"\$count\") # Get the hash of the newest known local block
+	t=\$(lynx-cli getblock \"\$hash\" | grep '\"time\"' | awk '{print \$2}' | sed -e 's/,\$//g') # Get it's time
+	cur_t=\$(date +%s) # Get current time
+	diff_t=\$[\$cur_t - \$t] # Difference the current time with the latest known block. 
 	# If the temp it too low, raise the CPU value and restart lynxd
 	if [ \"\$avg\" -le \"\$floor\" ]; then # Only if the average temp is lower then floor, then increase CPU
 	    newcpu=\"\$((cpu+1))\" # Increment the CPU usage of lynxd by 1%
@@ -485,15 +490,11 @@ do
 	        sed -i '/cpulimitforbuiltinminer=/d' \$lconf # Delete the old param from the file
 	        echo \"cpulimitforbuiltinminer=\$newcpuformat\" >> \$lconf # Append the updated param value to the file
 	        echo \"lyt.service: lynxd CPU changed to \${newcpu}%\" | systemd-cat -p info
-			if [ ! -O $dir/.lynx/bootstrap.dat ]; then # If the bootstrap.dat file exists, we dont' want to restart
-				if [ ! -O $dir/.lynx/bootstrap.dat.old ]; then # If the bootstrap.dat.old file exists, we dont' want to restart
-					systemctl restart lynxd
-					echo \"lyt.service: Lynx daemon restarted to commit change.\" | systemd-cat -p info # Log to syslog
-				else
-					echo \"lyt.service: Initial chain sync not completed. Restart skipped.\" | systemd-cat -p info # Log to syslog
-				fi
+			if [ \"\$diff_t\" -lt \"15000\" ]; then
+				systemctl restart lynxd
+				echo \"lyt.service: Lynx daemon restarted to commit change.\" | systemd-cat -p info # Log to syslog
 			else
-				echo \"lyt.service: Initial chain sync not completed. Restart skipped.\" | systemd-cat -p info # Log to syslog
+				echo \"lyt.service: Initial chain sync not completed (\$diff_t). Restart skipped.\" | systemd-cat -p info # Log to syslog
 			fi
 	    fi
 	fi
@@ -504,15 +505,11 @@ do
 	    sed -i '/cpulimitforbuiltinminer=/d' \$lconf # Delete the old param from the file
 	    echo \"cpulimitforbuiltinminer=\$newcpuformat\" >> \$lconf # Append the updated param value to the file
 	    echo \"lyt.service: lynxd CPU changed to - \${newcpu}%\" | systemd-cat -p info
-		if [ ! -O $dir/.lynx/bootstrap.dat ]; then # If the bootstrap.dat file exists, we dont' want to restart
-			if [ ! -O $dir/.lynx/bootstrap.dat.old ]; then # If the bootstrap.dat.old file exists, we dont' want to restart
-				systemctl restart lynxd
-				echo \"lyt.service: Lynx daemon restarted to commit change.\" | systemd-cat -p info # Log to syslog
-			else
-				echo \"lyt.service: Initial chain sync not completed. Restart skipped.\" | systemd-cat -p info # Log to syslog
-			fi
+		if [ \"\$diff_t\" -lt \"15000\" ]; then
+			systemctl restart lynxd
+			echo \"lyt.service: Lynx daemon restarted to commit change.\" | systemd-cat -p info # Log to syslog
 		else
-			echo \"lyt.service: Initial chain sync not completed. Restart skipped.\" | systemd-cat -p info # Log to syslog
+			echo \"lyt.service: Initial chain sync not completed (\$diff_t). Restart skipped.\" | systemd-cat -p info # Log to syslog
 		fi
 	fi
 	sleep 3600 # Every 1 hour, the script wakes up and runs again. (1 hour = 3600 seconds)
@@ -614,7 +611,7 @@ function tipsy ()
 	echo \"\"
 	if ! [ -z \"\$1\" ]; then
 		echo \"Restarting Lynx to save settings...\"
-		[ \"\$(lynx-cli getblockcount)\" -gt \"2900000\" ] && sudo systemctl restart lynxd
+		[ \"\$(lynx-cli getblockcount)\" -gt \"2964000\" ] && sudo systemctl restart lynxd
 		echo \"Lynx was restarted. All done!\"
 	fi
 }
