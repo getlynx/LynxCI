@@ -367,7 +367,7 @@ if [ ! -O "$lynxConfigurationFile" ]; then
 	listenonion=0                 # parameter below. As for our miners who are looking to tune their devices, we recommend the default 0.25 (25%), but if you insist on
 	upnp=1                        # increasing the 'cpulimitforbuiltinminer' amount, we recommend you not tune it past using 75% of your CPU load. Remember, with HPoW
 	dbcache=450                   # increasing the mining speed does not mean you will win more blocks. You are just generating heat, not blocks. Also, if you are using
-	txindex=1                     # a VPS, increasing 'cpulimitforbuiltinminer' too high might get you banned from the the VPS vendors platform. You've been warned.
+	txindex=0                     # a VPS, increasing 'cpulimitforbuiltinminer' too high might get you banned from the the VPS vendors platform. You've been warned.
 	host=$name
 	maxmempool=100
 	testnet=0
