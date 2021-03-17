@@ -169,18 +169,20 @@ fi
 # install with the latest copy of the chain. On first start, lynxd will index the bootstrap.dat file
 # and import it.
 #
-mainnetBootstrap="https://github.com/getlynx/LynxBootstrap/releases/download/v4.0-mainnet/bootstrap.tar.gz"
+#mainnetBootstrap="https://github.com/getlynx/LynxBootstrap/releases/download/v4.0-mainnet/bootstrap.tar.gz"
+mainnetBlocks="https://8199c758f427347a8e24-7077b452c5631e925cd797fe31c4d0d9.ssl.cf2.rackcdn.com/blocks.tar.gz"
 testnetBootstrap="https://github.com/getlynx/LynxBootstrap/releases/download/v3.0-testnet/bootstrap.tar.gz"
 echo "LynxCI: Downloading the Lynx $env bootstrap file."
-[ "$env" = "mainnet" ] && { bootstrapFile="$dir/.lynx/bootstrap.dat"; }
+[ "$env" = "mainnet" ] && { bootstrapFile="$dir/.lynx/blocks.tar.gz"; }
 [ "$env" = "testnet" ] && { bootstrapFile="$dir/.lynx/testnet4/bootstrap.dat"; }
 rm -rf "$bootstrapFile"
 #
+echo "LynxCI: This could take 15 minutes, depending on your network connection speed."
 if [ ! -O "$bootstrapFile" ]; then # Only create the file if it doesn't already exist.
-	[ "$env" = "mainnet" ] && { mkdir -p "$dir"/.lynx/; chown $user:$user "$dir"/.lynx/; wget -q $mainnetBootstrap -O - | tar -xz -C "$dir"/.lynx/; }
+	[ "$env" = "mainnet" ] && { mkdir -p "$dir"/.lynx/; chown $user:$user "$dir"/.lynx/; wget $mainnetBlocks -O - | tar -xz -C "$dir"/.lynx/; }
 	[ "$env" = "testnet" ] && { mkdir -p "$dir"/.lynx/testnet4/; chown $user:$user "$dir"/.lynx/; wget -q $testnetBootstrap -O - | tar -xz -C "$dir"/.lynx/testnet4/; }
-	sleep 1
-	chmod 600 "$bootstrapFile"
+	[ "$env" = "testnet" ] && { sleep 1; }
+	[ "$env" = "testnet" ] && { chmod 600 "$bootstrapFile"; }
 	sleep 1
 	echo "LynxCI: Lynx $env bootstrap is downloaded and decompressed."
 fi
@@ -367,7 +369,7 @@ if [ ! -O "$lynxConfigurationFile" ]; then
 	listenonion=0                 # parameter below. As for our miners who are looking to tune their devices, we recommend the default 0.25 (25%), but if you insist on
 	upnp=1                        # increasing the 'cpulimitforbuiltinminer' amount, we recommend you not tune it past using 75% of your CPU load. Remember, with HPoW
 	dbcache=450                   # increasing the mining speed does not mean you will win more blocks. You are just generating heat, not blocks. Also, if you are using
-	txindex=0                     # a VPS, increasing 'cpulimitforbuiltinminer' too high might get you banned from the the VPS vendors platform. You've been warned.
+	txindex=1                     # a VPS, increasing 'cpulimitforbuiltinminer' too high might get you banned from the the VPS vendors platform. You've been warned.
 	host=$name
 	maxmempool=100
 	testnet=0
