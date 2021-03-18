@@ -756,45 +756,52 @@ if [ "$isPi" = "1" ]; then
 	rfkill unblock 0 && rfkill block 1 # Let's enable wifi and disable the bluetooth by default.
 	echo "LynxCI: Manually configure wifi with the 'lyw' command."
 	#
-	echo "
 	#
-	# For non-US users, making sure you have the correct country code is important. Consult the
-	# wireless section of https://www.raspberrypi.org/blog/working-from-home-with-your-raspberry-pi/
-	# for details and for your specific country code. After you change the country code, a full
-	# reboot of the Pi is required. Yes, you can use both wifi and an eth cable connection at the
-	# same time, if you like.
+	# If a user creates a wp_supplicant.conf file and drops it in the /boot dir prior to first boot
+	# This script will not overwrite it. This allows users to create wireless, headless nodes.
 	#
-	country=US
-	#
-	ctrl_interface=DIR=/var/run/wpa_supplicant GROUP=netdev
-	update_config=1
-	network={
-	 ssid=\"SSID1\"
-	 psk=\"PASSWORD\"
-	 key_mgmt=WPA-PSK
-	}
-	#
-	# The double quotes around the SSID and psk value must remain. Make sure you leave the quotes
-	# intact. If you have more then one wifi network (like for home and office), having
-	# more then one SSID in the file is helpful. The order of the SSID is important. If the first
-	# SSID is not found, the Pi will look for the next SSID on the list. Order them as you like.
-	# Having multiple SSID's is also nice in the case your primary wifi network goes down.
-	#
-	network={
-	 ssid=\"SSID2\"
-	 psk=\"PASSWORD\"
-	 key_mgmt=WPA-PSK
-	}
-	network={
-	 ssid=\"SSID3\"
-	 psk=\"PASSWORD\"
-	 key_mgmt=WPA-PSK
-	}
-	#
-	# \"The fact that an opinion has been widely held is no evidence
-	# whatever that it is not utterly absurd. -Bertrand Russell\"
-	#
-	" > /etc/wpa_supplicant/wpa_supplicant.conf
+	wifiConfiguration="/etc/wpa_supplicant/wpa_supplicant.conf"
+	if [ ! -O $wifiConfiguration ]; then # Only create this file if it doesn't exist already.
+		echo "
+		#
+		# For non-US users, making sure you have the correct country code is important. Consult the
+		# wireless section of https://www.raspberrypi.org/blog/working-from-home-with-your-raspberry-pi/
+		# for details and for your specific country code. After you change the country code, a full
+		# reboot of the Pi is required. Yes, you can use both wifi and an eth cable connection at the
+		# same time, if you like.
+		#
+		country=US
+		#
+		ctrl_interface=DIR=/var/run/wpa_supplicant GROUP=netdev
+		update_config=1
+		network={
+		 ssid=\"SSID1\"
+		 psk=\"PASSWORD\"
+		 key_mgmt=WPA-PSK
+		}
+		#
+		# The double quotes around the SSID and psk value must remain. Make sure you leave the quotes
+		# intact. If you have more then one wifi network (like for home and office), having
+		# more then one SSID in the file is helpful. The order of the SSID is important. If the first
+		# SSID is not found, the Pi will look for the next SSID on the list. Order them as you like.
+		# Having multiple SSID's is also nice in the case your primary wifi network goes down.
+		#
+		network={
+		 ssid=\"SSID2\"
+		 psk=\"PASSWORD\"
+		 key_mgmt=WPA-PSK
+		}
+		network={
+		 ssid=\"SSID3\"
+		 psk=\"PASSWORD\"
+		 key_mgmt=WPA-PSK
+		}
+		#
+		# \"The fact that an opinion has been widely held is no evidence
+		# whatever that it is not utterly absurd. -Bertrand Russell\"
+		#
+		" > "$wifiConfiguration"
+	fi
 	#
 	echo "
 	#!/bin/sh -e
@@ -805,7 +812,7 @@ if [ "$isPi" = "1" ]; then
 	# friendships, trust, confidence, empathy, mercy, love and faith.\" —Bertrand Russell
 	#
 	exit 0
-	"> /etc/rc.local
+	" > /etc/rc.local
 	#
 fi
 #
