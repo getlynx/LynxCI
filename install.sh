@@ -169,8 +169,8 @@ fi
 # install with the latest copy of the chain. On first start, lynxd will index the bootstrap.dat file
 # and import it.
 #
-#mainnetBootstrap="https://github.com/getlynx/LynxBootstrap/releases/download/v4.0-mainnet/bootstrap.tar.gz"
-mainnetBlocks="https://8199c758f427347a8e24-7077b452c5631e925cd797fe31c4d0d9.ssl.cf2.rackcdn.com/blocks.tar.gz"
+mainnetBlocksB="https://github.com/getlynx/LynxBootstrap/releases/download/v5.0-mainnet/blocks.tar.gz"
+mainnetBlocksC="https://github.com/getlynx/LynxBootstrap/releases/download/v5.0-mainnet/chainstate.tar.gz"
 testnetBootstrap="https://github.com/getlynx/LynxBootstrap/releases/download/v3.0-testnet/bootstrap.tar.gz"
 echo "LynxCI: Downloading the Lynx $env bootstrap file."
 [ "$env" = "mainnet" ] && { bootstrapFile="$dir/.lynx/blocks.tar.gz"; }
@@ -179,7 +179,8 @@ rm -rf "$bootstrapFile"
 #
 echo "LynxCI: This could take 15 minutes, depending on your network connection speed."
 if [ ! -O "$bootstrapFile" ]; then # Only create the file if it doesn't already exist.
-	[ "$env" = "mainnet" ] && { mkdir -p "$dir"/.lynx/; chown $user:$user "$dir"/.lynx/; wget $mainnetBlocks -O - | tar -xz -C "$dir"/.lynx/; }
+	[ "$env" = "mainnet" ] && { mkdir -p "$dir"/.lynx/; chown $user:$user "$dir"/.lynx/; wget $mainnetBlocksB -O - | tar -xz -C "$dir"/.lynx/; }
+	[ "$env" = "mainnet" ] && { mkdir -p "$dir"/.lynx/; chown $user:$user "$dir"/.lynx/; wget $mainnetBlocksC -O - | tar -xz -C "$dir"/.lynx/; }
 	[ "$env" = "testnet" ] && { mkdir -p "$dir"/.lynx/testnet4/; chown $user:$user "$dir"/.lynx/; wget -q $testnetBootstrap -O - | tar -xz -C "$dir"/.lynx/testnet4/; }
 	[ "$env" = "testnet" ] && { sleep 1; }
 	[ "$env" = "testnet" ] && { chmod 600 "$bootstrapFile"; }
