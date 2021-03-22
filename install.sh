@@ -465,6 +465,7 @@ do
 	floor=\"53000\" # If the avg temp is below this value, change the CPU
 	ceiling=\"60000\" # If the avg temp is above this value, change the CPU
 	max=\"92\" # Don't allow the CPU to ever run faster than this value, regardless of temp
+	min=\"10\" # Don't allow the CPU to ever run slower than this value, regardless of temp
 	lconf=\"$dir/.lynx/lynx.conf\" # The default location of the lynx.conf file
 	cpu=\"\$(sed -ne 's|[\t]*cpulimitforbuiltinminer=0.[\t]*||p' \$lconf)\" # Grab the current CPU value
 	# Iterate for a time period to get an average temp
@@ -506,15 +507,19 @@ do
 	if [ \"\$avg\" -gt \"\$ceiling\" ]; then # Only if the average temp is higher then ceiling, then decrease CPU
 	    newcpu=\"\$((cpu-5))\" # Decrement the CPU usage of lynxd by 5%
 	    newcpuformat=\"0.\"\$newcpu # Decrement the CPU usage of lynxd by 5%
-		if [ \"\$diff_t\" -lt \"15000\" ]; then
-			sed -i '/cpulimitforbuiltinminer=/d' \$lconf # Delete the old param from the file
-	    	echo \"cpulimitforbuiltinminer=\$newcpuformat\" >> \$lconf # Append the updated param value to the file
-	    	echo \"lyt.service: lynxd CPU changed to - \${newcpu}%\" | systemd-cat -p info
-			systemctl restart lynxd
-			echo \"lyt.service: Lynx daemon restarted to commit change.\" | systemd-cat -p info # Log to syslog
+	    if [ \"\$newcpu\" -ge \"\$min\" ]; then # A hard min of CPU usage by lynxd
+			if [ \"\$diff_t\" -lt \"15000\" ]; then
+				sed -i '/cpulimitforbuiltinminer=/d' \$lconf # Delete the old param from the file
+		    	echo \"cpulimitforbuiltinminer=\$newcpuformat\" >> \$lconf # Append the updated param value to the file
+		    	echo \"lyt.service: lynxd CPU changed to - \${newcpu}%\" | systemd-cat -p info
+				systemctl restart lynxd
+				echo \"lyt.service: Lynx daemon restarted to commit change.\" | systemd-cat -p info # Log to syslog
+			else
+				echo \"lyt.service: Initial chain sync not completed. \$diff_t diff. No change to built-in miner.\" | systemd-cat -p info # Log to syslog
+			fi
 		else
-			echo \"lyt.service: Initial chain sync not completed. \$diff_t diff. No change to built-in miner.\" | systemd-cat -p info # Log to syslog
-		fi
+			echo \"Built-in miner minimum of \$min% reached. No change.\"
+	    fi
 	fi
 	sleep 3600 # Every 1 hour, the script wakes up and runs again. (1 hour = 3600 seconds)
 done
@@ -615,9 +620,9 @@ function tipsy ()
 	echo \"\"
 	if ! [ -z \"\$1\" ]; then
 		echo \"Restarting Lynx to save settings...\"
-		count=\$(lynx-cli -conf=\$lconf getblockcount) # Get the the local blockcount total
-		hash=\$(lynx-cli -conf=\$lconf getblockhash \"\$count\") # Get the hash of the newest known local block
-		t=\$(lynx-cli -conf=\$lconf getblock \"\$hash\" | grep '\"time\"' | awk '{print \$2}' | sed -e 's/,\$//g') # Get it's time
+		count=\$(lynx-cli -conf=$dir/.lynx/lynx.conf getblockcount) # Get the the local blockcount total
+		hash=\$(lynx-cli -conf=$dir/.lynx/lynx.conf getblockhash \"\$count\") # Get the hash of the newest known local block
+		t=\$(lynx-cli -conf=$dir/.lynx/lynx.conf getblock \"\$hash\" | grep '\"time\"' | awk '{print \$2}' | sed -e 's/,\$//g') # Get it's time
 		cur_t=\$(date +%s) # Get current time
 		diff_t=\$[\$cur_t - \$t] # Difference the current time with the latest known block. 
 		if [ \"\$diff_t\" -lt \"15000\" ]; then
