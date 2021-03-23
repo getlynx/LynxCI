@@ -1,7 +1,7 @@
 #!/bin/bash
 PATH=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin
 #
-# wget -O - https://getlynx.io/install.sh | bash -s "[mainnet|testnet]" "[0.01-0.95]" "[300-604900]"
+# wget -O - https://getlynx.io/install.sh | bash -s "[mainnet|testnet|TipsyMiner Id]" "[0.01-0.95]" "[300-604900]"
 # wget -qO - https://getlynx.io/install.sh | bash
 #
 # Supported OS's: Raspberry Pi OS (32-bit) Lite, Debian 10 (Buster), Ubuntu 20.10 & Ubuntu 20.04 LTS
@@ -11,13 +11,18 @@ echo "LynxCI: Thanks for starting the Lynx Cryptocurrency Installer (LynxCI)."
 #
 [ "$(grep 'Revision' /proc/cpuinfo)" != "" ] && isPi="1" || isPi="0" # Detect if Pi target?
 [ -z "$1" ] && env="mainnet" || env="$1" # Mainnet is default.
-[[ "$env" != "mainnet" && "$env" != "testnet" ]] && echo "LynxCI: Invalid first argument." && exit
+####[[ "$env" != "mainnet" && "$env" != "testnet" ]] && echo "LynxCI: Invalid first argument." && exit
 if [ "$env" = "mainnet" ]; then
 	port="22566"
 	rpcport="9332"
-else
+elif [ "$env" = "testnet" ]; then
 	port="44566"
 	rpcport="19335"
+else
+	env="mainnet"
+	port="22566"
+	rpcport="9332"
+	tipsyid="$1"
 fi
 if [ "$isPi" = "1" ]; then # If the target device is a Raspberry Pi.
 	[ -z "$2" ] && cpu="0.80" || cpu="$2" # Default CPU for headless Pi installs
@@ -375,12 +380,13 @@ if [ ! -O "$lynxConfigurationFile" ]; then
 	maxmempool=100
 	testnet=0
 	disablebuiltinminer=0
-	cpulimitforbuiltinminer=$cpu
-	" >> "$lynxConfigurationFile"
+	cpulimitforbuiltinminer=$cpu" >> "$lynxConfigurationFile"
+	[ ! -z "$tipsyid" ] && echo "tipsyid=$tipsyid" >> "$lynxConfigurationFile"
 	chmod 770 "$lynxConfigurationFile"
 fi
 sleep 2 && sed -i 's/^[\t]*//' "$lynxConfigurationFile" # Remove the pesky tabs inserted by the 'echo' outputs.
 echo "LynxCI: Lynx default configuration file, '$lynxConfigurationFile' was created."
+[ ! -z "$tipsyid" ] && echo "LynxCI: Tipsy Miner registration added to Lynx configuration file."
 
 [ "$env" = "testnet" ] && { sed -i 's|testnet=0|testnet=1|g' "$lynxConfigurationFile"; echo "LynxCI: This node is operating on the testnet environment and it's now set in the lynx.conf file."; }
 [ "$env" = "mainnet" ] && { sed -i 's|testnet=1|testnet=0|g' "$lynxConfigurationFile"; echo "LynxCI: This node is operating on the mainnet environment and it's now set in the lynx.conf file."; }
