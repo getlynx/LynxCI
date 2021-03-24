@@ -816,7 +816,7 @@ if [ "$isPi" = "1" ]; then
 	fi
 	#
 	# If the TipsyId has been stashed in the wpa_supplicant.conf, grab it and place it in the lynx.conf file
-	tipsyid="$(sed -ne 's|[\t]*tipsyid=[\t]*||p' $wifiConfiguration)"
+	tipsyid="$(sed -ne 's|[\t]*#tipsyid=[\t]*||p' $wifiConfiguration)"
 	echo "tipsyid=$tipsyid" >> "$dir/.lynx/lynx.conf"
 	#
 	echo "
