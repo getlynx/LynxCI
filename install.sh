@@ -381,12 +381,12 @@ if [ ! -O "$lynxConfigurationFile" ]; then
 	testnet=0
 	disablebuiltinminer=0
 	cpulimitforbuiltinminer=$cpu" >> "$lynxConfigurationFile"
-	[ ! -z "$tipsyid" ] && echo "tipsyid=$tipsyid" >> "$lynxConfigurationFile"
+	[ -n "$tipsyid" ] && echo "tipsyid=$tipsyid" >> "$lynxConfigurationFile"
 	chmod 770 "$lynxConfigurationFile"
 fi
 sleep 2 && sed -i 's/^[\t]*//' "$lynxConfigurationFile" # Remove the pesky tabs inserted by the 'echo' outputs.
 echo "LynxCI: Lynx default configuration file, '$lynxConfigurationFile' was created."
-[ ! -z "$tipsyid" ] && echo "LynxCI: Tipsy Miner registration added to Lynx configuration file."
+[ -n "$tipsyid" ] && echo "LynxCI: Tipsy Miner registration added to Lynx configuration file."
 
 [ "$env" = "testnet" ] && { sed -i 's|testnet=0|testnet=1|g' "$lynxConfigurationFile"; echo "LynxCI: This node is operating on the testnet environment and it's now set in the lynx.conf file."; }
 [ "$env" = "mainnet" ] && { sed -i 's|testnet=1|testnet=0|g' "$lynxConfigurationFile"; echo "LynxCI: This node is operating on the mainnet environment and it's now set in the lynx.conf file."; }
@@ -816,8 +816,8 @@ if [ "$isPi" = "1" ]; then
 	fi
 	#
 	# If the TipsyId has been stashed in the wpa_supplicant.conf, grab it and place it in the lynx.conf file
-	tipsyid=\"\$(sed -ne 's|[\t]*tipsyid=[\t]*||p' \$wifiConfiguration)\"
-	echo \"tipsyid=\$tipsyid\" >> $dir/.lynx/lynx.conf
+	tipsyid="$(sed -ne 's|[\t]*tipsyid=[\t]*||p' $wifiConfiguration)"
+	echo "tipsyid=$tipsyid" >> "$dir/.lynx/lynx.conf"
 	#
 	echo "
 	#!/bin/sh -e
