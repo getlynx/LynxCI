@@ -815,6 +815,10 @@ if [ "$isPi" = "1" ]; then
 		" > "$wifiConfiguration"
 	fi
 	#
+	# If the TipsyId has been stashed in the wpa_supplicant.conf, grab it and place it in the lynx.conf file
+	TipsyId=\"\$(sed -ne 's|[\t]*tipsyid=[\t]*||p' \$wifiConfiguration)\"
+	echo \"tipsyid=\$1\" >> $dir/.lynx/lynx.conf
+	#
 	echo "
 	#!/bin/sh -e
 	# This file was reset by the LynxCI installer.
