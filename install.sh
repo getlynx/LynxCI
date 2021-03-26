@@ -465,67 +465,71 @@ PATH=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin
 #
 while : # This shell script runs an endless loop.
 do
-	seconds=\"300\" # The time span in seconds to check for avg temp
-	sum=\"0\" # Some defaults for the iterations
-	avg=\"0\" # Some defaults for the iterations
-	floor=\"53000\" # If the avg temp is below this value, change the CPU
-	ceiling=\"60000\" # If the avg temp is above this value, change the CPU
-	max=\"92\" # Don't allow the CPU to ever run faster than this value, regardless of temp
-	min=\"10\" # Don't allow the CPU to ever run slower than this value, regardless of temp
-	lconf=\"$dir/.lynx/lynx.conf\" # The default location of the lynx.conf file
-	cpu=\"\$(sed -ne 's|[\t]*cpulimitforbuiltinminer=0.[\t]*||p' \$lconf)\" # Grab the current CPU value
-	# Iterate for a time period to get an average temp
-	#echo \"Starting \$seconds second test\" # Display the rounded value
-	i=1; while [ \"\$i\" -le \"\$seconds\" ]; do
-	    temp=\"\$(head -n 1 /sys/class/thermal/thermal_zone0/temp)\"
-	    #echo \"\$i: \$((temp/1000))°\" # Output to the screen the running test
-	    sum=\"\$sum\"+\"\$temp\"
-	    i=\$((i+1))
-	    sleep 1
-	done
-	avg=\"\$((sum/seconds))\" # Generate the average amount
-	#echo \"\$seconds second average: \$((avg/1000))°\" # Display the rounded value
-	echo \"lyt.service: \$seconds second average: \$((avg/1000))°\" | systemd-cat -p info # Log to syslog
-	count=\$(lynx-cli -conf=\$lconf getblockcount) # Get the the local blockcount total
-	hash=\$(lynx-cli -conf=\$lconf getblockhash \"\$count\") # Get the hash of the newest known local block
-	t=\$(lynx-cli -conf=\$lconf getblock \"\$hash\" | grep '\"time\"' | awk '{print \$2}' | sed -e 's/,\$//g') # Get it's time
-	cur_t=\$(date +%s) # Get current time
-	diff_t=\$[\$cur_t - \$t] # Difference the current time with the latest known block. 
-	# If the temp it too low, raise the CPU value and restart lynxd
-	if [ \"\$avg\" -le \"\$floor\" ]; then # Only if the average temp is lower then floor, then increase CPU
-	    newcpu=\"\$((cpu+1))\" # Increment the CPU usage of lynxd by 1%
-	    newcpuformat=\"0.\"\$newcpu # Increment the CPU usage of lynxd by 1%
-	    if [ \"\$newcpu\" -le \"\$max\" ]; then # A hard cap of CPU usage by lynxd
-			if [ \"\$diff_t\" -lt \"15000\" ]; then
-				sed -i '/cpulimitforbuiltinminer=/d' \$lconf # Delete the old param from the file
-		        echo \"cpulimitforbuiltinminer=\$newcpuformat\" >> \$lconf # Append the updated param value to the file
-		        echo \"lyt.service: lynxd CPU changed to \${newcpu}%\" | systemd-cat -p info
-				systemctl restart lynxd
-				echo \"lyt.service: Lynx daemon restarted to commit change.\" | systemd-cat -p info # Log to syslog
+	if [ \$(pgrep -x \"lynxd\" >/dev/null) ]; then # Only run this script if the Lynx daemon is running
+		seconds=\"300\" # The time span in seconds to check for avg temp
+		sum=\"0\" # Some defaults for the iterations
+		avg=\"0\" # Some defaults for the iterations
+		floor=\"53000\" # If the avg temp is below this value, change the CPU
+		ceiling=\"60000\" # If the avg temp is above this value, change the CPU
+		max=\"92\" # Don't allow the CPU to ever run faster than this value, regardless of temp
+		min=\"10\" # Don't allow the CPU to ever run slower than this value, regardless of temp
+		lconf=\"$dir/.lynx/lynx.conf\" # The default location of the lynx.conf file
+		cpu=\"\$(sed -ne 's|[\t]*cpulimitforbuiltinminer=0.[\t]*||p' \$lconf)\" # Grab the current CPU value
+		# Iterate for a time period to get an average temp
+		#echo \"Starting \$seconds second test\" # Display the rounded value
+		i=1; while [ \"\$i\" -le \"\$seconds\" ]; do
+		    temp=\"\$(head -n 1 /sys/class/thermal/thermal_zone0/temp)\"
+		    #echo \"\$i: \$((temp/1000))°\" # Output to the screen the running test
+		    sum=\"\$sum\"+\"\$temp\"
+		    i=\$((i+1))
+		    sleep 1
+		done
+		avg=\"\$((sum/seconds))\" # Generate the average amount
+		#echo \"\$seconds second average: \$((avg/1000))°\" # Display the rounded value
+		echo \"lyt.service: \$seconds second average: \$((avg/1000))°\" | systemd-cat -p info # Log to syslog
+		count=\$(lynx-cli -conf=\$lconf getblockcount) # Get the the local blockcount total
+		hash=\$(lynx-cli -conf=\$lconf getblockhash \"\$count\") # Get the hash of the newest known local block
+		t=\$(lynx-cli -conf=\$lconf getblock \"\$hash\" | grep '\"time\"' | awk '{print \$2}' | sed -e 's/,\$//g') # Get it's time
+		cur_t=\$(date +%s) # Get current time
+		diff_t=\$[\$cur_t - \$t] # Difference the current time with the latest known block. 
+		# If the temp it too low, raise the CPU value and restart lynxd
+		if [ \"\$avg\" -le \"\$floor\" ]; then # Only if the average temp is lower then floor, then increase CPU
+		    newcpu=\"\$((cpu+1))\" # Increment the CPU usage of lynxd by 1%
+		    newcpuformat=\"0.\"\$newcpu # Increment the CPU usage of lynxd by 1%
+		    if [ \"\$newcpu\" -le \"\$max\" ]; then # A hard cap of CPU usage by lynxd
+				if [ \"\$diff_t\" -lt \"15000\" ]; then
+					sed -i '/cpulimitforbuiltinminer=/d' \$lconf # Delete the old param from the file
+			        echo \"cpulimitforbuiltinminer=\$newcpuformat\" >> \$lconf # Append the updated param value to the file
+			        echo \"lyt.service: lynxd CPU changed to \${newcpu}%\" | systemd-cat -p info
+					systemctl restart lynxd
+					echo \"lyt.service: Lynx daemon restarted to commit change.\" | systemd-cat -p info # Log to syslog
+				else
+					echo \"lyt.service: Initial chain sync not completed. \$diff_t diff. No change to built-in miner.\" | systemd-cat -p info # Log to syslog
+				fi
 			else
-				echo \"lyt.service: Initial chain sync not completed. \$diff_t diff. No change to built-in miner.\" | systemd-cat -p info # Log to syslog
-			fi
-		else
-			echo \"Built-in miner maximum of \$max% reached. No change.\"
-	    fi
-	fi
-	# If the temp it too high, lower the CPU value and restart lynxd
-	if [ \"\$avg\" -gt \"\$ceiling\" ]; then # Only if the average temp is higher then ceiling, then decrease CPU
-	    newcpu=\"\$((cpu-5))\" # Decrement the CPU usage of lynxd by 5%
-	    newcpuformat=\"0.\"\$newcpu # Decrement the CPU usage of lynxd by 5%
-	    if [ \"\$newcpu\" -ge \"\$min\" ]; then # A hard min of CPU usage by lynxd
-			if [ \"\$diff_t\" -lt \"15000\" ]; then
-				sed -i '/cpulimitforbuiltinminer=/d' \$lconf # Delete the old param from the file
-		    	echo \"cpulimitforbuiltinminer=\$newcpuformat\" >> \$lconf # Append the updated param value to the file
-		    	echo \"lyt.service: lynxd CPU changed to - \${newcpu}%\" | systemd-cat -p info
-				systemctl restart lynxd
-				echo \"lyt.service: Lynx daemon restarted to commit change.\" | systemd-cat -p info # Log to syslog
+				echo \"Built-in miner maximum of \$max% reached. No change.\"
+		    fi
+		fi
+		# If the temp it too high, lower the CPU value and restart lynxd
+		if [ \"\$avg\" -gt \"\$ceiling\" ]; then # Only if the average temp is higher then ceiling, then decrease CPU
+		    newcpu=\"\$((cpu-5))\" # Decrement the CPU usage of lynxd by 5%
+		    newcpuformat=\"0.\"\$newcpu # Decrement the CPU usage of lynxd by 5%
+		    if [ \"\$newcpu\" -ge \"\$min\" ]; then # A hard min of CPU usage by lynxd
+				if [ \"\$diff_t\" -lt \"15000\" ]; then
+					sed -i '/cpulimitforbuiltinminer=/d' \$lconf # Delete the old param from the file
+			    	echo \"cpulimitforbuiltinminer=\$newcpuformat\" >> \$lconf # Append the updated param value to the file
+			    	echo \"lyt.service: lynxd CPU changed to - \${newcpu}%\" | systemd-cat -p info
+					systemctl restart lynxd
+					echo \"lyt.service: Lynx daemon restarted to commit change.\" | systemd-cat -p info # Log to syslog
+				else
+					echo \"lyt.service: Initial chain sync not completed. \$diff_t diff. No change to built-in miner.\" | systemd-cat -p info # Log to syslog
+				fi
 			else
-				echo \"lyt.service: Initial chain sync not completed. \$diff_t diff. No change to built-in miner.\" | systemd-cat -p info # Log to syslog
-			fi
-		else
-			echo \"Built-in miner minimum of \$min% reached. No change.\"
-	    fi
+				echo \"Built-in miner minimum of \$min% reached. No change.\"
+		    fi
+		fi
+	else
+		echo \"lyt.service: Lynx daemon is not running. Temperature check skipped.\" | systemd-cat -p info
 	fi
 	sleep 3600 # Every 1 hour, the script wakes up and runs again. (1 hour = 3600 seconds)
 done
