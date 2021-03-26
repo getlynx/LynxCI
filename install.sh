@@ -465,7 +465,7 @@ PATH=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin
 #
 while : # This shell script runs an endless loop.
 do
-	if [ \$(pgrep -x \"lynxd\" >/dev/null) ]; then # Only run this script if the Lynx daemon is running
+	if \$(pgrep -x \"lynxd\" >/dev/null); then # Only run this script if the Lynx daemon is running
 		seconds=\"300\" # The time span in seconds to check for avg temp
 		sum=\"0\" # Some defaults for the iterations
 		avg=\"0\" # Some defaults for the iterations
