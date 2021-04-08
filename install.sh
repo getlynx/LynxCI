@@ -36,7 +36,7 @@ arch="$(dpkg --print-architecture)" # Get the chip architecture of the target de
 echo "LynxCI: Architecture \"$arch\", Operating system $os detected."
 #
 apt -y update >/dev/null 2>&1 # Update the package list on the target and don't display any output.
-apt -y install htop >/dev/null 2>&1 # Install only one package. Let's keep the changes simple.
+apt -y install wget jq htop >/dev/null 2>&1 # Install minimal packages. Let's keep this simple.
 #
 lynxService="/etc/systemd/system/lynxd.service" # Standard systemd file placement.
 if [ -O $lynxService ]; then # In case of a re-install. Only do this stuff if the file exists.
@@ -336,11 +336,11 @@ if [ ! -O "$lynxConfigurationFile" ]; then
 
 	# By default, wallet functions in LynxCI are disabled. This is for security reasons. If you
 	# would like to enable your wallet functions, change the value from '1' to '0' in the
-	# 'disablewallet' parameter. Then restart lynxd to enact the change. You can gracefully stop lynxd
-	# witht he command '$ systemctl stop lynxd', and start again with '$ systemctl start lynxd'. Of
-	# course, you can do the reverse action to disable wallet functions on this node. You can always
-	# check to see if wallet functions are enabled with '$ lynx-cli help', looking for the
-	# '== Wallet ==' section at the bottom of the help file.
+	# 'disablewallet' parameter. Then restart lynxd to enact the change. You can gracefully restart
+	# lynxd with the command '$ sudo systemctl restart lynxd'. Of course, you can do the reverse
+	# action to disable wallet functions on this node. You can always check to see if wallet
+	# functions are enabled with '$ lynx-cli help', looking for the '== Wallet ==' section at the
+	# bottom of the help file.
 	#
 	# If you change this value to '0' and someone knows your RPC username and password, all your
 	# Lynx coins in this wallet will probably be stolen. The Lynx development team can not get your
@@ -350,8 +350,9 @@ if [ ! -O "$lynxConfigurationFile" ]; then
 	disablewallet=1
 	" > "$lynxConfigurationFile"
 
-	[ "$env" = "mainnet" ] && for i in $(shuf -i 1-5 -n 5); do echo "addnode=node0$i.getlynx.io" >> "$lynxConfigurationFile"; done
-	[ "$env" = "testnet" ] && for i in $(shuf -i 1-5 -n 5); do echo "addnode=test0$i.getlynx.io" >> "$lynxConfigurationFile"; done
+	echo "LynxCI: Acquiring the latest seed node list."
+	[ "$env" = "mainnet" ] && wget -O - -q https://chaindata.logware.io/tx/5e5b8decbc9702336501a0b8df5535091499a695e06e6b47836505b1eedf20a1 | jq -r '.pkdata' | base64 --decode >> "$lynxConfigurationFile"
+	[ "$env" = "testnet" ] && wget -O - -q https://chaindata.logware.io/tx/83c84cd58055c95a13ec532f1a8440fcc3337fd6159ff2830ac03a350453e7b5 | jq -r '.pkdata' | base64 --decode >> "$lynxConfigurationFile"
 
 	echo "
 	# The following addresses are known to pass the validation requirements for HPoW. If you would
