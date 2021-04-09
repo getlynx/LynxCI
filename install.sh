@@ -2,7 +2,7 @@
 PATH=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin
 #
 # wget -O - -q https://getlynx.io/install.sh | bash
-# wget -O - https://getlynx.io/install.sh | bash -s "[mainnet|testnet|TipsyMiner Id]" "[0.01-0.95]" "[300-604900]"
+# wget -O - -q https://getlynx.io/install.sh | bash -s "[mainnet|testnet|TipsyMiner Id]" "[0.01-0.95]" "[300-604900]"
 #
 # Supported OS's: Raspberry Pi OS (32-bit) Lite, Debian 10 (Buster), Ubuntu 20.10 & Ubuntu 20.04 LTS
 #
@@ -351,7 +351,7 @@ if [ ! -O "$lynxConfigurationFile" ]; then
 	" > "$lynxConfigurationFile"
 
 	echo "LynxCI: Acquiring the latest seed node list."
-	# https://medium.com/lynx-blockchain/lynxci-explainer-seed-nodes-81a3e59444e4
+	echo "# https://medium.com/lynx-blockchain/lynxci-explainer-seed-nodes-81a3e59444e4" >> "$lynxConfigurationFile"
 	[ "$env" = "mainnet" ] && wget -O - -q https://chaindata.logware.io/tx/1281f5df994164e2678f00570ad0d176bf98d511f1a80b9a17e3de3ed7f510d0 | jq -r '.pkdata' | base64 --decode >> "$lynxConfigurationFile"
 	[ "$env" = "testnet" ] && wget -O - -q https://chaindata.logware.io/tx/54dd2e08aedb30e70c8f4f80ffe621ce812f83673691adb1ef2728c26a76549f | jq -r '.pkdata' | base64 --decode >> "$lynxConfigurationFile"
 
