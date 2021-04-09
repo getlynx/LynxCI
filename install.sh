@@ -184,9 +184,9 @@ rm -rf "$bootstrapFile"
 #
 echo "LynxCI: This could take 15 minutes, depending on your network connection speed."
 if [ ! -O "$bootstrapFile" ]; then # Only create the file if it doesn't already exist.
-	[ "$env" = "mainnet" ] && { mkdir -p "$dir"/.lynx/; chown $user:$user "$dir"/.lynx/; wget $mainnetBlocksB -O - | tar -xz -C "$dir"/.lynx/; }
-	[ "$env" = "mainnet" ] && { mkdir -p "$dir"/.lynx/; chown $user:$user "$dir"/.lynx/; wget $mainnetBlocksC -O - | tar -xz -C "$dir"/.lynx/; }
-	[ "$env" = "testnet" ] && { mkdir -p "$dir"/.lynx/testnet4/; chown $user:$user "$dir"/.lynx/; wget -q $testnetBootstrap -O - | tar -xz -C "$dir"/.lynx/testnet4/; }
+	[ "$env" = "mainnet" ] && { mkdir -p "$dir"/.lynx/; chown $user:$user "$dir"/.lynx/; wget $mainnetBlocksB -O - -q | tar -xz -C "$dir"/.lynx/; }
+	[ "$env" = "mainnet" ] && { mkdir -p "$dir"/.lynx/; chown $user:$user "$dir"/.lynx/; wget $mainnetBlocksC -O - -q | tar -xz -C "$dir"/.lynx/; }
+	[ "$env" = "testnet" ] && { mkdir -p "$dir"/.lynx/testnet4/; chown $user:$user "$dir"/.lynx/; wget -q $testnetBootstrap -O - -q | tar -xz -C "$dir"/.lynx/testnet4/; }
 	[ "$env" = "testnet" ] && { sleep 1; }
 	[ "$env" = "testnet" ] && { chmod 600 "$bootstrapFile"; }
 	sleep 1
@@ -351,6 +351,7 @@ if [ ! -O "$lynxConfigurationFile" ]; then
 	" > "$lynxConfigurationFile"
 
 	echo "LynxCI: Acquiring the latest seed node list."
+	# https://medium.com/lynx-blockchain/lynxci-explainer-seed-nodes-81a3e59444e4
 	[ "$env" = "mainnet" ] && wget -O - -q https://chaindata.logware.io/tx/1281f5df994164e2678f00570ad0d176bf98d511f1a80b9a17e3de3ed7f510d0 | jq -r '.pkdata' | base64 --decode >> "$lynxConfigurationFile"
 	[ "$env" = "testnet" ] && wget -O - -q https://chaindata.logware.io/tx/54dd2e08aedb30e70c8f4f80ffe621ce812f83673691adb1ef2728c26a76549f | jq -r '.pkdata' | base64 --decode >> "$lynxConfigurationFile"
 
