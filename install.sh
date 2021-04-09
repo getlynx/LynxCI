@@ -1,8 +1,8 @@
 #!/bin/bash
 PATH=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin
 #
+# wget -O - -q https://getlynx.io/install.sh | bash
 # wget -O - https://getlynx.io/install.sh | bash -s "[mainnet|testnet|TipsyMiner Id]" "[0.01-0.95]" "[300-604900]"
-# wget -qO - https://getlynx.io/install.sh | bash
 #
 # Supported OS's: Raspberry Pi OS (32-bit) Lite, Debian 10 (Buster), Ubuntu 20.10 & Ubuntu 20.04 LTS
 #
@@ -351,8 +351,8 @@ if [ ! -O "$lynxConfigurationFile" ]; then
 	" > "$lynxConfigurationFile"
 
 	echo "LynxCI: Acquiring the latest seed node list."
-	[ "$env" = "mainnet" ] && wget -O - -q https://chaindata.logware.io/tx/5e5b8decbc9702336501a0b8df5535091499a695e06e6b47836505b1eedf20a1 | jq -r '.pkdata' | base64 --decode >> "$lynxConfigurationFile"
-	[ "$env" = "testnet" ] && wget -O - -q https://chaindata.logware.io/tx/83c84cd58055c95a13ec532f1a8440fcc3337fd6159ff2830ac03a350453e7b5 | jq -r '.pkdata' | base64 --decode >> "$lynxConfigurationFile"
+	[ "$env" = "mainnet" ] && wget -O - -q https://chaindata.logware.io/tx/1281f5df994164e2678f00570ad0d176bf98d511f1a80b9a17e3de3ed7f510d0 | jq -r '.pkdata' | base64 --decode >> "$lynxConfigurationFile"
+	[ "$env" = "testnet" ] && wget -O - -q https://chaindata.logware.io/tx/54dd2e08aedb30e70c8f4f80ffe621ce812f83673691adb1ef2728c26a76549f | jq -r '.pkdata' | base64 --decode >> "$lynxConfigurationFile"
 
 	echo "
 	# The following addresses are known to pass the validation requirements for HPoW. If you would
@@ -364,7 +364,7 @@ if [ ! -O "$lynxConfigurationFile" ]; then
 	" >> "$lynxConfigurationFile"
 
 	# Order the items in the address file randomly, then select the top 100 from the list.
-	[ "$env" = "mainnet" ] && sort -R /tmp/address-mainnet.txt | head -n 100 > /tmp/random.txt
+	[ "$env" = "mainnet" ] && sort -R /tmp/address-mainnet.txt | head -n 10 > /tmp/random.txt
 	[ "$env" = "testnet" ] && sort -R /tmp/address-testnet.txt | head -n 200 > /tmp/random.txt
 	grep -v '^ *#' < /tmp/random.txt | while IFS= read -r address; do echo "mineraddress=$address" >> "$lynxConfigurationFile"; done
 
