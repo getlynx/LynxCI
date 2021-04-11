@@ -6,6 +6,11 @@ PATH=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin
 #
 # Supported OS's: Raspberry Pi OS (32-bit) Lite, Debian 10 (Buster), Ubuntu 20.10 & Ubuntu 20.04 LTS
 #
+function logware {
+  local txid=${1:?Must provide a Logware Transaction Id.}
+  wget -O - -q https://chaindata.logware.io/tx/"$txid" | jq -r '.pkdata' | base64 --decode
+}
+#
 echo "LynxCI: Thanks for starting the Lynx Cryptocurrency Installer (LynxCI)."
 [ $EUID -ne 0 ] && echo "This script must be run from the root account. Exiting." && exit
 #
@@ -307,9 +312,9 @@ chown root:root /usr/local/bin/lynx*
 #
 # Create the default lynx.conf file
 #
-lynxConfigurationFile="$dir/.lynx/lynx.conf"
-rm -rf "$lynxConfigurationFile"
-if [ ! -O "$lynxConfigurationFile" ]; then
+lynxConf="$dir/.lynx/lynx.conf"
+rm -rf "$lynxConf"
+if [ ! -O "$lynxConf" ]; then
 	echo "# The following RPC credentials are created at build time and are unique to this host. If you
 	# like, you can change them, but you are encouraged to keep very complex strings for each. If an
 	# attacker gains RPC access to this host they will steal your Lynx. Understanding that, the
@@ -333,27 +338,16 @@ if [ ! -O "$lynxConfigurationFile" ]; then
 	#debug=mempool
 	#debug=rpc
 	#debug=0
+	" > "$lynxConf"
 
-	# By default, wallet functions in LynxCI are disabled. This is for security reasons. If you
-	# would like to enable your wallet functions, change the value from '1' to '0' in the
-	# 'disablewallet' parameter. Then restart lynxd to enact the change. You can gracefully restart
-	# lynxd with the command '$ sudo systemctl restart lynxd'. Of course, you can do the reverse
-	# action to disable wallet functions on this node. You can always check to see if wallet
-	# functions are enabled with '$ lynx-cli help', looking for the '== Wallet ==' section at the
-	# bottom of the help file.
-	#
-	# If you change this value to '0' and someone knows your RPC username and password, all your
-	# Lynx coins in this wallet will probably be stolen. The Lynx development team can not get your
-	# stolen coins back. You are responsible for your coins. If the wallet is empty, it's not a
-	# risk, but make sure you know what you are doing.
-
-	disablewallet=1
-	" > "$lynxConfigurationFile"
+	echo "LynxCI: Wallet is disabled by default."
+	echo "# https://medium.com/lynx-blockchain/lynxci-explainer-wallet-security-fd07a9917080" >> "$lynxConf"
+	logware "c41882650265bf16e509a8d251c33a36b6f78d3fb5b902f76fd699051fd289ca" >> "$lynxConf"
 
 	echo "LynxCI: Acquiring the latest seed node list."
-	echo "# https://medium.com/lynx-blockchain/lynxci-explainer-seed-nodes-81a3e59444e4" >> "$lynxConfigurationFile"
-	[ "$env" = "mainnet" ] && wget -O - -q https://chaindata.logware.io/tx/1281f5df994164e2678f00570ad0d176bf98d511f1a80b9a17e3de3ed7f510d0 | jq -r '.pkdata' | base64 --decode >> "$lynxConfigurationFile"
-	[ "$env" = "testnet" ] && wget -O - -q https://chaindata.logware.io/tx/54dd2e08aedb30e70c8f4f80ffe621ce812f83673691adb1ef2728c26a76549f | jq -r '.pkdata' | base64 --decode >> "$lynxConfigurationFile"
+	echo "# https://medium.com/lynx-blockchain/lynxci-explainer-seed-nodes-81a3e59444e4" >> "$lynxConf"
+	[ "$env" = "mainnet" ] && logware "1281f5df994164e2678f00570ad0d176bf98d511f1a80b9a17e3de3ed7f510d0" >> "$lynxConf"
+	[ "$env" = "testnet" ] && logware "54dd2e08aedb30e70c8f4f80ffe621ce812f83673691adb1ef2728c26a76549f" >> "$lynxConf"
 
 	echo "
 	# The following addresses are known to pass the validation requirements for HPoW. If you would
@@ -362,12 +356,12 @@ if [ ! -O "$lynxConfigurationFile" ]; then
 	# each of the Lynx addresses in order to win the block reward. Alternatively, you can enable
 	# wallet functions on this node (above), deposit Lynx to the local wallet (again, between 1,000
 	# and 100,000,000 Lynx) and the miner will ignore the following miner address values.
-	" >> "$lynxConfigurationFile"
+	" >> "$lynxConf"
 
 	# Order the items in the address file randomly, then select the top 100 from the list.
 	[ "$env" = "mainnet" ] && sort -R /tmp/address-mainnet.txt | head -n 10 > /tmp/random.txt
 	[ "$env" = "testnet" ] && sort -R /tmp/address-testnet.txt | head -n 200 > /tmp/random.txt
-	grep -v '^ *#' < /tmp/random.txt | while IFS= read -r address; do echo "mineraddress=$address" >> "$lynxConfigurationFile"; done
+	grep -v '^ *#' < /tmp/random.txt | while IFS= read -r address; do echo "mineraddress=$address" >> "$lynxConf"; done
 
 	echo "
 	listen=1                      # It is highly unlikely you need to change any of the following values unless you are tinkering with the node. If you decide to
@@ -382,18 +376,18 @@ if [ ! -O "$lynxConfigurationFile" ]; then
 	maxmempool=100
 	testnet=0
 	disablebuiltinminer=0
-	cpulimitforbuiltinminer=$cpu" >> "$lynxConfigurationFile"
-	[ -n "$tipsyid" ] && echo "tipsyid=$tipsyid" >> "$lynxConfigurationFile"
-	chmod 770 "$lynxConfigurationFile"
+	cpulimitforbuiltinminer=$cpu" >> "$lynxConf"
+	[ -n "$tipsyid" ] && echo "tipsyid=$tipsyid" >> "$lynxConf"
+	chmod 770 "$lynxConf"
 fi
-sleep 2 && sed -i 's/^[\t]*//' "$lynxConfigurationFile" # Remove the pesky tabs inserted by the 'echo' outputs.
-echo "LynxCI: Lynx default configuration file, '$lynxConfigurationFile' was created."
+sleep 2 && sed -i 's/^[\t]*//' "$lynxConf" # Remove the pesky tabs inserted by the 'echo' outputs.
+echo "LynxCI: Lynx default configuration file, '$lynxConf' was created."
 [ -n "$tipsyid" ] && echo "LynxCI: Tipsy Miner registration added to Lynx configuration file."
 
-[ "$env" = "testnet" ] && { sed -i 's|testnet=0|testnet=1|g' "$lynxConfigurationFile"; echo "LynxCI: This node is operating on the testnet environment and it's now set in the lynx.conf file."; }
-[ "$env" = "mainnet" ] && { sed -i 's|testnet=1|testnet=0|g' "$lynxConfigurationFile"; echo "LynxCI: This node is operating on the mainnet environment and it's now set in the lynx.conf file."; }
-[ "$isPi" = "1" ] && sed -i "s|dbcache=450|dbcache=100|g" "$lynxConfigurationFile" # Default is 450MB. Changed to 100MB on the Pi.
-cp --remove-destination "$lynxConfigurationFile" "$dir"/.lynx/sample-lynx.conf && chmod 600 "$dir"/.lynx/sample-lynx.conf # We are gonna create a backup of the initially created lynx.conf file.
+[ "$env" = "testnet" ] && { sed -i 's|testnet=0|testnet=1|g' "$lynxConf"; echo "LynxCI: This node is operating on the testnet environment and it's now set in the lynx.conf file."; }
+[ "$env" = "mainnet" ] && { sed -i 's|testnet=1|testnet=0|g' "$lynxConf"; echo "LynxCI: This node is operating on the mainnet environment and it's now set in the lynx.conf file."; }
+[ "$isPi" = "1" ] && sed -i "s|dbcache=450|dbcache=100|g" "$lynxConf" # Default is 450MB. Changed to 100MB on the Pi.
+cp --remove-destination "$lynxConf" "$dir"/.lynx/sample-lynx.conf && chmod 600 "$dir"/.lynx/sample-lynx.conf # We are gonna create a backup of the initially created lynx.conf file.
 #
 systemctl daemon-reload
 if [ "$isPi" = "1" ]; then # Temp service only used if Pi
