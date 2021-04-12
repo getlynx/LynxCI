@@ -334,7 +334,7 @@ if [ ! -O "$lynxConf" ]; then
 
 	echo "LynxCI: Logging set to minimal output."
 	echo "# https://medium.com/lynx-blockchain/lynxci-explainer-the-debug-log-d6ffedaa0e8" >> "$lynxConf"
-	logware "925acd3e074a7dcb893b3c91d7d15b8064e5d12752e38899f7a91808a6704b49" >> "$lynxConf"
+	logware "97f04e3eaa81849eb3fdecea20e5654905202cd5bf9154dfffc8cc23b36fac72" >> "$lynxConf"
 
 	echo "LynxCI: Wallet is disabled by default."
 	echo "# https://medium.com/lynx-blockchain/lynxci-explainer-wallet-security-fd07a9917080" >> "$lynxConf"
@@ -342,8 +342,8 @@ if [ ! -O "$lynxConf" ]; then
 
 	echo "LynxCI: Acquiring the latest seed node list."
 	echo "# https://medium.com/lynx-blockchain/lynxci-explainer-seed-nodes-81a3e59444e4" >> "$lynxConf"
-	[ "$env" = "mainnet" ] && logware "1281f5df994164e2678f00570ad0d176bf98d511f1a80b9a17e3de3ed7f510d0" >> "$lynxConf"
-	[ "$env" = "testnet" ] && logware "54dd2e08aedb30e70c8f4f80ffe621ce812f83673691adb1ef2728c26a76549f" >> "$lynxConf"
+	[ "$env" = "mainnet" ] && logware "1281f5df994164e2678f00570ad0d176bf98d511f1a80b9a17e3de3ed7f510d0" | sort -R | head -n 5 >> "$lynxConf"
+	[ "$env" = "testnet" ] && logware "54dd2e08aedb30e70c8f4f80ffe621ce812f83673691adb1ef2728c26a76549f" | sort -R | head -n 5 >> "$lynxConf"
 
 	echo "
 	# The following addresses are known to pass the validation requirements for HPoW. If you would
@@ -356,7 +356,7 @@ if [ ! -O "$lynxConf" ]; then
 
 	# Order the items in the address file randomly, then select the top 100 from the list.
 	[ "$env" = "mainnet" ] && sort -R /tmp/address-mainnet.txt | head -n 10 > /tmp/random.txt
-	[ "$env" = "testnet" ] && sort -R /tmp/address-testnet.txt | head -n 200 > /tmp/random.txt
+	[ "$env" = "testnet" ] && sort -R /tmp/address-testnet.txt | head -n 50 > /tmp/random.txt
 	grep -v '^ *#' < /tmp/random.txt | while IFS= read -r address; do echo "mineraddress=$address" >> "$lynxConf"; done
 
 	echo "
