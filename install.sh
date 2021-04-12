@@ -330,15 +330,11 @@ if [ ! -O "$lynxConf" ]; then
 	# port is closed by default. If you are setting up a remote connection, all you will need are
 	# the above RPC credentials and to unblock the operating system firewall. As the 'lynx' user,
 	# type '$ lyi' to edit the firewall.
-
-	# README wget -O - -q https://chaindata.logware.io/tx/45790f2a6a1911ff2b7a770e7b3698004962d5081b95eebec5f29f1b7b00042b | jq -r '.pkdata'
-
-	#debug=1
-	debug=miner
-	#debug=mempool
-	#debug=rpc
-	#debug=0
 	" > "$lynxConf"
+
+	echo "LynxCI: Logging set to minimal output."
+	echo "# https://medium.com/lynx-blockchain/lynxci-explainer-the-debug-log-d6ffedaa0e8" >> "$lynxConf"
+	logware "925acd3e074a7dcb893b3c91d7d15b8064e5d12752e38899f7a91808a6704b49" >> "$lynxConf"
 
 	echo "LynxCI: Wallet is disabled by default."
 	echo "# https://medium.com/lynx-blockchain/lynxci-explainer-wallet-security-fd07a9917080" >> "$lynxConf"
