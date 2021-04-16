@@ -32,7 +32,7 @@ fi
 if [ "$isPi" = "1" ]; then # If the target device is a Raspberry Pi.
 	[ -z "$2" ] && cpu="0.80" || cpu="$2" # Default CPU for headless Pi installs
 else # If it's not a Raspberry Pi, then this value is good for everything else.
-	[ -z "$2" ] && cpu="0.75" || cpu="$2" # Default CPU used by the built-in miner.
+	[ -z "$2" ] && cpu="0.85" || cpu="$2" # Default CPU used by the built-in miner.
 fi
 [ -z "$3" ] && ttl="604900" || ttl="$3" # Firewall blocks WAN access after 1 week (~604800 seconds).
 #
@@ -89,8 +89,6 @@ if [ "$isPi" = "1" ]; then # If the target device is a Raspberry Pi
 	echo "LynxCI: For security purposes, the 'pi' account was locked."
 fi
 #
-rpcuser="$(sha256sum /var/log/syslog | awk '{print $1}')" # Generate a random Lynx RPC username.
-rpcpass="$(sha256sum /var/log/auth.log | awk '{print $1}')" # Generate a random Lynx RPC password.
 [ "$isPi" = "1" ] && name="lynxpi$(shuf -i 200000000-699999999 -n 1)"
 [ "$isPi" = "0" ] && name="lynx$(shuf -i 200000000-699999999 -n 1)"
 #
@@ -197,9 +195,6 @@ if [ ! -O "$bootstrapFile" ]; then # Only create the file if it doesn't already 
 	sleep 1
 	echo "LynxCI: Lynx $env bootstrap is downloaded and decompressed."
 fi
-#
-[ "$env" = "mainnet" ] && { cd /tmp/ || exit; wget -q https://raw.githubusercontent.com/getlynx/LynxCI/master/address-mainnet.txt; }
-[ "$env" = "testnet" ] && { cd /tmp/ || exit; wget -q https://raw.githubusercontent.com/getlynx/LynxCI/master/address-testnet.txt; }
 #
 echo "#!/bin/bash
 [Unit]
@@ -313,19 +308,21 @@ chown root:root /usr/local/bin/lynx*
 # Create the default lynx.conf file
 #
 lynxConf="$dir/.lynx/lynx.conf"
-rm -rf "$lynxConf"
-if [ ! -O "$lynxConf" ]; then
+eof="# end of file"
+touch "$lynxConf"
+if ! grep -q "$eof" "$lynxConf"; then
 	echo "# The following RPC credentials are created at build time and are unique to this host. If you
 	# like, you can change them, but you are encouraged to keep very complex strings for each. If an
 	# attacker gains RPC access to this host they will steal your Lynx. Understanding that, the
 	# wallet is disabled by default so the risk of loss is lowest with this lynx.conf configuration.
-
-	rpcuser=$rpcuser
-	rpcpassword=$rpcpass
+	rpcuser=$(sha256sum /var/log/syslog | awk '{print $1}') # Generate a random Lynx RPC username.
+	rpcpassword=$(sha256sum /var/log/auth.log | awk '{print $1}') # Generate a random Lynx RPC password.
 	rpcport=$rpcport
-
-	rpcallowip=0.0.0.0/24         # The RPC settings will allow a connection from ANY external host. These
-	rpcallowip=::/0               # two entries define that any IPv4 or IPv6 address will be allowed to
+	rpcallowip=0.0.0.0/24
+	rpcallowip=::/0
+	rpcworkqueue=64
+	# The RPC settings will allow a connection from ANY external host. These
+	# two entries define that any IPv4 or IPv6 address will be allowed to
 	# connect. But, the operating system firewall settings block the RPC traffic because the RPC
 	# port is closed by default. If you are setting up a remote connection, all you will need are
 	# the above RPC credentials and to unblock the operating system firewall. As the 'lynx' user,
@@ -345,25 +342,16 @@ if [ ! -O "$lynxConf" ]; then
 	[ "$env" = "mainnet" ] && logware "1281f5df994164e2678f00570ad0d176bf98d511f1a80b9a17e3de3ed7f510d0" | sort -R | head -n 5 >> "$lynxConf"
 	[ "$env" = "testnet" ] && logware "54dd2e08aedb30e70c8f4f80ffe621ce812f83673691adb1ef2728c26a76549f" | sort -R | head -n 5 >> "$lynxConf"
 
-	echo "
-	# The following addresses are known to pass the validation requirements for HPoW. If you would
-	# like to earn your own mining rewards, you can add/edit/delete this list with your own
-	# addresses (more is better). You must have a balance of between 1,000 and 100,000,000 Lynx in
-	# each of the Lynx addresses in order to win the block reward. Alternatively, you can enable
-	# wallet functions on this node (above), deposit Lynx to the local wallet (again, between 1,000
-	# and 100,000,000 Lynx) and the miner will ignore the following miner address values.
-	" >> "$lynxConf"
-
-	# Order the items in the address file randomly, then select the top 100 from the list.
-	[ "$env" = "mainnet" ] && sort -R /tmp/address-mainnet.txt | head -n 10 > /tmp/random.txt
-	[ "$env" = "testnet" ] && sort -R /tmp/address-testnet.txt | head -n 50 > /tmp/random.txt
-	grep -v '^ *#' < /tmp/random.txt | while IFS= read -r address; do echo "mineraddress=$address" >> "$lynxConf"; done
+	echo "LynxCI: Acquiring a default set of Lynx addresses for mining."
+	echo "# https://medium.com/lynx-blockchain/lynxci-explainer-default-addresses-for-the-built-in-miner-787988de19f2" >> "$lynxConf"
+	[ "$env" = "mainnet" ] && wget -O - -q https://raw.githubusercontent.com/getlynx/LynxCI/master/address-mainnet.txt | sort -R | head -n 5 | while IFS= read -r i; do echo "mineraddress=$i"; done >> "$lynxConf"
+	[ "$env" = "testnet" ] && wget -O - -q https://raw.githubusercontent.com/getlynx/LynxCI/master/address-testnet.txt | sort -R | head -n 5 | while IFS= read -r i; do echo "mineraddress=$i"; done >> "$lynxConf"
 
 	echo "
 	listen=1                      # It is highly unlikely you need to change any of the following values unless you are tinkering with the node. If you decide to
 	daemon=1                      # tinker, know that a backup of this file already exists as /home/lynx/.lynx/sample-lynx.conf.
 	port=$port
-	rpcworkqueue=64               # Our exchange and SPV wallet partners might want to disable the built in miner. This can be easily done with the 'disablebuiltinminer'
+	                              # Our exchange and SPV wallet partners might want to disable the built in miner. This can be easily done with the 'disablebuiltinminer'
 	listenonion=0                 # parameter below. As for our miners who are looking to tune their devices, we recommend the default 0.25 (25%), but if you insist on
 	upnp=1                        # increasing the 'cpulimitforbuiltinminer' amount, we recommend you not tune it past using 75% of your CPU load. Remember, with HPoW
 	dbcache=450                   # increasing the mining speed does not mean you will win more blocks. You are just generating heat, not blocks. Also, if you are using
@@ -374,6 +362,7 @@ if [ ! -O "$lynxConf" ]; then
 	disablebuiltinminer=0
 	cpulimitforbuiltinminer=$cpu" >> "$lynxConf"
 	[ -n "$tipsyid" ] && echo "tipsyid=$tipsyid" >> "$lynxConf"
+	echo "$eof" >> "$lynxConf"
 	chmod 770 "$lynxConf"
 fi
 sleep 2 && sed -i 's/^[\t]*//' "$lynxConf" # Remove the pesky tabs inserted by the 'echo' outputs.
