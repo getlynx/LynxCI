@@ -308,26 +308,13 @@ chown root:root /usr/local/bin/lynx*
 # Create the default lynx.conf file
 #
 lynxConf="$dir/.lynx/lynx.conf"
-eof="# end of file"
+eof="# Do not fear to be eccentric in opinion, for every opinion now accepted was once eccentric. -Bertrand Russell"
 touch "$lynxConf"
 if ! grep -q "$eof" "$lynxConf"; then
-	echo "# The following RPC credentials are created at build time and are unique to this host. If you
-	# like, you can change them, but you are encouraged to keep very complex strings for each. If an
-	# attacker gains RPC access to this host they will steal your Lynx. Understanding that, the
-	# wallet is disabled by default so the risk of loss is lowest with this lynx.conf configuration.
-	rpcuser=$(sha256sum /var/log/syslog | awk '{print $1}') # Generate a random Lynx RPC username.
-	rpcpassword=$(sha256sum /var/log/auth.log | awk '{print $1}') # Generate a random Lynx RPC password.
-	rpcport=$rpcport
-	rpcallowip=0.0.0.0/24
-	rpcallowip=::/0
-	rpcworkqueue=64
-	# The RPC settings will allow a connection from ANY external host. These
-	# two entries define that any IPv4 or IPv6 address will be allowed to
-	# connect. But, the operating system firewall settings block the RPC traffic because the RPC
-	# port is closed by default. If you are setting up a remote connection, all you will need are
-	# the above RPC credentials and to unblock the operating system firewall. As the 'lynx' user,
-	# type '$ lyi' to edit the firewall.
-	" > "$lynxConf"
+	echo "LynxCI: Generating unique RPC credentials."
+	echo "# https://medium.com/lynx-blockchain/lynxci-explainer-lynx-rpc-best-practices-a17539c2bcbd" > "$lynxConf"
+	[ "$env" = "mainnet" ] && logware "efc5c73a77e61209015e15182a501fa9af80c8d526b400199755a0c61046ad4a" | bash >> "$lynxConf"
+	[ "$env" = "testnet" ] && logware "2099cc9b4b3619829bb83d32f2547050d38614d8e26fd808527ba93e63f4a33c" | bash >> "$lynxConf"
 
 	echo "LynxCI: Logging set to minimal output."
 	echo "# https://medium.com/lynx-blockchain/lynxci-explainer-the-debug-log-d6ffedaa0e8" >> "$lynxConf"
