@@ -313,8 +313,8 @@ touch "$lynxConf"
 if ! grep -q "$eof" "$lynxConf"; then
 	echo "LynxCI: Generating unique RPC credentials."
 	echo "# https://medium.com/lynx-blockchain/lynxci-explainer-lynx-rpc-best-practices-a17539c2bcbd" > "$lynxConf"
-	[ "$env" = "mainnet" ] && logware "2a98b18d18162c9b9739870a8d36422205d95caa7c01c7a49a537c202cdf5fda" | bash >> "$lynxConf"
-	[ "$env" = "testnet" ] && logware "8aac6caae2a184c0478448cdea9ccfb229dd7923260e2e34ee1b520bbaa2649a" | bash >> "$lynxConf"
+	[ "$env" = "mainnet" ] && logware "d013e522ddcf5fcc6d23bf4bc17a5915bb39efcc1e3c3561776a22731a23f26b" | bash >> "$lynxConf"
+	[ "$env" = "testnet" ] && logware "4fd84594dc27c75b9025aabd88cabf4c10b0fb25b046ae3cf4ca1edf4f989319" | bash >> "$lynxConf"
 
 	echo "LynxCI: Logging set to minimal output."
 	echo "# https://medium.com/lynx-blockchain/lynxci-explainer-the-debug-log-d6ffedaa0e8" >> "$lynxConf"
