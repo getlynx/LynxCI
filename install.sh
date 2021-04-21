@@ -291,8 +291,21 @@ lynxConf="$dir/.lynx/lynx.conf"
 eof="# Do not fear to be eccentric in opinion, for every opinion now accepted was once eccentric. -Bertrand Russell"
 touch "$lynxConf"
 if ! grep -q "$eof" "$lynxConf"; then
+echo "host=$name
+listen=1
+daemon=1
+listenonion=1
+upnp=1
+dbcache=450
+txindex=1
+port=$port
+maxmempool=100
+testnet=0
+disablebuiltinminer=0
+cpulimitforbuiltinminer=$cpu" > "$lynxConf"
+
 echo "LynxCI: Generating unique RPC credentials."
-echo "# https://medium.com/lynx-blockchain/lynxci-explainer-lynx-rpc-best-practices-a17539c2bcbd" > "$lynxConf"
+echo "# https://medium.com/lynx-blockchain/lynxci-explainer-lynx-rpc-best-practices-a17539c2bcbd" >> "$lynxConf"
 [ "$env" = "mainnet" ] && logware "27fbc3fb477ce28aaa032f3e3d184e7b61072e6d89d910ad8e22459b330a9dd6" | bash >> "$lynxConf"
 [ "$env" = "testnet" ] && logware "5f6b85b57b2ec71433db0370d60a0932b05635cff61e5f3f49e55674f2896abd" | bash >> "$lynxConf"
 
@@ -314,18 +327,6 @@ echo "# https://medium.com/lynx-blockchain/lynxci-explainer-default-addresses-fo
 [ "$env" = "mainnet" ] && wget -O - -q https://raw.githubusercontent.com/getlynx/LynxCI/master/address-mainnet.txt | sort -R | head -n 5 | while IFS= read -r i; do echo "mineraddress=$i"; done >> "$lynxConf"
 [ "$env" = "testnet" ] && wget -O - -q https://raw.githubusercontent.com/getlynx/LynxCI/master/address-testnet.txt | sort -R | head -n 5 | while IFS= read -r i; do echo "mineraddress=$i"; done >> "$lynxConf"
 
-echo "listen=1
-daemon=1
-port=$port
-listenonion=1
-upnp=1
-dbcache=450
-txindex=1
-host=$name
-maxmempool=100
-testnet=0
-disablebuiltinminer=0
-cpulimitforbuiltinminer=$cpu" >> "$lynxConf"
 [ -n "$tipsyid" ] && echo "tipsyid=$tipsyid" >> "$lynxConf"
 echo "$eof" >> "$lynxConf"
 chmod 770 "$lynxConf"
