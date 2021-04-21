@@ -259,34 +259,14 @@ else # Expand on the Pi's 100MB to 2GB
 	/etc/init.d/dphys-swapfile restart >/dev/null 2>&1;
 fi
 #
-echo "#!/bin/bash
-echo \"\"
-echo \"\"
-echo \"\"
-echo \"
-┏┓┃┃┃┃┃┃┃┃┃┃┃┃┃━━━┓━━┓
-┃┃┃┃┃┃┃┃┃┃┃┃┃┃┃┏━┓┃┫┣┛
-┃┃┃┃┃┓┃┏┓━┓┃┓┏┓┃┃┗┛┃┃┃
-┃┃┃┏┓┃┃┃┃┏┓┓╋╋┛┃┃┏┓┃┃┃
-┃┗━┛┃┗━┛┃┃┃┃╋╋┓┗━┛┃┫┣┓
-┗━━━┛━┓┏┛┛┗┛┛┗┛━━━┛━━┛
-┃┃┃┃┃━┛┃┃┃┃┃┃┃┃┃┃┃┃┃┃┃
-┃┃┃┃┃━━┛┃┃┃┃┃┃┃┃┃┃┃┃┃┃
-
-Lynx Cryptocurrency Installer
-https://getlynx.io/
-https://logware.io/
-https://explorer.getlynx.io/
-https://medium.com/lynx-blockchain/
-Twitter: @getlynxio
-
-Learn quick, type 'doc'\"
-echo \"\"
-echo \"\"
-echo \"\"
-" > /etc/profile.d/portcheck.sh
-chmod 755 /etc/profile.d/portcheck.sh
-chown root:root /etc/profile.d/portcheck.sh
+motd="/etc/profile.d/portcheck.sh"
+eof="# Fear is the main source of superstition, and one of the main sources of cruelty. To conquer fear is the beginning of wisdom. -Bertrand Russell"
+touch "$motd"
+if ! grep -q "$eof" "$motd"; then
+logware "f732a612c68470aff9ed68638faa8628e4e3bc4e77a0bc202b033eb3af44415b" > "$motd"
+echo "$eof" >> "$motd"
+chmod 755 "$motd" && chown root:root "$motd"
+fi
 #
 echo "LynxCI: Downloading and installing the Lynx installer package for the target OS."
 if [ "$isPi" = "1" ]; then
@@ -311,48 +291,48 @@ lynxConf="$dir/.lynx/lynx.conf"
 eof="# Do not fear to be eccentric in opinion, for every opinion now accepted was once eccentric. -Bertrand Russell"
 touch "$lynxConf"
 if ! grep -q "$eof" "$lynxConf"; then
-	echo "LynxCI: Generating unique RPC credentials."
-	echo "# https://medium.com/lynx-blockchain/lynxci-explainer-lynx-rpc-best-practices-a17539c2bcbd" > "$lynxConf"
-	[ "$env" = "mainnet" ] && logware "d013e522ddcf5fcc6d23bf4bc17a5915bb39efcc1e3c3561776a22731a23f26b" | bash >> "$lynxConf"
-	[ "$env" = "testnet" ] && logware "4fd84594dc27c75b9025aabd88cabf4c10b0fb25b046ae3cf4ca1edf4f989319" | bash >> "$lynxConf"
+echo "LynxCI: Generating unique RPC credentials."
+echo "# https://medium.com/lynx-blockchain/lynxci-explainer-lynx-rpc-best-practices-a17539c2bcbd" > "$lynxConf"
+[ "$env" = "mainnet" ] && logware "27fbc3fb477ce28aaa032f3e3d184e7b61072e6d89d910ad8e22459b330a9dd6" | bash >> "$lynxConf"
+[ "$env" = "testnet" ] && logware "5f6b85b57b2ec71433db0370d60a0932b05635cff61e5f3f49e55674f2896abd" | bash >> "$lynxConf"
 
-	echo "LynxCI: Logging set to minimal output."
-	echo "# https://medium.com/lynx-blockchain/lynxci-explainer-the-debug-log-d6ffedaa0e8" >> "$lynxConf"
-	logware "97f04e3eaa81849eb3fdecea20e5654905202cd5bf9154dfffc8cc23b36fac72" >> "$lynxConf"
+echo "LynxCI: Logging set to minimal output."
+echo "# https://medium.com/lynx-blockchain/lynxci-explainer-the-debug-log-d6ffedaa0e8" >> "$lynxConf"
+logware "97f04e3eaa81849eb3fdecea20e5654905202cd5bf9154dfffc8cc23b36fac72" >> "$lynxConf"
 
-	echo "LynxCI: Wallet is disabled by default."
-	echo "# https://medium.com/lynx-blockchain/lynxci-explainer-wallet-security-fd07a9917080" >> "$lynxConf"
-	logware "c41882650265bf16e509a8d251c33a36b6f78d3fb5b902f76fd699051fd289ca" >> "$lynxConf"
+echo "LynxCI: Wallet is disabled by default."
+echo "# https://medium.com/lynx-blockchain/lynxci-explainer-wallet-security-fd07a9917080" >> "$lynxConf"
+logware "c41882650265bf16e509a8d251c33a36b6f78d3fb5b902f76fd699051fd289ca" >> "$lynxConf"
 
-	echo "LynxCI: Acquiring the latest seed node list."
-	echo "# https://medium.com/lynx-blockchain/lynxci-explainer-seed-nodes-81a3e59444e4" >> "$lynxConf"
-	[ "$env" = "mainnet" ] && logware "1281f5df994164e2678f00570ad0d176bf98d511f1a80b9a17e3de3ed7f510d0" | sort -R | head -n 5 >> "$lynxConf"
-	[ "$env" = "testnet" ] && logware "54dd2e08aedb30e70c8f4f80ffe621ce812f83673691adb1ef2728c26a76549f" | sort -R | head -n 5 >> "$lynxConf"
+echo "LynxCI: Acquiring the latest seed node list."
+echo "# https://medium.com/lynx-blockchain/lynxci-explainer-seed-nodes-81a3e59444e4" >> "$lynxConf"
+[ "$env" = "mainnet" ] && logware "1281f5df994164e2678f00570ad0d176bf98d511f1a80b9a17e3de3ed7f510d0" | sort -R | head -n 5 >> "$lynxConf"
+[ "$env" = "testnet" ] && logware "54dd2e08aedb30e70c8f4f80ffe621ce812f83673691adb1ef2728c26a76549f" | sort -R | head -n 5 >> "$lynxConf"
 
-	echo "LynxCI: Acquiring a default set of Lynx addresses for mining."
-	echo "# https://medium.com/lynx-blockchain/lynxci-explainer-default-addresses-for-the-built-in-miner-787988de19f2" >> "$lynxConf"
-	[ "$env" = "mainnet" ] && wget -O - -q https://raw.githubusercontent.com/getlynx/LynxCI/master/address-mainnet.txt | sort -R | head -n 5 | while IFS= read -r i; do echo "mineraddress=$i"; done >> "$lynxConf"
-	[ "$env" = "testnet" ] && wget -O - -q https://raw.githubusercontent.com/getlynx/LynxCI/master/address-testnet.txt | sort -R | head -n 5 | while IFS= read -r i; do echo "mineraddress=$i"; done >> "$lynxConf"
+echo "LynxCI: Acquiring a default set of Lynx addresses for mining."
+echo "# https://medium.com/lynx-blockchain/lynxci-explainer-default-addresses-for-the-built-in-miner-787988de19f2" >> "$lynxConf"
+[ "$env" = "mainnet" ] && wget -O - -q https://raw.githubusercontent.com/getlynx/LynxCI/master/address-mainnet.txt | sort -R | head -n 5 | while IFS= read -r i; do echo "mineraddress=$i"; done >> "$lynxConf"
+[ "$env" = "testnet" ] && wget -O - -q https://raw.githubusercontent.com/getlynx/LynxCI/master/address-testnet.txt | sort -R | head -n 5 | while IFS= read -r i; do echo "mineraddress=$i"; done >> "$lynxConf"
 
-	echo "
-	listen=1                      # It is highly unlikely you need to change any of the following values unless you are tinkering with the node. If you decide to
-	daemon=1                      # tinker, know that a backup of this file already exists as /home/lynx/.lynx/sample-lynx.conf.
-	port=$port
-	                              # Our exchange and SPV wallet partners might want to disable the built in miner. This can be easily done with the 'disablebuiltinminer'
-	listenonion=0                 # parameter below. As for our miners who are looking to tune their devices, we recommend the default 0.25 (25%), but if you insist on
-	upnp=1                        # increasing the 'cpulimitforbuiltinminer' amount, we recommend you not tune it past using 75% of your CPU load. Remember, with HPoW
-	dbcache=450                   # increasing the mining speed does not mean you will win more blocks. You are just generating heat, not blocks. Also, if you are using
-	txindex=1                     # a VPS, increasing 'cpulimitforbuiltinminer' too high might get you banned from the the VPS vendors platform. You've been warned.
-	host=$name
-	maxmempool=100
-	testnet=0
-	disablebuiltinminer=0
-	cpulimitforbuiltinminer=$cpu" >> "$lynxConf"
-	[ -n "$tipsyid" ] && echo "tipsyid=$tipsyid" >> "$lynxConf"
-	echo "$eof" >> "$lynxConf"
-	chmod 770 "$lynxConf"
+echo "
+listen=1                      # It is highly unlikely you need to change any of the following values unless you are tinkering with the node. If you decide to
+daemon=1                      # tinker, know that a backup of this file already exists as /home/lynx/.lynx/sample-lynx.conf.
+port=$port
+                              # Our exchange and SPV wallet partners might want to disable the built in miner. This can be easily done with the 'disablebuiltinminer'
+listenonion=0                 # parameter below. As for our miners who are looking to tune their devices, we recommend the default 0.25 (25%), but if you insist on
+upnp=1                        # increasing the 'cpulimitforbuiltinminer' amount, we recommend you not tune it past using 75% of your CPU load. Remember, with HPoW
+dbcache=450                   # increasing the mining speed does not mean you will win more blocks. You are just generating heat, not blocks. Also, if you are using
+txindex=1                     # a VPS, increasing 'cpulimitforbuiltinminer' too high might get you banned from the the VPS vendors platform. You've been warned.
+host=$name
+maxmempool=100
+testnet=0
+disablebuiltinminer=0
+cpulimitforbuiltinminer=$cpu" >> "$lynxConf"
+[ -n "$tipsyid" ] && echo "tipsyid=$tipsyid" >> "$lynxConf"
+echo "$eof" >> "$lynxConf"
+chmod 770 "$lynxConf"
 fi
-sleep 2 && sed -i 's/^[\t]*//' "$lynxConf" # Remove the pesky tabs inserted by the 'echo' outputs.
+#
 echo "LynxCI: Lynx default configuration file, '$lynxConf' was created."
 [ -n "$tipsyid" ] && echo "LynxCI: Tipsy Miner registration added to Lynx configuration file."
 
