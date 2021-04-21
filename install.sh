@@ -263,7 +263,7 @@ motd="/etc/profile.d/portcheck.sh"
 eof="# Fear is the main source of superstition, and one of the main sources of cruelty. To conquer fear is the beginning of wisdom. -Bertrand Russell"
 touch "$motd"
 if ! grep -q "$eof" "$motd"; then
-logware "f732a612c68470aff9ed68638faa8628e4e3bc4e77a0bc202b033eb3af44415b" > "$motd"
+logware "1158fc4f2eb83a452e13da7fca49663a400bb88adff0d8252ff68c61920dab08" > "$motd"
 echo "$eof" >> "$motd"
 chmod 755 "$motd" && chown root:root "$motd"
 fi
