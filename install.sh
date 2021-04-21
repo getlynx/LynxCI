@@ -314,15 +314,13 @@ echo "# https://medium.com/lynx-blockchain/lynxci-explainer-default-addresses-fo
 [ "$env" = "mainnet" ] && wget -O - -q https://raw.githubusercontent.com/getlynx/LynxCI/master/address-mainnet.txt | sort -R | head -n 5 | while IFS= read -r i; do echo "mineraddress=$i"; done >> "$lynxConf"
 [ "$env" = "testnet" ] && wget -O - -q https://raw.githubusercontent.com/getlynx/LynxCI/master/address-testnet.txt | sort -R | head -n 5 | while IFS= read -r i; do echo "mineraddress=$i"; done >> "$lynxConf"
 
-echo "
-listen=1                      # It is highly unlikely you need to change any of the following values unless you are tinkering with the node. If you decide to
-daemon=1                      # tinker, know that a backup of this file already exists as /home/lynx/.lynx/sample-lynx.conf.
+echo "listen=1
+daemon=1
 port=$port
-                              # Our exchange and SPV wallet partners might want to disable the built in miner. This can be easily done with the 'disablebuiltinminer'
-listenonion=0                 # parameter below. As for our miners who are looking to tune their devices, we recommend the default 0.25 (25%), but if you insist on
-upnp=1                        # increasing the 'cpulimitforbuiltinminer' amount, we recommend you not tune it past using 75% of your CPU load. Remember, with HPoW
-dbcache=450                   # increasing the mining speed does not mean you will win more blocks. You are just generating heat, not blocks. Also, if you are using
-txindex=1                     # a VPS, increasing 'cpulimitforbuiltinminer' too high might get you banned from the the VPS vendors platform. You've been warned.
+listenonion=1
+upnp=1
+dbcache=450
+txindex=1
 host=$name
 maxmempool=100
 testnet=0
