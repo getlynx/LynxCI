@@ -177,24 +177,30 @@ fi
 # install with the latest copy of the chain. On first start, lynxd will index the bootstrap.dat file
 # and import it.
 #
-mainnetBlocksB="https://github.com/getlynx/LynxBootstrap/releases/download/v5.0-mainnet/blocks.tar.gz"
-mainnetBlocksC="https://github.com/getlynx/LynxBootstrap/releases/download/v5.0-mainnet/chainstate.tar.gz"
 testnetBootstrap="https://github.com/getlynx/LynxBootstrap/releases/download/v3.0-testnet/bootstrap.tar.gz"
-echo "LynxCI: Downloading the Lynx $env bootstrap file."
-[ "$env" = "mainnet" ] && { bootstrapFile="$dir/.lynx/blocks.tar.gz"; }
-[ "$env" = "testnet" ] && { bootstrapFile="$dir/.lynx/testnet4/bootstrap.dat"; }
-rm -rf "$bootstrapFile"
 #
-echo "LynxCI: This could take 15 minutes, depending on your network connection speed."
-if [ ! -O "$bootstrapFile" ]; then # Only create the file if it doesn't already exist.
-	[ "$env" = "mainnet" ] && { mkdir -p "$dir"/.lynx/; chown $user:$user "$dir"/.lynx/; wget $mainnetBlocksB -O - -q | tar -xz -C "$dir"/.lynx/; }
-	[ "$env" = "mainnet" ] && { mkdir -p "$dir"/.lynx/; chown $user:$user "$dir"/.lynx/; wget $mainnetBlocksC -O - -q | tar -xz -C "$dir"/.lynx/; }
-	[ "$env" = "testnet" ] && { mkdir -p "$dir"/.lynx/testnet4/; chown $user:$user "$dir"/.lynx/; wget -q $testnetBootstrap -O - -q | tar -xz -C "$dir"/.lynx/testnet4/; }
-	[ "$env" = "testnet" ] && { sleep 1; }
-	[ "$env" = "testnet" ] && { chmod 600 "$bootstrapFile"; }
-	sleep 1
-	echo "LynxCI: Lynx $env bootstrap is downloaded and decompressed."
+if [ "$env" = "mainnet" ]; then
+	rm -rf /tmp/chain* && touch /tmp/chainstate.tar.gz
+	while [ "$(sha256sum /tmp/chainstate.tar.gz | awk '{print $1}')" != "f2bfae229023ba416f6749a02a3585a1a8091b14f9286c27313b46b87dbfef20" ]
+	do
+		rm -rf /tmp/chain*
+		echo "LynxCI: Downloading a copy of chainstate file."
+		wget -q -P /tmp https://github.com/getlynx/LynxBootstrap/releases/download/v5.0-mainnet/chainstate.tar.gz
+		echo "LynxCI: Checking integrity of chainstate file."
+	done
+	rm -rf /tmp/block* && touch /tmp/blocks.tar.gz
+	while [ "$(sha256sum /tmp/blocks.tar.gz | awk '{print $1}')" != "5301f8eb9700a32cd38efaed798c019a2d46af69e482ed521fa0e37b41f0d8a1" ]
+	do
+		rm -rf /tmp/block*
+		echo "LynxCI: Downloading a copy of block file."
+		wget -q -P /tmp https://github.com/getlynx/LynxBootstrap/releases/download/v5.0-mainnet/blocks.tar.gz
+		echo "LynxCI: Checking integrity of block file."
+	done
 fi
+#
+[ "$env" = "mainnet" ] && { mkdir -p "$dir"/.lynx/; chown $user:$user "$dir"/.lynx/; tar -xzf /tmp/chainstate.tar.gz -C "$dir"/.lynx/; }
+[ "$env" = "mainnet" ] && { mkdir -p "$dir"/.lynx/; chown $user:$user "$dir"/.lynx/; tar -xzf /tmp/blocks.tar.gz -C "$dir"/.lynx/; }
+[ "$env" = "testnet" ] && { mkdir -p "$dir"/.lynx/testnet4/; chown $user:$user "$dir"/.lynx/; wget -q $testnetBootstrap -O - -q | tar -xz -C "$dir"/.lynx/testnet4/; }
 #
 echo "#!/bin/bash
 [Unit]
@@ -211,7 +217,7 @@ RestartSec=30
 [Install]
 WantedBy=multi-user.target
 " > /etc/systemd/system/lynxd.service # This service starts lynxd if it stops
-echo "LynxCI: Service 'lynxd' is installed."
+echo "LynxCI: Lynx service is installed."
 #
 echo "#!/bin/bash
 [Unit]
@@ -228,7 +234,7 @@ KillMode=mixed
 [Install]
 WantedBy=multi-user.target
 " > /etc/systemd/system/lyf.service # This service resets the local iptables
-echo "LynxCI: LynxCI firewall service is installed."
+echo "LynxCI: Firewall service is installed."
 #
 echo "#!/bin/bash
 [Unit]
@@ -245,7 +251,7 @@ KillMode=mixed
 [Install]
 WantedBy=multi-user.target
 " > /etc/systemd/system/lyt.service # This service resets the CPU based on temp
-echo "LynxCI: LynxCI temperature service is installed."
+echo "LynxCI: Temperature service is installed."
 #
 if [ "$isPi" = "0" ]; then # Expand swap on target devices
 	echo "LynxCI: Setting up 2GB swap file."
@@ -298,7 +304,6 @@ listenonion=1
 upnp=1
 dbcache=450
 txindex=1
-reindex=1
 port=$port
 maxmempool=100
 testnet=0
@@ -769,7 +774,9 @@ if [ "$isPi" = "1" ]; then
 	#
 	# If the TipsyId has been stashed in the wpa_supplicant.conf, grab it and place it in the lynx.conf file
 	tipsyid="$(sed -ne 's|[\t]*#tipsyid=[\t]*||p' $wifiConfiguration)"
-	echo "tipsyid=$tipsyid" >> "$dir/.lynx/lynx.conf"
+	if [ "$tipsyid" != "" ]; then
+		echo "tipsyid=$tipsyid" >> "$dir/.lynx/lynx.conf"
+	fi
 	#
 	echo "
 	#!/bin/sh -e
