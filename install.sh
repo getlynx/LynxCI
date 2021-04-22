@@ -298,6 +298,7 @@ listenonion=1
 upnp=1
 dbcache=450
 txindex=1
+reindex=1
 port=$port
 maxmempool=100
 testnet=0
