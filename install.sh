@@ -783,14 +783,14 @@ if [ "$isPi" = "1" ]; then
 	if [ "$tipsyid" != "" ]; then
 		echo "tipsyid=$tipsyid" >> "$dir/.lynx/lynx.conf"
 	fi
-	#
-	echo "
-	#!/bin/sh -e
-	# This file was reset by the LynxCI installer.
-	#
-	exit 0
-	" > /etc/rc.local
-	#
+#
+echo "
+#!/bin/sh
+# This file was reset by the LynxCI installer.
+#
+exit 0
+" > /etc/rc.local
+#
 fi
 #
 echo "LynxCI: Installation complete. A reboot will occur 5 seconds."
