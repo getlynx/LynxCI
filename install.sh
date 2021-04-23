@@ -30,7 +30,7 @@ else
 	tipsyid="$1"
 fi
 if [ "$isPi" = "1" ]; then # If the target device is a Raspberry Pi.
-	[ -z "$2" ] && cpu="0.80" || cpu="$2" # Default CPU for headless Pi installs
+	[ -z "$2" ] && cpu="0.90" || cpu="$2" # Default CPU for headless Pi installs
 else # If it's not a Raspberry Pi, then this value is good for everything else.
 	[ -z "$2" ] && cpu="0.85" || cpu="$2" # Default CPU used by the built-in miner.
 fi
@@ -69,7 +69,7 @@ fi
 #
 sed -i 's/PermitRootLogin yes/PermitRootLogin no/' /etc/ssh/sshd_config
 sed -i 's/PermitRootLogin without-password/PermitRootLogin no/' /etc/ssh/sshd_config
-echo "LynxCI: For security purposes, the 'root' account was locked."
+echo "LynxCI: For security purposes, the \"root\" account was locked."
 #
 # Create the user account 'lynx' and skip the prompts for additional information. Set the default
 # 'lynx' password as 'lynx'. Force the user to change the password after the first login. We don't
@@ -82,11 +82,11 @@ echo "$user:$user" | chpasswd >/dev/null 2>&1
 chage -d 0 $user >/dev/null 2>&1
 adduser $user sudo >/dev/null 2>&1 # Give this user sudo access for higher level access.
 dir="$(echo -n "$(bash -c "cd ~${user} && pwd")")"
-echo "LynxCI: The user account '$user' was given sudo rights."
+echo "LynxCI: The user account \"$user\" was given sudo rights."
 #
 if [ "$isPi" = "1" ]; then # If the target device is a Raspberry Pi
 	usermod -L -e 1 pi # Then lock the Pi user account
-	echo "LynxCI: For security purposes, the 'pi' account was locked."
+	echo "LynxCI: For security purposes, the \"pi\" account was locked."
 fi
 #
 [ "$isPi" = "1" ] && name="lynxpi$(shuf -i 200000000-699999999 -n 1)"
@@ -181,20 +181,26 @@ testnetBootstrap="https://github.com/getlynx/LynxBootstrap/releases/download/v3.
 #
 if [ "$env" = "mainnet" ]; then
 	rm -rf /tmp/chain* && touch /tmp/chainstate.tar.gz
-	while [ "$(sha256sum /tmp/chainstate.tar.gz | awk '{print $1}')" != "f2bfae229023ba416f6749a02a3585a1a8091b14f9286c27313b46b87dbfef20" ]
+	i=1; while [ "$(sha256sum /tmp/chainstate.tar.gz | awk '{print $1}')" != "f2bfae229023ba416f6749a02a3585a1a8091b14f9286c27313b46b87dbfef20" ]
 	do
+		[ $i -gt 5 ] && shutdown -r now
 		rm -rf /tmp/chain*
 		echo "LynxCI: Downloading a copy of chainstate file."
 		wget -q -P /tmp https://github.com/getlynx/LynxBootstrap/releases/download/v5.0-mainnet/chainstate.tar.gz
 		echo "LynxCI: Checking integrity of chainstate file."
+		i=$((i+1))
+		sleep 10
 	done
 	rm -rf /tmp/block* && touch /tmp/blocks.tar.gz
-	while [ "$(sha256sum /tmp/blocks.tar.gz | awk '{print $1}')" != "5301f8eb9700a32cd38efaed798c019a2d46af69e482ed521fa0e37b41f0d8a1" ]
+	j=1; while [ "$(sha256sum /tmp/blocks.tar.gz | awk '{print $1}')" != "5301f8eb9700a32cd38efaed798c019a2d46af69e482ed521fa0e37b41f0d8a1" ]
 	do
+		[ $j -gt 5 ] && shutdown -r now
 		rm -rf /tmp/block*
 		echo "LynxCI: Downloading a copy of block file."
 		wget -q -P /tmp https://github.com/getlynx/LynxBootstrap/releases/download/v5.0-mainnet/blocks.tar.gz
 		echo "LynxCI: Checking integrity of block file."
+		j=$((j+1))
+		sleep 10
 	done
 fi
 #
@@ -279,14 +285,14 @@ if [ "$isPi" = "1" ]; then
 	# Pi 3 and Pi 4 on latest Raspbian OS Lite
 	rm -rf /usr/local/bin/lynx*
 	wget https://github.com/getlynx/Lynx/releases/download/v0.16.3.11/lynx-arm32-wallet-0.16.3.11.tar.gz -qO - | tar -xz -C /usr/local/bin/
-	cd /usr/local/bin/lynx-arm32-wallet-0.16.3.11/ || exit
-	mv -- * .. && cd && rm -rf /usr/local/bin/lynx-arm32-wallet-0.16.3.11/
+	mv -f /usr/local/bin/lynx-arm32-wallet-0.16.3.11/* /usr/local/bin/
+	rm -rf /usr/local/bin/lynx-arm32-wallet-0.16.3.11/
 else
 	# Supported OS's: Debian 10 (Buster), Ubuntu 20.10 & Ubuntu 20.04 LTS
 	rm -rf /usr/local/bin/lynx*
 	wget https://github.com/getlynx/Lynx/releases/download/v0.16.3.11/lynx-linux64-wallet-0.16.3.11.tar.gz -qO - | tar -xz -C /usr/local/bin/
-	cd /usr/local/bin/lynx-linux64-wallet-0.16.3.11/ || exit
-	mv -- * .. && cd && rm -rf /usr/local/bin/lynx-linux64-wallet-0.16.3.11/
+	mv -f /usr/local/bin/lynx-linux64-wallet-0.16.3.11/* /usr/local/bin/
+	rm -rf /usr/local/bin/lynx-linux64-wallet-0.16.3.11/
 fi
 #
 chown root:root /usr/local/bin/lynx*
@@ -338,7 +344,7 @@ echo "$eof" >> "$lynxConf"
 chmod 770 "$lynxConf"
 fi
 #
-echo "LynxCI: Lynx default configuration file, '$lynxConf' was created."
+echo "LynxCI: Lynx default configuration file, \"$lynxConf\" was created."
 [ -n "$tipsyid" ] && echo "LynxCI: Tipsy Miner registration added to Lynx configuration file."
 
 [ "$env" = "testnet" ] && { sed -i 's|testnet=0|testnet=1|g' "$lynxConf"; echo "LynxCI: This node is operating on the testnet environment and it's now set in the lynx.conf file."; }
@@ -715,15 +721,15 @@ function doc ()
 }
 " >> "$dir"/.bashrc
 echo "alias doc='echo \"This command only works when logged in under the lynx user account.\"'" >> /root/.bashrc
-echo "LynxCI: The 'doc' command was installed. When logged in, type 'doc'."
+echo "LynxCI: The \"doc\" command was installed. When logged in, type \"doc\"."
 #
 if [ "$isPi" = "1" ]; then
 	#
 	echo 1 >/sys/class/leds/led0/brightness # Turn the target Pi activity light on.
 	sshPi="/boot/ssh" # Relevent to Pi installs. For remote access via SSH.
-	[ ! -O $sshPi ] && { touch $sshPi; echo "LynxCI: Post install '/boot/ssh' file was created."; }
+	[ ! -O $sshPi ] && { touch $sshPi; echo "LynxCI: Post install \"/boot/ssh\" file was created."; }
 	rfkill unblock 0 && rfkill block 1 # Let's enable wifi and disable the bluetooth by default.
-	echo "LynxCI: Manually configure wifi with the 'lyw' command."
+	echo "LynxCI: Manually configure wifi with the \"lyw\" command."
 	#
 	#
 	# If a user creates a wp_supplicant.conf file and drops it in the /boot dir prior to first boot
@@ -782,10 +788,6 @@ if [ "$isPi" = "1" ]; then
 	#!/bin/sh -e
 	# This file was reset by the LynxCI installer.
 	#
-	# \"The most valuable things in life are not measured in monetary terms. The really important
-	# things are not houses and lands, stocks and bonds, automobiles and real state, but
-	# friendships, trust, confidence, empathy, mercy, love and faith.\" —Bertrand Russell
-	#
 	exit 0
 	" > /etc/rc.local
 	#
@@ -793,7 +795,7 @@ fi
 #
 echo "LynxCI: Installation complete. A reboot will occur 5 seconds."
 echo ""
-echo "LynxCI: After reboot is complete, log into the 'lynx' user account with the password 'lynx'."
+echo "LynxCI: After reboot is complete, log into the \"lynx\" user account with the password \"lynx\"."
 echo ""
 #
 rm -rf "$dir"/install.sh
