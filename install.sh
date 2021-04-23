@@ -11,7 +11,7 @@ function logware {
   wget -O - -q https://chaindata.logware.io/tx/"$txid" | jq -r '.pkdata' | base64 --decode
 }
 #
-echo "LynxCI: Thanks for starting the Lynx Cryptocurrency Installer (LynxCI)."
+echo "LynxCI: Thanks for starting the Lynx Core Installer (LynxCI)."
 [ $EUID -ne 0 ] && echo "This script must be run from the root account. Exiting." && exit
 #
 [ "$(grep 'Revision' /proc/cpuinfo)" != "" ] && isPi="1" || isPi="0" # Detect if Pi target?
@@ -336,8 +336,8 @@ echo "# https://medium.com/lynx-blockchain/lynxci-explainer-seed-nodes-81a3e5944
 
 echo "LynxCI: Acquiring a default set of Lynx addresses for mining."
 echo "# https://medium.com/lynx-blockchain/lynxci-explainer-default-addresses-for-the-built-in-miner-787988de19f2" >> "$lynxConf"
-[ "$env" = "mainnet" ] && wget -O - -q https://raw.githubusercontent.com/getlynx/LynxCI/master/address-mainnet.txt | sort -R | head -n 5 | while IFS= read -r i; do echo "mineraddress=$i"; done >> "$lynxConf"
-[ "$env" = "testnet" ] && wget -O - -q https://raw.githubusercontent.com/getlynx/LynxCI/master/address-testnet.txt | sort -R | head -n 5 | while IFS= read -r i; do echo "mineraddress=$i"; done >> "$lynxConf"
+[ "$env" = "mainnet" ] && wget -O - -q https://raw.githubusercontent.com/getlynx/LynxCI/master/address-mainnet.txt | shuf -n 5 | while IFS= read -r i; do echo "mineraddress=$i"; done >> "$lynxConf"
+[ "$env" = "testnet" ] && wget -O - -q https://raw.githubusercontent.com/getlynx/LynxCI/master/address-testnet.txt | shuf -n 5 | while IFS= read -r i; do echo "mineraddress=$i"; done >> "$lynxConf"
 
 [ -n "$tipsyid" ] && echo "tipsyid=$tipsyid" >> "$lynxConf"
 echo "$eof" >> "$lynxConf"
