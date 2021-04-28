@@ -302,7 +302,9 @@ chown root:root /usr/local/bin/lynx*
 lynxConf="$dir/.lynx/lynx.conf"
 eof="# Do not fear to be eccentric in opinion, for every opinion now accepted was once eccentric. -Bertrand Russell"
 touch "$lynxConf"
-if ! grep -q "$eof" "$lynxConf"; then
+i=1; while ! grep -q "$eof" "$lynxConf"
+do
+[ $i -gt 5 ] && shutdown -r now
 echo "host=$name
 listen=1
 daemon=1
@@ -336,13 +338,15 @@ echo "# https://medium.com/lynx-blockchain/lynxci-explainer-seed-nodes-81a3e5944
 
 echo "LynxCI: Acquiring a default set of Lynx addresses for mining."
 echo "# https://medium.com/lynx-blockchain/lynxci-explainer-default-addresses-for-the-built-in-miner-787988de19f2" >> "$lynxConf"
-[ "$env" = "mainnet" ] && wget -O - -q https://raw.githubusercontent.com/getlynx/LynxCI/master/address-mainnet.txt | shuf -n 5 | while IFS= read -r i; do echo "mineraddress=$i"; done >> "$lynxConf"
-[ "$env" = "testnet" ] && wget -O - -q https://raw.githubusercontent.com/getlynx/LynxCI/master/address-testnet.txt | shuf -n 5 | while IFS= read -r i; do echo "mineraddress=$i"; done >> "$lynxConf"
+[ "$env" = "mainnet" ] && wget -O - -q https://raw.githubusercontent.com/getlynx/LynxCI/master/address-mainnet.txt | shuf -n 10 | while IFS= read -r j; do echo "mineraddress=$j"; done >> "$lynxConf"
+[ "$env" = "testnet" ] && wget -O - -q https://raw.githubusercontent.com/getlynx/LynxCI/master/address-testnet.txt | shuf -n 10 | while IFS= read -r k; do echo "mineraddress=$k"; done >> "$lynxConf"
 
 [ -n "$tipsyid" ] && echo "tipsyid=$tipsyid" >> "$lynxConf"
 echo "$eof" >> "$lynxConf"
 chmod 770 "$lynxConf"
-fi
+i=$((i+1))
+sleep 2
+done
 #
 echo "LynxCI: Lynx default configuration file, \"$lynxConf\" was created."
 [ -n "$tipsyid" ] && echo "LynxCI: Tipsy Miner registration added to Lynx configuration file."
