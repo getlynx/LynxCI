@@ -458,7 +458,7 @@ do
 [ $i -gt 5 ] && shutdown -r now
 sed -i '/function tipsy/Q' "$tmpbashrc" # Remove any previously set 'tipsy' function first.
 sed -i '/function tipsy/Q' /root/.bashrc # Remove any previously set 'tipsy' function first.
-logware "8fb7fa991627c7ea345137d8613418836fe4f640dd5364b1d553749e37556ae2" >> "$tmpbashrc"
+logware "674ff45da839f9f1f1a02ab567e32d8f3a55dfcedcc31b151a1d14a3ff6796fd" >> "$tmpbashrc"
 echo "LynxCI: Tipsy Miner documentation installed."
 echo "$eof" >> "$tmpbashrc" && chmod +x "$tmpbashrc"
 i=$((i+1))
@@ -474,7 +474,7 @@ do
 [ $i -gt 5 ] && shutdown -r now
 sed -i '/function doc/Q' "$tmpbashrc" # Remove any previously set 'doc' function first.
 sed -i '/function doc/Q' /root/.bashrc # Remove any previously set 'doc' function first.
-logware "7c977c01483a08c1d6d6bf9a4b5c0f2403c892759321885d239b5d1d837028e1" >> "$tmpbashrc"
+logware "5cc33ea97bad995301bef8cefa71302d89ac492f703d65d82f58aa00cda06014" >> "$tmpbashrc"
 echo "LynxCI: LynxCI documentation installed."
 echo "$eof" >> "$tmpbashrc" && chmod +x "$tmpbashrc"
 i=$((i+1))
