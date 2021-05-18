@@ -259,7 +259,7 @@ i=1; while ! grep -q "$eof" "$tempService"
 do
 [ $i -gt 5 ] && shutdown -r now
 echo "LynxCI: Temperature service was installed."
-logware "031d3ddebe7fa2ab34007b41a62473cc5177e1f06cd8aa861af38eed9bcebc72" > "$tempService"
+logware "b6529e0c2144594dabbcdbff66c71d4c8097138f9fa4727d2e4b995e30b8d86a" > "$tempService"
 echo "$eof" >> "$tempService" && chmod +x "$tempService"
 i=$((i+1))
 sleep 2
@@ -451,207 +451,37 @@ then
 fi
 " >> "$dir"/.bashrc
 #
-# Part of the TipsyLynx integration, we are setting up a custom command
-# that can be used to connect the local miner rewards to their Tipsy
-# Discord account.
-#
-sed -i '/function tipsy/Q' "$dir"/.bashrc # Remove any previously set 'tipsy' function first.
+tmpbashrc="/home/lynx/.bashrc"
+eof="# The demand for certainty is one which is natural to man, but is nevertheless an intellectual vice. -Bertrand Russell"
+i=1; while ! grep -q "$eof" "$tmpbashrc"
+do
+[ $i -gt 5 ] && shutdown -r now
+sed -i '/function tipsy/Q' "$tmpbashrc" # Remove any previously set 'tipsy' function first.
 sed -i '/function tipsy/Q' /root/.bashrc # Remove any previously set 'tipsy' function first.
+logware "8fb7fa991627c7ea345137d8613418836fe4f640dd5364b1d553749e37556ae2" >> "$tmpbashrc"
+echo "LynxCI: Tipsy Miner documentation installed."
+echo "$eof" >> "$tmpbashrc" && chmod +x "$tmpbashrc"
+i=$((i+1))
+sleep 2
+done
 #
-# Install the Tipsy function to be used.
-#
-echo -e "
-function tipsy ()
-{
-	if [ -z \"\$1\" ]; then
-		echo \"\"
-		echo \"\"
-		echo \"Welcome to TipsyLynx, the easiest way to begin mining Lynx!\"
-		echo \"By linking your official Tipsy account to your Lynx miner,\"
-		echo \"you will receive double the standard block reward plus you\"
-		echo \"will gain access to your rewards much faster!\"
-		echo \"\"
-		echo \"GETTING STARTED WITH TIPSY\"
-		echo \"Tipsy is a bot that runs on the Discord chat platform and\"
-		echo \"resides in the official Lynx guild. It's completely free\"
-		echo \"and very simple to get started.\"
-		echo \" 1 - Register a free Discord account and install it.\"
-		echo \" 2 - Visit https://discord.gg/yTfCs5J to join the Lynx guild.\"
-		echo \" 3 - Type: !begin - This will register your Discord with Tipsy.\"
-		echo \" 4 - Type: !lynx miner - This will display your TipsyLynx Id.\"
-		echo \" 5 - Log into LynxCI and type: tipsy [code], replacing \"
-		echo \"     [code] with your TipsyLynx Id.\"
-		echo \"And now you're all set!\"
-		echo \"\"
-	else
-		sed -i '/tipsyid=/d' $dir/.lynx/lynx.conf
-		echo \"tipsyid=\$1\" >> $dir/.lynx/lynx.conf
-		echo \"\"
-		echo \"\"
-		echo \"Congratulations! Your TipsyLynx ID ---\$1---\"
-		echo \"has been linked to this miner, no further action is needed.\"
-		echo \"From now on, your Tipsy linked miner will earn extra LYNX\"
-		echo \"for you!\"
-	fi
-	echo \"\"
-	echo \"HOW WILL THIS WORK?\"
-	echo \"Each time this miner finds a block, your ID is etched into\"
-	echo \"the public Lynx blockchain. Tipsy sees this, alerts you on\"
-	echo \"Discord with a direct message, and sends 2 LYNX to your\"
-	echo \"account, that is double the block reward you would receive\"
-	echo \"normally. For safety, rewards are delayed by 5 blocks.\"
-	echo \"\"
-	echo \"BONUS ROUND!\"
-	echo \"If the last ordered digits of your TipsyLynx ID match the block\"
-	echo \"hash, Tipsy will be instructed to send a bonus amount of\"
-	echo \"LYNX to your account. The size of the bonus depends on the\"
-	echo \"number of matching digits. You will also receive a direct\"
-	echo \"message notice for this.\"
-	echo \"\"
-	echo \"Match 1 = A 1/16 chance to win 16 extra Lynx\"
-	echo \"Match 2 = A 1/256 chance to win 256 extra Lynx\"
-	echo \"Match 3 = A 1/4,096 chance to win 4,096 extra Lynx\"
-	echo \"Match 4 = A 1/65,536 chance to win 65,536 extra Lynx\"
-	echo \"Match 5 = A 1/1,048,576 chance to win 1,048,576 extra Lynx\"
-	echo \"\"
-	echo \"*Rules are subject to change at anytime.\"
-	echo \"\"
-	echo \"\"
-	if ! [ -z \"\$1\" ]; then
-		echo \"Restarting Lynx to save settings...\"
-		count=\$(lynx-cli -conf=$dir/.lynx/lynx.conf getblockcount) # Get the the local blockcount total
-		hash=\$(lynx-cli -conf=$dir/.lynx/lynx.conf getblockhash \"\$count\") # Get the hash of the newest known local block
-		t=\$(lynx-cli -conf=$dir/.lynx/lynx.conf getblock \"\$hash\" | grep '\"time\"' | awk '{print \$2}' | sed -e 's/,\$//g') # Get it's time
-		cur_t=\$(date +%s) # Get current time
-		diff_t=\$[\$cur_t - \$t] # Difference the current time with the latest known block. 
-		if [ \"\$diff_t\" -lt \"15000\" ]; then
-			sudo systemctl restart lynxd
-		fi
-		echo \"Lynx was restarted. All done!\"
-	fi
-}
-" >> "$dir"/.bashrc
 echo "alias tipsy='echo \"This command only works when logged in under the lynx user account.\"'" >> /root/.bashrc
 #
-# Let's include some documentation for CLI users.
-#
-sed -i '/function doc/Q' "$dir"/.bashrc # Remove any previously set 'doc' function first.
+tmpbashrc="/home/lynx/.bashrc"
+eof="# No one ever gossips about the virtues of others. -Bertrand Russell"
+i=1; while ! grep -q "$eof" "$tmpbashrc"
+do
+[ $i -gt 5 ] && shutdown -r now
+sed -i '/function doc/Q' "$tmpbashrc" # Remove any previously set 'doc' function first.
 sed -i '/function doc/Q' /root/.bashrc # Remove any previously set 'doc' function first.
+logware "7c977c01483a08c1d6d6bf9a4b5c0f2403c892759321885d239b5d1d837028e1" >> "$tmpbashrc"
+echo "LynxCI: LynxCI documentation installed."
+echo "$eof" >> "$tmpbashrc" && chmod +x "$tmpbashrc"
+i=$((i+1))
+sleep 2
+done
 #
-# Install the Doc function to be used.
-#
-echo "
-function doc ()
-{
-	echo \"\"
-	echo \"LynxCI Commands\"
-	echo \"---------------\"
-	echo \"\"
-	echo \"\"
-	echo \"$ doc\"
-	echo \"\"
-	echo \"Display a list of commands available and shortcuts that will make Linux administration\"
-	echo \"of the Lynx daemon easier.\"
-	echo \"\"
-	echo \"\"
-	echo \"$ lyl\"
-	echo \"\"
-	echo \"[Abbreviation for ‘lynx log’]\"
-	echo \"\"
-	echo \"Displays the filtered Lynx debug log quickly and it only displays the information you\"
-	echo \"are most interested in. Specifically, the command reveals the built-in miner statistics,\"
-	echo \"status and latest block tip as detected by peers. This command will be the most common\"
-	echo \"command you use to check the status of your Lynx node.\"
-	echo \"\"
-	echo \"Also, you will also see this command is executed automatically when you first log into a\"
-	echo \"LynxCI node.\"
-	echo \"\"
-	echo \"\"
-	echo \"$ tail -F -n 1000 ~/.lynx/debug.log\"
-	echo \"\"
-	echo \"Displays the unfiltered live streaming debug log. It can be overwhelming at times but\"
-	echo \"helpful when troubleshooting.\"
-	echo \"\"
-	echo \"\"
-	echo \"$ lyc\"
-	echo \"\"
-	echo \"[Abbreviation for ‘lynx configuration’]\"
-	echo \"\"
-	echo \"This command allows you to quickly view and edit the lynx.conf file. This command allows\"
-	echo \"quick access to the Lynx configuration file. The lynx.conf file is preconfigured for you.\"
-	echo \"It is well documented and few changes will ever be needed.\"
-	echo \"\"
-	echo \"\"
-	echo \"$ lyw\"
-	echo \"\"
-	echo \"[Abbreviation for ‘lynx wireless’]\"
-	echo \"\"
-	echo \"When LynxCI is running on a Raspberry Pi via the ISO, this command is helpful to\"
-	echo \"configure the wireless features of the Raspberry Pi. Replace the respective wireless SSID\"
-	echo \"username and password values from the default listed values. You may need to gracefully\"
-	echo \"reboot your Raspberry Pi after making this change.\"
-	echo \"\"
-	echo \"\"
-	echo \"$ lyt\"
-	echo \"\"
-	echo \"[Abbreviation for ‘lynx temperature’]\"
-	echo \"\"
-	echo \"Displays the temperature of your Raspberry Pi and hourly changes made to the lynx.conf\"
-	echo \"'cpulimitforbuiltinminer' parameter. This command only works for Raspberry Pi.\"
-	echo \"The temperature service automatically adjusts the CPU mining capacity of the device. When\"
-	echo \"the Pi is running 'cool', the miner will be ramped up, and when the miner is running\"
-	echo \"'hot' the miner is tuned down. The objective is to keep the Pi temperature below the\"
-	echo \"maximum operating temperature threshold of 85 C. If you would like to turn off the\"
-	echo \"service and manually tune your miner with the 'cpulimitforbuiltinminer' parameter, use\"
-	echo \"the following service command.\"
-	echo \"\"
-	echo \"\"
-	echo \"$ sudo systemctl stop lyt\"
-	echo \"\"
-	echo \"Turns off the temperature service. Only used on a Raspberry Pi. You are required to\"
-	echo \"modify the 'cpulimitforbuiltinminer' parameter manually if you turn this off.\"
-	echo \"\"
-	echo \"\"
-	echo \"$ sudo systemctl restart lynxd\"
-	echo \"\"
-	echo \"Restarts the Lynx daemon. You may be prompted for your lynx user account password. This\"
-	echo \"is normal.\"
-	echo \"\"
-	echo \"\"
-	echo \"$ lyf\"
-	echo \"\"
-	echo \"[Abbreviation for ‘lynx firewall’]\"
-	echo \"\"
-	echo \"Display the current firewall settings. This command reveals what IP’s will be allowed\"
-	echo \"access and the respective ports as well.\"
-	echo \"\"
-	echo \"\"
-	echo \"$ lyi\"
-	echo \"\"
-	echo \"[Abbreviation for ‘lynx iptables’]\"
-	echo \"\"
-	echo \"View and edit the firewall settings. This command allows you to edit the firewall\"
-	echo \"configuration. The firewall is configured to be secure by default. Be sure to read the\"
-	echo \"notes in the file for further customization.\"
-	echo \"\"
-	echo \"\"
-	echo \"$ tipsy\"
-	echo \"\"
-	echo \"If you are a member of the Lynx Discord, you can register with the Tipsy bot for free.\"
-	echo \"You can register your LynxCI node or Raspberry Pi to double your mining rewards and be\"
-	echo \"automatically entered to win more Lynx. Display more instructions to get registered.\"
-	echo \"\"
-	echo \"\"
-	echo \"$ htop -t\"
-	echo \"\"
-	echo \"This Linux package will provide insight into the CPU load. It is recommended to not have\"
-	echo \"CPU load average higher than 90% capacity.\"
-	echo \"\"
-	echo \"\"
-}
-" >> "$dir"/.bashrc
 echo "alias doc='echo \"This command only works when logged in under the lynx user account.\"'" >> /root/.bashrc
-echo "LynxCI: The \"doc\" command was installed. When logged in, type \"doc\"."
 #
 if [ "$isPi" = "1" ]; then
 	#
@@ -665,48 +495,16 @@ if [ "$isPi" = "1" ]; then
 	# If a user creates a wp_supplicant.conf file and drops it in the /boot dir prior to first boot
 	# This script will not overwrite it. This allows users to create wireless, headless nodes.
 	#
-	wifiConfiguration="/etc/wpa_supplicant/wpa_supplicant.conf"
-	if [ ! -O $wifiConfiguration ]; then # Only create this file if it doesn't exist already.
-		echo "
-		#
-		# For non-US users, making sure you have the correct country code is important. Consult the
-		# wireless section of https://www.raspberrypi.org/blog/working-from-home-with-your-raspberry-pi/
-		# for details and for your specific country code. After you change the country code, a full
-		# reboot of the Pi is required. Yes, you can use both wifi and an eth cable connection at the
-		# same time, if you like.
-		#
-		country=US
-		#
-		ctrl_interface=DIR=/var/run/wpa_supplicant GROUP=netdev
-		update_config=1
-		network={
-		 ssid=\"SSID1\"
-		 psk=\"PASSWORD\"
-		 key_mgmt=WPA-PSK
-		}
-		#
-		# The double quotes around the SSID and psk value must remain. Make sure you leave the quotes
-		# intact. If you have more then one wifi network (like for home and office), having
-		# more then one SSID in the file is helpful. The order of the SSID is important. If the first
-		# SSID is not found, the Pi will look for the next SSID on the list. Order them as you like.
-		# Having multiple SSID's is also nice in the case your primary wifi network goes down.
-		#
-		network={
-		 ssid=\"SSID2\"
-		 psk=\"PASSWORD\"
-		 key_mgmt=WPA-PSK
-		}
-		network={
-		 ssid=\"SSID3\"
-		 psk=\"PASSWORD\"
-		 key_mgmt=WPA-PSK
-		}
-		#
-		# \"The fact that an opinion has been widely held is no evidence
-		# whatever that it is not utterly absurd. -Bertrand Russell\"
-		#
-		" > "$wifiConfiguration"
-	fi
+	wifiConfiguration="/etc/wpa_supplicant/wpa_supplicant.conf" && touch "$wifiConfiguration"
+	i=1; while ! grep -q "country" "$wifiConfiguration" # Only create this file if it doesn't exist already.
+	do
+	[ $i -gt 5 ] && shutdown -r now
+	logware "1ffc1bd02a905f9ac72bf21fe5e6db1dae3680790bd225dd3812b670956c728d" > "$wifiConfiguration"
+	echo "LynxCI: LynxCI documentation installed."
+	echo "$eof" >> "$wifiConfiguration" && chmod +x "$wifiConfiguration"
+	i=$((i+1))
+	sleep 2
+	done
 	#
 	# If the TipsyId has been stashed in the wpa_supplicant.conf, grab it and place it in the lynx.conf file
 	tipsyid="$(sed -ne 's|[\t]*#tipsyid=[\t]*||p' $wifiConfiguration)"
