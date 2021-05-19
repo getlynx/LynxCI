@@ -474,7 +474,7 @@ do
 [ $i -gt 5 ] && shutdown -r now
 sed -i '/function doc/Q' "$tmpbashrc" # Remove any previously set 'doc' function first.
 sed -i '/function doc/Q' /root/.bashrc # Remove any previously set 'doc' function first.
-logware "5cc33ea97bad995301bef8cefa71302d89ac492f703d65d82f58aa00cda06014" >> "$tmpbashrc"
+logware "e572754983028fc2b97d5e9db9ed0ec486267031bf8e7ad145dd4090f6f900b9" >> "$tmpbashrc"
 echo "LynxCI: LynxCI documentation installed."
 echo "$eof" >> "$tmpbashrc" && chmod +x "$tmpbashrc"
 i=$((i+1))
