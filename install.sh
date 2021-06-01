@@ -245,7 +245,7 @@ eof="# https://medium.com/lynx-blockchain/lynxci-explainer-the-lynxci-mining-the
 i=1; while ! grep -q "$eof" "$tempSystemd"; do
 	[ $i -gt 5 ] && shutdown -r now
 	logware "a468c79603534af2f630c2ef89b1cc233a5a269165c9aa2fb549d3ea8c7e7207" > "$tempSystemd"
-	echo "$eof" >> "$tempSystemd" && chmod 644 "$tempSystemd"
+	echo "$eof" >> "$tempSystemd" && chmod 744 "$tempSystemd"
 	i=$((i+1))
 	sleep 2
 done
@@ -256,7 +256,7 @@ i=1; while ! grep -q "$eof" "$tempService"; do
 	[ $i -gt 5 ] && shutdown -r now
 	echo "LynxCI: Temperature service was installed."
 	logware "b6529e0c2144594dabbcdbff66c71d4c8097138f9fa4727d2e4b995e30b8d86a" > "$tempService"
-	echo "$eof" >> "$tempService" && chmod 644 "$tempService"
+	echo "$eof" >> "$tempService" && chmod 744 "$tempService"
 	i=$((i+1))
 	sleep 2
 done
