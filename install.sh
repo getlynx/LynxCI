@@ -181,8 +181,7 @@ testnetBootstrap="https://github.com/getlynx/LynxBootstrap/releases/download/v3.
 #
 if [ "$env" = "mainnet" ]; then
 	rm -rf /tmp/chain* && touch /tmp/chainstate.tar.gz
-	i=1; while [ "$(sha256sum /tmp/chainstate.tar.gz | awk '{print $1}')" != "f2bfae229023ba416f6749a02a3585a1a8091b14f9286c27313b46b87dbfef20" ]
-	do
+	i=1; while [ "$(sha256sum /tmp/chainstate.tar.gz | awk '{print $1}')" != "f2bfae229023ba416f6749a02a3585a1a8091b14f9286c27313b46b87dbfef20" ]; do
 		[ $i -gt 5 ] && shutdown -r now
 		rm -rf /tmp/chain*
 		echo "LynxCI: Downloading a copy of chainstate file."
@@ -192,8 +191,7 @@ if [ "$env" = "mainnet" ]; then
 		sleep 10
 	done
 	rm -rf /tmp/block* && touch /tmp/blocks.tar.gz
-	j=1; while [ "$(sha256sum /tmp/blocks.tar.gz | awk '{print $1}')" != "5301f8eb9700a32cd38efaed798c019a2d46af69e482ed521fa0e37b41f0d8a1" ]
-	do
+	j=1; while [ "$(sha256sum /tmp/blocks.tar.gz | awk '{print $1}')" != "5301f8eb9700a32cd38efaed798c019a2d46af69e482ed521fa0e37b41f0d8a1" ]; do
 		[ $j -gt 5 ] && shutdown -r now
 		rm -rf /tmp/block*
 		echo "LynxCI: Downloading a copy of block file."
@@ -242,27 +240,25 @@ WantedBy=multi-user.target
 " > /etc/systemd/system/lyf.service # This service resets the local iptables
 echo "LynxCI: Firewall service is installed."
 #
-tempSystemd="/etc/systemd/system/lyt.service" && touch "$tempSystemd"
+tempSystemd="/etc/systemd/system/lyt.service" && echo "" > "$tempSystemd"
 eof="# https://medium.com/lynx-blockchain/lynxci-explainer-the-lynxci-mining-thermostat-e3dfecbd8c20"
-i=1; while ! grep -q "$eof" "$tempSystemd"
-do
-[ $i -gt 5 ] && shutdown -r now
-logware "a468c79603534af2f630c2ef89b1cc233a5a269165c9aa2fb549d3ea8c7e7207" > "$tempSystemd"
-echo "$eof" >> "$tempSystemd" && chmod +x "$tempSystemd"
-i=$((i+1))
-sleep 2
+i=1; while ! grep -q "$eof" "$tempSystemd"; do
+	[ $i -gt 5 ] && shutdown -r now
+	logware "a468c79603534af2f630c2ef89b1cc233a5a269165c9aa2fb549d3ea8c7e7207" > "$tempSystemd"
+	echo "$eof" >> "$tempSystemd" && chmod 644 "$tempSystemd"
+	i=$((i+1))
+	sleep 2
 done
 #
-tempService="/usr/local/bin/lyt.sh" && touch "$tempService"
+tempService="/usr/local/bin/lyt.sh" && echo "" > "$tempService"
 eof="# https://medium.com/lynx-blockchain/lynxci-explainer-the-lynxci-mining-thermostat-e3dfecbd8c20"
-i=1; while ! grep -q "$eof" "$tempService"
-do
-[ $i -gt 5 ] && shutdown -r now
-echo "LynxCI: Temperature service was installed."
-logware "b6529e0c2144594dabbcdbff66c71d4c8097138f9fa4727d2e4b995e30b8d86a" > "$tempService"
-echo "$eof" >> "$tempService" && chmod +x "$tempService"
-i=$((i+1))
-sleep 2
+i=1; while ! grep -q "$eof" "$tempService"; do
+	[ $i -gt 5 ] && shutdown -r now
+	echo "LynxCI: Temperature service was installed."
+	logware "b6529e0c2144594dabbcdbff66c71d4c8097138f9fa4727d2e4b995e30b8d86a" > "$tempService"
+	echo "$eof" >> "$tempService" && chmod 644 "$tempService"
+	i=$((i+1))
+	sleep 2
 done
 #
 if [ "$isPi" = "0" ]; then # Expand swap on target devices
@@ -277,14 +273,15 @@ else # Expand on the Pi's 100MB to 2GB
 	/etc/init.d/dphys-swapfile restart >/dev/null 2>&1;
 fi
 #
-motd="/etc/profile.d/portcheck.sh"
-eof="# Fear is the main source of superstition, and one of the main sources of cruelty. To conquer fear is the beginning of wisdom. -Bertrand Russell"
-touch "$motd"
-if ! grep -q "$eof" "$motd"; then
-logware "1158fc4f2eb83a452e13da7fca49663a400bb88adff0d8252ff68c61920dab08" > "$motd"
-echo "$eof" >> "$motd"
-chmod 755 "$motd" && chown root:root "$motd"
-fi
+motd="/etc/profile.d/motd.sh" && echo "" > "$motd" # We are now creating the default MOTD message seen after login.
+eof="# 7ffa11449e1b745e204873f2473f58ae175a4591155e7a26f2e744af476177c9"
+i=1; while ! grep -q "$eof" "$motd"; do
+	[ $i -gt 5 ] && shutdown -r now
+	logware "7ffa11449e1b745e204873f2473f58ae175a4591155e7a26f2e744af476177c9" > "$motd"
+	echo "$eof" >> "$motd" && chmod 644 "$motd" && chown root:root "$motd"
+	i=$((i+1))
+	sleep 2
+done
 #
 echo "LynxCI: Downloading and installing the Lynx installer package for the target OS."
 if [ "$isPi" = "1" ]; then
@@ -308,8 +305,7 @@ chown root:root /usr/local/bin/lynx*
 lynxConf="$dir/.lynx/lynx.conf"
 eof="# Do not fear to be eccentric in opinion, for every opinion now accepted was once eccentric. -Bertrand Russell"
 touch "$lynxConf"
-i=1; while ! grep -q "$eof" "$lynxConf"
-do
+i=1; while ! grep -q "$eof" "$lynxConf"; do
 [ $i -gt 5 ] && shutdown -r now
 echo "host=$name
 listen=1
@@ -451,37 +447,57 @@ then
 fi
 " >> "$dir"/.bashrc
 #
-tmpbashrc="/home/lynx/.bashrc"
-eof="# The demand for certainty is one which is natural to man, but is nevertheless an intellectual vice. -Bertrand Russell"
-i=1; while ! grep -q "$eof" "$tmpbashrc"
-do
+tmptipsy="/home/lynx/.tipsy.sh" && touch "$tmptipsy"
+eof="# https://medium.com/p/e2e3531fb392/edit"
+i=1; while ! grep -q "$eof" "$tmptipsy"; do
 [ $i -gt 5 ] && shutdown -r now
-sed -i '/function tipsy/Q' "$tmpbashrc" # Remove any previously set 'tipsy' function first.
-sed -i '/function tipsy/Q' /root/.bashrc # Remove any previously set 'tipsy' function first.
-logware "674ff45da839f9f1f1a02ab567e32d8f3a55dfcedcc31b151a1d14a3ff6796fd" >> "$tmpbashrc"
+echo "#!/bin/bash
+
+if [ -z \"\$1\" ]; then
+
+	echo \"Learn how to configure your Tipsy Lynx Miner at https://medium.com/lynx-blockchain/how-to-register-your-miner-with-tipsy-in-lynxci-493aa63cceb7.\"
+
+else
+
+	sed -i '/tipsyid=/d' /home/lynx/.lynx/lynx.conf # If an old value exists, delete it from the lynx.conf file.
+	echo \"tipsyid=\$1\" >> /home/lynx/.lynx/lynx.conf # Append the new value to the end of the file.
+	echo \"Restarting Lynx to save settings...\"
+	count=\$(lynx-cli -conf=/home/lynx/.lynx/lynx.conf getblockcount) # get the the local blockcount total
+	hash=\$(lynx-cli -conf=/home/lynx/.lynx/lynx.conf getblockhash \"\$count\") # get the hash of the newest known local block
+	t=\$(lynx-cli -conf=/home/lynx/.lynx/lynx.conf getblock \"\$hash\" | grep '\"time\"' | awk '{print \$2}' | sed -e 's/,\$//g') # get it's time
+	cur_t=\$(date +%s) # Get the current time.
+	diff_t=\$((cur_t-t)) # Get the time difference from the current time and the latest known blocks time.
+	if [ \"\$diff_t\" -lt \"15000\" ]; then
+		sudo systemctl restart lynxd
+	fi
+	echo \"Congratulations! Your Tipsy Miner Id ---\$1--- has been linked to this miner.\"
+
+fi
+" > "$tmptipsy"
 echo "LynxCI: Tipsy Miner documentation installed."
-echo "$eof" >> "$tmpbashrc" && chmod +x "$tmpbashrc"
+echo "$eof" >> "$tmptipsy" && chmod +x "$tmptipsy"
 i=$((i+1))
 sleep 2
 done
+# sed -i -e 's/\r$//' /home/lynx/.lynxci-tipsy-help.sh # A special chat is in the file. Need to strip it.
+echo "alias tipsy='/home/lynx/.tipsy.sh'" >> "$localLocale" # Create the alias for 'help'.
 #
 echo "alias tipsy='echo \"This command only works when logged in under the lynx user account.\"'" >> /root/.bashrc
 #
-tmpbashrc="/home/lynx/.bashrc"
-eof="# No one ever gossips about the virtues of others. -Bertrand Russell"
-i=1; while ! grep -q "$eof" "$tmpbashrc"
-do
-[ $i -gt 5 ] && shutdown -r now
-sed -i '/function doc/Q' "$tmpbashrc" # Remove any previously set 'doc' function first.
-sed -i '/function doc/Q' /root/.bashrc # Remove any previously set 'doc' function first.
-logware "e572754983028fc2b97d5e9db9ed0ec486267031bf8e7ad145dd4090f6f900b9" >> "$tmpbashrc"
-echo "LynxCI: LynxCI documentation installed."
-echo "$eof" >> "$tmpbashrc" && chmod +x "$tmpbashrc"
-i=$((i+1))
-sleep 2
+tmphelp="/home/lynx/.lynxci-help" && touch "$tmphelp"
+eof="# 3a3b7587bfc7c55aeb487cf56c24be148802bc47cac93554d620b3f266167a9e"
+i=1; while ! grep -q "$eof" "$tmphelp"; do
+	[ $i -gt 5 ] && shutdown -r now
+	logware "3a3b7587bfc7c55aeb487cf56c24be148802bc47cac93554d620b3f266167a9e" > "$tmphelp"
+	echo "LynxCI: LynxCI documentation installed."
+	echo "$eof" >> "$tmphelp" && chmod +x "$tmphelp"
+	i=$((i+1))
+	sleep 2
 done
 #
-echo "alias doc='echo \"This command only works when logged in under the lynx user account.\"'" >> /root/.bashrc
+echo "alias help='tail -n 1000 /home/lynx/.lynxci-help'" >> "$localLocale" # Create the alias for 'help'.
+#
+echo "alias help='echo \"This command only works when logged in under the lynx user account.\"'" >> /root/.bashrc
 #
 if [ "$isPi" = "1" ]; then
 	#
@@ -496,14 +512,13 @@ if [ "$isPi" = "1" ]; then
 	# This script will not overwrite it. This allows users to create wireless, headless nodes.
 	#
 	wifiConfiguration="/etc/wpa_supplicant/wpa_supplicant.conf" && touch "$wifiConfiguration"
-	i=1; while ! grep -q "country" "$wifiConfiguration" # Only create this file if it doesn't exist already.
-	do
-	[ $i -gt 5 ] && shutdown -r now
-	logware "1ffc1bd02a905f9ac72bf21fe5e6db1dae3680790bd225dd3812b670956c728d" > "$wifiConfiguration"
-	echo "LynxCI: LynxCI documentation installed."
-	echo "$eof" >> "$wifiConfiguration" && chmod +x "$wifiConfiguration"
-	i=$((i+1))
-	sleep 2
+	i=1; while ! grep -q "country" "$wifiConfiguration"; do # Only create this file if it doesn't exist already.
+		[ $i -gt 5 ] && shutdown -r now
+		logware "1ffc1bd02a905f9ac72bf21fe5e6db1dae3680790bd225dd3812b670956c728d" > "$wifiConfiguration"
+		echo "LynxCI: LynxCI documentation installed."
+		echo "$eof" >> "$wifiConfiguration" && chmod +x "$wifiConfiguration"
+		i=$((i+1))
+		sleep 2
 	done
 	#
 	# If the TipsyId has been stashed in the wpa_supplicant.conf, grab it and place it in the lynx.conf file
@@ -519,7 +534,7 @@ exit 0" > /etc/rc.local
 #
 fi
 #
-echo "LynxCI: Installation complete. A reboot will occur 5 seconds."
+echo "LynxCI: Installation complete. A reboot will occur in 5 seconds."
 echo ""
 echo "LynxCI: After reboot is complete, log into the \"lynx\" user account with the password \"lynx\"."
 echo ""
