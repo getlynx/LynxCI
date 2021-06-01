@@ -448,7 +448,7 @@ fi
 " >> "$dir"/.bashrc
 #
 tmptipsy="/home/lynx/.tipsy.sh" && touch "$tmptipsy"
-eof="# https://medium.com/p/e2e3531fb392/edit"
+eof="# https://medium.com/lynx-blockchain/how-to-register-your-miner-with-tipsy-in-lynxci-493aa63cceb7"
 i=1; while ! grep -q "$eof" "$tmptipsy"; do
 [ $i -gt 5 ] && shutdown -r now
 echo "#!/bin/bash
