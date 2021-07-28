@@ -55,12 +55,11 @@ A (relatively) current bootstrap file can be downloaded [here][14]. Any remainin
 [1]:	https://getlynx.io
 [2]:	https://www.raspberrypi.org/software/operating-systems/
 [3]:	https://github.com/getlynx/LynxCI/releases/download/v26-ISO/LynxCI.tar.gz
-[4]:	https://getlynx.io/downloads/
+[4]:	https://github.com/getlynx/LynxCI/releases/tag/v27-ISO
 [5]:	https://www.raspberrypi.org/software/
 [6]:	https://getlynx.io/can-non-techies-mine-lynx-crypto/
 [7]:	https://medium.com/lynx-blockchain
 [8]:	https://medium.com/lynx-blockchain
-[9]:	https://getlynx.io/news/
 [10]:	https://twitter.com/GetlynxIo
 [11]:	https://discord.gg/5cM3NTF
 [12]:	https://getlynx.io
