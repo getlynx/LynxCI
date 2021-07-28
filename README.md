@@ -30,7 +30,7 @@ A (relatively) current bootstrap file can be downloaded [here][14]. Any remainin
 
 [1]:	https://getlynx.io
 [2]:	https://www.raspberrypi.org/software/operating-systems/
-[3]:	https://github.com/getlynx/LynxCI/releases/download/v26-ISO/LynxCI.tar.gz
+[3]:	https://github.com/getlynx/LynxCI/releases/download/v27-ISO/2021-01-11-LynxCI.tar.gz
 [4]:	https://github.com/getlynx/LynxCI/releases/tag/v27-ISO
 [5]:	https://www.raspberrypi.org/software/
 [7]:	https://medium.com/lynx-blockchain
