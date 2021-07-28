@@ -24,13 +24,13 @@ The above instructions work fine for a Raspberry Pi 3 or 4 if you want to play, 
 
 ## Help
 
-Helpful videos that answer many questions are available on our [Lynx FAQ][7].
+Helpful articles about Lynx and LynxCI are available on our [Medium channel][7].
 
 ## What is Lynx?
 
 Lynx is a secure cryptocurrency with fast transaction speeds and low-transaction fees. It’s also eco-friendly & easy-to-use. In 2017, our team upgraded, fixed and rebranded Kittehcoin as Lynx. How? We successfully forked Litecoin and ported the Kittehcoin blockchain history to it. This gives Lynx all the benefits of Litecoin with the full transaction history of Kittehcoin. The upgrades fixed the flaws in the original coin and revived its community of users. It’s cryptocurrency from the past; redesigned for the future.
 
-[Lynx FAQ][8] | [Lynx News][9] | [Lynx Twitter][10] | [Lynx Discord][11]
+[Medium channel][8] | | [Lynx Twitter][10] | [Lynx Discord][11]
 
 ## How is Lynx an "eco-friendly cryptocurrency"?
 
@@ -58,8 +58,8 @@ A (relatively) current bootstrap file can be downloaded [here][14]. Any remainin
 [4]:	https://getlynx.io/downloads/
 [5]:	https://www.raspberrypi.org/software/
 [6]:	https://getlynx.io/can-non-techies-mine-lynx-crypto/
-[7]:	https://getlynx.io/faq/
-[8]:	https://getlynx.io/faq/
+[7]:	https://medium.com/lynx-blockchain
+[8]:	https://medium.com/lynx-blockchain
 [9]:	https://getlynx.io/news/
 [10]:	https://twitter.com/GetlynxIo
 [11]:	https://discord.gg/5cM3NTF
