@@ -181,21 +181,21 @@ testnetBootstrap="https://github.com/getlynx/LynxBootstrap/releases/download/v3.
 #
 if [ "$env" = "mainnet" ]; then
 	rm -rf /tmp/chain* && touch /tmp/chainstate.tar.gz
-	i=1; while [ "$(sha256sum /tmp/chainstate.tar.gz | awk '{print $1}')" != "f2bfae229023ba416f6749a02a3585a1a8091b14f9286c27313b46b87dbfef20" ]; do
+	i=1; while [ "$(sha256sum /tmp/chainstate.tar.gz | awk '{print $1}')" != "2a671e415f05fee5867c34c747143a90b600ef8533637160f453254440a4a42e" ]; do
 		[ $i -gt 5 ] && shutdown -r now
 		rm -rf /tmp/chain*
 		echo "LynxCI: Downloading a copy of chainstate file."
-		wget -q -P /tmp https://github.com/getlynx/LynxBootstrap/releases/download/v5.0-mainnet/chainstate.tar.gz
+		wget -q -P /tmp https://github.com/getlynx/LynxBootstrap/releases/download/v6.0-mainnet/chainstate.tar.gz
 		echo "LynxCI: Checking integrity of chainstate file."
 		i=$((i+1))
 		sleep 10
 	done
 	rm -rf /tmp/block* && touch /tmp/blocks.tar.gz
-	j=1; while [ "$(sha256sum /tmp/blocks.tar.gz | awk '{print $1}')" != "5301f8eb9700a32cd38efaed798c019a2d46af69e482ed521fa0e37b41f0d8a1" ]; do
+	j=1; while [ "$(sha256sum /tmp/blocks.tar.gz | awk '{print $1}')" != "c7b58bdb5b67c174201cde85e40097cb9522c170a347643e47c2be732d6031c7" ]; do
 		[ $j -gt 5 ] && shutdown -r now
 		rm -rf /tmp/block*
 		echo "LynxCI: Downloading a copy of block file."
-		wget -q -P /tmp https://github.com/getlynx/LynxBootstrap/releases/download/v5.0-mainnet/blocks.tar.gz
+		wget -q -P /tmp https://github.com/getlynx/LynxBootstrap/releases/download/v6.0-mainnet/blocks.tar.gz
 		echo "LynxCI: Checking integrity of block file."
 		j=$((j+1))
 		sleep 10
@@ -313,7 +313,7 @@ daemon=1
 listenonion=1
 upnp=1
 dbcache=450
-txindex=1
+txindex=0
 port=$port
 maxmempool=100
 testnet=0
