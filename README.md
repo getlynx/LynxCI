@@ -18,6 +18,8 @@ For complete details on the above command, please visit this [Medium article][9]
 
 The above instructions work fine for a Raspberry Pi 3 or 4 if you want to play, learn and do it manually. But if you want to get your Raspberry Pi up and running quick, the ISO is for you. Simply [download the LynxCI ISO from here][4] and then flash it to an SD card. We have found [the Raspberry Pi Imager][5] to be very easy to use. Then insert the card into the SD card slot on the bottom of the Raspberry Pi and power it on. No keyboard, mouse or monitor is required. You must plug in an ethernet cable connection to the device; maybe from your home router. That is it. It will be fully functional in about 20 minutes.
 
+[Click here to get the latest ISO file for your Raspberry Pi Imager][3]
+
 ## Help
 
 Helpful articles about Lynx and LynxCI are available on our [Medium channel][7]. Join our active [Discord][8] community for questions and mining incentives.
