@@ -2,6 +2,14 @@
 
 Creates a Lynx cryptocurrency node that confirms and relays transactions, provides wallet functions and runs an eco-friendly, built-in solo miner.
 
+## [LynxCI for Pi 4][3]
+
+If you want to get your Raspberry Pi up and running quick, the following ISO is for you. Simply [download the LynxCI ISO from here][4] and then flash it to an SD card. [The Raspberry Pi Imager][5] is great for flashing your SD card quick. Plugin in the ethernet cable, then insert the card into the SD card slot on the bottom of the Raspberry Pi and power it on. No keyboard, mouse or monitor is required. It will be fully functional in about 20 minutes.
+
+\>>> [Click here to get the latest ISO file for your Raspberry Pi Imager][3] <<<
+
+For complete details on the above ISO, please visit this [Medium article][9] for all the information you need.
+
 ## One line install script
 
 **THIS SCRIPT IS ONLY FOR dedicated computers, VPS or Raspberry Pi. If you have data or user accounts on your computer, DO NOT USE THIS SCRIPT. It is only to be used after a freshly installed operating system.**
@@ -13,12 +21,6 @@ You can execute the following install script, as 'root', after your OS is instal
 	wget -qO - https://getlynx.io/install.sh | bash
 
 For complete details on the above command, please visit this [Medium article][9] for all the information you need.
-
-## [LynxCI for Pi 4][3]
-
-The above instructions work fine for a Raspberry Pi 3 or 4 if you want to play, learn and do it manually. But if you want to get your Raspberry Pi up and running quick, the ISO is for you. Simply [download the LynxCI ISO from here][4] and then flash it to an SD card. We have found [the Raspberry Pi Imager][5] to be very easy to use. Then insert the card into the SD card slot on the bottom of the Raspberry Pi and power it on. No keyboard, mouse or monitor is required. You must plug in an ethernet cable connection to the device; maybe from your home router. It will be fully functional in about 20 minutes.
-
-[Click here to get the latest ISO file for your Raspberry Pi Imager][3]
 
 ## Help
 
