@@ -249,6 +249,7 @@ i=1; while ! grep -q "$eof" "$tempSystemd"; do
 	logware "a468c79603534af2f630c2ef89b1cc233a5a269165c9aa2fb549d3ea8c7e7207" > "$tempSystemd"
 	echo "$eof" >> "$tempSystemd" && chmod 744 "$tempSystemd"
 	i=$((i+1))
+	sed -i 's/\r$//' $tempSystemd
 	sleep 2
 done
 #
@@ -260,6 +261,7 @@ i=1; while ! grep -q "$eof" "$tempService"; do
 	logware "a89f3361acf354d5a3d19c0ca370650457c36f1e5e037726455140ec05272341" > "$tempService"
 	echo "$eof" >> "$tempService" && chmod 744 "$tempService"
 	i=$((i+1))
+	sed -i 's/\r$//' $tempService
 	sleep 2
 done
 #
