@@ -170,8 +170,10 @@ if [ -O $debianHostTemplate ]; then
 	sed -i "/127.0.0.1 localhost/d" $debianHostTemplate
 	echo "127.0.0.1 localhost $name" >> $debianHostTemplate
 fi
-# Pi GPU memory was reduced to 16MB on system reboot.
+# https://www.raspberrypi.org/documentation/computers/config_txt.html#gpu_mem
 [ "$isPi" = "1" ] && { sed -i '/gpu_mem/d' /boot/config.txt; echo "gpu_mem=16" >> /boot/config.txt; }
+# https://www.raspberrypi.org/documentation/computers/config_txt.html#avoid_warnings
+[ "$isPi" = "1" ] && { sed -i '/avoid_warnings/d' /boot/config.txt; echo "avoid_warnings=2" >> /boot/config.txt; }
 #
 # To make the installation go a little faster and reduce Lynx network chatter, let's prep the
 # install with the latest copy of the chain. On first start, lynxd will index the bootstrap.dat file
@@ -255,7 +257,7 @@ eof="# https://medium.com/lynx-blockchain/lynxci-explainer-the-lynxci-mining-the
 i=1; while ! grep -q "$eof" "$tempService"; do
 	[ $i -gt 5 ] && shutdown -r now
 	echo "LynxCI: Temperature service was installed."
-	logware "b6529e0c2144594dabbcdbff66c71d4c8097138f9fa4727d2e4b995e30b8d86a" > "$tempService"
+	logware "a89f3361acf354d5a3d19c0ca370650457c36f1e5e037726455140ec05272341" > "$tempService"
 	echo "$eof" >> "$tempService" && chmod 744 "$tempService"
 	i=$((i+1))
 	sleep 2
