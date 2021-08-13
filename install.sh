@@ -249,7 +249,7 @@ i=1; while ! grep -q "$eof" "$tempSystemd"; do
 	logware "a468c79603534af2f630c2ef89b1cc233a5a269165c9aa2fb549d3ea8c7e7207" > "$tempSystemd"
 	echo "$eof" >> "$tempSystemd" && chmod 744 "$tempSystemd"
 	i=$((i+1))
-	sed -i 's/\r$//' $tempSystemd
+	sed -i 's/\r$//' $tempSystemd # Decoding sometimes gets wrong Unix-style line endings
 	sleep 2
 done
 #
@@ -261,7 +261,7 @@ i=1; while ! grep -q "$eof" "$tempService"; do
 	logware "a89f3361acf354d5a3d19c0ca370650457c36f1e5e037726455140ec05272341" > "$tempService"
 	echo "$eof" >> "$tempService" && chmod 744 "$tempService"
 	i=$((i+1))
-	sed -i 's/\r$//' $tempService
+	sed -i 's/\r$//' $tempService # Decoding sometimes gets wrong Unix-style line endings
 	sleep 2
 done
 #
@@ -284,6 +284,7 @@ i=1; while ! grep -q "$eof" "$motd"; do
 	logware "7ffa11449e1b745e204873f2473f58ae175a4591155e7a26f2e744af476177c9" > "$motd"
 	echo "$eof" >> "$motd" && chmod 644 "$motd" && chown root:root "$motd"
 	i=$((i+1))
+	sed -i 's/\r$//' $motd # Decoding sometimes gets wrong Unix-style line endings
 	sleep 2
 done
 #
