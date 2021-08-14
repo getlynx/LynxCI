@@ -247,7 +247,7 @@ eof="# https://medium.com/lynx-blockchain/lynxci-explainer-the-lynxci-mining-the
 i=1; while ! grep -q "$eof" "$tempSystemd"; do
 	[ $i -gt 5 ] && shutdown -r now
 	logware "a468c79603534af2f630c2ef89b1cc233a5a269165c9aa2fb549d3ea8c7e7207" > "$tempSystemd"
-	echo "$eof" >> "$tempSystemd" && chmod 744 "$tempSystemd"
+	echo "$eof" >> "$tempSystemd" && chmod 644 "$tempSystemd"
 	i=$((i+1))
 	sed -i 's/\r$//' $tempSystemd # Decoding sometimes gets wrong Unix-style line endings
 	sleep 2
@@ -259,7 +259,7 @@ i=1; while ! grep -q "$eof" "$tempService"; do
 	[ $i -gt 5 ] && shutdown -r now
 	echo "LynxCI: Temperature service was installed."
 	logware "a89f3361acf354d5a3d19c0ca370650457c36f1e5e037726455140ec05272341" > "$tempService"
-	echo "$eof" >> "$tempService" && chmod 744 "$tempService"
+	echo "$eof" >> "$tempService" && chmod +x "$tempService"
 	i=$((i+1))
 	sed -i 's/\r$//' $tempService # Decoding sometimes gets wrong Unix-style line endings
 	sleep 2
@@ -288,22 +288,30 @@ i=1; while ! grep -q "$eof" "$motd"; do
 	sleep 2
 done
 #
-echo "LynxCI: Downloading and installing the Lynx installer package for the target OS."
-if [ "$isPi" = "1" ]; then
-	# Pi 3 and Pi 4 on latest Raspbian OS Lite
-	rm -rf /usr/local/bin/lynx*
-	wget https://github.com/getlynx/Lynx/releases/download/v0.16.3.11/lynx-arm32-wallet-0.16.3.11.tar.gz -qO - | tar -xz -C /usr/local/bin/
-	mv -f /usr/local/bin/lynx-arm32-wallet-0.16.3.11/* /usr/local/bin/
-	rm -rf /usr/local/bin/lynx-arm32-wallet-0.16.3.11/
-else
-	# Supported OS's: Debian 10 (Buster), Ubuntu 20.10 & Ubuntu 20.04 LTS
-	rm -rf /usr/local/bin/lynx*
-	wget https://github.com/getlynx/Lynx/releases/download/v0.16.3.11/lynx-linux64-wallet-0.16.3.11.tar.gz -qO - | tar -xz -C /usr/local/bin/
-	mv -f /usr/local/bin/lynx-linux64-wallet-0.16.3.11/* /usr/local/bin/
-	rm -rf /usr/local/bin/lynx-linux64-wallet-0.16.3.11/
-fi
-#
-chown root:root /usr/local/bin/lynx*
+bin="/usr/local/bin"
+for f in $bin/lynx-cli $bin/lynxd $bin/lynx-tx
+do
+  if [ -f "$f" ] # Check if file exists and is a regular file
+  then
+    echo "LynxCI: Lynx installer integrity check."
+  else
+  	echo "LynxCI: Downloading and installing the Lynx installer package for the target OS."
+		if [ "$isPi" = "1" ]; then
+			# Pi 3 and Pi 4 on latest Raspbian OS Lite
+			rm -rf $bin/lynx*
+			wget https://github.com/getlynx/Lynx/releases/download/v0.16.3.11/lynx-arm32-wallet-0.16.3.11.tar.gz -qO - | tar -xz -C $bin/
+			mv -f $bin/lynx-arm32-wallet-0.16.3.11/* $bin/
+			rm -rf $bin/lynx-arm32-wallet-0.16.3.11/
+		else
+			# Supported OS's: Debian 10 (Buster), Ubuntu 20.10 & Ubuntu 20.04 LTS
+			rm -rf $bin/lynx*
+			wget https://github.com/getlynx/Lynx/releases/download/v0.16.3.11/lynx-linux64-wallet-0.16.3.11.tar.gz -qO - | tar -xz -C $bin/
+			mv -f $bin/lynx-linux64-wallet-0.16.3.11/* $bin/
+			rm -rf $bin/lynx-linux64-wallet-0.16.3.11/
+		fi
+		chown root:root $bin/lynx*
+  fi
+done
 #
 # Create the default lynx.conf file
 #
