@@ -41,7 +41,7 @@ arch="$(dpkg --print-architecture)" # Get the chip architecture of the target de
 echo "LynxCI: Architecture \"$arch\", Operating system $os detected."
 #
 apt -y update >/dev/null 2>&1 # Update the package list on the target and don't display any output.
-apt -y install wget jq htop >/dev/null 2>&1 # Install minimal packages. Let's keep this simple.
+apt -y install iptables sudo wget jq htop >/dev/null 2>&1 # Install minimal packages. Let's keep this simple.
 #
 lynxService="/etc/systemd/system/lynxd.service" # Standard systemd file placement.
 if [ -O $lynxService ]; then # In case of a re-install. Only do this stuff if the file exists.
@@ -142,17 +142,6 @@ do
 	iptables -A INPUT -j DROP # Drop any other incoming traffic.
 	#
 	#
-	# View the LynxCI Firewall Service activity with the following command
-	#
-	# $ sudo tail -n 5000 /var/log/syslog | grep lyf.service
-	#
-	#
-	# View the current firewall state with the following command
-	#
-	# $ lyf
-	#
-	#
-	rm -rf $dir/.lynx/bootstrap.dat.old # Free up some space by removing the old bootstrap file.
 	sleep 3600 # Every 1 hour, the script wakes up and runs again. (1 hour = 3600 seconds)
 done
 #
@@ -303,7 +292,7 @@ do
 			mv -f $bin/lynx-arm32-wallet-0.16.3.11/* $bin/
 			rm -rf $bin/lynx-arm32-wallet-0.16.3.11/
 		else
-			# Supported OS's: Debian 10 (Buster), Ubuntu 20.10 & Ubuntu 20.04 LTS
+			# Supported OS's: Debian 11 (Bullseye), Debian 10 (Buster), Ubuntu 20.10 & Ubuntu 20.04 LTS
 			rm -rf $bin/lynx*
 			wget https://github.com/getlynx/Lynx/releases/download/v0.16.3.11/lynx-linux64-wallet-0.16.3.11.tar.gz -qO - | tar -xz -C $bin/
 			mv -f $bin/lynx-linux64-wallet-0.16.3.11/* $bin/
