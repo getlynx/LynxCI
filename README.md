@@ -14,7 +14,7 @@ For complete details on the above ISO, please visit this [Medium article][9] for
 
 **THIS SCRIPT IS ONLY FOR dedicated computers, VPS or Raspberry Pi. If you have data or user accounts on your computer, DO NOT USE THIS SCRIPT. It is only to be used after a freshly installed operating system.**
 
-This script supports the following Linux operating systems. [Raspberry Pi OS][2], Debian 10 (Buster), Ubuntu 20.10 & Ubuntu 20.04 LTS. The script is only recommended for a VPS or local server that has a freshly installed OS with no previously written data. Seriously, don't execute this script on a VPS that has data you care about. This precaution is for your own security.
+This script supports the following Linux operating systems. [Raspberry Pi OS][2], Debian 11 (Bullseye), Debian 10 (Buster), Ubuntu 20.10 & Ubuntu 20.04 LTS. The script is only recommended for a VPS or local server that has a freshly installed OS with no previously written data. Seriously, don't execute this script on a VPS that has data you care about. This precaution is for your own security.
 
 You can execute the following install script, as 'root', after your OS is installed and updated. Just copy/paste and hit return. 
 
