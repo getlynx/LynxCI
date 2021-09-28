@@ -4,7 +4,7 @@ PATH=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin
 # wget -O - -q https://getlynx.io/install.sh | bash
 # wget -O - -q https://getlynx.io/install.sh | bash -s "[mainnet|testnet|TipsyMiner Id]" "[0.01-0.95]" "[300-604900]"
 #
-# Supported OS's: Raspberry Pi OS (32-bit) Lite, Debian 10 (Buster), Ubuntu 20.10 & Ubuntu 20.04 LTS
+# Supported OS's: Raspberry Pi OS (32-bit) Lite, Debian 11 & 10, Ubuntu 20.10 & Ubuntu 20.04 LTS
 #
 function logware {
   local txid=${1:?Must provide a Logware Transaction Id.}
@@ -289,14 +289,14 @@ do
 			# Pi 3 and Pi 4 on latest Raspbian OS Lite
 			rm -rf $bin/lynx*
 			wget https://github.com/getlynx/Lynx/releases/download/v0.16.3.12/lynx-arm32-wallet-0.16.3.12.tar.gz -qO - | tar -xz -C $bin/
-			mv -f $bin/lynx-arm32-wallet-0.16.3.11/* $bin/
-			rm -rf $bin/lynx-arm32-wallet-0.16.3.11/
+			mv -f $bin/lynx-arm32-wallet-0.16.3.12/* $bin/
+			rm -rf $bin/lynx-arm32-wallet-0.16.3.12/
 		else
 			# Supported OS's: Debian 11 (Bullseye), Debian 10 (Buster), Ubuntu 20.10 & Ubuntu 20.04 LTS
 			rm -rf $bin/lynx*
 			wget https://github.com/getlynx/Lynx/releases/download/v0.16.3.12/lynx-linux64-wallet-0.16.3.12.tar.gz -qO - | tar -xz -C $bin/
-			mv -f $bin/lynx-linux64-wallet-0.16.3.11/* $bin/
-			rm -rf $bin/lynx-linux64-wallet-0.16.3.11/
+			mv -f $bin/lynx-linux64-wallet-0.16.3.12/* $bin/
+			rm -rf $bin/lynx-linux64-wallet-0.16.3.12/
 		fi
 		chown root:root $bin/lynx*
   fi
