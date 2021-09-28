@@ -288,13 +288,13 @@ do
 		if [ "$isPi" = "1" ]; then
 			# Pi 3 and Pi 4 on latest Raspbian OS Lite
 			rm -rf $bin/lynx*
-			wget https://github.com/getlynx/Lynx/releases/download/v0.16.3.11/lynx-arm32-wallet-0.16.3.11.tar.gz -qO - | tar -xz -C $bin/
+			wget https://github.com/getlynx/Lynx/releases/download/v0.16.3.12/lynx-arm32-wallet-0.16.3.12.tar.gz -qO - | tar -xz -C $bin/
 			mv -f $bin/lynx-arm32-wallet-0.16.3.11/* $bin/
 			rm -rf $bin/lynx-arm32-wallet-0.16.3.11/
 		else
 			# Supported OS's: Debian 11 (Bullseye), Debian 10 (Buster), Ubuntu 20.10 & Ubuntu 20.04 LTS
 			rm -rf $bin/lynx*
-			wget https://github.com/getlynx/Lynx/releases/download/v0.16.3.11/lynx-linux64-wallet-0.16.3.11.tar.gz -qO - | tar -xz -C $bin/
+			wget https://github.com/getlynx/Lynx/releases/download/v0.16.3.12/lynx-linux64-wallet-0.16.3.12.tar.gz -qO - | tar -xz -C $bin/
 			mv -f $bin/lynx-linux64-wallet-0.16.3.11/* $bin/
 			rm -rf $bin/lynx-linux64-wallet-0.16.3.11/
 		fi
@@ -462,7 +462,7 @@ if [ -z \"\$1\" ]; then
 else
 
 	sed -i '/tipsyid=/d' /home/lynx/.lynx/lynx.conf # If an old value exists, delete it from the lynx.conf file.
-	echo \"tipsyid=\$1\" >> /home/lynx/.lynx/lynx.conf # Append the new value to the end of the file.
+	echo \"tipsyid=\$1 # https://medium.com/lynx-blockchain/how-to-register-your-miner-with-tipsy-in-lynxci-493aa63cceb7\" >> /home/lynx/.lynx/lynx.conf # Append the new value to the end of the file.
 	echo \"Restarting Lynx to save settings...\"
 	count=\$(lynx-cli -conf=/home/lynx/.lynx/lynx.conf getblockcount) # get the the local blockcount total
 	hash=\$(lynx-cli -conf=/home/lynx/.lynx/lynx.conf getblockhash \"\$count\") # get the hash of the newest known local block
@@ -481,7 +481,7 @@ echo "$eof" >> "$tmptipsy" && chmod +x "$tmptipsy"
 i=$((i+1))
 sleep 2
 done
-# sed -i -e 's/\r$//' /home/lynx/.lynxci-tipsy-help.sh # A special chat is in the file. Need to strip it.
+# sed -i -e 's/\r$//' /home/lynx/.lynxci-tipsy-help.sh # A special char is in the file. Need to strip it.
 echo "alias tipsy='/home/lynx/.tipsy.sh'" >> "$localLocale" # Create the alias for 'help'.
 #
 echo "alias tipsy='echo \"This command only works when logged in under the lynx user account.\"'" >> /root/.bashrc
