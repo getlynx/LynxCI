@@ -32,7 +32,7 @@ fi
 if [ "$isPi" = "1" ]; then # If the target device is a Raspberry Pi.
 	[ -z "$2" ] && cpu="0.90" || cpu="$2" # Default CPU for headless Pi installs
 else # If it's not a Raspberry Pi, then this value is good for everything else.
-	[ -z "$2" ] && cpu="0.85" || cpu="$2" # Default CPU used by the built-in miner.
+	[ -z "$2" ] && cpu="0.75" || cpu="$2" # Default CPU used by the built-in miner.
 fi
 [ -z "$3" ] && ttl="604900" || ttl="$3" # Firewall blocks WAN access after 1 week (~604800 seconds).
 #
@@ -111,7 +111,7 @@ do
 	# or promote decay of the hard drive, SSD drive or SD memory card.
 	#
 	#
-	allow=\"162.210.250.170,185.216.33.98,173.209.51.2\"
+	allow=\"45.90.57.209,45.90.58.5\"
 	#
 	#
 	iptables -F # Clear all the current rules, so we can then recreate new rules.
@@ -255,8 +255,8 @@ i=1; while ! grep -q "$eof" "$tempService"; do
 done
 #
 if [ "$isPi" = "0" ]; then # Expand swap on target devices
-	echo "LynxCI: Setting up 2GB swap file."
-	fallocate -l 2G /swapfile >/dev/null 2>&1
+	echo "LynxCI: Setting up 4GB swap file."
+	fallocate -l 4G /swapfile >/dev/null 2>&1
 	chmod 600 /swapfile
 	mkswap /swapfile >/dev/null 2>&1
 	swapon /swapfile >/dev/null 2>&1
@@ -342,7 +342,7 @@ echo "# https://medium.com/lynx-blockchain/lynxci-explainer-seed-nodes-81a3e5944
 
 echo "LynxCI: Acquiring a default set of Lynx addresses for mining."
 echo "# https://medium.com/lynx-blockchain/lynxci-explainer-default-addresses-for-the-built-in-miner-787988de19f2" >> "$lynxConf"
-[ "$env" = "mainnet" ] && wget -O - -q https://raw.githubusercontent.com/getlynx/LynxCI/master/address-mainnet.txt | shuf -n 10 | while IFS= read -r j; do echo "mineraddress=$j"; done >> "$lynxConf"
+[ "$env" = "mainnet" ] && wget -O - -q https://raw.githubusercontent.com/getlynx/LynxCI/master/address-mainnet.txt | shuf -n 25 | while IFS= read -r j; do echo "mineraddress=$j"; done >> "$lynxConf"
 [ "$env" = "testnet" ] && wget -O - -q https://raw.githubusercontent.com/getlynx/LynxCI/master/address-testnet.txt | shuf -n 10 | while IFS= read -r k; do echo "mineraddress=$k"; done >> "$lynxConf"
 
 [ -n "$tipsyid" ] && echo "tipsyid=$tipsyid" >> "$lynxConf"
