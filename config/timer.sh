@@ -1,5 +1,7 @@
 #!/bin/bash
 
+# systemctl list-timers
+
 systemctl stop update.timer
 systemctl disable update.timer
 systemctl daemon-reload
@@ -20,7 +22,6 @@ echo "
 Description=Update LynxCI on boot
 [Timer]
 OnBootSec=5min
-Unit=update.service
 [Install]
 WantedBy=multi-user.target
 " > /etc/systemd/system/update.timer # Create the systemd timer unit
