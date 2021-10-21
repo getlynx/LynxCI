@@ -17,6 +17,6 @@ local=$(md5sum /etc/profile.d/motd.sh | head -c 32)
 remote=$(wget -O - $file | md5sum | head -c 32)
 
 if [ "$local" != "$remote" ]; then 
-	wget $file -O motd.sh -P /etc/profile.d/ | bash
+	wget $file -O motd.sh -P /etc/profile.d/
 fi
 
