@@ -2,6 +2,7 @@
 ##################################################################################################################
 # wget -qO - https://raw.githubusercontent.com/getlynx/LynxCI/master/config/update.sh | bash
 [ $EUID -ne 0 ] && echo "This script must be run from the root account. Exiting." && exit
+mkdir -p /usr/local/bin/config/
 ##################################################################################################################
 # Update the systemd timer unit file
 ##################################################################################################################
