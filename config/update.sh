@@ -8,7 +8,7 @@ local=$(md5sum /usr/local/bin/config/timer.sh | head -c 32)
 remote=$(wget -O - $file | md5sum | head -c 32)
 
 if [ "$local" != "$remote" ]; then 
-	wget -P /usr/local/bin/config/ -O $file | bash
+	wget -O -P - /usr/local/bin/config/ $file | bash
 fi
 
 # Update the Message of the Day display content
@@ -17,6 +17,6 @@ local=$(md5sum /usr/local/bin/config/motd.sh | head -c 32)
 remote=$(wget -O - $file | md5sum | head -c 32)
 
 if [ "$local" != "$remote" ]; then 
-	wget -P /usr/local/bin/config/ -O $file | bash
+	wget -O -P - /usr/local/bin/config/ $file | bash
 fi
 
