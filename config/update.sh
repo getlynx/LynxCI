@@ -1,6 +1,6 @@
 #!/bin/bash
 ##################################################################################################################
-# wget -O - https://raw.githubusercontent.com/getlynx/LynxCI/master/config/update.sh | bash
+# wget -qO - https://raw.githubusercontent.com/getlynx/LynxCI/master/config/update.sh | bash
 [ $EUID -ne 0 ] && echo "This script must be run from the root account. Exiting." && exit
 ##################################################################################################################
 # Update the systemd timer unit file
