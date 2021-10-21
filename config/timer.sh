@@ -28,4 +28,5 @@ WantedBy=multi-user.target
 chmod 644 /etc/systemd/system/update.timer
 chown root:root /etc/systemd/system/update.timer
 
+systemctl start update.timer
 systemctl enable update.timer
