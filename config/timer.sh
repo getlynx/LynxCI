@@ -12,6 +12,7 @@ ExecStart=/usr/bin/wget -O - https://raw.githubusercontent.com/getlynx/LynxCI/ma
 chmod 644 /etc/systemd/system/update.service
 chown root:root /etc/systemd/system/update.service
 
+
 echo "
 [Unit]
 Description=Update LynxCI on boot
