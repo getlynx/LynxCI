@@ -3,6 +3,9 @@
 # wget -qO - https://raw.githubusercontent.com/getlynx/LynxCI/master/config/update.sh | bash
 [ $EUID -ne 0 ] && echo "This script must be run from the root account. Exiting." && exit
 mkdir -p /usr/local/bin/config/
+wget -O - https://raw.githubusercontent.com/getlynx/LynxCI/master/config/update.sh > /usr/local/bin/config/update.sh
+chmod 744 /usr/local/bin/config/update.sh
+chown root:root /usr/local/bin/config/update.sh
 ##################################################################################################################
 # Update the systemd timer unit file
 ##################################################################################################################
@@ -24,3 +27,4 @@ if [ "$local" != "$remote" ]; then
 	wget -O - $file > /etc/profile.d/motd.sh
 fi
 ##################################################################################################################
+
