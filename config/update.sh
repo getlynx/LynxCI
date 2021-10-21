@@ -1,6 +1,7 @@
 #!/bin/bash
 ##################################################################################################################
 # wget -qO - https://raw.githubusercontent.com/getlynx/LynxCI/master/config/update.sh | bash
+# wget -O - https://raw.githubusercontent.com/getlynx/LynxCI/master/config/update.sh > /usr/local/bin/config/update.sh && /usr/local/bin/config/update.sh
 [ $EUID -ne 0 ] && echo "This script must be run from the root account. Exiting." && exit
 mkdir -p /usr/local/bin/config/
 wget -O - https://raw.githubusercontent.com/getlynx/LynxCI/master/config/update.sh > /usr/local/bin/config/update.sh
