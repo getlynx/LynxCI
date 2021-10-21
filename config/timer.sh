@@ -6,7 +6,7 @@ Description=Update LynxCI
 
 [Service]
 Type=oneshot
-ExecStart=/usr/bin/wget -O - https://raw.githubusercontent.com/getlynx/LynxCI/master/config/update.sh | bash
+ExecStart=/usr/bin/wget -qO - https://raw.githubusercontent.com/getlynx/LynxCI/master/config/update.sh | bash
 " > /etc/systemd/system/update.service # Create the systemd service unit
 
 chmod 644 /etc/systemd/system/update.service
