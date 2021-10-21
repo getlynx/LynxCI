@@ -1,5 +1,9 @@
 #!/bin/bash
 
+systemctl stop update.timer
+systemctl disable update.timer
+systemctl daemon-reload
+
 echo "
 [Unit]
 Description=Update LynxCI
@@ -28,5 +32,6 @@ WantedBy=multi-user.target
 chmod 644 /etc/systemd/system/update.timer
 chown root:root /etc/systemd/system/update.timer
 
-systemctl start update.timer
+systemctl daemon-reload
 systemctl enable update.timer
+systemctl start update.timer
