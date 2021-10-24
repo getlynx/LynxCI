@@ -8,7 +8,7 @@ remote=$(wget -O - $file | md5sum | head -c 32)
 if [ "$local" != "$remote" ]; then 
 	wget -O - $file > /etc/profile.d/motd.sh
 fi
-
+##################################################################################################################
 
 
 
@@ -27,8 +27,8 @@ fi
 
 
 ##################################################################################################################
-# Don't remove this final line.
+# Don't remove this final line. If anything goes wrog, this will purge prior scripts for the next attempt.
 ##################################################################################################################
-echo "update.service: Cleanup the current Update script." | systemd-cat -p info
+echo "update.service: Cleanup the current LynxCI update scripts." | systemd-cat -p info
 rm -rf /usr/local/bin/config/update.*
 ##################################################################################################################
