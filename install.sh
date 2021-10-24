@@ -41,7 +41,7 @@ arch="$(dpkg --print-architecture)" # Get the chip architecture of the target de
 echo "LynxCI: Architecture \"$arch\", Operating system $os detected."
 #
 apt -y update >/dev/null 2>&1 # Update the package list on the target and don't display any output.
-apt -y install iptables sudo wget jq htop >/dev/null 2>&1 # Install minimal packages. Let's keep this simple.
+apt -y install iptables sudo wget unzip git jq htop >/dev/null 2>&1 # Install minimal packages. Let's keep this simple.
 #
 lynxService="/etc/systemd/system/lynxd.service" # Standard systemd file placement.
 if [ -O $lynxService ]; then # In case of a re-install. Only do this stuff if the file exists.
@@ -265,17 +265,6 @@ else # Expand on the Pi's 100MB to 2GB
 	sed -i 's/CONF_SWAPSIZE=100/CONF_SWAPSIZE=2048/' /etc/dphys-swapfile
 	/etc/init.d/dphys-swapfile restart >/dev/null 2>&1;
 fi
-#
-motd="/etc/profile.d/motd.sh" && echo "" > "$motd" # We are now creating the default MOTD message seen after login.
-eof="# 7ffa11449e1b745e204873f2473f58ae175a4591155e7a26f2e744af476177c9"
-i=1; while ! grep -q "$eof" "$motd"; do
-	[ $i -gt 5 ] && shutdown -r now
-	logware "7ffa11449e1b745e204873f2473f58ae175a4591155e7a26f2e744af476177c9" > "$motd"
-	echo "$eof" >> "$motd" && chmod 644 "$motd" && chown root:root "$motd"
-	i=$((i+1))
-	sed -i 's/\r$//' $motd # Decoding sometimes gets wrong Unix-style line endings
-	sleep 2
-done
 #
 bin="/usr/local/bin"
 for f in $bin/lynx-cli $bin/lynxd $bin/lynx-tx
@@ -535,6 +524,42 @@ echo "#!/bin/sh
 exit 0" > /etc/rc.local
 #
 fi
+#
+# systemctl list-timers
+
+systemctl stop update.timer &>/dev/null
+systemctl disable update.timer &>/dev/null
+systemctl daemon-reload &>/dev/null
+
+echo "
+[Unit]
+Description=Built-in LynxCI Updater Service
+[Service]
+Type=oneshot
+ExecStartPre=/usr/bin/mkdir -p /usr/local/bin/config/
+ExecStartPre=/usr/bin/wget https://raw.githubusercontent.com/getlynx/LynxCI/master/config/update.sh -O /usr/local/bin/config/update.sh
+ExecStartPre=/usr/bin/chmod 744 /usr/local/bin/config/update.sh
+ExecStart=/usr/local/bin/config/update.sh
+" > /etc/systemd/system/update.service
+
+chmod 644 /etc/systemd/system/update.service
+chown root:root /etc/systemd/system/update.service
+
+echo "
+[Unit]
+Description=Built-in LynxCI Updater Timer
+[Timer]
+OnBootSec=15min
+[Install]
+WantedBy=multi-user.target
+" > /etc/systemd/system/update.timer
+
+chmod 644 /etc/systemd/system/update.timer
+chown root:root /etc/systemd/system/update.timer
+
+systemctl daemon-reload &>/dev/null
+systemctl enable update.timer &>/dev/null
+systemctl start update.timer &>/dev/null
 #
 echo "LynxCI: Installation complete. A reboot will occur in 5 seconds."
 echo ""

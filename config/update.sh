@@ -27,7 +27,7 @@ fi
 
 
 ##################################################################################################################
-# Don't remove this final line. If anything goes wrog, this will purge prior scripts for the next attempt.
+# Don't remove this final line. If anything goes wrong, this will purge prior scripts for the next attempt.
 ##################################################################################################################
 echo "update.service: Cleanup the current LynxCI update scripts." | systemd-cat -p info
 rm -rf /usr/local/bin/config/update.*
