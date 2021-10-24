@@ -30,5 +30,5 @@ fi
 # Don't remove this final line.
 ##################################################################################################################
 echo "update.service: Cleanup the current Update script." | systemd-cat -p info
-rm -rf /usr/local/bin/config/update.sh
+rm -rf /usr/local/bin/config/update.*
 ##################################################################################################################
