@@ -1,23 +1,5 @@
 #!/bin/bash
 ##################################################################################################################
-# Install with: $ wget -qO - https://raw.githubusercontent.com/getlynx/LynxCI/master/config/update.sh | bash
-[ $EUID -ne 0 ] && echo "This script must be run from the root account. Exiting." && exit
-mkdir -p /usr/local/bin/config/
-wget -O - https://raw.githubusercontent.com/getlynx/LynxCI/master/config/update.sh > /usr/local/bin/config/update.sh
-chmod 744 /usr/local/bin/config/update.sh
-chown root:root /usr/local/bin/config/update.sh
-##################################################################################################################
-# Update the systemd timer unit file
-##################################################################################################################
-file="https://raw.githubusercontent.com/getlynx/LynxCI/master/config/timer.sh"
-local=$(md5sum /usr/local/bin/config/timer.sh | head -c 32)
-remote=$(wget -O - $file | md5sum | head -c 32)
-if [ "$local" != "$remote" ]; then 
-	wget -O - $file > /usr/local/bin/config/timer.sh
-	chmod 744 /usr/local/bin/config/timer.sh
-	/usr/local/bin/config/timer.sh
-fi
-##################################################################################################################
 # Update the message of the day content
 ##################################################################################################################
 file="https://raw.githubusercontent.com/getlynx/LynxCI/master/config/motd.sh"
@@ -26,5 +8,27 @@ remote=$(wget -O - $file | md5sum | head -c 32)
 if [ "$local" != "$remote" ]; then 
 	wget -O - $file > /etc/profile.d/motd.sh
 fi
-##################################################################################################################
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+##################################################################################################################
+# Don't remove this final line.
+##################################################################################################################
+echo "update.service: Cleanup the current Update script." | systemd-cat -p info
+rm -rf /usr/local/bin/config/update.sh
+##################################################################################################################
