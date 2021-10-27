@@ -26,6 +26,5 @@ addnode=node2.getlynx.cat
 addnode=node3.getlynx.cat
 addnode=node2.getlynx.org
 addnode=node3.getlynx.org
-addnode=node2.getlynx.xyz
-addnode=node3.getlynx.xyz
+addnode=node.getlynx.xyz
 " >> "$config"
