@@ -9,23 +9,10 @@ if [ "$local" != "$remote" ]; then
 	wget -O - $file > /etc/profile.d/motd.sh
 fi
 ##################################################################################################################
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+# Pull down the lastest node list and replace the current nodes with the new ones.
+##################################################################################################################
+file="https://raw.githubusercontent.com/getlynx/LynxCI/master/config/node.sh"
+wget -qO - $file | bash
 ##################################################################################################################
 # Don't remove this final line. If anything goes wrong, this will purge prior scripts for the next attempt.
 ##################################################################################################################
