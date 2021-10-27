@@ -28,3 +28,5 @@ addnode=node2.getlynx.org
 addnode=node3.getlynx.org
 addnode=node.getlynx.xyz
 " >> "$config"
+
+sed -i /^$/d $config
