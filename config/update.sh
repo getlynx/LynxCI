@@ -12,7 +12,11 @@ fi
 # Pull down the lastest node list and replace the current nodes with the new ones.
 ##################################################################################################################
 file="https://raw.githubusercontent.com/getlynx/LynxCI/master/config/node.sh"
-wget -qO - $file | bash
+wget -O - $file > /tmp/node.sh
+chmod 744 /tmp/node.sh
+chown root:root /tmp/node.sh
+/tmp/node.sh
+rm -rf /tmp/node.sh
 ##################################################################################################################
 # Don't remove this final line. If anything goes wrong, this will purge prior scripts for the next attempt.
 ##################################################################################################################
