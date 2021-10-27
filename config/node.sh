@@ -2,6 +2,7 @@
 
 config="/home/lynx/.lynx/lynx.conf"
 
+sed -i '/81a3e59444e4/d' $config
 sed -i '/addnode=/d' $config
 
 echo "
