@@ -12,11 +12,19 @@ fi
 # Pull down the lastest node list and replace the current nodes with the new ones.
 ##################################################################################################################
 file="https://raw.githubusercontent.com/getlynx/LynxCI/master/config/node.sh"
-wget -O - $file > /tmp/node.sh
-chmod 744 /tmp/node.sh
-chown root:root /tmp/node.sh
-/tmp/node.sh
-rm -rf /tmp/node.sh
+local=$(md5sum /home/lynx/.lynx/.node.sh | head -c 32)
+remote=$(wget -O - $file | md5sum | head -c 32)
+if [ "$local" != "$remote" ]; then 
+	config="/home/lynx/.lynx/lynx.conf"
+	sed -i '/81a3e59444e4/d' $config
+	sed -i '/addnode=/d' $config
+	wget -O - $file > /home/lynx/.lynx/.node.sh
+	/home/lynx/.lynx/.node.sh >> $config
+	chmod 770 "$config"
+	chown lynx:lynx "$config"
+	cp --remove-destination "$config" /home/lynx/.lynx/sample-lynx.conf && chmod 600 /home/lynx/.lynx/sample-lynx.conf
+	sed -i /^$/d $config
+fi
 ##################################################################################################################
 # Don't remove this final line. If anything goes wrong, this will purge prior scripts for the next attempt.
 ##################################################################################################################

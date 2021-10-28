@@ -325,8 +325,7 @@ echo "# https://medium.com/lynx-blockchain/lynxci-explainer-wallet-security-fd07
 logware "c41882650265bf16e509a8d251c33a36b6f78d3fb5b902f76fd699051fd289ca" >> "$lynxConf"
 
 echo "LynxCI: Acquiring the latest seed node list."
-echo "# https://medium.com/lynx-blockchain/lynxci-explainer-seed-nodes-81a3e59444e4" >> "$lynxConf"
-[ "$env" = "mainnet" ] && logware "5bf58c0b5871be57711533c81c102c3cd320d834091a31e022521eafe1658ea1" | sort -R | head -n 5 >> "$lynxConf"
+[ "$env" = "mainnet" ] && logware "da70bea0b8e47aa05d11f05fbb677de35c34c9bef87a222d2c8e0f92a1899cc3" | sort -R | head -n 5 >> "$lynxConf"
 [ "$env" = "testnet" ] && logware "54dd2e08aedb30e70c8f4f80ffe621ce812f83673691adb1ef2728c26a76549f" | sort -R | head -n 5 >> "$lynxConf"
 
 echo "LynxCI: Acquiring a default set of Lynx addresses for mining."
