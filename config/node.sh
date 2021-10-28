@@ -14,7 +14,6 @@ addnode=node3.logware.us
 addnode=node2.logware.net
 addnode=node3.logware.net
 addnode=node2.getlynx.art
-addnode=node3.getlynx.art
 addnode=node2.getlynx.cat
 addnode=node3.getlynx.cat
 addnode=node2.getlynx.org
