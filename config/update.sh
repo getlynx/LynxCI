@@ -1,6 +1,6 @@
 #!/bin/bash
 ##################################################################################################################
-# Update the message of the day content
+# Update the message of the day content.
 ##################################################################################################################
 file="https://raw.githubusercontent.com/getlynx/LynxCI/master/config/motd.sh"
 local=$(md5sum /etc/profile.d/motd.sh | head -c 32)
@@ -19,10 +19,13 @@ if [ "$local" != "$remote" ]; then
 	sed -i '/81a3e59444e4/d' $config
 	sed -i '/addnode=/d' $config
 	wget -O - $file > /home/lynx/.lynx/.node.sh
+	chown lynx:lynx /home/lynx/.lynx/.node.sh
 	cat /home/lynx/.lynx/.node.sh >> $config
 	chmod 770 "$config"
 	chown lynx:lynx "$config"
-	cp --remove-destination "$config" /home/lynx/.lynx/sample-lynx.conf && chmod 600 /home/lynx/.lynx/sample-lynx.conf
+	cp --remove-destination "$config" /home/lynx/.lynx/sample-lynx.conf
+	chmod 600 /home/lynx/.lynx/sample-lynx.conf
+	chown lynx:lynx /home/lynx/.lynx/sample-lynx.conf
 	sed -i /^$/d $config
 fi
 ##################################################################################################################
