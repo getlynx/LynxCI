@@ -171,30 +171,13 @@ fi
 testnetBootstrap="https://github.com/getlynx/LynxBootstrap/releases/download/v3.0-testnet/bootstrap.tar.gz"
 #
 if [ "$env" = "mainnet" ]; then
-	rm -rf /tmp/chain* && touch /tmp/chainstate.tar.gz
-	i=1; while [ "$(sha256sum /tmp/chainstate.tar.gz | awk '{print $1}')" != "2a671e415f05fee5867c34c747143a90b600ef8533637160f453254440a4a42e" ]; do
-		[ $i -gt 5 ] && shutdown -r now
-		rm -rf /tmp/chain*
-		echo "LynxCI: Downloading a copy of chainstate file."
-		wget -q -P /tmp https://github.com/getlynx/LynxBootstrap/releases/download/v6.0-mainnet/chainstate.tar.gz
-		echo "LynxCI: Checking integrity of chainstate file."
-		i=$((i+1))
-		sleep 10
-	done
-	rm -rf /tmp/block* && touch /tmp/blocks.tar.gz
-	j=1; while [ "$(sha256sum /tmp/blocks.tar.gz | awk '{print $1}')" != "c7b58bdb5b67c174201cde85e40097cb9522c170a347643e47c2be732d6031c7" ]; do
-		[ $j -gt 5 ] && shutdown -r now
-		rm -rf /tmp/block*
-		echo "LynxCI: Downloading a copy of block file."
-		wget -q -P /tmp https://github.com/getlynx/LynxBootstrap/releases/download/v6.0-mainnet/blocks.tar.gz
-		echo "LynxCI: Checking integrity of block file."
-		j=$((j+1))
-		sleep 10
-	done
+	echo "LynxCI: Syncing blockchain history and verifying hashes."
+	wget -qO - https://raw.githubusercontent.com/getlynx/LynxBootstrap/master/restore.sh | bash -s v7.0-mainnet
+	mkdir -p "$dir"/.lynx/; chown $user:$user "$dir"/.lynx/
+	mv /tmp/blocks "$dir"/.lynx/
+	mv /tmp/chainstate "$dir"/.lynx/
 fi
 #
-[ "$env" = "mainnet" ] && { mkdir -p "$dir"/.lynx/; chown $user:$user "$dir"/.lynx/; tar -xzf /tmp/chainstate.tar.gz -C "$dir"/.lynx/; }
-[ "$env" = "mainnet" ] && { mkdir -p "$dir"/.lynx/; chown $user:$user "$dir"/.lynx/; tar -xzf /tmp/blocks.tar.gz -C "$dir"/.lynx/; }
 [ "$env" = "testnet" ] && { mkdir -p "$dir"/.lynx/testnet4/; chown $user:$user "$dir"/.lynx/; wget -q $testnetBootstrap -O - -q | tar -xz -C "$dir"/.lynx/testnet4/; }
 #
 echo "#!/bin/bash
