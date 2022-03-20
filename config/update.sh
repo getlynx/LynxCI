@@ -28,6 +28,8 @@ if [ "$local" != "$remote" ]; then
 	chown lynx:lynx /home/lynx/.lynx/sample-lynx.conf
 	sed -i /^$/d $config
 fi
+#
+sed -i 's|rpcworkqueue=64|rpcworkqueue=256|g' "/home/lynx/.lynx/lynx.conf" # Better AtomicDex compliance.
 ##################################################################################################################
 # Don't remove this final line. If anything goes wrong, this will purge prior scripts for the next attempt.
 ##################################################################################################################
