@@ -32,9 +32,9 @@ apt -y install iptables sudo wget unzip git jq htop >/dev/null 2>&1 # Install mi
 #
 lynxService="/etc/systemd/system/lynxd.service" # Standard systemd file placement.
 if [ -O $lynxService ]; then # In case of a re-install. Only do this stuff if the file exists.
-	systemctl stop lynxd
-	systemctl disable lynxd
-	systemctl daemon-reload
+	systemctl stop lynxd # If the Lynx daemon is already running, then stop it.
+	systemctl disable lynxd # Also disable the daemon service if it was already installed.
+	systemctl daemon-reload # Give systemd a kick to save the recent changes.
 fi
 #
 firewallService="/etc/systemd/system/lyf.service" # Standard systemd file placement.
@@ -254,7 +254,7 @@ done
 # Create the default lynx.conf file
 #
 lynxConf="$dir/.lynx/lynx.conf"
-eof="# Do not fear to be eccentric in opinion, for every opinion now accepted was once eccentric. -Bertrand Russell"
+eof="# https://docs.getlynx.io/lynx-core/lynxci"
 touch "$lynxConf"
 i=1; while ! grep -q "$eof" "$lynxConf"; do
 [ $i -gt 5 ] && shutdown -r now
@@ -276,7 +276,7 @@ cpulimitforbuiltinminer=$cpu
 # https://docs.getlynx.io/lynx-core/lynxci/wallet-functions
 disablewallet=1" > "$lynxConf"
 
-echo "LynxCI: For safety, the wallet is disabled by default."
+echo "LynxCI: For safety, the wallet is disabled."
 
 echo "LynxCI: Generating unique RPC credentials."
 echo "# https://docs.getlynx.io/lynx-core/lynxci/rpc-best-practices" >> "$lynxConf"
