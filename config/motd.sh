@@ -17,7 +17,6 @@ https://getlynx.io/
 https://logware.io/
 https://docs.getlynx.io/
 https://explorer.getlynx.io/
-https://medium.com/lynx-blockchain/
 Twitter: @getlynxio
 Youtube: https://www.youtube.com/GetLynx
 _________________________________________________
