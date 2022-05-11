@@ -2,7 +2,7 @@
 PATH=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin
 #
 # wget -O - -q https://getlynx.io/install.sh | bash
-# wget -O - -q https://getlynx.io/install.sh | bash -s "[mainnet|testnet|TipsyMiner Id]" "[0.01-0.95]" "[300-604900]"
+# wget -O - -q https://getlynx.io/install.sh | bash -s "[TipsyMiner Id]" "[0.01-0.95]" "[300-604900]"
 #
 # Supported OS's: Raspberry Pi OS (32-bit) Lite, Debian 11 & 10, Ubuntu 20.10 & Ubuntu 20.04 LTS
 #
@@ -15,20 +15,7 @@ echo "LynxCI: Thanks for starting the Lynx Core Installer (LynxCI)."
 [ $EUID -ne 0 ] && echo "This script must be run from the root account. Exiting." && exit
 #
 [ "$(grep 'Revision' /proc/cpuinfo)" != "" ] && isPi="1" || isPi="0" # Detect if Pi target?
-[ -z "$1" ] && env="mainnet" || env="$1" # Mainnet is default.
-####[[ "$env" != "mainnet" && "$env" != "testnet" ]] && echo "LynxCI: Invalid first argument." && exit
-if [ "$env" = "mainnet" ]; then
-	port="22566"
-	rpcport="9332"
-elif [ "$env" = "testnet" ]; then
-	port="44566"
-	rpcport="19335"
-else
-	env="mainnet"
-	port="22566"
-	rpcport="9332"
-	tipsyid="$1"
-fi
+tipsyid="$1"
 if [ "$isPi" = "1" ]; then # If the target device is a Raspberry Pi.
 	[ -z "$2" ] && cpu="0.90" || cpu="$2" # Default CPU for headless Pi installs
 else # If it's not a Raspberry Pi, then this value is good for everything else.
@@ -117,15 +104,15 @@ do
 	iptables -F # Clear all the current rules, so we can then recreate new rules.
 	iptables -A INPUT -i lo -j ACCEPT
 	iptables -A INPUT -m conntrack --ctstate ESTABLISHED,RELATED -j ACCEPT
-	iptables -A INPUT -p tcp --dport $port -j ACCEPT # Required public Lynx port.
+	iptables -A INPUT -p tcp --dport 22566 -j ACCEPT # Required public Lynx port.
 	#
 	#
-	# Lynx RPC port $rpcport. Only allow the RPC port when you need to remotely access the RPC
+	# Lynx RPC port 9332. Only allow the RPC port when you need to remotely access the RPC
 	# commands of this node. The RPC credentials are stored in the lynx.conf file. Never release
 	# your RPC credentials unless you know exactly what you are doing.
 	#
 	#
-	#iptables -A INPUT -p tcp --dport $rpcport -j ACCEPT # Port $rpcport is restricted by default.
+	#iptables -A INPUT -p tcp --dport 9332 -j ACCEPT # Port 9332 is restricted by default.
 	#
 	#
 	full=\"\${allow},192.168.0.0/16,10.0.0.0/8\";
@@ -164,21 +151,11 @@ fi
 # https://www.raspberrypi.org/documentation/computers/config_txt.html#avoid_warnings
 [ "$isPi" = "1" ] && { sed -i '/avoid_warnings/d' /boot/config.txt; echo "avoid_warnings=2" >> /boot/config.txt; }
 #
-# To make the installation go a little faster and reduce Lynx network chatter, let's prep the
-# install with the latest copy of the chain. On first start, lynxd will index the bootstrap.dat file
-# and import it.
-#
-testnetBootstrap="https://github.com/getlynx/LynxBootstrap/releases/download/v3.0-testnet/bootstrap.tar.gz"
-#
-if [ "$env" = "mainnet" ]; then
-	echo "LynxCI: Syncing blockchain history and verifying hashes."
-	wget -qO - https://raw.githubusercontent.com/getlynx/LynxBootstrap/master/restore.sh | bash -s v7.0-mainnet
-	mkdir -p "$dir"/.lynx/; chown $user:$user "$dir"/.lynx/
-	mv /tmp/blocks "$dir"/.lynx/
-	mv /tmp/chainstate "$dir"/.lynx/
-fi
-#
-[ "$env" = "testnet" ] && { mkdir -p "$dir"/.lynx/testnet4/; chown $user:$user "$dir"/.lynx/; wget -q $testnetBootstrap -O - -q | tar -xz -C "$dir"/.lynx/testnet4/; }
+echo "LynxCI: Syncing blockchain history and verifying hashes."
+wget -qO - https://raw.githubusercontent.com/getlynx/LynxBootstrap/master/restore.sh | bash -s v7.0-mainnet
+mkdir -p "$dir"/.lynx/; chown $user:$user "$dir"/.lynx/
+mv /tmp/blocks "$dir"/.lynx/
+mv /tmp/chainstate "$dir"/.lynx/
 #
 echo "#!/bin/bash
 [Unit]
@@ -215,7 +192,7 @@ WantedBy=multi-user.target
 echo "LynxCI: Firewall service is installed."
 #
 tempSystemd="/etc/systemd/system/lyt.service" && echo "" > "$tempSystemd"
-eof="# https://medium.com/lynx-blockchain/lynxci-explainer-the-lynxci-mining-thermostat-e3dfecbd8c20"
+eof="# https://docs.getlynx.io/lynx-core/lynxci/thermal-controls"
 i=1; while ! grep -q "$eof" "$tempSystemd"; do
 	[ $i -gt 5 ] && shutdown -r now
 	logware "a468c79603534af2f630c2ef89b1cc233a5a269165c9aa2fb549d3ea8c7e7207" > "$tempSystemd"
@@ -226,7 +203,7 @@ i=1; while ! grep -q "$eof" "$tempSystemd"; do
 done
 #
 tempService="/usr/local/bin/lyt.sh" && echo "" > "$tempService"
-eof="# https://medium.com/lynx-blockchain/lynxci-explainer-the-lynxci-mining-thermostat-e3dfecbd8c20"
+eof="# https://docs.getlynx.io/lynx-core/lynxci/thermal-controls"
 i=1; while ! grep -q "$eof" "$tempService"; do
 	[ $i -gt 5 ] && shutdown -r now
 	echo "LynxCI: Temperature service was installed."
@@ -288,33 +265,30 @@ listenonion=1
 upnp=1
 dbcache=450
 txindex=0
-port=$port
+port=22566
 maxmempool=100
 testnet=0
+# https://docs.getlynx.io/lynx-core/lynxci/debug-log
+debug=miner 
 disablebuiltinminer=0
-cpulimitforbuiltinminer=$cpu" > "$lynxConf"
+# https://docs.getlynx.io/lynx-core/lynxci/thermal-controls
+cpulimitforbuiltinminer=$cpu
+# https://docs.getlynx.io/lynx-core/lynxci/wallet-functions
+disablewallet=1" > "$lynxConf"
+
+echo "LynxCI: For safety, the wallet is disabled by default."
 
 echo "LynxCI: Generating unique RPC credentials."
-echo "# https://medium.com/lynx-blockchain/lynxci-explainer-lynx-rpc-best-practices-a17539c2bcbd" >> "$lynxConf"
-[ "$env" = "mainnet" ] && logware "27fbc3fb477ce28aaa032f3e3d184e7b61072e6d89d910ad8e22459b330a9dd6" | bash >> "$lynxConf"
-[ "$env" = "testnet" ] && logware "5f6b85b57b2ec71433db0370d60a0932b05635cff61e5f3f49e55674f2896abd" | bash >> "$lynxConf"
-
-echo "LynxCI: Logging set to minimal output."
-echo "# https://medium.com/lynx-blockchain/lynxci-explainer-the-debug-log-d6ffedaa0e8" >> "$lynxConf"
-logware "97f04e3eaa81849eb3fdecea20e5654905202cd5bf9154dfffc8cc23b36fac72" >> "$lynxConf"
-
-echo "LynxCI: Wallet is disabled by default."
-echo "# https://medium.com/lynx-blockchain/lynxci-explainer-wallet-security-fd07a9917080" >> "$lynxConf"
-logware "c41882650265bf16e509a8d251c33a36b6f78d3fb5b902f76fd699051fd289ca" >> "$lynxConf"
+echo "# https://docs.getlynx.io/lynx-core/lynxci/rpc-best-practices" >> "$lynxConf"
+wget -O - -q https://raw.githubusercontent.com/getlynx/LynxCI/master/config/rpc.sh | bash >> "$lynxConf"
 
 echo "LynxCI: Acquiring the latest seed node list."
-[ "$env" = "mainnet" ] && wget -O - -q https://raw.githubusercontent.com/getlynx/LynxCI/master/config/node.sh | sort -R | head -n 5 >> "$lynxConf"
-[ "$env" = "testnet" ] && logware "54dd2e08aedb30e70c8f4f80ffe621ce812f83673691adb1ef2728c26a76549f" | sort -R | head -n 5 >> "$lynxConf"
+echo "# https://docs.getlynx.io/lynx-core/lynx-peer-map" >> "$lynxConf"
+wget -O - -q https://raw.githubusercontent.com/getlynx/LynxCI/master/config/node.txt | sort -R | head -n 5 >> "$lynxConf"
 
 echo "LynxCI: Acquiring a default set of Lynx addresses for mining."
-echo "# https://medium.com/lynx-blockchain/lynxci-explainer-default-addresses-for-the-built-in-miner-787988de19f2" >> "$lynxConf"
-[ "$env" = "mainnet" ] && wget -O - -q https://raw.githubusercontent.com/getlynx/LynxCI/master/address-mainnet.txt | shuf -n 25 | while IFS= read -r j; do echo "mineraddress=$j"; done >> "$lynxConf"
-[ "$env" = "testnet" ] && wget -O - -q https://raw.githubusercontent.com/getlynx/LynxCI/master/address-testnet.txt | shuf -n 10 | while IFS= read -r k; do echo "mineraddress=$k"; done >> "$lynxConf"
+echo "# https://docs.getlynx.io/lynx-core/lynxci/default-addresses" >> "$lynxConf"
+wget -O - -q https://raw.githubusercontent.com/getlynx/LynxCI/master/address-mainnet.txt | shuf -n 25 | while IFS= read -r j; do echo "mineraddress=$j"; done >> "$lynxConf"
 
 [ -n "$tipsyid" ] && echo "tipsyid=$tipsyid" >> "$lynxConf"
 echo "$eof" >> "$lynxConf"
@@ -326,8 +300,6 @@ done
 echo "LynxCI: Lynx default configuration file, \"$lynxConf\" was created."
 [ -n "$tipsyid" ] && echo "LynxCI: Tipsy Miner registration added to Lynx configuration file."
 
-[ "$env" = "testnet" ] && { sed -i 's|testnet=0|testnet=1|g' "$lynxConf"; echo "LynxCI: This node is operating on the testnet environment and it's now set in the lynx.conf file."; }
-[ "$env" = "mainnet" ] && { sed -i 's|testnet=1|testnet=0|g' "$lynxConf"; echo "LynxCI: This node is operating on the mainnet environment and it's now set in the lynx.conf file."; }
 [ "$isPi" = "1" ] && sed -i "s|dbcache=450|dbcache=100|g" "$lynxConf" # Default is 450MB. Changed to 100MB on the Pi.
 cp --remove-destination "$lynxConf" "$dir"/.lynx/sample-lynx.conf && chmod 600 "$dir"/.lynx/sample-lynx.conf # We are gonna create a backup of the initially created lynx.conf file.
 #
@@ -342,16 +314,8 @@ chmod 770 "$dir"/.lynx/*.conf # previously changed the default ownership setting
 #
 lynxLogrotateConfiguration="/etc/logrotate.d/lynxd.conf"
 if [ ! -O $lynxLogrotateConfiguration ]; then
-	echo "$dir/.lynx/debug.log {
-		daily
-		rotate 7
-		size 10M
-		copytruncate
-		compress
-		notifempty
-		missingok
-	}
-	$dir/.lynx/testnet4/debug.log {
+	echo "# https://docs.getlynx.io/lynx-core/lynxci/debug-log
+	$dir/.lynx/debug.log {
 		daily
 		rotate 7
 		size 10M
