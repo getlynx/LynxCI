@@ -165,7 +165,7 @@ After=network.target
 Type=simple
 User=lynx
 Group=lynx
-ExecStart=/usr/local/bin/lynxd -daemon=0 -conf=$dir/.lynx/lynx.conf -datadir=$dir/.lynx/ -debuglogfile=$dir/.lynx/debug.log
+ExecStart=/usr/local/bin/lynxd -daemon=0 -conf=$dir/.lynx/lynx.conf -datadir=$dir/.lynx/ -debuglogfile=$dir/.lynx/debug.log -assumevalid=47c3754611aa7e3f30f6d12a9356b61475cc49d47eab8cb3b811df7bc52a58a2
 ExecStop=/usr/local/bin/lynx-cli stop
 Restart=always
 RestartSec=30
@@ -281,10 +281,12 @@ echo "LynxCI: For safety, the wallet is disabled."
 echo "LynxCI: Generating unique RPC credentials."
 echo "# https://docs.getlynx.io/lynx-core/lynxci/rpc-best-practices" >> "$lynxConf"
 wget -O - -q https://raw.githubusercontent.com/getlynx/LynxCI/master/config/rpc.sh | bash >> "$lynxConf"
+sleep 2
 
 echo "LynxCI: Acquiring the latest seed node list."
-echo "# https://docs.getlynx.io/lynx-core/lynx-peer-map" >> "$lynxConf"
-wget -O - -q https://raw.githubusercontent.com/getlynx/LynxCI/master/config/node.txt | sort -R | head -n 5 >> "$lynxConf"
+echo "# https://docs.getlynx.io/lynx-core/lynx-nodes" >> "$lynxConf"
+wget -O - -q https://raw.githubusercontent.com/getlynx/LynxCI/master/config/node.txt | sort -R >> "$lynxConf"
+sleep 2
 
 echo "LynxCI: Acquiring a default set of Lynx addresses for mining."
 echo "# https://docs.getlynx.io/lynx-core/lynxci/default-addresses" >> "$lynxConf"
