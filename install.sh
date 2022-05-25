@@ -151,11 +151,8 @@ fi
 # https://www.raspberrypi.org/documentation/computers/config_txt.html#avoid_warnings
 [ "$isPi" = "1" ] && { sed -i '/avoid_warnings/d' /boot/config.txt; echo "avoid_warnings=2" >> /boot/config.txt; }
 #
-echo "LynxCI: Syncing blockchain history and verifying hashes."
-wget -qO - https://raw.githubusercontent.com/getlynx/LynxBootstrap/master/restore.sh | bash -s v7.0-mainnet
-mkdir -p "$dir"/.lynx/; chown $user:$user "$dir"/.lynx/
-mv /tmp/blocks "$dir"/.lynx/
-mv /tmp/chainstate "$dir"/.lynx/
+echo "LynxCI: Grabbing latest blockchain bootstrap and verifying hashes."
+wget -qO - https://extract.getlynx.io/ | bash
 #
 echo "#!/bin/bash
 [Unit]
