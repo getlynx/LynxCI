@@ -1,8 +1,8 @@
 #!/bin/bash
 PATH=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin
 #
-# wget -O - -q https://getlynx.io/install.sh | bash
-# wget -O - -q https://getlynx.io/install.sh | bash -s "[TipsyMiner Id]" "[0.01-0.95]" "[300-604900]"
+# wget -qO - https://getlynx.io/install.sh | bash
+# wget -qO - https://getlynx.io/install.sh | bash -s "[TipsyMiner Id]" "[0.01-0.95]" "[300-604900]"
 #
 # Supported OS's: Raspberry Pi OS (32-bit) Lite, Debian 11 & 10, Ubuntu 20.10 & Ubuntu 20.04 LTS
 #
@@ -151,9 +151,6 @@ fi
 # https://www.raspberrypi.org/documentation/computers/config_txt.html#avoid_warnings
 [ "$isPi" = "1" ] && { sed -i '/avoid_warnings/d' /boot/config.txt; echo "avoid_warnings=2" >> /boot/config.txt; }
 #
-echo "LynxCI: Grabbing latest blockchain bootstrap and verifying hashes."
-wget -qO - https://extract.getlynx.io/ | bash
-#
 echo "#!/bin/bash
 [Unit]
 Description=lynxd
@@ -277,17 +274,17 @@ echo "LynxCI: For safety, the wallet is disabled."
 
 echo "LynxCI: Generating unique RPC credentials."
 echo "# https://docs.getlynx.io/lynx-core/lynxci/rpc-best-practices" >> "$lynxConf"
-wget -O - -q https://raw.githubusercontent.com/getlynx/LynxCI/master/config/rpc.sh | bash >> "$lynxConf"
+wget -qO - https://raw.githubusercontent.com/getlynx/LynxCI/master/config/rpc.sh | bash >> "$lynxConf"
 sleep 2
 
 echo "LynxCI: Acquiring the latest seed node list."
 echo "# https://docs.getlynx.io/lynx-core/lynx-nodes" >> "$lynxConf"
-wget -O - -q https://raw.githubusercontent.com/getlynx/LynxCI/master/config/node.txt | sort -R >> "$lynxConf"
+wget -qO - https://raw.githubusercontent.com/getlynx/LynxCI/master/config/node.txt | sort -R >> "$lynxConf"
 sleep 2
 
 echo "LynxCI: Acquiring a default set of Lynx addresses for mining."
 echo "# https://docs.getlynx.io/lynx-core/lynxci/default-addresses" >> "$lynxConf"
-wget -O - -q https://raw.githubusercontent.com/getlynx/LynxCI/master/address-mainnet.txt | shuf -n 25 | while IFS= read -r j; do echo "mineraddress=$j"; done >> "$lynxConf"
+wget -qO - https://raw.githubusercontent.com/getlynx/LynxCI/master/address-mainnet.txt | shuf -n 25 | while IFS= read -r j; do echo "mineraddress=$j"; done >> "$lynxConf"
 
 [ -n "$tipsyid" ] && echo "tipsyid=$tipsyid" >> "$lynxConf"
 echo "$eof" >> "$lynxConf"
@@ -295,6 +292,9 @@ chmod 770 "$lynxConf"
 i=$((i+1))
 sleep 2
 done
+#
+echo "LynxCI: Grabbing latest blockchain bootstrap and verifying hashes."
+wget -qO - https://extract.getlynx.io/ | bash
 #
 echo "LynxCI: Lynx default configuration file, \"$lynxConf\" was created."
 [ -n "$tipsyid" ] && echo "LynxCI: Tipsy Miner registration added to Lynx configuration file."
