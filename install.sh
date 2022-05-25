@@ -151,6 +151,10 @@ fi
 # https://www.raspberrypi.org/documentation/computers/config_txt.html#avoid_warnings
 [ "$isPi" = "1" ] && { sed -i '/avoid_warnings/d' /boot/config.txt; echo "avoid_warnings=2" >> /boot/config.txt; }
 #
+mkdir -p "$dir"/.lynx/; chown $user:$user "$dir"/.lynx/
+echo "LynxCI: Grabbing latest blockchain bootstrap and verifying hashes."
+wget -qO - https://extract.getlynx.io/ | bash -s v8.0-mainnet
+#
 echo "#!/bin/bash
 [Unit]
 Description=lynxd
@@ -292,9 +296,6 @@ chmod 770 "$lynxConf"
 i=$((i+1))
 sleep 2
 done
-#
-echo "LynxCI: Grabbing latest blockchain bootstrap and verifying hashes."
-wget -qO - https://extract.getlynx.io/ | bash
 #
 echo "LynxCI: Lynx default configuration file, \"$lynxConf\" was created."
 [ -n "$tipsyid" ] && echo "LynxCI: Tipsy Miner registration added to Lynx configuration file."
