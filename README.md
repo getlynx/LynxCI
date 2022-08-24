@@ -8,7 +8,7 @@ If you want to get your Raspberry Pi up and running quick, the following ISO is 
 
 \>>> [Click here to get the latest ISO file for your Raspberry Pi Imager][3] <<<
 
-For complete details on the above ISO, please visit this [Medium article][9] for all the information you need.
+For complete details on the above ISO, please visit this [Article][9] for all the information you need.
 
 ## One line install script
 
@@ -37,5 +37,5 @@ A (relatively) current bootstrap file can be downloaded [here][14]. Any remainin
 [5]:	https://www.raspberrypi.org/software/
 [7]:	https://medium.com/lynx-blockchain
 [8]:	https://discord.getlynx.io/
-[9]:	https://medium.com/lynx-blockchain/intermediate-using-the-lynx-cryptocurrency-installer-lynxci-363b00784a34
+[9]:	https://docs.getlynx.io/lynx-core/lynxci/iso-for-raspberry-pi
 [14]:	https://github.com/getlynx/LynxBootstrap/releases
