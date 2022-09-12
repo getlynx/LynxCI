@@ -153,7 +153,7 @@ fi
 #
 mkdir -p "$dir"/.lynx/; chown $user:$user "$dir"/.lynx/
 echo "LynxCI: Grabbing latest blockchain bootstrap and verifying hashes."
-wget -qO - https://raw.githubusercontent.com/getlynx/LynxBootstrap/master/extract.sh | bash -s v12.0-mainnet
+wget -qO - https://raw.githubusercontent.com/getlynx/LynxBootstrap/master/extract.sh | bash
 #
 echo "#!/bin/bash
 [Unit]
