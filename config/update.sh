@@ -11,15 +11,15 @@ fi
 ##################################################################################################################
 # Pull down the lastest node list and replace the current nodes with the new ones.
 ##################################################################################################################
-file="https://raw.githubusercontent.com/getlynx/LynxCI/master/config/node.sh"
-local=$(md5sum /home/lynx/.lynx/.node.sh | head -c 32)
+file="https://raw.githubusercontent.com/getlynx/LynxCI/master/config/node.txt"
+local=$(md5sum /home/lynx/.lynx/.node.txt | head -c 32)
 remote=$(wget -O - $file | md5sum | head -c 32)
 if [ "$local" != "$remote" ]; then 
 	config="/home/lynx/.lynx/lynx.conf"
 	sed -i '/81a3e59444e4/d' $config
 	sed -i '/addnode=/d' $config
-	wget -O - $file > /home/lynx/.lynx/.node.sh
-	chown lynx:lynx /home/lynx/.lynx/.node.sh
+	wget -O - $file > /home/lynx/.lynx/.node.txt
+	chown lynx:lynx /home/lynx/.lynx/.node.txt
 	cat /home/lynx/.lynx/.node.sh >> $config
 	chmod 770 "$config"
 	chown lynx:lynx "$config"
