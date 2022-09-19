@@ -1,5 +1,5 @@
-addnode=node1.getlynx.io
-addnode=node2.getlynx.io
-addnode=node3.getlynx.io
-addnode=node4.getlynx.io
-addnode=node5.getlynx.io
+addnode=node1.getlynx.io # https://docs.getlynx.io/lynx-core/lynx-nodes
+addnode=node2.getlynx.io # https://docs.getlynx.io/lynx-core/lynx-nodes
+addnode=node3.getlynx.io # https://docs.getlynx.io/lynx-core/lynx-nodes
+addnode=node4.getlynx.io # https://docs.getlynx.io/lynx-core/lynx-nodes
+addnode=node5.getlynx.io # https://docs.getlynx.io/lynx-core/lynx-nodes
