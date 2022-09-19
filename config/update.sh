@@ -20,7 +20,7 @@ if [ "$local" != "$remote" ]; then
 	sed -i '/addnode=/d' $config
 	wget -O - $file > /home/lynx/.lynx/.node.txt
 	chown lynx:lynx /home/lynx/.lynx/.node.txt
-	cat /home/lynx/.lynx/.node.sh >> $config
+	cat /home/lynx/.lynx/.node.txt >> $config
 	chmod 770 "$config"
 	chown lynx:lynx "$config"
 	cp --remove-destination "$config" /home/lynx/.lynx/sample-lynx.conf
