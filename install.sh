@@ -482,9 +482,9 @@ echo "
 Description=Built-in LynxCI Updater Service
 [Service]
 Type=oneshot
-ExecStartPre=/usr/bin/mkdir -p /usr/local/bin/config/
+ExecStartPre=/bin/mkdir -p /usr/local/bin/config/
 ExecStartPre=/usr/bin/wget https://raw.githubusercontent.com/getlynx/LynxCI/master/config/update.sh -O /usr/local/bin/config/update.sh
-ExecStartPre=/usr/bin/chmod 744 /usr/local/bin/config/update.sh
+ExecStartPre=/bin/chmod 744 /usr/local/bin/config/update.sh
 ExecStart=/usr/local/bin/config/update.sh
 " > /etc/systemd/system/update.service
 
